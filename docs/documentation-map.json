@@ -207,7 +207,10 @@
     "docs/work-log/2026-11-16-worker-frontend-study-views.md",
     "docs/verification/frontend-cohesion.json",
     "docs/work-log/2026-11-16-root-refactor-integration.md",
-    "odd/tasks/refactor-integration.md"
+    "odd/tasks/refactor-integration.md",
+    "docs/verification/refactor-integration.json",
+    "docs/work-log/2026-11-16-test-refactor-integration.md",
+    "docs/work-log/2026-11-16-test-integration-e2e.md"
   ],
   "moves": [],
   "fixedPaths": [

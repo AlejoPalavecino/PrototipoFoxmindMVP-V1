@@ -313,17 +313,43 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
         await region.getByRole('button', { name: 'Devolución', exact: true }).click();
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Unsaved local text must not be released');
         assert.equal(await region.getByRole('button', { name: 'Publicar calificación', exact: true }).isDisabled(), true);
-        let reload = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'GET');
-        await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
-        let response = await reload;
-        if (response.status() === 429) {
-          assert.equal((await response.json()).error.code, 'RATE_LIMITED');
-          const retry = response.headers()['retry-after']; assert.match(retry ?? '', /^\d+$/);
-          const seconds = Number(retry); assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
-          console.log(`P8 publication visible reload honors actual Retry-After=${seconds}s once`); await delay(seconds * 1000);
-          reload = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'GET');
-          await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click(); response = await reload;
-        }
+        const gradingPath = `/api/v1${path}`, gradingRequests = [];
+        const captureReload = request => {
+          if (new URL(request.url()).pathname === gradingPath) gradingRequests.push(request.method());
+        };
+        const discard = teacher.getByRole('dialog', { name: 'Tenés cambios sin guardar', exact: true });
+        teacher.on('request', captureReload);
+        let response;
+        try {
+          await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
+          await discard.waitFor();
+          assert.deepEqual(gradingRequests, [], 'Opening discard confirmation must not fetch or save grading');
+          await discard.getByRole('button', { name: 'Volver a la corrección', exact: true }).click();
+          await expect(discard).toHaveCount(0);
+          await expect(region.getByLabel('Devolución general opcional', { exact: true })).toHaveValue('Unsaved local text must not be released');
+          await expect(region.getByRole('button', { name: 'Publicar calificación', exact: true })).toBeDisabled();
+          assert.deepEqual(gradingRequests, [], 'Cancelling reload preserves the local draft without GET or POST grading');
+          console.log(`P8 ${activity.type} reload cancellation preserves draft without grading requests`);
+          const confirmedReload = async () => {
+            await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
+            await discard.waitFor();
+            const reload = watchActionResponse(teacher, r => new URL(r.url()).pathname === gradingPath && r.request().method() === 'GET');
+            try {
+              await discard.getByRole('button', { name: 'Descartar cambios', exact: true }).click();
+              return await reload.value();
+            } finally { reload.dispose(); }
+          };
+          response = await confirmedReload();
+          if (response.status() === 429) {
+            assert.equal((await response.json()).error.code, 'RATE_LIMITED');
+            const retry = response.headers()['retry-after']; assert.match(retry ?? '', /^\d+$/);
+            const seconds = Number(retry); assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
+            console.log(`P8 publication visible reload honors actual Retry-After=${seconds}s once`); await delay(seconds * 1000);
+            response = await confirmedReload();
+          }
+          assert.ok(gradingRequests.length >= 1 && gradingRequests.every(method => method === 'GET'), 'Confirmed reload can only read grading, never save it');
+          console.log(`P8 ${activity.type} confirmed discard reload methods: ${gradingRequests.join(',')}`);
+        } finally { teacher.off('request', captureReload); }
         assert.equal(response.status(), 200); assert.equal((await response.json()).grade.finalGrade, expected);
         await teacher.waitForFunction(() => document.querySelector('textarea[aria-label="Devolución general opcional"]')?.value === 'Private general feedback');
         assert.equal(await region.getByRole('alert').count(), 0);

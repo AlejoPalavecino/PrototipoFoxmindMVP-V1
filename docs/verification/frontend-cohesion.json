@@ -313,5 +313,6 @@
     "Desktop classroom baseline dimension mismatch excluded from pixel equivalence.",
     "Browser is targeted functional/responsive QA, not full WCAG or cross-browser certification.",
     "Git integration with concurrent backend remains pending."
-  ]
+  ],
+  "scope": "Historical frontend source candidate; combined integration outcome is recorded in docs/verification/refactor-integration.json."
 }

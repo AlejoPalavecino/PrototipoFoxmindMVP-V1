@@ -28,4 +28,3 @@ export function QuestionEditor({ question, index, update, remove, fixedType = fa
     {remove ? <button type="button" onClick={remove}>Quitar pregunta</button> : null}
   </fieldset>;
 }
-

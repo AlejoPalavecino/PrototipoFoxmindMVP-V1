@@ -2,7 +2,7 @@
 
 Next Pages Router conserva las rutas y proxies `/api/v1`; el backend mantiene autorización y publicación. El frontend se organiza por dominio y caso de uso, con composición global separada. El [refactor aprobado](cohesion-refactor.md) se ejecuta en una rama propia; su [tablero](../../../odd/tasks/frontend-cohesion-refactor.md) distingue implementación y verificación. El [diseño UX/UI](../../design/README.md) conserva la experiencia vigente.
 
-Candidato verificado localmente en `codex/frontend-cohesion`, sin commits ni integración. El [recibo](../../verification/frontend-cohesion.json) distingue1.288 pruebas, revisión independiente, build, recorridos reales y límites.
+El candidato de origen `codex/frontend-cohesion` conserva su [recibo](../../verification/frontend-cohesion.json) de 1.288 pruebas y recorridos propios. La [integración con backend](../../verification/refactor-integration.json) tiene evidencia nueva del conjunto y registra su entrega local; los resultados originales no se atribuyen al combinado.
 
 ## Dónde ubicar un cambio
 

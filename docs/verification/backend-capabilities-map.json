@@ -6754,805 +6754,939 @@
       "source": "apps/api/src/modules/classrooms/infrastructure/context-run.test.ts",
       "target": "apps/api/src/modules/classrooms/access/infrastructure/context-run.test.ts",
       "baseBlob": "35f716b8ecd01c8a55a2f2c89dddbcc93b528777",
-      "currentSha256": "626606caca83afec1368a292dd84a80c29244409504b2e0623ced13b99bb87f3"
+      "currentSha256": "b1fee355074a5635779106e39a510389bb4865f5b41cb9d511d2df6c8375859e",
+      "snapshotRecordedCurrentSha256": "626606caca83afec1368a292dd84a80c29244409504b2e0623ced13b99bb87f3"
     },
     {
       "source": "apps/api/src/modules/curriculum/application/plan.test.ts",
       "target": "apps/api/src/modules/curriculum/plan/application/plan.test.ts",
       "baseBlob": "5c9668c88a7ed24b86c2c6296cd37618de4603b2",
-      "currentSha256": "d89341d62deac3c6e6738a29d39bd2f356107b9d79d020d38c5e6a98f1867c98"
+      "currentSha256": "bfae886a112801df3c28c9db736d9606e0c13bfa52993a7175184bb86fc02df6",
+      "snapshotRecordedCurrentSha256": "d89341d62deac3c6e6738a29d39bd2f356107b9d79d020d38c5e6a98f1867c98"
     },
     {
       "source": "apps/api/src/modules/files/application/file-use-cases.test.mjs",
       "target": "apps/api/src/modules/files/uploads/application/file-use-cases.test.mjs",
       "baseBlob": "05c5ba2c3bdf6e36b3529663e5cedd12244f2f07",
-      "currentSha256": "f8c35c5c2ad455506e080b027656947ac16aacad8ef10bcd5cee4e7c3d28d80f"
+      "currentSha256": "9ad11fe78f947a66f4fea694f3792598ebe0677e1de1e3cdfeb208cd56d476c5",
+      "snapshotRecordedCurrentSha256": "f8c35c5c2ad455506e080b027656947ac16aacad8ef10bcd5cee4e7c3d28d80f"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/chat-attachment-custody.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/chat-attachment-custody.test.mjs",
       "baseBlob": "7d2d813427ac5a7ac853a3013447810839e078db",
-      "currentSha256": "9578df141e3b1b605bf440cfccbfe91c4baffcf139f66299bfa4885598b9d32a"
+      "currentSha256": "93b6207bd2edf2413c8b4c20a9752c1274ddb33a3aa0a3950b40bdfe546b9e59",
+      "snapshotRecordedCurrentSha256": "9578df141e3b1b605bf440cfccbfe91c4baffcf139f66299bfa4885598b9d32a"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/chat-attachment-policy.test.mjs",
       "target": "apps/api/src/modules/files/chat-attachments/domain/policy.test.mjs",
       "baseBlob": "653f0af4e02636532ee5634a33c4ddb1620de67d",
-      "currentSha256": "cc53fd7cdb8948b9ebdde608d11661b09e812fd6fcc1ceded747f9ec488fffcb"
+      "currentSha256": "ec26a292ce6f174ff8f976d54543addd008c2dd775336e105c37b6746f77a8ad",
+      "snapshotRecordedCurrentSha256": "cc53fd7cdb8948b9ebdde608d11661b09e812fd6fcc1ceded747f9ec488fffcb"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/chat-attachment-transfer.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/chat-attachment-transfer.test.mjs",
       "baseBlob": "e40e6a2df61c7c07737d413230a6617c1551b766",
-      "currentSha256": "d37d95258b87bd352b1c72e83b7dea230e0173ffd24060b35f614275ee96fb35"
+      "currentSha256": "0604c711ae7df7c1a38daa847143c0291e11a65d9d9ebc609cead6c3b718287c",
+      "snapshotRecordedCurrentSha256": "d37d95258b87bd352b1c72e83b7dea230e0173ffd24060b35f614275ee96fb35"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-begin-transaction.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-begin-transaction.test.mjs",
       "baseBlob": "c823bb03a07816b7b42f1e8a65a3775497cf6666",
-      "currentSha256": "4ca32238f92cfa62480041106ae9059795478b55151d9cbf6d44208d30bfcc8f"
+      "currentSha256": "22c4199abe0a4c25bf888bde0121d0874819f13f540ced72336156d0c14843e4",
+      "snapshotRecordedCurrentSha256": "4ca32238f92cfa62480041106ae9059795478b55151d9cbf6d44208d30bfcc8f"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-document-reader.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-document-reader.test.mjs",
       "baseBlob": "f260ddcc02d9fa30bcf7ea5d420b8eb85601e2ac",
-      "currentSha256": "023bd869b711f1b19ce5533d29b43b846c8ff97ffddd7d094b9191ceb87688e5"
+      "currentSha256": "36573c19fff71eb1f5727cb262794a50bd95d15ab39cae56d0ea4b4cfa7d8765",
+      "snapshotRecordedCurrentSha256": "023bd869b711f1b19ce5533d29b43b846c8ff97ffddd7d094b9191ceb87688e5"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-durable-document-reader.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-durable-document-reader.test.mjs",
       "baseBlob": "e805b2f0037f415ff44999373a131a9747a4d8b6",
-      "currentSha256": "b307d85bdbff3685fbd203e35b12dea71274ba9746d90615202351d6ca84ab99"
+      "currentSha256": "3054a9ea12fa9863a303b9e26ba802c587ff037017c15fc8677d678670075b24",
+      "snapshotRecordedCurrentSha256": "b307d85bdbff3685fbd203e35b12dea71274ba9746d90615202351d6ca84ab99"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-private-asset-files.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-private-asset-files.test.mjs",
       "baseBlob": "7caf929424bbf01c442e77a317280924fc58f705",
-      "currentSha256": "64d1f8b494f35104b111eb1405c7885d9cf70aa8b9669886d8ddb9e97183b72e"
+      "currentSha256": "3a6c31c23964d016a488d321e020e159b1a93436a5d9f36e88f74433de456ca6",
+      "snapshotRecordedCurrentSha256": "64d1f8b494f35104b111eb1405c7885d9cf70aa8b9669886d8ddb9e97183b72e"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-private-image-inspector.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-private-image-inspector.test.mjs",
       "baseBlob": "445b695360d7761f8f2eec16a8a8775ed6a1995b",
-      "currentSha256": "aead7df5ce02b4238f1a8ba305fb0aa6892071a453075d72fdda81d5d6d25d51"
+      "currentSha256": "98a912cc483eb39eabbaee044e8a00f13a61ec7a146b784bcf191564ba2326e2",
+      "snapshotRecordedCurrentSha256": "aead7df5ce02b4238f1a8ba305fb0aa6892071a453075d72fdda81d5d6d25d51"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-publication-files.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-publication-files.test.mjs",
       "baseBlob": "8998f98a7d1bd48ebead2f824ed8bb3158e95d70",
-      "currentSha256": "0ca697c1cb69bbce9759995bbd1ff90d3505267d265a33dbb04da9eac0d84b34"
+      "currentSha256": "bdf5c8873772e013b1c4af83ca86c234793b5085b852075dca5e9fab48ce99bd",
+      "snapshotRecordedCurrentSha256": "0ca697c1cb69bbce9759995bbd1ff90d3505267d265a33dbb04da9eac0d84b34"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-s3-owned-send.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-s3-owned-send.test.mjs",
       "baseBlob": "4f385f641e6eec6b2cf0c937b102502d11e9e2b2",
-      "currentSha256": "509f56d36c6c21802a8aab12ad8c85d6277faa5699264af75355d3faa5d6d564"
+      "currentSha256": "b0343a7d76809b42f6721aec56a73e77fca42a3a9f5960af9eac2a701341d672",
+      "snapshotRecordedCurrentSha256": "509f56d36c6c21802a8aab12ad8c85d6277faa5699264af75355d3faa5d6d564"
     },
     {
       "source": "apps/api/src/modules/files/infrastructure/tests/foxy-storage-startup-close.test.mjs",
       "target": "apps/api/src/modules/files/custody/infrastructure/tests/foxy-storage-startup-close.test.mjs",
       "baseBlob": "7c3340b0b794d982516e6595859fb6682fa77b6b",
-      "currentSha256": "8345971e07e65ea3413e615ce02040c87e693578455cd13b460440b8ebf2b3ab"
+      "currentSha256": "3a8b06a0704dd1f4060a7a31297407efad4800a43830a6e4b911e133cfbbb663",
+      "snapshotRecordedCurrentSha256": "8345971e07e65ea3413e615ce02040c87e693578455cd13b460440b8ebf2b3ab"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-diagram-adapter.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-diagram-adapter.test.mjs",
       "baseBlob": "0bc1583fb4a636a3c178d915a997156d31e3f16f",
-      "currentSha256": "0cc1dafe6b5539d60b69751338543f8bb14f333d5347325fd1540b32577555fa"
+      "currentSha256": "bb3afc61677dbe173df05dafbc968e461e2f4f1fe5be0687a964d1462f33e40c",
+      "snapshotRecordedCurrentSha256": "0cc1dafe6b5539d60b69751338543f8bb14f333d5347325fd1540b32577555fa"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-factory.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-factory.test.mjs",
       "baseBlob": "7d3d76da057769b11ff0fdec17dbade249fcc0b6",
-      "currentSha256": "b126cfcb1b2b6fe03b6ea6b8e108f2b606a91b949c2ea4426b5674081bdd70ba"
+      "currentSha256": "77698a06dd4a83b03fbb868f2f6e4ccd08a9f6bfc7b97b6b733801ceac772f52",
+      "snapshotRecordedCurrentSha256": "b126cfcb1b2b6fe03b6ea6b8e108f2b606a91b949c2ea4426b5674081bdd70ba"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-adapter.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-adapter.test.mjs",
       "baseBlob": "7154417d0631e88ef8dd44b4dba92284434fa080",
-      "currentSha256": "bc5ae0bf011e515044e40f344cfff5f210bde7419065cfe2d205c36c8425e153"
+      "currentSha256": "1a575f968ad52091c50eef7f72cf32239063168dc5352e53fd8d4192376d0426",
+      "snapshotRecordedCurrentSha256": "bc5ae0bf011e515044e40f344cfff5f210bde7419065cfe2d205c36c8425e153"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-bounded-fetch.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-bounded-fetch.test.mjs",
       "baseBlob": "f38224060a70b665a0f5ee923b2acfaa480010ee",
-      "currentSha256": "eeb7931135f2011f31227be793d2c378b34fca466d5a2e430bc907f03618b36e"
+      "currentSha256": "42ce78730e6c62b71101c27faa330c6cb1ed4315c5da8676b6a5486c3847aeaf",
+      "snapshotRecordedCurrentSha256": "eeb7931135f2011f31227be793d2c378b34fca466d5a2e430bc907f03618b36e"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-budget.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-budget.test.mjs",
       "baseBlob": "e7500252ea17d2f38dbb8d787c379f24c8b0dc89",
-      "currentSha256": "5d36f584eff7fc26e25417823aa63863b75d97a46e38bd67376d85f45d1393e3"
+      "currentSha256": "d89dfd553c469362b90ad9d4d20a73d464d23f2b85772029ba8695ea034b476f",
+      "snapshotRecordedCurrentSha256": "5d36f584eff7fc26e25417823aa63863b75d97a46e38bd67376d85f45d1393e3"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-diagnostic.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-diagnostic.test.mjs",
       "baseBlob": "ad44e035ecdcc3fce8232f1ebd330405ee95d0ca",
-      "currentSha256": "897ff3ed5ff82ac53f5c5391d71e1c99ddc98969ea8e5be8d8784c40f0add2fe"
+      "currentSha256": "7b53a77506b4a5c5ff701745ba816e91f4bb6c4b7847430dd4a71dab9f4eb79f",
+      "snapshotRecordedCurrentSha256": "897ff3ed5ff82ac53f5c5391d71e1c99ddc98969ea8e5be8d8784c40f0add2fe"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-response.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-response.test.mjs",
       "baseBlob": "c6bbc3303157a0e2fc0f82108deee7a639259444",
-      "currentSha256": "ae1a6a9fba58f83e5089273adf0c709acc3c77919b91fa86dcc0c760054e5678"
+      "currentSha256": "8db7cfd60b674c4a93c1cad596c6db4faf95c0e7e312fab84b1ffbb0971ac051",
+      "snapshotRecordedCurrentSha256": "ae1a6a9fba58f83e5089273adf0c709acc3c77919b91fa86dcc0c760054e5678"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-signature.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/providers/tests/foxy-image-signature.test.mjs",
       "baseBlob": "2fe3ff097f140c64a78278ce68532138d87c0b1a",
-      "currentSha256": "301cbdf183ee62262304fca97bdaf437c7b4eca1915febc3f327ea392d7ddda9"
+      "currentSha256": "0487d01bf583dff1a4a861d7e6ebef0dd1dbb65154676c33478f3ad1a93ba63f",
+      "snapshotRecordedCurrentSha256": "301cbdf183ee62262304fca97bdaf437c7b4eca1915febc3f327ea392d7ddda9"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-text-adapter.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/providers/tests/foxy-text-adapter.test.mjs",
       "baseBlob": "31cd4f71600838ec66a65f2fb2c66a4ddcf1c35e",
-      "currentSha256": "77e28436d73fc699f23b586cafe66ccb62e3d77f476050eb7ebc27af578f04a7"
+      "currentSha256": "e1f58731354cb8392c029037e2db4fde46e031b0346ec26d3ab609f403e1c67d",
+      "snapshotRecordedCurrentSha256": "77e28436d73fc699f23b586cafe66ccb62e3d77f476050eb7ebc27af578f04a7"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-text-budget.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/providers/tests/foxy-text-budget.test.mjs",
       "baseBlob": "189fd8aca34eef26ec9ca81ae0b6a00007e1b763",
-      "currentSha256": "76fb0d269be83f82fe5e1ab84e4cf292a55cc268bdaf26f7ff59c37adb3d1ccf"
+      "currentSha256": "20db12c5a29f8fd6e668ccb6c47c7d5a8964cb1490796171a66092df5a608b8f",
+      "snapshotRecordedCurrentSha256": "76fb0d269be83f82fe5e1ab84e4cf292a55cc268bdaf26f7ff59c37adb3d1ccf"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-application-text.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-application-text.test.mjs",
       "baseBlob": "47b8763222c149203549581858c46b7e4d557d8e",
-      "currentSha256": "c23925a26d00b06b3a56ba4e7f3c0dffb192f1fc8f1aecb59c688d5b1588aaf2"
+      "currentSha256": "44c27e870cfcc7b37bd7d822691e13bb59c6e24b4e2298629909d6cab6e2e8eb",
+      "snapshotRecordedCurrentSha256": "c23925a26d00b06b3a56ba4e7f3c0dffb192f1fc8f1aecb59c688d5b1588aaf2"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-application.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-application.test.mjs",
       "baseBlob": "a16bc548cb248dbf575c65b4b65fbc5a2b125dc2",
-      "currentSha256": "4f57b6da166331d20773488086969210f8a890ac0760415a129c7e565d4d11b5"
+      "currentSha256": "07690db98d94b15ecbd72d04e2c964cffc3034834b68a1da61188ee4b7d29680",
+      "snapshotRecordedCurrentSha256": "4f57b6da166331d20773488086969210f8a890ac0760415a129c7e565d4d11b5"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-browser-live-guard.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-browser-live-guard.test.mjs",
       "baseBlob": "0a2aae88fc130ba1f5cbac3bf34917250b38447d",
-      "currentSha256": "162cd33f14d7f4e88fae43eaa4a6881a78fde0c566f470c8a52ce90434f2b7f0"
+      "currentSha256": "01719e55cf67bc8e50186de709889b09f001732380e25c89678727d265226754",
+      "snapshotRecordedCurrentSha256": "162cd33f14d7f4e88fae43eaa4a6881a78fde0c566f470c8a52ce90434f2b7f0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-citation-file.test.mjs",
       "target": "apps/api/src/modules/foxy/citations/infrastructure/tests/foxy-citation-file.test.mjs",
       "baseBlob": "54c55c6ebcd2c470b3c9d8ac4d88e6f79107ec4d",
-      "currentSha256": "75e01dd47d456a34a12e06e38862b0fef5ef40c028ca7ddf18708e6020ff9f5c"
+      "currentSha256": "d684ea05b278b53c78a483b0944e55db96ba9d46340d34b52ec91e6d7d692717",
+      "snapshotRecordedCurrentSha256": "75e01dd47d456a34a12e06e38862b0fef5ef40c028ca7ddf18708e6020ff9f5c"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-citation-mapping.test.mjs",
       "target": "apps/api/src/modules/foxy/citations/infrastructure/tests/foxy-citation-mapping.test.mjs",
       "baseBlob": "b920ed0417f4d62dbf4ed690003ae4d0ec45e39c",
-      "currentSha256": "cb867955dde27ba6238e8d45cf00f84626cbb71c67da2ab32e92c221aafd5d45"
+      "currentSha256": "d712a774cc9b88cba96f96c23b6033642e9260aea5d0dc87e06308ddab9eb2a3",
+      "snapshotRecordedCurrentSha256": "cb867955dde27ba6238e8d45cf00f84626cbb71c67da2ab32e92c221aafd5d45"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-citation-service.test.mjs",
       "target": "apps/api/src/modules/foxy/citations/infrastructure/tests/foxy-citation-service.test.mjs",
       "baseBlob": "d8f94920c9833bed3b148aceeb111850a795e0b4",
-      "currentSha256": "6369c5ed405e3dfc00e711014f9007f854b19fd2ee01c9f33c4135d396330c28"
+      "currentSha256": "3f34048b8e50a0484307a0e22a38885bcc8213c73958a20e70d1260615a76b1e",
+      "snapshotRecordedCurrentSha256": "6369c5ed405e3dfc00e711014f9007f854b19fd2ee01c9f33c4135d396330c28"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-claim-authority.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-claim-authority.test.mjs",
       "baseBlob": "6f352121b72a6512ccaf87c825a31278e0f7255f",
-      "currentSha256": "b799779881f6c68a4674907351c279163b08f027524502f3e8060c21ed63de2f"
+      "currentSha256": "6f1ba5edf1a2d0907d84755dc53481a51522673eaf5db965c31355346d7572e5",
+      "snapshotRecordedCurrentSha256": "b799779881f6c68a4674907351c279163b08f027524502f3e8060c21ed63de2f"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-cleanup-runtime.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-cleanup-runtime.test.mjs",
       "baseBlob": "11f1391453551702c9e7eec95b8b0fb2b435dca2",
-      "currentSha256": "cf33e1564fc651cbf586e7eceacb266e3408b3948ab019bf9572a46fb545ffe4"
+      "currentSha256": "aa1b826ad5fd0df3d97df2ded268b38233fe66dfc0cd035cc77e674d493a050d",
+      "snapshotRecordedCurrentSha256": "cf33e1564fc651cbf586e7eceacb266e3408b3948ab019bf9572a46fb545ffe4"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-context-catalog.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-context-catalog.test.mjs",
       "baseBlob": "6d48ff00feef96966a17c82ee15fa91c8311138b",
-      "currentSha256": "ddf1b3e52702819d4a773691646284fda525484fdad9c491de3407ebe0cc041c"
+      "currentSha256": "ee6a97e92a51d71539f454e7a95f316a054d59e72440b4de03e6e82c4b693d7a",
+      "snapshotRecordedCurrentSha256": "ddf1b3e52702819d4a773691646284fda525484fdad9c491de3407ebe0cc041c"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-context-sources.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-context-sources.test.mjs",
       "baseBlob": "e047aa5f28186f112fce40b6f2ac91f38b9547e4",
-      "currentSha256": "ed6f2f7193ae64dba7d7399f81f2ed859fe7671b559e98bb10a28e441c896d56"
+      "currentSha256": "276e6379de21faf2aa164c9e7ad385964aab3e94400a0de3d060ef7b6f971914",
+      "snapshotRecordedCurrentSha256": "ed6f2f7193ae64dba7d7399f81f2ed859fe7671b559e98bb10a28e441c896d56"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-conversation-repository.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-conversation-repository.test.mjs",
       "baseBlob": "36568ec83cd7d5885c01b88c7ad546a33d9f54f4",
-      "currentSha256": "dfd08fbb4562e23f02e6a803a4da5d0cfff8a953a2c9d9fd59c237ecd36fb3e1"
+      "currentSha256": "99554630799a3ba3e00580a4c1c509a8c5db9e3d1e67e5143f58943b66487973",
+      "snapshotRecordedCurrentSha256": "dfd08fbb4562e23f02e6a803a4da5d0cfff8a953a2c9d9fd59c237ecd36fb3e1"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-conversation-service.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-conversation-service.test.mjs",
       "baseBlob": "e1fc4ff37b98522ed4622c9c37e5abde0db5c255",
-      "currentSha256": "699249f3eeef94cc7d5659ae0c806b03249c6c9932f748b0d45eeddef0320f6c"
+      "currentSha256": "ca9d28847bf3aac375de141a843b2182d5e5089f95a15785d59e1b4a0a28be66",
+      "snapshotRecordedCurrentSha256": "699249f3eeef94cc7d5659ae0c806b03249c6c9932f748b0d45eeddef0320f6c"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-creation-catalog.test.mjs",
       "target": "apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-creation-catalog.test.mjs",
       "baseBlob": "4934ff266fefba487ed7ba74708e1eac4b42e3a3",
-      "currentSha256": "1d6f47682aba593fb43a35b1fdc367edbe67260346fb01f14e4baabca2b06fd8"
+      "currentSha256": "60df2af6fb68132145c4735dc3421dc4065dfd2d0a718c476197f9dec90e2999",
+      "snapshotRecordedCurrentSha256": "1d6f47682aba593fb43a35b1fdc367edbe67260346fb01f14e4baabca2b06fd8"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-diagram-long-layout.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-diagram-long-layout.test.mjs",
       "baseBlob": "144dd669c9f152b3518ed181662bd4f5e2b4a77f",
-      "currentSha256": "bd242af2d2e09f0e17a96f22dded7707c400e7f0cd0c7facd2633790ceb87f5b"
+      "currentSha256": "60c612ca6d84e1a28e4ec59a5e5dff845fabf91d2deb8ffc4f24416612befaaa",
+      "snapshotRecordedCurrentSha256": "bd242af2d2e09f0e17a96f22dded7707c400e7f0cd0c7facd2633790ceb87f5b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-diagram-renderer.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-diagram-renderer.test.mjs",
       "baseBlob": "e8237a56613b6125d9afdad22803d383bd11712b",
-      "currentSha256": "bb16aca930e7604c68cb21c90e4855c61e5c4ffd5ef79900727c0749c083b783"
+      "currentSha256": "3c599c0cd41359b8fd9def4fdbfbbe04beb836f19bcab5fdd30ccd5e54bd42c8",
+      "snapshotRecordedCurrentSha256": "bb16aca930e7604c68cb21c90e4855c61e5c4ffd5ef79900727c0749c083b783"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-durable-grounding.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-durable-grounding.test.mjs",
       "baseBlob": "18f6278ff80d0a29e0e7a0be6ac1d324e8b813ec",
-      "currentSha256": "f21bad544b14154f8ace81a804929f371db1d93b57713fefccbc6ba68be2f2aa"
+      "currentSha256": "a55428dd18ed2fb1ebb31184216f3c42cfd25182b44502c7ba1fae8ac2cf2283",
+      "snapshotRecordedCurrentSha256": "f21bad544b14154f8ace81a804929f371db1d93b57713fefccbc6ba68be2f2aa"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-durable-loader.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-durable-loader.test.mjs",
       "baseBlob": "e648b1964dbbba1bae023c1f8739162ed04de5bd",
-      "currentSha256": "0a5f18cec6edf5fddcfbfed19368cacbf01e38dae7a4df9fca3b3dde6faed176"
+      "currentSha256": "1b04f637e047cf9bb31bfa0ac85598d2a1079cbaa8e486e56691cbb43e2353d3",
+      "snapshotRecordedCurrentSha256": "0a5f18cec6edf5fddcfbfed19368cacbf01e38dae7a4df9fca3b3dde6faed176"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-full-classroom.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-full-classroom.test.mjs",
       "baseBlob": "0b15db3caee86005585b31ca84c403764923274d",
-      "currentSha256": "c783b33129987d743711760783a8472764ca16dcd8b9d5c254cc75b893d6e9a1"
+      "currentSha256": "03e1c0b3dcfd47ac1ff699c4d54cf31c86c4b02ab3b9ed3c0eaedca63711f2d6",
+      "snapshotRecordedCurrentSha256": "c783b33129987d743711760783a8472764ca16dcd8b9d5c254cc75b893d6e9a1"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-grounding-loader.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-grounding-loader.test.mjs",
       "baseBlob": "32842f620d188e233bbea75102c31bdd2ea78d40",
-      "currentSha256": "4f34cda6f221b0e091322ef706c3c9dc46d8a7c7a6627c7df3798f17938705f6"
+      "currentSha256": "4b7e53d2a2dd05d474d6c0145d661cb4a2ea260322fb809ec20a6ecec7b2daa4",
+      "snapshotRecordedCurrentSha256": "4f34cda6f221b0e091322ef706c3c9dc46d8a7c7a6627c7df3798f17938705f6"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-grounding-snapshot.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-grounding-snapshot.test.mjs",
       "baseBlob": "6a2075b6afa776c0bdc9f33f19e7c29dc8585081",
-      "currentSha256": "91b49048e1962d8d9ce308dc68fdd252a509983dd9a6576569ccb4436e31bcf2"
+      "currentSha256": "53e67d872206810684a06ccddc32a54553675164d82a70b463d9da942866156f",
+      "snapshotRecordedCurrentSha256": "91b49048e1962d8d9ce308dc68fdd252a509983dd9a6576569ccb4436e31bcf2"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-grounding.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-grounding.test.mjs",
       "baseBlob": "c760c1484fc7a7fcc3cef7ac87630c254946f87e",
-      "currentSha256": "f7a9748945d7f486de35360a32f4cec46e23082af71505b00c3c93d3529c1730"
+      "currentSha256": "4f69e93a513e4ae633040075c40103d5f23f79721b6c4a946f8c980bbb41126f",
+      "snapshotRecordedCurrentSha256": "f7a9748945d7f486de35360a32f4cec46e23082af71505b00c3c93d3529c1730"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-history-preflight.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-history-preflight.test.mjs",
       "baseBlob": "575fddf634d2fc49da85c471f8dd4c917dbf92d5",
-      "currentSha256": "e9d92b1c413ccade3d835b83f8afbd18b4eef12d348f397701c4d68ebd2d6ecb"
+      "currentSha256": "64670f80179ae56529440eaacd5a21a9214cbf7e241c42988a0c50da9e4e96d4",
+      "snapshotRecordedCurrentSha256": "e9d92b1c413ccade3d835b83f8afbd18b4eef12d348f397701c4d68ebd2d6ecb"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-history.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-history.test.mjs",
       "baseBlob": "341854cb0fd769c937c0b2886fe7f91c4e5a7980",
-      "currentSha256": "cccfc11b9f58e9b1f5520a3234d2592bfc3bcd54d38632c3bd761c562d56ba61"
+      "currentSha256": "29bec7d324aa97c0d5d6f7698f1b9fd1e3b5bd91c6ec8bdae2cef639fd77a50e",
+      "snapshotRecordedCurrentSha256": "cccfc11b9f58e9b1f5520a3234d2592bfc3bcd54d38632c3bd761c562d56ba61"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-host.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-host.test.mjs",
       "baseBlob": "b68e3afd47a7e0b9e4f774007354021a2be0968b",
-      "currentSha256": "16081baf7c20b1e08edbd9381414e629bce59d8a3eed956365d542f12ee7f2a6"
+      "currentSha256": "5f4c9d6276719ffb7c893cc0456677af8c8e1b413384476c4e1117cf58cfdd2a",
+      "snapshotRecordedCurrentSha256": "16081baf7c20b1e08edbd9381414e629bce59d8a3eed956365d542f12ee7f2a6"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-http.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-http.test.mjs",
       "baseBlob": "5818f84e1d3dd900cac9477743a3aa768a6e29e7",
-      "currentSha256": "7cc67339ae0a8839f25940ac098e47d34864476e320a934c5e2e832025c1de4f"
+      "currentSha256": "70ae92001329cdf1aed06c1da94b919e34baae3d1b1d55cf74c8cc7907480955",
+      "snapshotRecordedCurrentSha256": "7cc67339ae0a8839f25940ac098e47d34864476e320a934c5e2e832025c1de4f"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-live-journey-guard.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-live-journey-guard.test.mjs",
       "baseBlob": "65f440b27cf7e3e13d546b89f6fbfb24dad64393",
-      "currentSha256": "dd1286c5932fbc21c15dca852f8013456281ed1d88cfe99a6221b5b1cbfa5a96"
+      "currentSha256": "c4fb6d1e5ba8aa961b502be95be5e51633341a35fbf47152a03722860004d72c",
+      "snapshotRecordedCurrentSha256": "dd1286c5932fbc21c15dca852f8013456281ed1d88cfe99a6221b5b1cbfa5a96"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-management-contract.test.ts",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-management-contract.test.ts",
       "baseBlob": "59268c23c3caab6120909668aee548f84a786f14",
-      "currentSha256": "93320873817783e005bfb821d0d29c1bd3e0b914df5cadbaa6294710baf7868a"
+      "currentSha256": "2b06e1b129cd50d65ba0e11a3537a07a83310a09600cefceb0cb52672e7fa8a8",
+      "snapshotRecordedCurrentSha256": "93320873817783e005bfb821d0d29c1bd3e0b914df5cadbaa6294710baf7868a"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-management-host.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-management-host.test.mjs",
       "baseBlob": "cf64786bd19a1548c5cf5a9b70d4911a534c58e3",
-      "currentSha256": "fe87de4f60c3f623004a83eabaf7e892727a30493f048e0adadef2f5e42bbdec"
+      "currentSha256": "d4507096413b86835b776d3b481e49573340ece63fa15c86496d637f38e8399f",
+      "snapshotRecordedCurrentSha256": "fe87de4f60c3f623004a83eabaf7e892727a30493f048e0adadef2f5e42bbdec"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-management-http.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-management-http.test.mjs",
       "baseBlob": "c7f9a61a757c2f24d7a0dad76c5495587e2a6126",
-      "currentSha256": "77658407d6450aedefe99f1a36234e03cbadce9e11f5bf23bf368a53ff45d17f"
+      "currentSha256": "f91dcdced3e52606b497fc823713ca9d636fc7edeaec9451f6c47d9c298421dd",
+      "snapshotRecordedCurrentSha256": "77658407d6450aedefe99f1a36234e03cbadce9e11f5bf23bf368a53ff45d17f"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-management-prisma.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-management-prisma.test.mjs",
       "baseBlob": "cac0f0d4af1acbd9816bc5c34a68342fc9212a86",
-      "currentSha256": "d46b3ad2404f659e796667b1ab3ab7c5a222040ccea1b72382c183f693864075"
+      "currentSha256": "690adbd7231331b0c81ccc1ff0a61ef37035bfe3576caeec457b673954ffb940",
+      "snapshotRecordedCurrentSha256": "d46b3ad2404f659e796667b1ab3ab7c5a222040ccea1b72382c183f693864075"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-pdf-worker.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-pdf-worker.test.mjs",
       "baseBlob": "461bb4fa01a6c022a9affc625f8cde89989cb706",
-      "currentSha256": "b46dd71b312df95f53787f032bebfa8839543ecb9a803e180aa775cc32ff0c57"
+      "currentSha256": "5433c8a74e0bfe2222ada50b11ceb71e814847af0064b6569dd2b056160569c9",
+      "snapshotRecordedCurrentSha256": "b46dd71b312df95f53787f032bebfa8839543ecb9a803e180aa775cc32ff0c57"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-private-asset-completion-lease.test.mjs",
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-asset-completion-lease.test.mjs",
       "baseBlob": "59a2a72f5fd3020645b8ca38d74581d6cf34a69f",
-      "currentSha256": "e0d0de75dc409c4dc576756416c10e3a5423b932a9730c14dd42da913eaa047b"
+      "currentSha256": "19f55066151bdafcba7611a87442077eef719e99f0ce3a8e766b5f0ff023d062",
+      "snapshotRecordedCurrentSha256": "e0d0de75dc409c4dc576756416c10e3a5423b932a9730c14dd42da913eaa047b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-private-asset-discard.test.mjs",
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-asset-discard.test.mjs",
       "baseBlob": "fb682b6053b2871e186f90788c6d260f811371fb",
-      "currentSha256": "6321730a72e791ed7733fc21c4743bfa4d11e9ac8184a9d05ff7350e0e58e4a8"
+      "currentSha256": "45e2cb52ec09bd203500d1f22b06a85c240154bdc559d03c5a5e29f0932bc049",
+      "snapshotRecordedCurrentSha256": "6321730a72e791ed7733fc21c4743bfa4d11e9ac8184a9d05ff7350e0e58e4a8"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-private-asset-http.test.mjs",
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-asset-http.test.mjs",
       "baseBlob": "7fdd397871428afdf18c4ea9fe51b651c8e65f0b",
-      "currentSha256": "30039c3224e2c2173ec01455a4ca96035ba7c5df77f3965c33934f7fa5492d70"
+      "currentSha256": "6778f3346d2cbaa918762eb556d543cc502ab5d0657f0330d8c34de73ffa07a7",
+      "snapshotRecordedCurrentSha256": "30039c3224e2c2173ec01455a4ca96035ba7c5df77f3965c33934f7fa5492d70"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-private-asset-reader.test.mjs",
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-asset-reader.test.mjs",
       "baseBlob": "e175ffdd300edeef096b830dc8c8ba1477fd7c69",
-      "currentSha256": "309eb0e7293627a66151cd82fa0df493f3a8a62c9cec3407f68b1daab3c2e830"
+      "currentSha256": "ac80222c86cf1915ab8dcd6a8fa931beb478d8937fc0bcd901b64b5893f10688",
+      "snapshotRecordedCurrentSha256": "309eb0e7293627a66151cd82fa0df493f3a8a62c9cec3407f68b1daab3c2e830"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-private-asset-repository.test.mjs",
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-asset-repository.test.mjs",
       "baseBlob": "c84aedbc64808d411d512df3e37dc299665fa2b7",
-      "currentSha256": "fa90a0cbe9c757b8ac846659273188e1c9e47fc19a90edf3949c90f81860aeea"
+      "currentSha256": "762c2698f31f486819352164787e0cbdf545fdfeab5102cbf209c540071d6779",
+      "snapshotRecordedCurrentSha256": "fa90a0cbe9c757b8ac846659273188e1c9e47fc19a90edf3949c90f81860aeea"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-provider-composition.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-provider-composition.test.mjs",
       "baseBlob": "52ca23df68a9c5c3644efbe70bae6541e196b90f",
-      "currentSha256": "95f4c410c01c89700f55cca4f775e1ed673c5ec42a8d30bf4c96984929aac245"
+      "currentSha256": "3b4fddd03424c770253999a392b8b7a9447be97361ccebe59883798a981ac024",
+      "snapshotRecordedCurrentSha256": "95f4c410c01c89700f55cca4f775e1ed673c5ec42a8d30bf4c96984929aac245"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-provider-input.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-provider-input.test.mjs",
       "baseBlob": "d4283513ba1ad36efb8bc2ef996c091aea0ca131",
-      "currentSha256": "1d3359aa522727424ab0bf4131f8e2ff9eee24929a5727bc68cd0584e119c53c"
+      "currentSha256": "62351b31224518a328f89a97a0670d258980cc2c06c662718c2043f6c22bf522",
+      "snapshotRecordedCurrentSha256": "1d3359aa522727424ab0bf4131f8e2ff9eee24929a5727bc68cd0584e119c53c"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-allocator.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-allocator.test.mjs",
       "baseBlob": "fa2f5cce520739470b49ee0af241644c07e6641f",
-      "currentSha256": "c042085830637150620a417c3f05dc33c68fc8daf3d84025efb25b6332dcdbe0"
+      "currentSha256": "89344d063a3c53f29d1a15ce02c1f0e9ba90b237202dbef5e8b1ff1bf8925421",
+      "snapshotRecordedCurrentSha256": "c042085830637150620a417c3f05dc33c68fc8daf3d84025efb25b6332dcdbe0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-authority.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-authority.test.mjs",
       "baseBlob": "fcb3aa2ad423cc24621057ac415adb616a21de36",
-      "currentSha256": "ccab52854c3c9dbf3491abd2fb198c0f39d51e311e1b92fae301e4abfee54c5c"
+      "currentSha256": "440b6f379fe22ec127f7de8c43d95da21356eae9e05a26c86d36dbb0aee4915c",
+      "snapshotRecordedCurrentSha256": "ccab52854c3c9dbf3491abd2fb198c0f39d51e311e1b92fae301e4abfee54c5c"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-cleanup-lifecycle.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-cleanup-lifecycle.test.mjs",
       "baseBlob": "964c5061961d98fa883e49a996cf2cd42566b1e0",
-      "currentSha256": "be0f1835a133d21dc87adcd3bb70c9190b55aba358e84114dc53eaba985a73ae"
+      "currentSha256": "e84ae3134377956b5938bb9a054b7fa006c734b3e28955806812031108103c9f",
+      "snapshotRecordedCurrentSha256": "be0f1835a133d21dc87adcd3bb70c9190b55aba358e84114dc53eaba985a73ae"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-cleanup.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-cleanup.test.mjs",
       "baseBlob": "3d7ad704041d829642c2a33ae8c70b5c882639b0",
-      "currentSha256": "413a8e9ce2d9df5ddf0255f2da869c86ea3dc2bc29664cf8487f8541b20b6ad9"
+      "currentSha256": "8e7e1484753e726304ce519e9eb427a6cf9330ae4654081f6b6de97e3eaf5c5f",
+      "snapshotRecordedCurrentSha256": "413a8e9ce2d9df5ddf0255f2da869c86ea3dc2bc29664cf8487f8541b20b6ad9"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-completion.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-completion.test.mjs",
       "baseBlob": "864f1116efd0486703efac7482348c41fc2f93f5",
-      "currentSha256": "f17d9dbd612fe5658bf5735b7622e07f8edabaa1cbe1088e2f72bb46602539d0"
+      "currentSha256": "dfbebe496c10e319d26b4d2ba06bd5b75f540e5a1e1f60848e44f60790b4b176",
+      "snapshotRecordedCurrentSha256": "f17d9dbd612fe5658bf5735b7622e07f8edabaa1cbe1088e2f72bb46602539d0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-confirmation.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-confirmation.test.mjs",
       "baseBlob": "7c400dd654db2b00dab8ab17eb05987ee5292384",
-      "currentSha256": "f4dfbe5581ce634107914f2fd0b027b6263e523b0b35d4fc477ffc83692b2a2d"
+      "currentSha256": "4aa5ccb08fdeae1f33c9a2b18f9165c39ae012d5321d9facc5916d7de235871c",
+      "snapshotRecordedCurrentSha256": "f4dfbe5581ce634107914f2fd0b027b6263e523b0b35d4fc477ffc83692b2a2d"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-deduplication.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-deduplication.test.mjs",
       "baseBlob": "478766ce9e26697c72e74f3835d7b0b4ac6c932e",
-      "currentSha256": "5f8668afa7ffdbeba41a1d28e360b55a286b43035c2466e63f13835371b7882b"
+      "currentSha256": "199c3bd61fd898edf81429c03ab5d6ca0f75bcf9f4bc093d8e13bc5df601500e",
+      "snapshotRecordedCurrentSha256": "5f8668afa7ffdbeba41a1d28e360b55a286b43035c2466e63f13835371b7882b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-discard.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-discard.test.mjs",
       "baseBlob": "eafeeacb87ddacab94a11be8707486ba89bd8942",
-      "currentSha256": "b05d94b63dc0778512d3bf08bfff474c59b04b2e1f0de269d52b8403079aa2ce"
+      "currentSha256": "2d2da9914fa55c2dc12e88d22e7b5f401b43de5a56f4fd14579d2a98f761953d",
+      "snapshotRecordedCurrentSha256": "b05d94b63dc0778512d3bf08bfff474c59b04b2e1f0de269d52b8403079aa2ce"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-file.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-file.test.mjs",
       "baseBlob": "14130bd74337bdd850252712ecf3b45209d2062f",
-      "currentSha256": "c68eadb18a4d972726f8298254e305693c3e7fca9dd1cb06757522eceacc3ea0"
+      "currentSha256": "459f6ce35883b29926f5811bd6d9535bf46e0fe9263f78489a1d40c0d3e39502",
+      "snapshotRecordedCurrentSha256": "c68eadb18a4d972726f8298254e305693c3e7fca9dd1cb06757522eceacc3ea0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-http.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-http.test.mjs",
       "baseBlob": "6f89d66741f5258a58ed508626626b51b5f13609",
-      "currentSha256": "270f3f4d21454191bd8b2fb948e51007d8673e37e363a33538b82d98a881781b"
+      "currentSha256": "bb0302451b092c44d0bad99834e7734c9a3f6ab695536dc8e06194a75b04ff7f",
+      "snapshotRecordedCurrentSha256": "270f3f4d21454191bd8b2fb948e51007d8673e37e363a33538b82d98a881781b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-management-inspect.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-management-inspect.test.mjs",
       "baseBlob": "69cf9b0b2d95da7c2d18b51d544f016bff3f73a6",
-      "currentSha256": "3fe2d8ef427fa2be82d4be0ccdb04eda7d511742312e41ece4bce558c52938ec"
+      "currentSha256": "3a6b855f59666cc283ceb98b352ec9341da7a852c1c4a255b8e8f2915bfa604d",
+      "snapshotRecordedCurrentSha256": "3fe2d8ef427fa2be82d4be0ccdb04eda7d511742312e41ece4bce558c52938ec"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-management-service.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-management-service.test.mjs",
       "baseBlob": "41a2a75663b0ba9e16db6d64850eb4fe32df028f",
-      "currentSha256": "5771c7296e3e45af58c12ee380e7dd4b709da842e9d49f64d78717d179ef65a6"
+      "currentSha256": "c7419becd0028c89bc9c6c6af3eed134358477ceb80d82621532b5271a8e5ee1",
+      "snapshotRecordedCurrentSha256": "5771c7296e3e45af58c12ee380e7dd4b709da842e9d49f64d78717d179ef65a6"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-management.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-management.test.mjs",
       "baseBlob": "3c22791bb6e132a14c872629a48b6cf1dbbaca39",
-      "currentSha256": "96da8c0c426ef185aeabc3ac9fe665220b308cf4e23383e207c602a0f36f3a83"
+      "currentSha256": "d2a60c9655f60399abaa38a142caca87a3cd87209ad07f7597d9a89c4bc3a6ef",
+      "snapshotRecordedCurrentSha256": "96da8c0c426ef185aeabc3ac9fe665220b308cf4e23383e207c602a0f36f3a83"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-queue.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-queue.test.mjs",
       "baseBlob": "01e492a987afa906aa1cce216ecf3d87f6df062c",
-      "currentSha256": "24fb324499df5b2907d8557952c1b182707e84d2cf0a0d5d686811aed381d784"
+      "currentSha256": "57fb6327e221e3965ba22bf5e02f58e080d2f2f3be1de758ce348c5128bd71ea",
+      "snapshotRecordedCurrentSha256": "24fb324499df5b2907d8557952c1b182707e84d2cf0a0d5d686811aed381d784"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-repository.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-repository.test.mjs",
       "baseBlob": "d28287a7f0135e1c82b7d414eb2ce58160f5cb05",
-      "currentSha256": "cdb2cbd1e66e3be0b18f2593940f234da66a12bf8e507f319b89559c611afcb0"
+      "currentSha256": "a56edf133fa6b927b913553bd9a8b9ec107090b4d04977fa71bc12dc76be9270",
+      "snapshotRecordedCurrentSha256": "cdb2cbd1e66e3be0b18f2593940f234da66a12bf8e507f319b89559c611afcb0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-retry.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-retry.test.mjs",
       "baseBlob": "e8586c978d3a4356681acedb3ac31e6855e5d761",
-      "currentSha256": "db7a0117ec185dd3d739e320920c0e0219be1ac031468357e5af978864c2240e"
+      "currentSha256": "4e2697c353071d00fd1896d947c8fe807db81c86cc76f8ba138ac511b04e63a1",
+      "snapshotRecordedCurrentSha256": "db7a0117ec185dd3d739e320920c0e0219be1ac031468357e5af978864c2240e"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-runtime.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-runtime.test.mjs",
       "baseBlob": "36aa4ea8b0c1ab93512c9892fb1553d7b5e16224",
-      "currentSha256": "9c25f8a363dc0262162a23cd403c9a3a4590b8ae27579e88a0f2261e86fb8e6b"
+      "currentSha256": "d7a8d08849f3f2f689b3fb9eb0660c4249719b5ca8801e34dfbf09116235fa04",
+      "snapshotRecordedCurrentSha256": "9c25f8a363dc0262162a23cd403c9a3a4590b8ae27579e88a0f2261e86fb8e6b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-service.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-service.test.mjs",
       "baseBlob": "68c13637de1e24dd8bcd4c40c55c5ab24a426c57",
-      "currentSha256": "c342eb7e3104f0c15040692b56509220963fd39661d9f13c9cd6e4db5775348b"
+      "currentSha256": "837972751074fa3e969c614cf979d73ffddfecd6d957b2e4709e1a348957166c",
+      "snapshotRecordedCurrentSha256": "c342eb7e3104f0c15040692b56509220963fd39661d9f13c9cd6e4db5775348b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-worker.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-worker.test.mjs",
       "baseBlob": "7bc2a158003bbac206aaf8d03173f15f8c4e48d2",
-      "currentSha256": "05a2512bdead1d62ff20cb880a60a248ccc69882acea035ebcaa9414c8b7ef79"
+      "currentSha256": "28d19230a9b7bd89ca645fb7caa339231bfe058b0433c45e2735345b533be6c7",
+      "snapshotRecordedCurrentSha256": "05a2512bdead1d62ff20cb880a60a248ccc69882acea035ebcaa9414c8b7ef79"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-raster-publication-cleanup.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-raster-publication-cleanup.test.mjs",
       "baseBlob": "1ef1cb78f636167c27ccddd42f262515303a74aa",
-      "currentSha256": "96ec9a4d812e6d420db7696abc2ede514da5f8cbfeb9077656ca4677fa012ff2"
+      "currentSha256": "66921d12f45867fdfabb136114aa2e2088cea181ce7ed3cdf7a0032bd3f09233",
+      "snapshotRecordedCurrentSha256": "96ec9a4d812e6d420db7696abc2ede514da5f8cbfeb9077656ca4677fa012ff2"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-real-storage-scanner.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-real-storage-scanner.test.mjs",
       "baseBlob": "c692611a0cdb78a37e8a05aaf9602caf5c54d4d0",
-      "currentSha256": "1f3fe3a1d21cc3d49e32a8e983d87111e9680ea17cb9f6e7bf577dc2a9b83bd4"
+      "currentSha256": "be64b24c552ee6a544ec3d130b499b38f4217c31d64e2b75b3539f4de8c8e2ee",
+      "snapshotRecordedCurrentSha256": "1f3fe3a1d21cc3d49e32a8e983d87111e9680ea17cb9f6e7bf577dc2a9b83bd4"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-resource-http.test.mjs",
       "target": "apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-resource-http.test.mjs",
       "baseBlob": "1a0423735c226aecfb83f1b5788a877258a71dd8",
-      "currentSha256": "61c5a430a804836b7345425afea607f5df36890952cbae5c84fa5a60d5867723"
+      "currentSha256": "4d186ebc4c07d159645a42e55616759760355b2991e6666627e1d05fa7bfad3a",
+      "snapshotRecordedCurrentSha256": "61c5a430a804836b7345425afea607f5df36890952cbae5c84fa5a60d5867723"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-resource-pdf.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-resource-pdf.test.mjs",
       "baseBlob": "ea6e1b0aae8ad8a152073abc1708ce5f99766917",
-      "currentSha256": "7864e51bbbe57d25bc2b06af0895631acb499d8a5b2a738b5ecc1f883621bce3"
+      "currentSha256": "eb93e6c2dec884e66460855db30ee8b8dc85932412b1ea1bb9fd91f7f4370d77",
+      "snapshotRecordedCurrentSha256": "7864e51bbbe57d25bc2b06af0895631acb499d8a5b2a738b5ecc1f883621bce3"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-resource-repository.test.mjs",
       "target": "apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-resource-repository.test.mjs",
       "baseBlob": "b1a1da5aff50a3c03cf6eed6184ca715c0a541ee",
-      "currentSha256": "78d1bff6d6124f4c5e11979f931fd81b1abbfe2e3a49bfdfb91124b75e9b6cf2"
+      "currentSha256": "d5519b8a4bcf06cdd41844683e7c9465763c7b44399294150effa9f9568b11a4",
+      "snapshotRecordedCurrentSha256": "78d1bff6d6124f4c5e11979f931fd81b1abbfe2e3a49bfdfb91124b75e9b6cf2"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-resource-service.test.mjs",
       "target": "apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-resource-service.test.mjs",
       "baseBlob": "934cc4e64b84684cebcb388911bee66e9f28d028",
-      "currentSha256": "1bf19100723b19343a63e7990c946babd5f59e20b4c414216c77e52a00374a53"
+      "currentSha256": "5fb8eca818434ea2d757ee0839e25b10a4fdd60264cf673b9989921963ed898d",
+      "snapshotRecordedCurrentSha256": "1bf19100723b19343a63e7990c946babd5f59e20b4c414216c77e52a00374a53"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-runtime.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-runtime.test.mjs",
       "baseBlob": "57a023fe72c3cd416b75dd133feceac02f170c84",
-      "currentSha256": "02441860d998fa62c580d6da232941f1601cc832a2fee5290b09b20647b993c0"
+      "currentSha256": "126ae7d4e700414512161e35be57e0192d3b70a617f825f817f1e5dda6b67504",
+      "snapshotRecordedCurrentSha256": "02441860d998fa62c580d6da232941f1601cc832a2fee5290b09b20647b993c0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-shared-admission.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-shared-admission.test.mjs",
       "baseBlob": "a1bb195488f4d0fb5197766f84f49ba5154c77da",
-      "currentSha256": "3537843ce9654b405ca791e80e81bd602bb2f6a7e67e4a3ac6ab873479361522"
+      "currentSha256": "bf3ebd0329aa1034425fd219f5de330cd38161905460a457cbb3a964c6b2deff",
+      "snapshotRecordedCurrentSha256": "3537843ce9654b405ca791e80e81bd602bb2f6a7e67e4a3ac6ab873479361522"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-text-budget.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-text-budget.test.mjs",
       "baseBlob": "aa0b1f27d035a93540b074f0405c89ec8e64caaf",
-      "currentSha256": "888314c0c0d74c979f364a5c20db2185c5fdf45ee0ff2df63fe5a2fefa231677"
+      "currentSha256": "6468b1d8cc2258dddf3b0793cddf5505187bf6fb145682c6bbab05290b21065a",
+      "snapshotRecordedCurrentSha256": "888314c0c0d74c979f364a5c20db2185c5fdf45ee0ff2df63fe5a2fefa231677"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-text-worker-lifecycle.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-text-worker-lifecycle.test.mjs",
       "baseBlob": "77c2dc1d36b3e388ceabc731dfe52422ec7cc3de",
-      "currentSha256": "a6d8185061b42cf89c0dd9057a8459dd0ec7bcbb84c27568dbfdf5238767e8d9"
+      "currentSha256": "48e746fe41fd97b2bc93f200dc2737e1ac3c2f113f41f4911709d38992b89a33",
+      "snapshotRecordedCurrentSha256": "a6d8185061b42cf89c0dd9057a8459dd0ec7bcbb84c27568dbfdf5238767e8d9"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-text-worker.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-text-worker.test.mjs",
       "baseBlob": "48fac0df18fa50334bbfbcede1ec0d2c9f95efa7",
-      "currentSha256": "49a4e324315bf7b9080df01f9256b047b4a19c8f39ef06aec2b8c12240e07701"
+      "currentSha256": "003d5771451596dccb520abd4af99598d7eb6de6a876ba297fec2c25d71df0f2",
+      "snapshotRecordedCurrentSha256": "49a4e324315bf7b9080df01f9256b047b4a19c8f39ef06aec2b8c12240e07701"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-cancellation.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-cancellation.test.mjs",
       "baseBlob": "a073a87cf478a0465c72df9f657802490cbd76e2",
-      "currentSha256": "28230ddbbfb8924ba124227136ef48398c24201311612e2ad87e7d6828c40f59"
+      "currentSha256": "0e2f9a007d791113d2a65cc6ad82b778a2292ca210dc13f9b51292f7bc613e30",
+      "snapshotRecordedCurrentSha256": "28230ddbbfb8924ba124227136ef48398c24201311612e2ad87e7d6828c40f59"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-completion.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-completion.test.mjs",
       "baseBlob": "816f5f145cd24a73254f7a7a0d1f14dd98b0005f",
-      "currentSha256": "c43013155b1a48b13077f2bdd30af546862ea8c435d52b5be4009f3aa29b0ee8"
+      "currentSha256": "4f2dbbd78f4468926c0e28679e16cc4a6b45ea1a0177e7ddf95ee4ead43731a8",
+      "snapshotRecordedCurrentSha256": "c43013155b1a48b13077f2bdd30af546862ea8c435d52b5be4009f3aa29b0ee8"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-preparation.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-preparation.test.mjs",
       "baseBlob": "5c5528bbfafcfad293f2d4e42ba645118ce8b735",
-      "currentSha256": "ed7381089fd6b5c939a48e013ca979ae602ecc3d605e160c73c67dd6d3b0a0f9"
+      "currentSha256": "349cc050262a7470921bb688c80d6908bb94c08c609cf96467be4ba1dd76e416",
+      "snapshotRecordedCurrentSha256": "ed7381089fd6b5c939a48e013ca979ae602ecc3d605e160c73c67dd6d3b0a0f9"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-queue.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-queue.test.mjs",
       "baseBlob": "0c1de8af5e8c214ca04c08b67fb91e2c62a4628d",
-      "currentSha256": "a3df222c6afccee6b6599a388d2feb7a2080cf19ee44abdfbf53c552f61acf05"
+      "currentSha256": "a0ed6a933701ea2d6704bd2edf6bbe4835dc54f7b3680f99030f28e808b76e1e",
+      "snapshotRecordedCurrentSha256": "a3df222c6afccee6b6599a388d2feb7a2080cf19ee44abdfbf53c552f61acf05"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-recovery.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-recovery.test.mjs",
       "baseBlob": "a289ecb63e1d7ffcae16d33a343d9b39bcd8acd6",
-      "currentSha256": "d2b87181c4557135796ce885bd203fe26a89cc436e250e5177a200785b23fbfb"
+      "currentSha256": "af0b5fbe1fc15209eb3b1ed34bd6a7ed5c091722156ca66a243b3dee68d2aa45",
+      "snapshotRecordedCurrentSha256": "d2b87181c4557135796ce885bd203fe26a89cc436e250e5177a200785b23fbfb"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-repository.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-repository.test.mjs",
       "baseBlob": "5e1ac1179a32b25a62c336dfa9f06dc21979de78",
-      "currentSha256": "ca9d011620c8ec9f0d911ebb8b02b3cb17a46a539b2d7d02e1653a38d6dad1c0"
+      "currentSha256": "12a2ffd3355df2d6b06015de47c2f737e9845a464deea88956c3f5f72f1cb9c9",
+      "snapshotRecordedCurrentSha256": "ca9d011620c8ec9f0d911ebb8b02b3cb17a46a539b2d7d02e1653a38d6dad1c0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-service.test.mjs",
       "target": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-service.test.mjs",
       "baseBlob": "38aa33f0b24c47f6bf4f5d0c224d4d5191c33321",
-      "currentSha256": "f1bd2b805f51d1cbac60a71475ff3058d09d73030c577113b851b7d3a7267b31"
+      "currentSha256": "3f9979f75c61eafb52065d0ba6a44230d2e3cf469d896182c16b7b132866cf8e",
+      "snapshotRecordedCurrentSha256": "f1bd2b805f51d1cbac60a71475ff3058d09d73030c577113b851b7d3a7267b31"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-unit-of-work.test.mjs",
       "target": "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-unit-of-work.test.mjs",
       "baseBlob": "9dcaf1ee5252359b8f1db5a5472254b13b2164a4",
-      "currentSha256": "64d156cd3fae74a8112544fd6defcb2d9c13ef3e3e0e8257080da20de98bc75b"
+      "currentSha256": "cc64546dbdd3261e65d44715dec937d14b976fceb7da9e2d216eedf26446842d",
+      "snapshotRecordedCurrentSha256": "64d156cd3fae74a8112544fd6defcb2d9c13ef3e3e0e8257080da20de98bc75b"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-application.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-application.test.mjs",
       "baseBlob": "e99024bd78d1f1b68257ccd713cc485d4e6b62cf",
-      "currentSha256": "c999c05d9d6ea03e676f9ada34e9b36b79ae660d9f27f51025cfac6defca0fba"
+      "currentSha256": "dfedf34afb8dc5df2ad7fde099a5de4bbffe51a4240407f81f2ca147215b924b",
+      "snapshotRecordedCurrentSha256": "c999c05d9d6ea03e676f9ada34e9b36b79ae660d9f27f51025cfac6defca0fba"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-authority-recovery.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-authority-recovery.test.mjs",
       "baseBlob": "b4f0a11487c77220d7fb25db35b609b370976719",
-      "currentSha256": "349d4bf2aaf712caf5e23f3894e8ed7cfa40dbf8bcd2b543c71394a5f75d7316"
+      "currentSha256": "2583d0a89a30734b2484a0fa309ddbae211c82f37296079f55d738867d4c23d6",
+      "snapshotRecordedCurrentSha256": "349d4bf2aaf712caf5e23f3894e8ed7cfa40dbf8bcd2b543c71394a5f75d7316"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-configuration.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-configuration.test.mjs",
       "baseBlob": "068bdfd6b7886fd86ef0f9bb7926ec684ae70259",
-      "currentSha256": "cb8654fa60a2fdffcc50ece44d57f3cbda07ecb21e8c2d5a353eb08a81cc6e3e"
+      "currentSha256": "3fb30d298cbc582cf60a3dbf8bbcaa81eaab6d310ea564d90fc4ae2df25a6f87",
+      "snapshotRecordedCurrentSha256": "cb8654fa60a2fdffcc50ece44d57f3cbda07ecb21e8c2d5a353eb08a81cc6e3e"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-cross-admission.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-cross-admission.test.mjs",
       "baseBlob": "c578402fdf03f0051a42b98f67b812cd10417b09",
-      "currentSha256": "ca3aecb380e946009833fe43211204550060477ecacceaf193ade24db56cc3ad"
+      "currentSha256": "54382326a6b9b10e58c28ad8239dc656650abd1743fffd8ef68f58da5d752cdf",
+      "snapshotRecordedCurrentSha256": "ca3aecb380e946009833fe43211204550060477ecacceaf193ade24db56cc3ad"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-editorial-contract.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-editorial-contract.test.mjs",
       "baseBlob": "84a3478ff8ebc060c80cb660f3ee47b80a3f3436",
-      "currentSha256": "f754f9b0925a93c98f6924442285283aea524cc8ce02637aa98b2ac14081aa3e"
+      "currentSha256": "3b5b65c0cd2cbfa92cd64439656be621ca15ece92be4cf84de6a11d0bc53a54f",
+      "snapshotRecordedCurrentSha256": "f754f9b0925a93c98f6924442285283aea524cc8ce02637aa98b2ac14081aa3e"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-editorial-http.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-editorial-http.test.mjs",
       "baseBlob": "19150cd32ff33fe6aeb1aa730e0132a5e4ae93d7",
-      "currentSha256": "37149e5bc29204a0aac61b85c2cf57910b5b5582c33af8d5f154b66c9fc1eef7"
+      "currentSha256": "e300fb7a790d116d6f13b67b2b81bc7c89c25470bfdaf8be095294d0b3494d9e",
+      "snapshotRecordedCurrentSha256": "37149e5bc29204a0aac61b85c2cf57910b5b5582c33af8d5f154b66c9fc1eef7"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-editorial-publication.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-editorial-publication.test.mjs",
       "baseBlob": "90823fe8e06321c2d87e1f20d682720a97086f96",
-      "currentSha256": "92ab707f2af2b8358f55a22d6db0ab46c721c9e9a975d44bb9e0c23713fa78c9"
+      "currentSha256": "eb0925b27f7208965fc2ab4383a8be47ce57b821579ceb7a0fd82dbde7b2c7a6",
+      "snapshotRecordedCurrentSha256": "92ab707f2af2b8358f55a22d6db0ab46c721c9e9a975d44bb9e0c23713fa78c9"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-editorial.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-editorial.test.mjs",
       "baseBlob": "66e4d7ce51076893c6d7d7ffdd455b762ea9b384",
-      "currentSha256": "6c30e2269f4f03d52cc8c1c406068b4dcc5cba353f2a281bc929e2085c459148"
+      "currentSha256": "c97a29a1d1c6874950186a6c7e55ef97194549ed2234534adbc17871080b9eb0",
+      "snapshotRecordedCurrentSha256": "6c30e2269f4f03d52cc8c1c406068b4dcc5cba353f2a281bc929e2085c459148"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-http.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-http.test.mjs",
       "baseBlob": "ca3322f7a1e28ab6e1548d5f6dcb30e34e22fda9",
-      "currentSha256": "0fd4fa6470a237142ebfa112e031dc49b29cc6e268ba1b5d7edb3cfbf5a266a0"
+      "currentSha256": "8b8de1f6db4a42c980a9f9031f329e9234471de1bb4067ea1bb7ec6f8f1e3c36",
+      "snapshotRecordedCurrentSha256": "0fd4fa6470a237142ebfa112e031dc49b29cc6e268ba1b5d7edb3cfbf5a266a0"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-journey.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-journey.test.mjs",
       "baseBlob": "9678174f5155e5918b1449787c534c01286d8df3",
-      "currentSha256": "e6a80748a136988a21d8b8ba2a0903f5357210098335425e78ad5dd355f07d58"
+      "currentSha256": "8fba4088a8d43beb194129ac41f7b52eaf4ec5a609beb797cf9d448726b9fb12",
+      "snapshotRecordedCurrentSha256": "e6a80748a136988a21d8b8ba2a0903f5357210098335425e78ad5dd355f07d58"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-publication-http.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-visual-publication-http.test.mjs",
       "baseBlob": "b7e707bfaead44805077ba964f1c72686c7df7bc",
-      "currentSha256": "8a4d2aafb915927416f686cd097d6c63ab28f54f78966e586e68aa24bba48e04"
+      "currentSha256": "163dada15dea80b044b52075b7bdbf8f0010aab72d711f31d2fe3a04e44fb368",
+      "snapshotRecordedCurrentSha256": "8a4d2aafb915927416f686cd097d6c63ab28f54f78966e586e68aa24bba48e04"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-publication-journey.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-visual-publication-journey.test.mjs",
       "baseBlob": "77e866f1af285dfcbb3428c99eabd8bf4e870693",
-      "currentSha256": "8a7560eb983bd64781ee7abe5baf98a104eb152810d7ec0c36222d77985005a5"
+      "currentSha256": "a953449f21c5218c939cda56710608da7128628055ae510229508398bd6bb72d",
+      "snapshotRecordedCurrentSha256": "8a7560eb983bd64781ee7abe5baf98a104eb152810d7ec0c36222d77985005a5"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-publication-service.test.mjs",
       "target": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-visual-publication-service.test.mjs",
       "baseBlob": "1ead3493ee682cd22974d2df96fd54ba899e25c1",
-      "currentSha256": "5da9e5505e5064e388eef0a874745e6220fee6ffaec167384e45cd5ff842c662"
+      "currentSha256": "4dce106b3cf461b67fc6c1dc8a81e06afaa7166baa30c711a16df3dba479010e",
+      "snapshotRecordedCurrentSha256": "5da9e5505e5064e388eef0a874745e6220fee6ffaec167384e45cd5ff842c662"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-restart-profile.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-restart-profile.test.mjs",
       "baseBlob": "1b7f960f3a4f68d5e8916ce7a1e8331907692e68",
-      "currentSha256": "91d5f9a10eee7ea13e410416f9932f76b071a2ccc511655fecc9f05d548f4512"
+      "currentSha256": "f2fca4f6b4f901a751b52e9c887b47d894c2b03ca6d0197b14ec1715f8e98d3d",
+      "snapshotRecordedCurrentSha256": "91d5f9a10eee7ea13e410416f9932f76b071a2ccc511655fecc9f05d548f4512"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-runtime-journey.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-runtime-journey.test.mjs",
       "baseBlob": "a3bf56f3ee6408745b4111083ca6009d9dd80a1b",
-      "currentSha256": "3812b4e1af7a016884698c91a275e80d008bbf56d773f6d5453bcc597ad3ea1d"
+      "currentSha256": "13c3746bdfa6bad0dfc61c078b8d9f16e7a5d065cb578a97a1d5bdcf38157eaa",
+      "snapshotRecordedCurrentSha256": "3812b4e1af7a016884698c91a275e80d008bbf56d773f6d5453bcc597ad3ea1d"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-runtime.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-runtime.test.mjs",
       "baseBlob": "9d41a97231e41ee08a8e81f421eb28c083375de5",
-      "currentSha256": "b2cf560e42aea0bd942cf675e201c1463f722b8ebbd931c2b1e5b25b5682a853"
+      "currentSha256": "ffca64a725f0cf35dedaecdc68bd6271702122be969a56c384b0b41a941b6a1d",
+      "snapshotRecordedCurrentSha256": "b2cf560e42aea0bd942cf675e201c1463f722b8ebbd931c2b1e5b25b5682a853"
     },
     {
       "source": "apps/api/src/modules/foxy/infrastructure/tests/foxy-visual-worker.test.mjs",
       "target": "apps/api/src/modules/foxy/visuals/infrastructure/tests/foxy-visual-worker.test.mjs",
       "baseBlob": "9db012f4d559117aa07bbc78df39a13dc1f54298",
-      "currentSha256": "89841c9174f9dbd5eaf452f5c2ab245187cd90467102c34509abf5a5ebb6b1bd"
+      "currentSha256": "985a500d1c94f447283d7a70bb2246e144e4878230a99d9acaa833c4f3c06f6e",
+      "snapshotRecordedCurrentSha256": "89841c9174f9dbd5eaf452f5c2ab245187cd90467102c34509abf5a5ebb6b1bd"
     },
     {
       "source": "apps/api/src/modules/identity/application/runtime.test.mjs",
       "target": "apps/api/src/modules/identity/accounts/application/runtime.test.mjs",
       "baseBlob": "3531368f59d1ca714dd08cfb1171e48a75367785",
-      "currentSha256": "1af1f6eba73bc045c50b0b4ad52a30861297789015b7bb8a00d5cc1240396e19"
+      "currentSha256": "3b4b0c96858a1ab14a824ba4b32097778d662e86897f95b958ce8f98878a6c49",
+      "snapshotRecordedCurrentSha256": "1af1f6eba73bc045c50b0b4ad52a30861297789015b7bb8a00d5cc1240396e19"
     },
     {
       "source": "apps/api/src/modules/materials/infrastructure/tests/library-publication.test.mjs",
       "target": "apps/api/src/modules/materials/publication/infrastructure/tests/library-publication.test.mjs",
       "baseBlob": "f1a893b642d48cf853c5b34fbe155b98deefa006",
-      "currentSha256": "37a71996aa6b0639bb9e7064e3fb3bd73530c58d280cbfce4d52fb771962a2e7"
+      "currentSha256": "b8ffbdd3abf774438a3956d01da058b994ff066a2b36bf2e20d1f52c1c1e6baf",
+      "snapshotRecordedCurrentSha256": "37a71996aa6b0639bb9e7064e3fb3bd73530c58d280cbfce4d52fb771962a2e7"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/conversation-generation.test.ts",
       "target": "apps/api/src/modules/study/generation/application/tests/conversation-generation.test.ts",
       "baseBlob": "4bc574ed03e619d40da431a88d2ebb4fcc73e3ab",
-      "currentSha256": "ba70b2f638f11a09530503c385d1c668c34572508d3d92c296571ae3b3346f72"
+      "currentSha256": "a48048e0e4ac5bb4742faa931167639dd3e2d3c1bef124e9819ffad69a816930",
+      "snapshotRecordedCurrentSha256": "ba70b2f638f11a09530503c385d1c668c34572508d3d92c296571ae3b3346f72"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/database.test.mjs",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/database.test.mjs",
       "baseBlob": "4e8c12316ddbd8870a12c4c1a5f196be283b386f",
-      "currentSha256": "8d039378fc613b170a7c792f9c44127fdf86822a698c3f016b43c752fcfd3ed2"
+      "currentSha256": "2070606babe33c83c8fc16fa38d86b5eadd71a7b15478eee16db598875ff8e02",
+      "snapshotRecordedCurrentSha256": "8d039378fc613b170a7c792f9c44127fdf86822a698c3f016b43c752fcfd3ed2"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/draft-plan-replacement.test.ts",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/draft-plan-replacement.test.ts",
       "baseBlob": "94ce11c630c15bcd44e9b0354160d9166a258e84",
-      "currentSha256": "7e6e0a14df64aa882637fe1948ebdac8dff2dedb5e96e5fb4784976c1bbe1df9"
+      "currentSha256": "73af72b7bce5140d7af9605623a700567956e5c0e149800c2943c97fee4d091a",
+      "snapshotRecordedCurrentSha256": "7e6e0a14df64aa882637fe1948ebdac8dff2dedb5e96e5fb4784976c1bbe1df9"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/engine.test.ts",
       "target": "apps/api/src/modules/study/generation/application/engine.test.ts",
       "baseBlob": "49e6f5eaa81845ef3400baccc54f2c521f45858e",
-      "currentSha256": "c2f3e0e0671037d12dc1d884a25a0844c79e6f2eb23183aaca58f46d5d2a501c"
+      "currentSha256": "a5587156fe236feafb919200bd5fa25c2569ad34ca34ce27b7360a1be88e982f",
+      "snapshotRecordedCurrentSha256": "c2f3e0e0671037d12dc1d884a25a0844c79e6f2eb23183aaca58f46d5d2a501c"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/exact-metadata.test.ts",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/exact-metadata.test.ts",
       "baseBlob": "81d22754ea8a4241364c89f5b19311bba0b3303d",
-      "currentSha256": "90883ea64955d2c5158abbd7b3599d2444a33dcdae4a68bc5b4eda48db581ce7"
+      "currentSha256": "f2aa7fab257f83eae808677cb1df14c90db4f7f48460b69f8eb4efa0b9dc6c75",
+      "snapshotRecordedCurrentSha256": "90883ea64955d2c5158abbd7b3599d2444a33dcdae4a68bc5b4eda48db581ce7"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/exact-review-plan.test.ts",
       "target": "apps/api/src/modules/study/reviews/infrastructure/tests/exact-review-plan.test.ts",
       "baseBlob": "d584d250b8a1228ca43df33ac409e4a7401d8610",
-      "currentSha256": "3bb7f5cdfd4fed3dc46059c478afefe951ad284c51fd0996751e681da08a808e"
+      "currentSha256": "22bcb7aa5e73f0f09986534ba46fa040f9b12b2d6b1d43f062761c3193e12bab",
+      "snapshotRecordedCurrentSha256": "3bb7f5cdfd4fed3dc46059c478afefe951ad284c51fd0996751e681da08a808e"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/http.test.mjs",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/http.test.mjs",
       "baseBlob": "5da2a69d80ec65d93c79186296c83335e557b6aa",
-      "currentSha256": "43abf9e7cebacafc5d33bf214e0d8ba14883f75515357f9646acb0579b7700af"
+      "currentSha256": "caa99c87eed16c3240b51209ab15b1e7201fba4813274a24cb4bb0bc52998f94",
+      "snapshotRecordedCurrentSha256": "43abf9e7cebacafc5d33bf214e0d8ba14883f75515357f9646acb0579b7700af"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/import-classroom-plan.test.ts",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/import-classroom-plan.test.ts",
       "baseBlob": "d20df491e3289657efb6cdc6f93f314e5a2c98bb",
-      "currentSha256": "dbc4f90ae2f2be6cd9c9937f65db413fbf841c56462c08545344092ec2686878"
+      "currentSha256": "79b099a81f2619753134321f6360681845447cee578ce7ff50d47439469e96cc",
+      "snapshotRecordedCurrentSha256": "dbc4f90ae2f2be6cd9c9937f65db413fbf841c56462c08545344092ec2686878"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/integrations.test.mjs",
       "baseBlob": "88899372630ffce3ccdd8fcbf6491f248ef8bf7d",
-      "currentSha256": "06afbd819bccbfa8f32106c46f14f5539c72c83d54647ca180751f9cbf774f22"
+      "currentSha256": "9a4fbf92364c2ed15ab0133c19c99d2ea6c5d124d043230f064d808931f37c85",
+      "snapshotRecordedCurrentSha256": "06afbd819bccbfa8f32106c46f14f5539c72c83d54647ca180751f9cbf774f22"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/policy.test.ts",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/policy.test.ts",
       "baseBlob": "737c7897cec46d8ae572a2b206613884e8b196c2",
-      "currentSha256": "42e6cfebe7d0e2576e2a5c90cb45f33ef7d897f72e5907c8464fce469d0fa750"
+      "currentSha256": "0ceeb79ed1d458217134ccda8305020266b95f52423be071dfd52f1fe1881159",
+      "snapshotRecordedCurrentSha256": "42e6cfebe7d0e2576e2a5c90cb45f33ef7d897f72e5907c8464fce469d0fa750"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/service.test.ts",
       "target": "apps/api/src/modules/study/folders/infrastructure/tests/service.test.ts",
       "baseBlob": "6d53fef54f81726ba05267ace9f65bf2bb38b721",
-      "currentSha256": "d7bf132b49c6ce4e00b89f9f859ea6fe53c4a0e0db02d8cb1430c7d30fbb9c59"
+      "currentSha256": "97e1a207aff501ffe5d29f9f746b784aa2c393e1e4e54b2ec00d8ff57bd78be7",
+      "snapshotRecordedCurrentSha256": "d7bf132b49c6ce4e00b89f9f859ea6fe53c4a0e0db02d8cb1430c7d30fbb9c59"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/session-event.test.mjs",
       "target": "apps/api/src/modules/study/reviews/infrastructure/tests/session-event.test.mjs",
       "baseBlob": "d421d12d01c5ea896c738062324cc54a62629f7e",
-      "currentSha256": "7344fdafce4850dced178b5a7c8030001924f8dcf130320d97e3069c08173841"
+      "currentSha256": "54a2d8186babcb0863ed414ade845914c7ae7ced4e0ffe346800db5645cb0c9d",
+      "snapshotRecordedCurrentSha256": "7344fdafce4850dced178b5a7c8030001924f8dcf130320d97e3069c08173841"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/study-agenda-conflicts.test.mjs",
       "target": "apps/api/src/modules/study/reviews/infrastructure/tests/study-agenda-conflicts.test.mjs",
       "baseBlob": "768f4937eb14a6aa59dd1318ad1c87666ef4f0ed",
-      "currentSha256": "06ef8d1e65bd443a90c25756e42f6015a70bcf059e954ef82d4318df38febf39"
+      "currentSha256": "19f3f41350a29c18f5356b498bad43788db04dff10f813c378efccdb1120ef42",
+      "snapshotRecordedCurrentSha256": "06ef8d1e65bd443a90c25756e42f6015a70bcf059e954ef82d4318df38febf39"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/study-generation-cancellation.test.ts",
       "target": "apps/api/src/modules/study/generation/application/tests/study-generation-cancellation.test.ts",
       "baseBlob": "08be35080dc3217ae5af763542788d85d16e286f",
-      "currentSha256": "21ab403290f826c278b8b761c7f1494f9e351a4e5386540326c340343a67c92f"
+      "currentSha256": "4b97f7df9b7133f9750e925ef8d6c42253be707675da6e4c799262d078ca6a3f",
+      "snapshotRecordedCurrentSha256": "21ab403290f826c278b8b761c7f1494f9e351a4e5386540326c340343a67c92f"
     },
     {
       "source": "apps/api/src/modules/study/infrastructure/tests/upload-policy.test.mjs",
       "target": "apps/api/src/modules/study/sources/infrastructure/uploads/upload-policy.test.mjs",
       "baseBlob": "9928034bb495fc7020998c3e80790515da38ff35",
-      "currentSha256": "8f43d3a97375eb670fe0d4222cfb9b607007e60a5842270d0b5f55788b963db3"
+      "currentSha256": "a198763909706b71dc7e8c5dbde6b884a80a01e2ee7cbd92f7e10b628f8fd18d",
+      "snapshotRecordedCurrentSha256": "8f43d3a97375eb670fe0d4222cfb9b607007e60a5842270d0b5f55788b963db3"
     }
   ],
   "addedRuntimeTests": [
@@ -7578,27 +7712,33 @@
     },
     {
       "target": "apps/api/src/modules/agenda/academic-projection/application/academic-agenda-service.test.mjs",
-      "currentSha256": "21f6f3951276bf1d633bd54290b3e336aca39c944210cbc02c92db9fc575806d"
+      "currentSha256": "f46824c0adc16a46ee5bf364b281641b852da135451b2ba9e2481a96f781f050",
+      "snapshotRecordedCurrentSha256": "21f6f3951276bf1d633bd54290b3e336aca39c944210cbc02c92db9fc575806d"
     },
     {
       "target": "apps/api/src/modules/classrooms/drafts/application/publication.test.ts",
-      "currentSha256": "311fc64df73f1240289a715aad9596dc24741898fe61ff2a255d3abf5e2f02c7"
+      "currentSha256": "e043cc50043fd94bf9cd16fde03bd81fbc9707d1f58fb3ee59ab527b2ecca70a",
+      "snapshotRecordedCurrentSha256": "311fc64df73f1240289a715aad9596dc24741898fe61ff2a255d3abf5e2f02c7"
     },
     {
       "target": "apps/api/src/modules/classrooms/drafts/infrastructure/classrooms-persistence.test.ts",
-      "currentSha256": "d8cbe3c88eb5161005ab52da95d85de6431e4b3fb4e1026d895a53157ae8a636"
+      "currentSha256": "8ca9b1df5be3ada2ea05a2584374857ee7904ca512b7c271dfaf9c03eff781f0",
+      "snapshotRecordedCurrentSha256": "d8cbe3c88eb5161005ab52da95d85de6431e4b3fb4e1026d895a53157ae8a636"
     },
     {
       "target": "apps/api/src/modules/classrooms/invitations/application/batch-behavior.test.ts",
-      "currentSha256": "98c8164dfdd67463f8ced631e4fff68ca1b8cb2c2ad304b6dabd97361b56213e"
+      "currentSha256": "bb266cef31f7cb02246ac7bd540b3b79fc0365355fd298b7adad64a8900cebd2",
+      "snapshotRecordedCurrentSha256": "98c8164dfdd67463f8ced631e4fff68ca1b8cb2c2ad304b6dabd97361b56213e"
     },
     {
       "target": "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts",
-      "currentSha256": "484e233519f3cf23717215c31f642ca858d1116784bc2aa704a4d7ca9c3becd4"
+      "currentSha256": "a23041ff0675896e5c35ed9f44b8cb4aa8a7479fb9847cb203c636e161f2b886",
+      "snapshotRecordedCurrentSha256": "484e233519f3cf23717215c31f642ca858d1116784bc2aa704a4d7ca9c3becd4"
     },
     {
       "target": "apps/api/src/modules/communication/wall/application/wall.test.ts",
-      "currentSha256": "e2cfcfe5bd73a4adddaf38fd959c5d6c4f64013b1c27ce495b7d62d44704aa30"
+      "currentSha256": "ba2083aff6625229fd98989fdc8a1d9fb2f6c22d1cf4fad1dddeb5c8458b7a71",
+      "snapshotRecordedCurrentSha256": "e2cfcfe5bd73a4adddaf38fd959c5d6c4f64013b1c27ce495b7d62d44704aa30"
     },
     {
       "target": "apps/api/src/modules/curriculum/generation/application/repository.test.mjs",
@@ -7614,31 +7754,38 @@
     },
     {
       "target": "apps/api/src/modules/files/uploads/application/receive-authorization.test.mjs",
-      "currentSha256": "cc9ea8391cecad5cbabed620c9904322ddc25a2e6869025ce5b217803dc7efb9"
+      "currentSha256": "72ee6d8a2d8e51a6a57dbfe71aae441bc6dcbdf2ef875d369ab072ad04c10c2f",
+      "snapshotRecordedCurrentSha256": "cc9ea8391cecad5cbabed620c9904322ddc25a2e6869025ce5b217803dc7efb9"
     },
     {
       "target": "apps/api/src/modules/files/uploads/application/receive-http.test.mjs",
-      "currentSha256": "8f9d7d0cecfcb4e3b2d71d3861a5ef7fab50baadac77376800382acfc26a52b3"
+      "currentSha256": "7e10f92263aae402fdf5762906d34b2780e9b6e3f1acae73d88b3ce60abdf2e7",
+      "snapshotRecordedCurrentSha256": "8f9d7d0cecfcb4e3b2d71d3861a5ef7fab50baadac77376800382acfc26a52b3"
     },
     {
       "target": "apps/api/src/modules/foxy/citations/application/citation-service-policy.test.mjs",
-      "currentSha256": "fcf74dd6711abae0e2fac219d3106c425c73be335a510285365fa1d6e5cc9750"
+      "currentSha256": "180b4ba1e5ffefbb5fed82ab59ef16e4191679dba8ff8a21f8070aae3a495e92",
+      "snapshotRecordedCurrentSha256": "fcf74dd6711abae0e2fac219d3106c425c73be335a510285365fa1d6e5cc9750"
     },
     {
       "target": "apps/api/src/modules/foxy/citations/infrastructure/tests/foxy-citation-attachment-port.test.mjs",
-      "currentSha256": "b4727884f6c717590ac2e935eb4881eeb07a683abc2aa27ee398906662afed6f"
+      "currentSha256": "7f1b5905167883f078ccc43c331bbb227b0242960aa8a42452c5e89b6d453a19",
+      "snapshotRecordedCurrentSha256": "b4727884f6c717590ac2e935eb4881eeb07a683abc2aa27ee398906662afed6f"
     },
     {
       "target": "apps/api/src/modules/foxy/private-assets/infrastructure/tests/foxy-private-editorial-policy.test.mjs",
-      "currentSha256": "6dae044293bb1889d7827f3cf397a2693311d2494903680ce46379746fbefc5b"
+      "currentSha256": "7123b721a5c1481eaf3e8c425be70e46f4c14763d401b8636579070aab85268a",
+      "snapshotRecordedCurrentSha256": "6dae044293bb1889d7827f3cf397a2693311d2494903680ce46379746fbefc5b"
     },
     {
       "target": "apps/api/src/modules/foxy/resources/application/editorial-policy.test.mjs",
-      "currentSha256": "264700ae7137a4a5f97dc0e2052c46f24e8efaf480c0dffc1e2b8e88a8d59d5f"
+      "currentSha256": "9470712f2117a88a07c03938406f26699abf6f2145794403d58fb7b286e9d9ba",
+      "snapshotRecordedCurrentSha256": "264700ae7137a4a5f97dc0e2052c46f24e8efaf480c0dffc1e2b8e88a8d59d5f"
     },
     {
       "target": "apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-resource-editorial-policy.test.mjs",
-      "currentSha256": "4aa43bb2b615e84e9c99a6c044e4ae0338c7ac7acba3e013f01c2d1b09f686f3"
+      "currentSha256": "7f8321c5ea07567d7322d599063b6ed314506dda46ff1c2f9d33ec5e0968d8a0",
+      "snapshotRecordedCurrentSha256": "4aa43bb2b615e84e9c99a6c044e4ae0338c7ac7acba3e013f01c2d1b09f686f3"
     },
     {
       "target": "apps/api/src/modules/grading/review/application/repository-contracts.test.mjs",
@@ -7646,11 +7793,13 @@
     },
     {
       "target": "apps/api/src/modules/home/notifications/application/inbox.test.ts",
-      "currentSha256": "6b512af35c2f54a10c20c22952157ada4748a696dca5d68b706000e42d7f55e0"
+      "currentSha256": "ceb23c94c07132f29ca3eb4b0a56262e7dfd1ed66ca69f3e0288260096098b88",
+      "snapshotRecordedCurrentSha256": "6b512af35c2f54a10c20c22952157ada4748a696dca5d68b706000e42d7f55e0"
     },
     {
       "target": "apps/api/src/modules/home/notifications/infrastructure/projections.test.ts",
-      "currentSha256": "cb62e1c401174db5c5fb186eec4d41255635f89a7240123a3e1603e68fdc8b34"
+      "currentSha256": "628d1540543b3aa0404f78be0524acff0d24659e5891af33ecf680d288adc9dd",
+      "snapshotRecordedCurrentSha256": "cb62e1c401174db5c5fb186eec4d41255635f89a7240123a3e1603e68fdc8b34"
     },
     {
       "target": "apps/api/src/modules/home/notifications/infrastructure/repository.test.ts",
@@ -7658,7 +7807,8 @@
     },
     {
       "target": "apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs",
-      "currentSha256": "dda5d3f394dd5a3b49329c57353dc2d862939341053ecb571789de6b4cf35564"
+      "currentSha256": "784b716128e7c493af3553ba9bbff1ab6317e49fc0b8647bb0974a66311956c2",
+      "snapshotRecordedCurrentSha256": "dda5d3f394dd5a3b49329c57353dc2d862939341053ecb571789de6b4cf35564"
     },
     {
       "target": "apps/api/src/modules/materials/library/application/contracts.test.mjs",
@@ -7678,19 +7828,23 @@
     },
     {
       "target": "apps/api/src/modules/study/generation/application/tests/generation-protocol.test.mjs",
-      "currentSha256": "e45efdd09170bce37a5bfa66af44fa018894312fa7c928cb5c1a094b39f70bf8"
+      "currentSha256": "e99711be676d3250481c15e63c44dde0f6987baf0e77a72c6fbf9318048a0f6a",
+      "snapshotRecordedCurrentSha256": "e45efdd09170bce37a5bfa66af44fa018894312fa7c928cb5c1a094b39f70bf8"
     },
     {
       "target": "apps/api/src/modules/study/generation/application/tests/generation-transaction-phases.test.mjs",
-      "currentSha256": "7f162d98e8896401513ce96e74f1932a14c7e0616a8b7e6f5e35216ddeae915e"
+      "currentSha256": "3dbd65546a8a6a552177bbf8522ad27bb6606d2f00c4df10643c7cdd39cf7414",
+      "snapshotRecordedCurrentSha256": "7f162d98e8896401513ce96e74f1932a14c7e0616a8b7e6f5e35216ddeae915e"
     },
     {
       "target": "apps/api/src/modules/study/generation/infrastructure/providers/study-response-schema.test.mjs",
-      "currentSha256": "8d96f88c04ccca189bf13f410ed1caafa7d35bd8801991cd6a14cfae20cda799"
+      "currentSha256": "1aa4882a3d0f0809f6b27946378bf57b046cb41e962e94bc8c2259ee5937c1aa",
+      "snapshotRecordedCurrentSha256": "8d96f88c04ccca189bf13f410ed1caafa7d35bd8801991cd6a14cfae20cda799"
     },
     {
       "target": "apps/api/src/platform/ai/text-client.test.mjs",
-      "currentSha256": "2bc0bb5661e0991b568998bbc2079fc26a4d586d8d3eea27ed1d1b1c965d5ee8"
+      "currentSha256": "487a38e70ba4b644e9f8e5bcb37e5bd889c331abc1a4f069fabf07753346b8e6",
+      "snapshotRecordedCurrentSha256": "2bc0bb5661e0991b568998bbc2079fc26a4d586d8d3eea27ed1d1b1c965d5ee8"
     },
     {
       "target": "tests/backend-academic-routes.test.mjs",
@@ -7702,7 +7856,8 @@
     },
     {
       "target": "tests/backend-authoring-repository.test.mjs",
-      "currentSha256": "85ce393e54439a8968930399f9e1b004a6421f55fee596400aee9737c781dc25"
+      "currentSha256": "2c2ca68a45f374de7656b3b429d6da81671cade4e1d548ebb7de77a9cd839005",
+      "snapshotRecordedCurrentSha256": "85ce393e54439a8968930399f9e1b004a6421f55fee596400aee9737c781dc25"
     }
   ],
   "sharedDomainExportOwners": {
@@ -8156,6 +8311,7 @@
     "files": 615,
     "sourceSha256": "b98b1752f2eebc45c148037c6f6f34092ec9a262806276f59669bd3a97247f85",
     "updatedMapHashes": 579,
+    "testHashesUpdated": 155,
     "combinedEvidence": "docs/verification/refactor-integration.json"
   }
 }

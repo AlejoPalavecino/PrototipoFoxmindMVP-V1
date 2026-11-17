@@ -25,17 +25,17 @@ Autorización del usuario para integrar backend y luego frontend, con el orden y
 - **Blocker:** none
 
 ### TASK-003 — Verificación combinada e independiente
-- **State:** IN_PROGRESS
+- **State:** DONE
 - **Depends on:** TASK-002
 - **Owner:** root y quality_reviewer
 - **Acceptance:** Builds/tipos/lint/fronteras/suites/docs y flujos críticos verdes, revisión de conflictos, recibos y límites explícitos.
-- **Evidence:** BuildsAPI/web ylint/guards EXIT0;revisor138pruebas propias PASS. Barrido474fast ycuatroE2E en curso. Docs205/1118/0 antes del recibo final.
+- **Evidence:** Builds API/web y lint/guards EXIT0; revisor138 pruebas propias PASS. Ledger474archivos/2879PASS/0FAIL/0SKIP y4E2E/23PASS vigentes. Publicación repetida completa5/5 tras confirmación de descarte; conserva85aserciones y agrega22. Ego ambos roles, PDF compartido y DOCX/carpeta/chat privados, persistencia HTTP200,390/768/1440sin overflow yTab/Escape/foco. Hashes786registros reconciliados. Recibo docs/verification/refactor-integration.json explicita candidatos, fallos resueltos y límites.
 - **Blocker:** none
 
 ### TASK-004 — Main actualizado y trabajo previo conservado
-- **State:** PLANNED
+- **State:** IN_PROGRESS
 - **Depends on:** TASK-003
 - **Owner:** root
 - **Acceptance:** Main contiene ambos snapshots y correcciones verificadas; trabajo ajeno de main preservado y comprobado; sin push/despliegue.
-- **Evidence:** none
+- **Evidence:** Respaldo previo de16rutas en commitc2c823bc y copia exacta; landing porfast-forward pendiente traschecksfinales. No se aplica el borrador pendiente sobre la especificación aprobada.
 - **Blocker:** none

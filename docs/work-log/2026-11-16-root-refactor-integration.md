@@ -22,7 +22,7 @@ Ambos candidatos están cerrados localmente en sus tableros, sin commits, desde 
 
 ## Evidencia y cierre
 
-Pendiente de ejecutar. El [tablero](../../odd/tasks/refactor-integration.md) registra estados reales. Proveedores reales, entorno retenido, producción y publicación remota fuera del alcance.
+El [tablero](../../odd/tasks/refactor-integration.md) registra estados reales. Las notas siguientes conservan resultados e intentos; el cierre vigente está al final. Proveedores reales, entorno retenido, producción y publicación remota fuera del alcance.
 
 ### Snapshots y conciliación
 
@@ -31,3 +31,27 @@ Pendiente de ejecutar. El [tablero](../../odd/tasks/refactor-integration.md) reg
 Backend se aplicó primero por fast-forward. Merge frontend dejó14conflictos:1CI,3scripts,8docs y2tests; ningún conflicto en código productivo. CI conserva pathsbackend nuevos y componentefrontend nuevo. Inventarios unen ambas ramas y remapean134tests backend/262movimientos frontend;685entradas,57exclusiones y23rutas PASS. El primer chequeo encontró referencias antiguas porque el mapa productivo no incluía testMoves; se corrigió usando el ledger explícito de134movimientos, sin retirar cobertura.
 
 Los conflictos documentales eran enlaces a nuevos dueños; se preservaron textos y rutas de ambos lados. Tres enlaces backend seguían apuntando a directorios vacíos que existían en su worktree pero no en Git: el checkout limpio los detectó y ahora enlazan la capacidad real. Docs205archivos/1118enlaces/0issues. Dependencias locales: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund,499paquetes; no se cargó .env ni se tocó la instalación ajena. API build fresco genera Prisma propio y compila EXIT0. Webbuild/lint y reconciliación tests en curso.
+
+### Verificación del combinado
+
+Build API fresco y web Next16.4.5: EXIT0. Lint/fronteras: EXIT0 y0 excepciones. Comparación independiente con blobs congelados:932 archivos backend y766 frontend conservados, sin fuentes ausentes ni cambios de contenido. Se eliminó después una única línea vacía al EOF de QuestionEditor.tsx detectada por git diff --cached --check; trimEnd contra el snapshot es idéntico, sin cambios de lógica. El build y los E2E usan el mismo contenido ejecutable.
+
+La revisión independiente reprodujo un error introducido en la conciliación de CI: un registro añadido con source:null se había convertido en clave de reemplazo y alteraba nullglob. Se filtraron fuentes no vacías y se regeneró el workflow desde el snapshot backend más rutas frontend;15/15 controles CI y reproducción Bash posterior verdes. No se ocultó el fallo ni se cambió la política del workflow.
+
+Pasada rápida combinada:474 archivos,2876 PASS/3 FAIL/0 SKIP. Los tres fallos fueron un fixture que buscaba capas Agenda retiradas, una URL de directorio del dominio mal dirigida y el pin Next16.4.2 anterior al parche frontend16.4.5. Root revisó y autorizó únicamente esa actualización exacta del pin; no se cambió stack ni se usó un rango de versiones. Los tres archivos repetidos dieron14/14. Ledger final por archivo:2879 PASS/0 FAIL/0 SKIP con sourceRun explícito; no representa una segunda pasada completa. Los dos conflictos iniciales de tests sólo combinaron imports; revisor cotejó4/4 cuerpos contra ambos snapshots y confirmó cero aserciones o lógica retiradas.
+
+El revisor ejecutó138 pruebas focalizadas propias, verificó unión exacta de685 entradas/57 exclusiones/23 rutas sin omisiones, contratos UI/backend y compatibilidad global conservada. Detectó hashes desactualizados del mapa backend: se preservaron valores anteriores como snapshotRecordedCurrentSha256 y se regeneraron los actuales bajo política LF explícita, independiente del checkout. Cotejo posterior:615 fuentes,134 tests movidos y37 nuevos sin faltantes ni diferencias de hash. La validación original se etiqueta como histórica; la prueba del combinado vive en su recibo propio.
+
+Ego Lite sobre el build combinado: docente inició sesión, abrió Biblioteca, cargó PDF y publicó un material; estudiante inició sesión y pudo leerlo en la misma aula, HTTP200. Luego cargó DOCX privado, preparó plan sintético, activó carpeta y recibió chat con fuente. Recarga recuperó carpeta ACTIVE,1 conversación y2 mensajes. Capturas390/768/1440 revisadas, sin overflow horizontal en los tamaños muestreados; Tab dentro de diálogo modal y Escape restaurando Herramientas. Espacio cerrado sin conservar páginas; preview propio EXIT0 y cleanup0.
+
+E2E serial con recursos aislados: cuestionario8/8, práctica5/5 y corrección5/5 verdes. La primera publicación falló esperando GET tras Recargar con cambios sin guardar; la aceptación frontend aprobada protege ese borrador con confirmación. Root revisó la discrepancia y autorizó adaptar sólo el paso E2E: cancelar conserva texto y prohíbe GET/POST, confirmar permite sólo GET observado por path y fase. Se mantienen aserciones de privacidad, datos, cancelación/publicación, identidad y reinicio, y Retry-After real. Repetición completa de publicación en curso; no se cierra aceptación antes de su resultado.
+
+Merge de ambos snapshots:399eaa58a0aad41b4b5e9042568aa00dc170791f. Los ajustes finales de evidencia/formato/E2E van en una unidad posterior. Main todavía no cambió. Se capturó su estado previo de16 rutas y copia byte exacta de documentos, sin leer secretos: backup commit c2c823bc0c1c082da1776128d1394cc92310a544 bajo codex/pre-refactor-main-work. Los borradores previos de arquitectura se conservan allí; no deben reemplazar el diseño aprobado integrado.
+
+### Aceptación final antes de main
+
+Publicación repetida completa:5 PASS/0 FAIL/0 SKIP,184s,cleanup0. Cuatro archivos E2E vigentes:23 PASS/0 FAIL/0 SKIP, sin sumar el intento rojo. Cuestionario8, práctico5, corrección5 y publicación5 cubren guardado/entrega, revisión, privacidad, resultado efectivo, notificaciones, reinicio y revocación. Se observó Retry-After real de47s en destino publicado; la rama429 de recarga no se activó y no se afirma cubierta por esta corrida.
+
+La revisión independiente final verificó786 hashes actuales e históricos, cuatro sentencias AST de QuestionEditor idénticas y conservación de85/85 aserciones E2E más22 nuevas. Reejecutó descarte protegido3/3; no se atribuye ejecución E2E independiente. El [recibo combinado](../verification/refactor-integration.json) conserva fuentes de resultados y límites.
+
+Gates finales previos a main: docs208 archivos/1121 enlaces/0issues; TTP4 tareas válido; inventario685/57/23; diff-check0. Las fuentes productivas siguen preservadas salvo la limpieza EOF declarada. La integración está lista para fast-forward local, sin push. El cierre de main se registra tras ejecutarlo y comprobar sus cambios previos.

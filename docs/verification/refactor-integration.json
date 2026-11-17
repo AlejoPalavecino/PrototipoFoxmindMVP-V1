@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "status": "VERIFIED_FOR_LOCAL_INTEGRATION",
+  "baseCommit": "dd6f4bc92b959cce0e2c68343291614270c4a17e",
+  "backendSnapshot": "d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1",
+  "frontendSnapshot": "eba381b3f28662daaca366687d34b12cfb30d955",
+  "combinedMerge": "399eaa58a0aad41b4b5e9042568aa00dc170791f",
+  "branch": "codex/refactor-integration",
+  "delivery": {
+    "committed": true,
+    "mainUpdated": false,
+    "pushed": false,
+    "deployed": false,
+    "mainRuntimeStarted": false,
+    "mainDependenciesModified": false
+  },
+  "preservation": {
+    "originalWorktreeHeadsAndIndexesUntouched": true,
+    "backendFiles": 932,
+    "frontendFiles": 766,
+    "missingOrOverwrittenProductionFiles": 0,
+    "intentionalProductionAdjustment": {
+      "file": "apps/web/src/features/activity-authoring/drafting/QuestionEditor.tsx",
+      "change": "Removed one extra empty line at EOF; trimEnd and all four AST statements identical to snapshot."
+    },
+    "compatibilityEntry": "src/core/domain/index.ts retained",
+    "mainBackupRef": "codex/pre-refactor-main-work",
+    "mainBackupCommit": "c2c823bc0c1c082da1776128d1394cc92310a544",
+    "mainPreexistingPaths": 16
+  },
+  "verification": {
+    "apiBuild": {
+      "exitCode": 0
+    },
+    "webBuild": {
+      "exitCode": 0,
+      "next": "16.4.5",
+      "buildId": "EvQ-W7w_4uEZuifjY5x-p"
+    },
+    "lintAndBoundaries": {
+      "exitCode": 0,
+      "frozenExceptions": 0
+    },
+    "inventory": {
+      "entries": 685,
+      "exclusions": 57,
+      "routes": 23,
+      "unionIndependentlyVerified": true
+    },
+    "fast": {
+      "files": 474,
+      "passed": 2879,
+      "failed": 0,
+      "skipped": 0,
+      "kind": "reconciled-per-file; not a second complete run",
+      "initial": {
+        "passed": 2876,
+        "failed": 3,
+        "skipped": 0
+      },
+      "rerun": {
+        "files": 3,
+        "passed": 14,
+        "failed": 0,
+        "skipped": 0
+      },
+      "localLedger": ".test-artifacts/refactor-integration/test-fast-final.json"
+    },
+    "e2e": {
+      "files": [
+        {
+          "file": "tests/p7-questionnaire-integration.test.mjs",
+          "exitCode": 0,
+          "passed": 8,
+          "skipped": 0,
+          "failed": 0
+        },
+        {
+          "file": "tests/p7-practical-integration.test.mjs",
+          "exitCode": 0,
+          "passed": 5,
+          "skipped": 0,
+          "failed": 0
+        },
+        {
+          "file": "tests/p8-grading-integration.test.mjs",
+          "exitCode": 0,
+          "passed": 5,
+          "skipped": 0,
+          "failed": 0
+        },
+        {
+          "file": "tests/p8-publication-integration.test.mjs",
+          "exitCode": 0,
+          "passed": 5,
+          "skipped": 0,
+          "failed": 0
+        }
+      ],
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0,
+      "publicationInitial": {
+        "exitCode": 1,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 3,
+        "reason": "Legacy E2E expected silent reload; approved frontend requires discard confirmation."
+      },
+      "publicationAdaptation": {
+        "oldAssertionsPreserved": 85,
+        "newAssertions": 22,
+        "sha256Lf": "2966a033ea1c67736112550e61248731406474afa7603e69d2e1d1edeb4096dd",
+        "retryAfterReloadBranchExercised": false,
+        "publishedDestinationRetryAfterSeconds": 47
+      }
+    },
+    "independent": {
+      "focusedTests": 138,
+      "protectedDiscardRerun": 3,
+      "sourceIdentity": true,
+      "inventoryUnion": true,
+      "assertionPreservation": true,
+      "hashRecordsVerified": 786,
+      "e2eExecution": false
+    },
+    "ego": {
+      "tool": "Ego Lite",
+      "provider": "synthetic",
+      "roles": [
+        "teacher",
+        "student"
+      ],
+      "sharedMaterialPublicationAndStudentRead": {
+        "status": 200,
+        "visible": true
+      },
+      "study": {
+        "status": 200,
+        "folderState": "ACTIVE",
+        "conversations": 1,
+        "messages": 2,
+        "samples": [
+          {
+            "width": 390,
+            "overflow": false,
+            "chat": true
+          },
+          {
+            "width": 768,
+            "overflow": false,
+            "chat": true
+          },
+          {
+            "width": 1440,
+            "overflow": false,
+            "chat": true
+          }
+        ],
+        "focus": {
+          "inside": true,
+          "modal": true
+        },
+        "escapeRestored": true
+      },
+      "spaceFinished": true,
+      "previewCleanupFailures": 0
+    },
+    "documentation": {
+      "files": 208,
+      "links": 1121,
+      "issues": 0
+    },
+    "taskboard": {
+      "tasks": 4,
+      "valid": true
+    }
+  },
+  "changesDuringIntegration": [
+    "Combined backend and frontend path mappings in CI, suites and documentation.",
+    "Fixed three stale directory links exposed by clean checkout.",
+    "Reconciled two import conflicts without changing test bodies.",
+    "Adjusted Agenda structural fixture and domain directory URL.",
+    "Updated exact Next pin in acceptance to approved frontend16.4.5.",
+    "Added explicit cancel/confirm gestures to publication E2E, preserving privacy/persistence/restart assertions.",
+    "Regenerated map hashes with LF policy while preserving prior values and historical verification scope."
+  ],
+  "limits": [
+    "Not a complete run of owned-db/services/browser/wrappers groups; selected E2E exercised synthetic DB/storage/scanner/mail and browser.",
+    "No real provider, production, retained data, deployment or external publication.",
+    "Independent reviewer verified source and pure tests; functional E2E belongs to test_engineer and Ego to root.",
+    "Installed dependencies and build artifacts remain isolated in integration worktree."
+  ]
+}
