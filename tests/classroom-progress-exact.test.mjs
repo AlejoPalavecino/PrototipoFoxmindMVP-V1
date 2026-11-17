@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -9,18 +10,18 @@ const plan = { total: 2, taught: 1, percentage: '50', units: [{ id: 'unit', name
 const activity = (id, review, grade = null) => ({ id, title: id, type: 'ASSIGNMENT', expected: true, firstSubmission: { id: `first-${id}`, number: 1, submittedAt: '2026-11-16T12:00:00Z', appliedDeadlineAt: null, late: false }, pendingResubmission: false, grade, review });
 const student = activities => ({ studentId: 'student', firstName: 'Ana', lastName: 'Prueba', currentMember: true, completion: { ...emptyCompletion, expected: activities.length, delivered: activities.length, percentage: '100' }, performance: { graded: 1, average: '0' }, activities });
 async function viewFor(data, props = {}) {
-  const { Progress } = loadTsModule('apps/web/src/features/grading/ui/Progress.tsx');
-  const view = hookView(Progress, { api: { call: async () => data }, classroomId: 'room', ...props });
+  const { Progress } = loadTsModule('apps/web/src/features/grading/progress/Progress.tsx');
+  const view = hookView(Progress, gradingFixtureProps('Progress', { api: { call: async () => data }, classroomId: 'room', ...props }));
   await view.flush();
   const element = descendants(view.tree, node => node.type?.name === (data.scope === 'classroom' ? 'TeacherOverview' : 'StudentOverview'))[0];
   return { view, tree: element?.type(element.props) ?? view.tree };
 }
 
 test('teacher progress keeps its heading through loading, failure and retry', async () => {
-  const { Progress } = loadTsModule('apps/web/src/features/grading/ui/Progress.tsx');
+  const { Progress } = loadTsModule('apps/web/src/features/grading/progress/Progress.tsx');
   const requests = [];
-  const view = hookView(Progress, { classroomId: 'room', expectedScope: 'classroom',
-    api: { call: () => new Promise((resolve, reject) => requests.push({ resolve, reject })) } });
+  const view = hookView(Progress, gradingFixtureProps('Progress', { classroomId: 'room', expectedScope: 'classroom',
+    api: { call: () => new Promise((resolve, reject) => requests.push({ resolve, reject })) } }));
   try {
     await view.flush();
     assert.match(text(view.tree), /Una mirada a tu grupo/);
@@ -87,9 +88,9 @@ test('progress service removes teacher review metadata from self and AI projecti
 });
 
 test('individual journey opens latest review directly and returns to progress without an unrelated profile detour', async () => {
-  const { StudentRecord } = loadTsModule('apps/web/src/features/grading/ui/StudentRecord.tsx');
+  const { StudentRecord } = loadTsModule('apps/web/src/features/grading/progress/StudentRecord.tsx');
   const calls = [], summary = { firstName: 'Ana', lastName: 'Prueba', studentId: 'student', progress: true, attempts: [] };
-  const view = hookView(StudentRecord, { api: {}, classroomId: 'room', summary, onBack: () => calls.push('back'), onOpenActivity: (...args) => calls.push(args) });
+  const view = hookView(StudentRecord, gradingFixtureProps('StudentRecord', { api: {}, classroomId: 'room', summary, onBack: () => calls.push('back'), onOpenActivity: (...args) => calls.push(args) }));
   await view.flush();
   try {
     const dialog = descendants(view.tree, node => node.type?.name === 'Dialog')[0];

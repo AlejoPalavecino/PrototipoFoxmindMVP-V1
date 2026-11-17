@@ -15,7 +15,7 @@ async function setup(handler) {
     calls.push({ path, method });
     return handler?.(path, method, body, signal) ?? { items: [row], unreadCount: 1, nextCursor: null };
   } };
-  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
   const view = hookView(Notifications, { api, refresh: 0, presentation: 'center', onOpen() {}, onNavigate: target => targets.push(target) });
   await view.flush();
   return { view, calls, targets };

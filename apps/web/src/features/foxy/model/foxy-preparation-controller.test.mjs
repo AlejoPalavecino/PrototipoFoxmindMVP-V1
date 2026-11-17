@@ -9,7 +9,7 @@ function fixture(){let resourceState={resource:{id:rid,revision:'7',title:'Guía
  const client={preparePublication:async(...args)=>{calls.push(['prepare',...args]);const value=queue.shift();if(value instanceof Error)throw value;return value??{created:true,publication:{id:randomUUID(),resourceId:rid,resourceRevision:'7',classroomId:room,title:'Guía',unitId:null,topicId:null,state:'PREPARING',revision:'0'}};}};
  const options={client,resource:{getState:()=>resourceState},loadClassroom:async(...args)=>{calls.push(['classroom',...args]);return detail;},onChange:()=>{},uuid:()=>requestId};
  return {options,calls,queue,detail,setResource:value=>resourceState=value,getResource:()=>resourceState};}
-function create(f){const api=loadTsModule("apps/web/src/features/foxy/model/foxy-preparation-controller.ts");assert.equal(typeof api.createFoxyPreparationController,'function');return api.createFoxyPreparationController(f.options);}
+function create(f){const api=loadTsModule("apps/web/src/features/foxy/resources/foxy-preparation-controller.ts");assert.equal(typeof api.createFoxyPreparationController,'function');return api.createFoxyPreparationController(f.options);}
 const error=(code,status)=>Object.assign(Error(code),{code,status});
 test('requires saved clean resource and actual active destination',async()=>{const f=fixture(),c=create(f);c.syncResource();assert.equal(c.getState().canPrepare,false);await c.selectDestination(room);
  assert.equal(c.getState().canPrepare,true);for(const key of ['dirty','busy','pending','conflict']){const before=f.getResource();f.setResource({...before,[key]:key==='pending'?'SAVE':key==='conflict'?{}:true});c.syncResource();assert.equal(c.getState().canPrepare,false,key);f.setResource(before);c.syncResource();}
@@ -31,7 +31,7 @@ test('missing or duplicate curriculum IDs cannot be selected or fabricated',asyn
  await c.selectDestination(room);c.selectUnit(unit);c.selectTopic(topic);assert.equal(c.getState().metadata.unitId,null);assert.equal(c.getState().metadata.topicId,null);c.dispose();});
 
 test('real editor unresolved conflict blocks preparation even when draft matches old base',async()=>{
- const f=fixture(),editorApi=loadTsModule("apps/web/src/features/foxy/model/foxy-resource-controller.ts");let uuidCalls=0;
+ const f=fixture(),editorApi=loadTsModule("apps/web/src/features/foxy/resources/foxy-resource-controller.ts");let uuidCalls=0;
  const original={id:rid,conversationId:randomUUID(),sourceTurnId:randomUUID(),title:'Guía',markdown:'Texto',revision:'7'};
  const resource=editorApi.createFoxyResourceController({client:{resourceFromTurn:async()=>({created:false,resource:original}),editResource:async()=>{throw error('CONFLICT',409);},getResource:async()=>{throw error('SERVICE_UNAVAILABLE',503);}},onChange:()=>{},uuid:()=>randomUUID()});
  await resource.open(original.conversationId,original.sourceTurnId);resource.updateDraft({title:'Editado',markdown:'Texto'});assert.equal(await resource.save(),'conflict');

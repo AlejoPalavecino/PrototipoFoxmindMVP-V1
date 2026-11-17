@@ -15,7 +15,7 @@ FoxMind es una plataforma educativa para organizar aulas, planes, materiales, ac
 | Área | Tecnología | Responsabilidad |
 |---|---|---|
 | Ejecución y lenguaje | Node.js 24, TypeScript 5.9.3 | Herramientas, servicios y tipado |
-| Interfaz | Next.js 16.4.2, React 19.3.1 | Páginas, componentes y proxies HTTP; Pages Router en apps/web/pages |
+| Interfaz | Next.js 16.4.5, React 19.3.1 | Páginas, componentes y proxies HTTP; Pages Router en apps/web/pages |
 | Estilos | CSS compartido y por pantalla, Tailwind CSS 4.3.3 | Brújula sobre componentes existentes; no asumir que todos los estilos históricos pueden retirarse |
 | API | NestJS common/core 12.1.3, platform-express 12.3.2 | Composición, transporte y ciclo de vida |
 | Persistencia | Prisma 7.10.0, pg 8.23.1, PostgreSQL 17.10 local | Acceso transaccional; migraciones SQL para restricciones adicionales |
@@ -34,9 +34,9 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 | Superficie | Responsabilidad |
 |---|---|
 | apps/web/pages | Adaptadores Next de páginas y proxies /api/v1 |
-| apps/web/src/application | Sesión, navegación, shell, integración entre features y transporte servidor |
+| apps/web/src/application | Shell, navegación, clientes/transportes, workflows entre features y transporte servidor |
 | apps/web/src/screens | Composición de pantallas a partir de las entradas públicas de features |
-| apps/web/src/features | UI, estado, API y validación de cada capacidad |
+| apps/web/src/features | Dominios organizados por caso de uso, con UI/estado/estilos propios y contratos/adaptadores acotados |
 | apps/shared-ui | Presentación genérica, controles y estilos Brújula; sin dependencia de features |
 | apps/api/src/modules | Casos de uso y puertos por dominio; adaptadores de persistencia/proveedor y presentación HTTP |
 | apps/api/src/bootstrap | Conexión de módulos, configuración del host y ciclos de vida |
@@ -164,7 +164,7 @@ El backend importa las reglas neutrales desde su archivo dueño en `src/core/dom
 
 `scripts/migration-boundaries.mjs` y el guard AST protegen módulos, capacidades, contratos públicos, entradas de features y dirección de dependencias, con cero excepciones congeladas. El [mapa por archivo](../verification/backend-capabilities-map.json) conserva origen, destino y huellas de la base y del candidato. El resultado local y sus límites se registran en el [tablero de capacidades](../../odd/tasks/backend-capabilities.md) y su [registro de ejecución](../work-log/2026-11-16-root-backend-capabilities-execution.md); no equivalen a integración ni publicación.
 
-El núcleo agrupa reglas en `src/core/domain/<dominio>`; los consumidores usan su dueño concreto. `src/core/contracts` separa DTOs compartidos y `sql.ts` define persistencia: un tipo SQL no es una regla de dominio ni un contrato para exponer al navegador. No hay un barrel global que mezcle todos los dominios.
+El núcleo agrupa reglas en `src/core/domain/<dominio>`; el frontend importa su dueño concreto, comprobado por un guard. `src/core/contracts` separa DTOs compartidos y `sql.ts` define persistencia: un tipo SQL no es una regla de dominio ni un contrato para exponer al navegador. `domain/index.ts` conserva una fachada global para consumidores existentes y pruebas de identidad; no se retira como parte del refactor frontend.
 
 Estudio conserva motor neutral en `src/core/domain/study/engine.ts`, casos de uso en `modules/study/application` y cargas/avisos en su infraestructura/presentación. `bootstrap/study-file-integration.ts` y `bootstrap/study-agenda-integration.ts` conectan las capacidades sin conceder permisos docentes. Ver [Estudio](study/README.md) y [frontend](frontend/README.md).
 

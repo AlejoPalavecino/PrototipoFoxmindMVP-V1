@@ -15,7 +15,7 @@ test('rechaza sesiones que se pisan, fechas inválidas y horarios fuera del día
 });
 
 test('el formulario crea exactamente las sesiones elegidas, con duración completa y rotación de temas',async()=>{
- const {StudyExamPlanner}=componentWithPorts('apps/web/src/features/study/ui/study-practice.tsx',{});
+ const {StudyExamPlanner}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  for(const [topicCount,count] of [[1,3],[2,5],[5,2]]){
   const topics=Array.from({length:topicCount},(_,index)=>({id:`topic-${index}`,title:`Tema ${index+1}`}));
   let saved,request,prepared;

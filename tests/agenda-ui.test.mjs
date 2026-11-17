@@ -6,7 +6,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants, deferred } from './agenda-ui-helpers.test.mjs';
 
 test('opening a revoked deadline from the selected day removes stale data even when refresh fails', async () => {
-  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/calendar/Agenda.tsx');
   const { AgendaClientError } = loadTsModule('apps/web/src/features/agenda/api/api.ts');
   const target = { classroomId: randomUUID(), activityId: randomUUID() };
   const deadline = { kind: 'ACADEMIC_DEADLINE', id: randomUUID(), target, classroomName: 'Aula acceso perdido',
@@ -58,7 +58,7 @@ test('opening a revoked deadline from the selected day removes stale data even w
 });
 
 test('a delayed forbidden open after month navigation revalidates the current month without restoring the old range', async () => {
-  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/calendar/Agenda.tsx');
   const { AgendaClientError } = loadTsModule('apps/web/src/features/agenda/api/api.ts');
   const target = { classroomId: randomUUID(), activityId: randomUUID() };
   const old = { kind: 'ACADEMIC_DEADLINE', id: randomUUID(), target, classroomName: 'Aula revocada noviembre',
@@ -115,7 +115,7 @@ test('a delayed forbidden open after month navigation revalidates the current mo
 });
 
 test('calendar failure stays visible as an error and can be retried', async () => {
-  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/calendar/Agenda.tsx');
   const originalWindow = globalThis.window, originalStorage = globalThis.sessionStorage;
   globalThis.window = new EventTarget();
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-01', zone: 'UTC' }) };

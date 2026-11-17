@@ -1,3 +1,10 @@
 export { canPreviewMaterial } from './api/material-preview.ts';
-export { MaterialReader } from './ui/MaterialReader.tsx';
-export { Library } from './ui/Library.tsx';
+export { createMaterialsApi } from './api/materials-api.ts';
+export type { MaterialsTransport } from './api/materials-api.ts';
+export type { MaterialChange, MaterialLookup, MaterialMetadata, MaterialsOperations } from './model/materials-operations.ts';
+export { MaterialReader } from './reader/MaterialReader.tsx';
+export { Library } from './catalog/Library.tsx';
+export { MaterialCatalog } from './catalog/MaterialCatalog.tsx';
+export { MaterialPublishing } from './publishing/MaterialPublishing.tsx';
+export { MaterialReaderWorkspace } from './reader/MaterialReaderWorkspace.tsx';
+export type { LibraryProps } from './model/library-props.ts';

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { QuestionnaireDraft, ANSWER_IDLE_MS } from '../apps/web/src/features/participation/model/questionnaire-draft.ts';
+import { QuestionnaireDraft, ANSWER_IDLE_MS } from '../apps/web/src/features/participation/questionnaire/questionnaire-draft.ts';
 
 function fixture(save) {
   const scheduled = new Map(); let id = 0;
@@ -13,7 +13,7 @@ const confirmed = (input, revision) => ({ revision, answer: { ...input, savedAt:
 const turn = () => new Promise(resolve => setImmediate(resolve));
 
 test('questionnaire draft exports a generation-aware serialized persistence queue', async () => {
-  const { QuestionnaireDraft } = await import('../apps/web/src/features/participation/model/questionnaire-draft.ts');
+  const { QuestionnaireDraft } = await import('../apps/web/src/features/participation/questionnaire/questionnaire-draft.ts');
   assert.equal(typeof QuestionnaireDraft, 'function');
 });
 

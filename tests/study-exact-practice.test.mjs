@@ -11,7 +11,7 @@ test.before(()=>{globalThis.window={addEventListener(){},removeEventListener(){}
 test.after(()=>{globalThis.window=previousWindow;});
 
 test('la práctica muestra una pregunta por vez y revisar conserva las respuestas',async()=>{
- const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/ui/study-practice.tsx',{});
+ const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  const calls=[];const view=hookView(StudyPracticeView,{practice,busy:false,run:async(...args)=>calls.push(args),onDirtyChange(){},onNewAttempt:async()=>{},onClose(){}});
  try{await view.flush();
   assert.equal(descendants(view.tree,node=>node.type==='fieldset').length,1);
@@ -25,7 +25,7 @@ test('la práctica muestra una pregunta por vez y revisar conserva las respuesta
 });
 
 test('finalizar exige confirmación y guarda antes de cerrar el intento',async()=>{
- const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/ui/study-practice.tsx',{});
+ const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  const calls=[];const view=hookView(StudyPracticeView,{practice:{...practice,answers:{q1:['a'],q2:'Respuesta guardada'}},busy:false,run:async(...args)=>calls.push(args),onDirtyChange(){},onNewAttempt:async()=>{},onClose(){}});
  try{await view.flush();button(view.tree,'Siguiente').props.onClick();await view.flush();button(view.tree,'Revisar').props.onClick();await view.flush();button(view.tree,'Finalizar').props.onClick();await view.flush();
   assert.deepEqual(calls,[]);
@@ -36,14 +36,14 @@ test('finalizar exige confirmación y guarda antes de cerrar el intento',async()
 });
 
 test('la práctica objetiva finalizada muestra corrección sin una devolución orientativa pendiente',async()=>{
- const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/ui/study-practice.tsx',{});
+ const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  const objective={...practice,status:'FINALIZED',questions:[practice.questions[0]],result:{questions:[{id:'q1',score:1,explanation:'Respuesta correcta'}]},feedback:{status:'PENDING'}};
  const view=hookView(StudyPracticeView,{practice:objective,busy:false,run:async()=>assert.fail('leer no pide IA'),onDirtyChange(){},onNewAttempt:async()=>{}});
  try{await view.flush();const markdown=descendants(view.tree,node=>node.type?.name==='FoxyMarkdown').map(node=>node.props.markdown).join('\n');assert.match(markdown,/Pregunta 1: Correcta/);assert.doesNotMatch(markdown,/devolución.*pendiente|devolución.*no está disponible/iu);assert.equal(button(view.tree,'Reintentar devolución'),undefined);}finally{view.close();}
 });
 
 test('la devolución de desarrollo sólo permite reintentar mientras no esté completa',async()=>{
- const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/ui/study-practice.tsx',{});
+ const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  for(const status of ['PENDING','COMPLETE']){
   const calls=[],mixed={...practice,status:'FINALIZED',answers:{q1:['a'],q2:'Mi explicación'},result:{questions:[{id:'q1',score:1},{id:'q2',score:null}]},feedback:{status,...(status==='COMPLETE'?{markdown:'Orientación real guardada'}:{})}};
   const view=hookView(StudyPracticeView,{practice:mixed,busy:false,run:async(...args)=>calls.push(args),onDirtyChange(){},onNewAttempt:async()=>{}});

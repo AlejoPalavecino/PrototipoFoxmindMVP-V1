@@ -2,7 +2,7 @@ import { gradingView, publishedResult } from './helpers/audit-grade-dto.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('separate publication client sends only revision confirmation and fresh CSRF, result GET has no body or editor', async () => {
@@ -16,9 +16,9 @@ test('separate publication client sends only revision confirmation and fresh CSR
 });
 
 test('history and grade targets render an explicit safe result, not the teacher correction DTO', async () => {
-  const result = await readFile(new URL('../apps/web/src/features/grading/ui/PublishedResult.tsx', import.meta.url), 'utf8');
-  const history = await readFile(new URL('../apps/web/src/application/academic-AttemptHistory.tsx', import.meta.url), 'utf8');
-  const activities = await readFile(new URL('../apps/web/src/application/academic-Activities.tsx', import.meta.url), 'utf8');
+  const result = await readFile(new URL('../apps/web/src/features/grading/results/PublishedResult.tsx', import.meta.url), 'utf8');
+  const history = await readFile(new URL('../apps/web/src/application/workflows/activity-session/AttemptHistory.tsx', import.meta.url), 'utf8');
+  const activities = await readFile(new URL('../apps/web/src/application/workflows/activity-session/Activities.tsx', import.meta.url), 'utf8');
   assert.match(history, /status === 'SUBMITTED' \? <PublishedResult/); assert.match(result, /selectedOptions.map/);
   assert.match(result, /Resultado pendiente de publicación/); assert.match(result, /isEffective/);
   assert.ok(!/\.correct|scoringRule|manualPoints|audit/.test(result)); assert.match(activities, /target.kind !== 'activity'.*setHistory/);

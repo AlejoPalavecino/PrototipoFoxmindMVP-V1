@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const app = 'apps/web/src/application/academic-Classrooms.tsx';
-const panel = 'apps/web/src/features/classrooms/ui/PendingInvitations.tsx';
+const app = 'apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx';
+const panel = 'apps/web/src/features/classrooms/enrollment/PendingInvitations.tsx';
 const invitation = {
   id: 'a1111111-1111-4111-8111-111111111111', name: 'Ciencias', teacher: 'Docente QA', subject: 'Ciencias',
   division: 'A', academicYear: 2026, expiresAt: '2026-12-01T12:00:00Z',
@@ -156,7 +156,7 @@ test('La pantalla resuelve el enlace con reemplazo de la ruta, no con una segund
     '../features/identity/index.ts': { createAccountClient: () => ({ session: async () => ({
       authenticated: true, user: { id: 'student', emailVerified: true, accountRole: 'student' },
     }) }) },
-    '../application/academic-useAgendaTarget.ts': { useAgendaTarget: () => ({}) },
+    '../application/navigation/use-agenda-target.ts': { useAgendaTarget: () => ({}) },
   } });
   let refresh;
   const view = hookView(() => {
@@ -232,7 +232,7 @@ test('navegar desde Inicio conserva Borradores y el tipo de aviso sin filtrar a 
  const {ClassroomsScreen}=loadTsModule('apps/web/src/screens/classrooms-screen.tsx',{stubs:{
   'next/router':{useRouter:()=>router},
   '../features/identity/index.ts':{createAccountClient:()=>({session:async()=>({authenticated:true,user:{id:accountId,emailVerified:true,accountRole:'teacher'}})})},
-  '../application/academic-useAgendaTarget.ts':{useAgendaTarget:()=>({})},
+  '../application/navigation/use-agenda-target.ts':{useAgendaTarget:()=>({})},
  }});
  let view=hookView(ClassroomsScreen,{initialPresentation:'home'});
  try {await view.flush();component(view,'ClassroomsApp').props.onNavigate('classrooms','Borrador guardado',{kind:'success',collectionState:'pending'});await view.flush();assert.deepEqual(routes,['/mis-aulas']);}

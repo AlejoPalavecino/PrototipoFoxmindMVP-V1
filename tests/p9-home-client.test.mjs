@@ -21,7 +21,7 @@ test('Inicio continuation is additive, literal and does not widen the closed des
 });
 
 test('Home keeps verified identity and routes archived history to the collection without inventing active focus', async () => {
-  const { Home } = component('apps/web/src/features/home/ui/Home.tsx');
+  const { Home } = component('apps/web/src/features/home/dashboard/Home.tsx');
   const id = '11111111-1111-4111-8111-111111111111';
   const room = { id, name: 'Real classroom <script>', subject: 'Science', division: 'A', timeZone: 'UTC', coverKey: 'explore', archived: true, role: 'teacher' };
   const empty = () => ({ status: 'ready', items: [], totalItems: null, nextCursor: null });
@@ -46,7 +46,7 @@ test('Home keeps verified identity and routes archived history to the collection
     collectionAction.props.onClick();
     assert.equal(openedCollection, 1);
     assert.equal(created, 0);
-    const { ClassroomCard } = component('apps/web/src/features/classrooms/ui/ClassroomCollectionCard.tsx');
+    const { ClassroomCard } = component('apps/web/src/features/classrooms/collection/ClassroomCollectionCard.tsx');
     const archivedCard = renderToStaticMarkup(ClassroomCard({ room, onEnter() {} }));
     assert.match(archivedCard, /Real classroom &lt;script&gt;/); assert.match(archivedCard, /Archivada/);
     assert.doesNotMatch(archivedCard, /<script>/);

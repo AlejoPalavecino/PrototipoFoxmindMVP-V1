@@ -55,7 +55,7 @@ test('reply dialog preserves permissions and closes after confirmed save even if
 });
 
 test('people match role rows, hide incidental search/email, and mark self only from explicit identity', () => {
-  const { ClassroomRoster } = loadTsModule(base + 'ClassroomRoster.tsx');
+  const { ClassroomRoster } = loadTsModule('apps/web/src/features/classrooms/members/ClassroomRoster.tsx');
   const members = [{ firstName:'Alex', lastName:'Prueba', studentId:'one', email:'synthetic@example.test', isSelf:false },
     { firstName:'Alex', lastName:'Prueba', studentId:'two', isSelf:true }];
   const teacher = renderToStaticMarkup(React.createElement(ClassroomRoster, {...props,members}));
@@ -67,7 +67,7 @@ test('people match role rows, hide incidental search/email, and mark self only f
 });
 
 test('settings only edit reference fields and preserve persisted year and AI state when saving', async () => {
-  const { ClassroomSettings } = loadTsModule(base+'ClassroomSettings.tsx');
+  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   const calls=[];
   const view=hookView(ClassroomSettings,{...props,settings:{name:room.name,subject:room.subject,division:room.division,academicYear:2026,coverKey:'math',aiGradingEnabled:true},
     settingsRevision:'3',api:{call:async(...args)=>{calls.push(args);return {revision:'4'};}},setSettings:noop,
@@ -83,7 +83,7 @@ test('settings only edit reference fields and preserve persisted year and AI sta
 });
 
 test('sticky settings submit remains disabled outside the fieldset for archived rooms or pending saves', () => {
-  const { ClassroomSettings }=loadTsModule(base+'ClassroomSettings.tsx');
+  const { ClassroomSettings }=loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   for(const state of [{busy:true,room},{busy:false,room:{...room,archived:true}}]) {
     const markup=renderToStaticMarkup(React.createElement(ClassroomSettings,{...props,...state,settings:room,settingsRevision:'3'}));
     assert.match(markup, /type="submit" disabled=""/);

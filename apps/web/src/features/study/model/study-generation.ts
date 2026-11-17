@@ -1,8 +1,9 @@
-import type {StudyConversation,StudyDetail,StudyGeneration,StudyTurn} from '../api/study-client.ts';
+import type { StudyRun } from './study-commands.ts';
+import type {StudyConversation,StudyDetail,StudyGeneration,StudyTurn} from './study-contracts.ts';
 
 export type StudyGenerationRequest=StudyGeneration&{conversationId:string;message:string};
 export type StudyGenerationInput=Pick<StudyGeneration,'kind'|'topicIds'|'sourceIds'|'questionCount'|'difficulty'>&{message:string};
-export type StudyGenerationRun=(action:string,data?:Record<string,unknown>,requestId?:string)=>Promise<unknown>;
+export type StudyGenerationRun=StudyRun;
 
 export function studyGenerationRequests(conversation?:StudyConversation):StudyGenerationRequest[]{
  if(!conversation)return [];

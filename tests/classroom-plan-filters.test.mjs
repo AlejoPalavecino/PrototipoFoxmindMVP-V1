@@ -4,8 +4,8 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Plan selects every topic without legacy filters or writes and marks only from the detail', async () => {
-  const { PlanWorkspace } = loadTsModule('apps/web/src/application/academic-plan-workspace.tsx', {
-    stubs: { '../model/use-plan-workspace.ts': { usePlanWorkspace: () => ({ data: { materials: [], activities: [] } }) } },
+  const { PlanWorkspace } = loadTsModule('apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx', {
+    stubs: { './use-plan-workspace.ts': { usePlanWorkspace: () => ({ data: { materials: [], activities: [] } }) } },
   });
   const writes = [], room = { id: 'aula', role: 'teacher', units: [
     { id: 'uno', name: 'Unidad uno', topics: [{ id: 'next', name: 'Siguiente', status: 'NEXT' }] },

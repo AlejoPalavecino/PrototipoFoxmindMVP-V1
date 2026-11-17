@@ -9,7 +9,7 @@ const room = { id: 'room', revision: '1', role: 'teacher', archived: false, plan
 ] };
 
 test('Plan exposes the reference learning workspace without retired administration or implicit writes', async () => {
-  const { Plan } = loadTsModule("apps/web/src/application/academic-plan.tsx");
+  const { Plan } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomPlan.tsx");
   const calls = [], view = hookView(Plan, { room, api: { call: async (...args) => calls.push(args) }, reload: async () => {} });
   try {
     await view.flush();
@@ -21,7 +21,7 @@ test('Plan exposes the reference learning workspace without retired administrati
 });
 
 for (const state of [{ role: 'student' }, { archived: true }]) test(`Read-only Plan never exposes management ${JSON.stringify(state)}`, async () => {
-  const { Plan } = loadTsModule("apps/web/src/application/academic-plan.tsx");
+  const { Plan } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomPlan.tsx");
   const view = hookView(Plan, { room: { ...room, ...state }, api: {}, reload: async () => {} });
   try {
     await view.flush();
@@ -32,7 +32,7 @@ for (const state of [{ role: 'student' }, { archived: true }]) test(`Read-only P
 });
 
 test('focused topic progress uses the classroom revision and reloads after the authorized change', async () => {
-  const { Plan } = loadTsModule("apps/web/src/application/academic-plan.tsx");
+  const { Plan } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomPlan.tsx");
   const calls = []; let reloaded = 0;
   const view = hookView(Plan, { room, api: { call: async (...args) => calls.push(args) }, reload: async () => { reloaded++; } });
   try {
@@ -49,7 +49,7 @@ test('focused topic progress uses the classroom revision and reloads after the a
 for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${accountRole} work and permitted contextual navigation visible`, async () => {
   const previousWindow = globalThis.window;
   globalThis.window = { addEventListener() {}, removeEventListener() {} };
-  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx");
+  const { Home } = loadTsModule("apps/web/src/features/home/dashboard/Home.tsx");
   const data = { subjectId: 'subject', version: 1, generatedAt: '2026-10-28T12:00:00Z', timeZone: 'UTC', participation: accountRole === 'teacher' ? 'teach' : 'study',
     memberships: { teach: Number(accountRole === 'teacher'), study: Number(accountRole === 'student'), archived: 0 }, setup: { drafts: 0, invitations: 0 },
     modules: Object.fromEntries(['pending','review','feedback','agenda','queries','materials','classrooms','drafts','submitted'].map(name => [name,
@@ -98,7 +98,7 @@ for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${account
 });
 
 test('Compact topic chooser uses the same selected context without issuing writes', async () => {
-  const { PlanWorkspace } = loadTsModule("apps/web/src/application/academic-plan-workspace.tsx");
+  const { PlanWorkspace } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx");
   const calls = [], extended = { ...room, units: [{ ...room.units[0], topics: [...room.units[0].topics, { id: 'second', name: 'Ecosistemas', status: 'PENDING' }] }] };
   const view = hookView(PlanWorkspace, { room: extended, onOpenActivity() {}, api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/library') ? [] : { activities: [] }; } } });
   try {

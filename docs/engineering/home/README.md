@@ -26,7 +26,7 @@ Tu día, con calma presenta los eventos del día local para ambos roles, con hor
 
 El pulido anterior y su verificación quedan documentados en el [registro del 11 de noviembre](../../work-log/2026-11-11-root-teacher-home-polish.md) y la [evidencia de ese corte](../../verification/teacher-home-polish.json).
 
-Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/dashboard/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Registro del candidato](../../work-log/2026-11-15-root-product-parity.md).
+Fuentes: [Home](../../../apps/web/src/features/home/dashboard/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/dashboard/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/inbox/Notifications.tsx). [Registro del candidato](../../work-log/2026-11-15-root-product-parity.md).
 
 ## Bandeja unificada
 

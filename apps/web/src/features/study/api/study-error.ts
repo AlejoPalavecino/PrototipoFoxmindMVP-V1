@@ -1,0 +1,33 @@
+const messages: Record<string, string> = {
+  AI_INPUT_LIMIT:
+    'El material supera el límite para una generación. Organizalo en carpetas más pequeñas o revisá el aula vinculada.',
+  TOPICS_REQUIRED: 'Elegí al menos un tema en Temas y fuentes para practicar.',
+  REVISION_CONFLICT:
+    'La carpeta cambió en otra pestaña. Conservamos tu edición: actualizá la carpeta antes de volver a guardar.',
+  CONFLICT: 'La carpeta cambió. Conservamos tu edición; actualizá antes de volver a guardar.',
+  AUTH_REQUIRED: 'Tu sesión finalizó. Volvé a iniciar sesión.',
+  FORBIDDEN: 'Esta carpeta es privada o tu cuenta no tiene acceso.',
+  EMAIL_VERIFICATION_REQUIRED: 'Verificá tu correo para estudiar.',
+  QUOTA_EXCEEDED: 'Alcanzaste el espacio disponible. Tus materiales siguen guardados.',
+  AI_UNAVAILABLE: 'Foxy no está disponible por ahora. Conservamos tus entradas; volvé a intentar.',
+  AI_FAILED: 'Foxy no pudo terminar. Conservamos tus entradas; volvé a intentar.',
+  PENDING:
+    'La solicitud sigue en proceso. Esperá y actualizá la carpeta antes de volver a intentar.',
+  SOURCES_INSUFFICIENT: 'Faltan fuentes legibles para responder. Agregá material a la carpeta.',
+  FILE_NOT_READY: 'El archivo todavía está en validación. Consultá su estado para continuar.',
+  CSRF_INVALID: 'La sesión cambió. Volvé a intentar.',
+  INVALID_INPUT: 'Revisá los datos ingresados.',
+  NOT_FOUND: 'No encontramos la carpeta o el recurso.',
+};
+export class StudyError extends Error {
+  readonly code: string;
+  readonly status: number;
+  constructor(code: string, status: number) {
+    super(
+      messages[code] ??
+        'No pudimos completar la acción. Conservamos lo que escribiste; volvé a intentar.',
+    );
+    this.code = code;
+    this.status = status;
+  }
+}

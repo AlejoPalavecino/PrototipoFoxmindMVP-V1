@@ -1,4 +1,4 @@
-import type { StudyPractice } from '../api/study-client';
+import type { StudyPractice } from './study-contracts.ts';
 
 export function canManageStudyMaterial(folder:{materials?:{id:string}[]},source:{id:string;kind?:string;origin:string}):boolean{return source.origin==='OWN'&&source.kind!=='PLAN'&&!!folder.materials?.some(m=>m.id===source.id);}
 export function filterStudyCreations<T extends{title?:string;kind?:string}>(items:T[],query:string,kind:string):T[]{const text=query.trim().toLocaleLowerCase();return items.filter(item=>(item.title??'').toLocaleLowerCase().includes(text)&&(kind==='ALL'||item.kind===kind));}

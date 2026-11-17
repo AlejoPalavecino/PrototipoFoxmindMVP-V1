@@ -1,13 +1,14 @@
+import type { StudyRun } from '../model/study-commands.ts';
 import {useState,type ReactNode} from 'react';
 import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
 import {Dialog,Notice} from '../../../../../shared-ui/feedback';
-import type {StudyCollection,StudyDetail,StudySource,StudyTopic} from '../api/study-client';
+import type {StudyCollection,StudyDetail,StudySource,StudyTopic} from '../model/study-contracts.ts';
 import {canManageStudyMaterial} from '../model/study-discovery';
 import {StudyUpload} from './study-upload';
 import {StudyDocxPreview} from './study-docx-preview';
 import {StudyConfirmation} from './study-confirmation';
 
-export function StudyLibrary({detail,catalog,busy,run,onContext,onStudyTopic,onClose,attachments}:{detail:StudyDetail;catalog:StudyCollection;busy:boolean;run:(action:string,data?:Record<string,unknown>)=>Promise<unknown>;onContext:()=>void;onStudyTopic:(topic:StudyTopic)=>void;onClose:()=>void;attachments?:ReactNode}) {
+export function StudyLibrary({detail,catalog,busy,run,onContext,onStudyTopic,onClose,attachments}:{detail:StudyDetail;catalog:StudyCollection;busy:boolean;run:StudyRun;onContext:()=>void;onStudyTopic:(topic:StudyTopic)=>void;onClose:()=>void;attachments?:ReactNode}) {
  const [tab,setTab]=useState('materials'),[query,setQuery]=useState(''),[origin,setOrigin]=useState('');
  const [upload,setUpload]=useState(false),[working,setWorking]=useState(false),[error,setError]=useState('');
  const [pending,setPending]=useState<{fileId:string;title:string}>(),[reading,setReading]=useState<StudySource>(),[removing,setRemoving]=useState<StudySource>();

@@ -6,7 +6,7 @@ import { nextCursor, readCursor } from '../apps/api/src/modules/home/dashboard/i
 import { readSqlPage } from '../apps/api/src/modules/home/dashboard/infrastructure/sql-page.ts';
 import { createHomeHandler } from '../apps/api/src/modules/home/dashboard/presentation/http.ts';
 import { createHomeService } from '../apps/api/src/modules/home/dashboard/application/service.ts';
-import { createWebHomeClient } from '../apps/web/src/application/academic-home-client.ts';
+import { createWebHomeClient } from '../apps/web/src/application/clients/home-client.ts';
 import { proxyHomeRequest } from '../apps/web/src/application/server/home-proxy.ts';
 
 const id = n => `11111111-1111-4111-8111-${String(n).padStart(12, '0')}`;

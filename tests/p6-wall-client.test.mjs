@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 import { loadTsModule } from './helpers/load-ts-module.mjs';

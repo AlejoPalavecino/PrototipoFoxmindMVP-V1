@@ -1,3 +1,4 @@
+import { participationFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -11,10 +12,10 @@ test('questionnaire reserves the measured footer height and releases it on exit'
     observe(node) { observed = node; }
     disconnect() { disconnected = true; }
   };
-  const { QuestionnaireAttempt } = loadTsModule('apps/web/src/features/participation/ui/QuestionnaireAttempt.tsx');
-  const view = hookView(QuestionnaireAttempt, { classroomId: 'room', editor: { epoch: '1' }, refresh: async () => {}, api: {},
+  const { QuestionnaireAttempt } = loadTsModule('apps/web/src/features/participation/questionnaire/QuestionnaireAttempt.tsx');
+  const view = hookView(QuestionnaireAttempt, participationFixtureProps('QuestionnaireAttempt', { classroomId: 'room', editor: { epoch: '1' }, refresh: async () => {}, api: {},
     data: { canTransfer: true, activity: { questions: [{ id: 'q', type: 'DEVELOPMENT', prompt: 'Pregunta', options: [] }] },
-      attempt: { id: 'attempt', number: 1, status: 'DRAFT', revision: '1', epoch: '1', answers: [] } } });
+      attempt: { id: 'attempt', number: 1, status: 'DRAFT', revision: '1', epoch: '1', answers: [] } } }));
   try {
     await view.flush();
     const footer = descendants(view.tree, node => node.type === 'footer')[0];

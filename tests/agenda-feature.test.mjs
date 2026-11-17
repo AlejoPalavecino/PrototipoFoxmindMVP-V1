@@ -23,6 +23,6 @@ test('agenda canonical composition and client remain available after compatibili
  const canonical=loadTsModule('apps/web/src/features/agenda/api/client.ts');
  const feature=loadTsModule('apps/web/src/features/agenda/index.ts',{stubs:{"./api/client.ts":canonical}});
  assert.equal(feature.createAgendaClient,canonical.createAgendaClient);
- for(const [file,name] of [['apps/web/src/application/agenda-client.ts','createWebAgendaClient'],['apps/web/src/application/server/agenda-proxy.ts','proxyAgendaRequest'],['apps/web/src/application/navigation/agenda-target.ts','parseAgendaEventTarget'],['apps/web/src/screens/agenda-screen.tsx','AgendaScreen']])assert.equal(typeof loadTsModule(file)[name],'function');
+ for(const [file,name] of [['apps/web/src/application/clients/agenda-client.ts','createWebAgendaClient'],['apps/web/src/application/server/agenda-proxy.ts','proxyAgendaRequest'],['apps/web/src/application/navigation/agenda-target.ts','parseAgendaEventTarget'],['apps/web/src/screens/agenda-screen.tsx','AgendaScreen']])assert.equal(typeof loadTsModule(file)[name],'function');
  for(const removed of ['apps/agenda-ui','apps/web/src/lib/agenda-client.ts','apps/web/src/lib/agenda-proxy.ts','apps/web/src/lib/agenda-target.ts','apps/web/src/components/agenda-screen.tsx'])assert.equal(existsSync(removed),false);
 });

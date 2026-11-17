@@ -6,7 +6,7 @@ import { collectionView as hookView } from './helpers/classrooms-reference/colle
 
 const room = (id, role, name = id, subject = 'Biología', division = 'A') => ({ id, role, name, subject, division,
   academicYear: 2026, timezone: 'UTC', coverKey: 'biology', teacher: 'Synthetic', revision: '0', archived: false });
-const filter = () => loadTsModule("apps/web/src/features/classrooms/model/collection-filter.ts").filterClassroomCards;
+const filter = () => loadTsModule("apps/web/src/features/classrooms/collection/collection-filter.ts").filterClassroomCards;
 
 test('D3 combined collection keeps stable study/teach order and teacher payload wins duplicate identity in place', () => {
   const study = [room('study', 'student'), room('both', 'student', 'Old study payload')];
@@ -38,7 +38,7 @@ test('D3 search normalizes Unicode compatibility and case across name, subject a
 const text = value => typeof value === 'string' || typeof value === 'number' ? String(value)
   : Array.isArray(value) ? value.map(text).join('') : value?.props ? text(value.props.children) : '';
 test('D3 collection shows active rooms in stable order and replaces role controls with state controls', async () => {
-  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
+  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/collection/ClassroomCollection.tsx");
   const archived = { ...room('old', 'teacher'), archived: true };
   const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher'), archived], study: [room('study', 'student')], search: '', onEnter() {} });
   try {
@@ -58,7 +58,7 @@ test('D3 collection shows active rooms in stable order and replaces role control
   } finally { view.close(); }
 });
 test('D3 a search with no matches never claims the account has no memberships', async () => {
-  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
+  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/collection/ClassroomCollection.tsx");
   const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher')], study: [], search: 'no-match-unique', onEnter() {} });
   try {
     await view.flush(); assert.match(text(view.tree), /No encontramos esa aula/i);

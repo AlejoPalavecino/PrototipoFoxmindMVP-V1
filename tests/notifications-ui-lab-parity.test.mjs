@@ -3,7 +3,7 @@ import test from 'node:test';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, deferred } from './agenda-ui-helpers.test.mjs';
 
-const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
 const date = '2026-11-16T12:00:00.000Z';
 const notice = id => ({ id, eventType: 'WALL_NOTICE', classroomName: 'Aula de prueba', title: 'Aviso '+id, createdAt: date, readAt: null });
 const reply = (items, unreadCount, nextCursor = null) => ({ items, unreadCount, totalCount: 2, nextCursor });

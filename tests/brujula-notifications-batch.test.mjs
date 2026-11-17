@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {loadTsModule} from './helpers/load-ts-module.mjs';import {hookView,descendants} from './agenda-ui-helpers.test.mjs';
 const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(' '):text(n?.props?.children??'');
 test('121 unread notifications require one batch mutation and a readback, independent of pagination',async()=>{
- const {Notifications}=loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx'),calls=[];let unread=121;
+ const {Notifications}=loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx'),calls=[];let unread=121;
  const rows=Array.from({length:121},(_,i)=>({id:'notification-'+i,eventType:'WALL_NOTICE',classroomName:'Synthetic',createdAt:'2026-11-05T10:00:00Z',readAt:null}));
  const api={call:async(path,method)=>{calls.push([path,method]);if(method==='POST'){if(path==='/notifications/read-all'){const count=unread;unread=0;return {read:true,updatedCount:count};}unread--;return {read:true};}const cursor=path.match(/cursor=(\d+)/)?.[1],start=Number(cursor??0);return {items:unread?rows.slice(start,start+50):[],unreadCount:unread,nextCursor:unread&&start+50<121?String(start+50):null};}};
  const view=hookView(Notifications,{api,refresh:0,presentation:'center',onSelect(){}});

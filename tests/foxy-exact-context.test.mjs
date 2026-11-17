@@ -4,7 +4,7 @@ import { componentWithPorts } from './foxmind-3d-flows-loader.test.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('context choices stay local until explicitly applied and never offer archived classrooms', async () => {
-  const { FoxyContextPicker } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-context-picker.tsx', {});
+  const { FoxyContextPicker } = componentWithPorts('apps/web/src/features/foxy/context/foxy-context-picker.tsx', {});
   const applied = [];
   const view = hookView(FoxyContextPicker, { current:'GENERAL', classrooms:[{id:'active',name:'Ciencias'},{id:'archived',name:'Archivada',archived:true}], attachmentCount:0,
     onApply:value=>applied.push(value), onClose(){}, onLibrary(){} });
@@ -22,7 +22,7 @@ test('context choices stay local until explicitly applied and never offer archiv
 });
 
 test('library filters preserve classroom provenance and cannot remove classroom sources', async () => {
-  const { FoxyLibraryPanel } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-library-panel.tsx', {});
+  const { FoxyLibraryPanel } = componentWithPorts('apps/web/src/features/foxy/context/foxy-library-panel.tsx', {});
   const removed=[];
   const view=hookView(FoxyLibraryPanel,{attachments:[{id:'own',name:'Propio.pdf',sizeBytes:2,savedToFolder:false}],sources:[{sourceId:'shared',title:'Del aula',extension:'.pdf',available:true}],classroomName:'Ciencias',units:[],onContext(){},onTopic(){},onRemove:id=>removed.push(id),onUpload:async()=>{}});
   try {

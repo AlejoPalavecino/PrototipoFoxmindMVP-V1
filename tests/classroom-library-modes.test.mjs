@@ -1,13 +1,14 @@
+import { libraryFixtureView } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Biblioteca publishes the approved file only after organization; a description never becomes an attachment', async () => {
-  const { Library } = loadTsModule('apps/web/src/features/materials/ui/Library.tsx');
+  const { Library } = loadTsModule('apps/web/src/features/materials/catalog/Library.tsx');
   const publications = [], uploads = [];
   let failRefresh = false;
-  const view = hookView(Library, {
+  const view = libraryFixtureView(Library, {
     room: { id: 'aula', revision: '1', role: 'teacher', units: [] },
     reload: async () => { if (failRefresh) throw new Error('Timeout en la lectura'); },
     api: {

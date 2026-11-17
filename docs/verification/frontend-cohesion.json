@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "status": "VERIFIED_LOCALLY",
+  "branch": "codex/frontend-cohesion",
+  "baseCommit": "dd6f4bc92b959cce0e2c68343291614270c4a17e",
+  "delivery": {
+    "committed": false,
+    "integrated": false,
+    "pushed": false,
+    "deployed": false
+  },
+  "candidate": {
+    "sourceFiles": 564,
+    "sha256": "2c56821ff66521ace8fe840f2d8cbe3907333633f6a50fa653328126f8faa292",
+    "buildId": "taxGKwLfuzPwSvl5CiKv6",
+    "next": "16.4.5"
+  },
+  "automated": {
+    "frontendFast": {
+      "files": 229,
+      "completed": 229,
+      "passed": 1288,
+      "failed": 0,
+      "skipped": 0,
+      "localReceipt": ".test-artifacts/frontend-cohesion/test-reconciliation-study-presenters-final.json"
+    },
+    "webBuild": {
+      "exitCode": 0,
+      "typecheck": true
+    },
+    "lintAndBoundaries": {
+      "exitCode": 0,
+      "frozenExceptions": 0
+    },
+    "suiteManifest": {
+      "entries": 648,
+      "exclusions": 54,
+      "routes": 23
+    },
+    "independentReviews": [
+      {
+        "scope": "Critical state, contracts, transport and host wiring",
+        "passed": 110,
+        "failed": 0,
+        "sha256": "c24d9be92a7c2d46d66571a2cb6211080fca9ab131e004d594811bfc7a272642"
+      },
+      {
+        "scope": "Final Study presenters and privacy",
+        "passed": 50,
+        "failed": 0,
+        "sha256": "bd5d3d1832661981211e1c5330af5946d917263208f22196544d21f473b47163"
+      }
+    ],
+    "documentation": {
+      "files": 184,
+      "links": 1096,
+      "issues": 0
+    },
+    "taskboard": {
+      "tasks": 14,
+      "valid": true
+    }
+  },
+  "migration": {
+    "moves": 262,
+    "temporaryFacadesRemoved": 46,
+    "backendCoreSchemaSourceChanges": 0
+  },
+  "styles": {
+    "files": 71,
+    "physicalMoves": 69,
+    "exactDuplicateRulesRemoved": 12,
+    "beforeOrderedRulesHash": "e7873385ffbaffb268340a23e1ee9b9cb8ae90320ea6caa8156c919a78952da1",
+    "afterOrderedRulesHash": "e7873385ffbaffb268340a23e1ee9b9cb8ae90320ea6caa8156c919a78952da1",
+    "removed": [
+      {
+        "file": "apps/shared-ui/workspace-foundation.css",
+        "line": 79,
+        "selector": ".fm3d-theme :is(button,a,input,select,textarea,summary):focus-visible"
+      },
+      {
+        "file": "apps/shared-ui/workspace-home.css",
+        "line": 60,
+        "selector": ".fm3d-theme .fm-home-columns"
+      },
+      {
+        "file": "apps/shared-ui/sky-home.css",
+        "line": 48,
+        "selector": ".fm3d-theme .fm-home .fm-home-greeting > div"
+      },
+      {
+        "file": "apps/shared-ui/brujula.css",
+        "line": 98,
+        "selector": ".fm3d-theme .fm-home.fm-home--warm .fm-home-row:last-child"
+      },
+      {
+        "file": "apps/shared-ui/brujula-workspaces.css",
+        "line": 466,
+        "selector": ".fm3d-theme .fm3-classrooms.p5-app .p5-main .class-tabs:has(button:nth-child(8))"
+      },
+      {
+        "file": "apps/shared-ui/brujula-workspaces.css",
+        "line": 468,
+        "selector": ".fm3d-theme .fm3-classrooms.p5-app .p5-main .class-tabs>button svg"
+      },
+      {
+        "file": "apps/shared-ui/parity-home.css",
+        "line": 16,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-home .button.quiet"
+      },
+      {
+        "file": "apps/shared-ui/parity-home.css",
+        "line": 21,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-home .class-body h3"
+      },
+      {
+        "file": "apps/shared-ui/parity-catalog-fidelity.css",
+        "line": 16,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-catalog[class] .button.quiet"
+      },
+      {
+        "file": "apps/shared-ui/parity-catalog-fidelity.css",
+        "line": 22,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-catalog[class] .class-body h3"
+      },
+      {
+        "file": "apps/shared-ui/parity-catalog-fidelity.css",
+        "line": 77,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-catalog[class] .collection-toolbar"
+      },
+      {
+        "file": "apps/shared-ui/parity-catalog-fidelity.css",
+        "line": 80,
+        "selector": "#foxmind-product.fm3d-theme .p5-app .parity-catalog[class] .collection-toolbar"
+      }
+    ],
+    "consumerUpdates": 80
+  },
+  "visualComparison": [
+    {
+      "file": "teacher-home-1440.png",
+      "width": 1440,
+      "height": 1000,
+      "changedPixelsOver8": 424,
+      "changedPercent": 0.0294,
+      "meanChannelDelta": 0.0186
+    },
+    {
+      "file": "teacher-classrooms-1440.png",
+      "sameDimensions": false
+    },
+    {
+      "file": "teacher-classrooms-390.png",
+      "width": 390,
+      "height": 844,
+      "changedPixelsOver8": 0,
+      "changedPercent": 0,
+      "meanChannelDelta": 0.0088
+    }
+  ],
+  "browser": {
+    "tool": "Ego Lite",
+    "provider": "synthetic",
+    "roles": [
+      "teacher",
+      "student"
+    ],
+    "material": {
+      "kind": "material-publication",
+      "status": 200,
+      "persisted": true,
+      "focus": {
+        "tag": "A",
+        "text": "Abrir archivo",
+        "insideDialog": false
+      },
+      "escapeClosed": true
+    },
+    "authoring": {
+      "status": 200,
+      "activities": [
+        {
+          "title": "Práctica de cohesión",
+          "status": "PUBLISHED"
+        }
+      ]
+    },
+    "study": {
+      "status": 200,
+      "folderState": "ACTIVE",
+      "conversations": 1,
+      "attempts": [
+        {
+          "state": "FINALIZED",
+          "answered": 5
+        },
+        {
+          "state": "ACTIVE",
+          "answered": 0
+        }
+      ],
+      "samples": [
+        {
+          "width": 390,
+          "overflow": false,
+          "mobileMenu": true,
+          "composer": true
+        },
+        {
+          "width": 768,
+          "overflow": false,
+          "mobileMenu": true,
+          "composer": true
+        },
+        {
+          "width": 1000,
+          "overflow": false,
+          "mobileMenu": true,
+          "composer": true
+        },
+        {
+          "width": 1002,
+          "overflow": false,
+          "mobileMenu": false,
+          "composer": true
+        },
+        {
+          "width": 1440,
+          "overflow": false,
+          "mobileMenu": false,
+          "composer": true
+        }
+      ]
+    },
+    "keyboard": {
+      "closed": true,
+      "focus": "Historial"
+    },
+    "accessError": {
+      "error": {
+        "alert": [
+          "Esta carpeta es privada o tu cuenta no tiene acceso.Actualizar carpeta",
+          "Carpetas de estudio · FoxMind"
+        ],
+        "retry": true
+      },
+      "recovered": true
+    },
+    "breakpoint": {
+      "inner": 1002,
+      "client": 1002,
+      "mobileMedia": false,
+      "menu": false
+    },
+    "observations": [
+      "Final Study build: DOCX scan/plan preparation, folder activation, source-grounded synthetic chat, practice generation, five saved answers, review, explicit finalization, feedback, new empty attempt, reload/history recovery.",
+      "Normal Tab stayed inside native modal; Escape closed history and restored Historial trigger. Reverse Tab once focused browser/body; complete wrapping is not certified.",
+      "Requested1001px became1002CSSpx in Ego;1000mobile/1002desktop states observed.",
+      "Initial materials focus probe used explicit role selector and missed implicit dialog; that false result is not used to certify focus."
+    ],
+    "screenshots": [
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/material-reader-1440.png",
+        "sha256": "9973f130f62bb9ffb46aeee1ce20f01d3b0c3110e71869d58d1b7cfac2266e7f"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-access-error-1440.png",
+        "sha256": "8676218177d2536a375a4d0a8bfda1c8334e1a53fde8ce8ff26cb8de7d08339e"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-practice-390.png",
+        "sha256": "8fea840cf2200a1ad0826289e1d2c990b115a8845dedcae38d12d3aa24919a1c"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-wizard-768.png",
+        "sha256": "52a67ecbbb65098803f32d688525372a8c283b2202f1484fa5ecd76359cf471a"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-workspace-1440.png",
+        "sha256": "547082ad3db6241d7d12b487323325ec6284d90c1d88ef2cde187b63f24dafe1"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-workspace-390.png",
+        "sha256": "a72bd968220501e45bad9a9282dc3b426516d045cbe88d594b44eadbd719a7b2"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/study-workspace-768.png",
+        "sha256": "ad0468034237351a12b82054f5639b8175aa75baeca42a9b7c5c4768050677f0"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/teacher-classrooms-1440.png",
+        "sha256": "afa15d4cc215b31d622e3a6262d0246b5f56f62778f75a434b5990c630bda360"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/teacher-classrooms-390.png",
+        "sha256": "332456d920e66181a308d962556b41fe09eeb4bc40c1dbf3aeeb2ab64e628df3"
+      },
+      {
+        "file": ".test-artifacts/frontend-cohesion/candidate/teacher-home-1440.png",
+        "sha256": "552fb035b14661a00a339705dd45cdfc203c3dad76c596b9d0c2b46e066325c2"
+      }
+    ],
+    "cleanup": {
+      "taskSpaceFinished": true,
+      "ownedPreviewExitCode": 0,
+      "ownedCleanupFailures": 0
+    }
+  },
+  "limitations": [
+    "No complete backend/integration suite or real provider spending.",
+    "No full manual grading/academic delivery/repaso flow; their pure/contract regression suites passed.",
+    "Desktop classroom baseline dimension mismatch excluded from pixel equivalence.",
+    "Browser is targeted functional/responsive QA, not full WCAG or cross-browser certification.",
+    "Git integration with concurrent backend remains pending."
+  ]
+}

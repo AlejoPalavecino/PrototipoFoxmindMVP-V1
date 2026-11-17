@@ -9,7 +9,7 @@ async function withAgenda(run) {
   const originalWindow = globalThis.window, originalStorage = globalThis.sessionStorage;
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: query => ({ matches: query.includes('max-width') }) });
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-10', day: '2026-10-27', zone: 'UTC' }), setItem() {} };
-  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/calendar/Agenda.tsx');
   const event = privateEvent(), ranges = [];
   let failed = false;
   const api = { list: async range => { ranges.push(range); if (failed) throw Error('Consulta no disponible'); return { items: [], nextCursor: null }; },

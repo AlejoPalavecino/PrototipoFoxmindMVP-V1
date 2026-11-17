@@ -7,7 +7,7 @@ import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 import { privateEvent, day, zone } from './agenda-event-form-helpers.test.mjs';
 
 const { expandAgendaEvent } = loadTsModule('src/core/domain/agenda/index.ts');
-const { AgendaDay } = loadTsModule('apps/web/src/features/agenda/ui/AgendaDay.tsx');
+const { AgendaDay } = loadTsModule('apps/web/src/features/agenda/calendar/AgendaDay.tsx');
 const range = { startDate: day, endDateExclusive: '2026-10-29', timeZone: zone };
 const occurrence = overrides => expandAgendaEvent(privateEvent(overrides), range)[0];
 async function widget(items, busy = false) {
@@ -86,7 +86,7 @@ test('day widget preserves empty filtering, all-day and cross-midnight labels, a
 });
 
 // Source contracts, not a browser cascade emulator or proof of rendered pseudo color.
-const widgetCss = () => readFileSync('apps/web/src/features/agenda/ui/agenda-ux.module.css', 'utf8');
+const widgetCss = () => readFileSync('apps/web/src/features/agenda/calendar/agenda-ux.module.css', 'utf8');
 const localRule = selector => {
   const start = widgetCss().indexOf(`.scope.scope:global(#agenda-main) :global(${selector}) {`);
   assert.notEqual(start, -1, `Missing widget-local color rule: ${selector}`);
@@ -102,7 +102,7 @@ for (const [category, token] of [['CLASS', 'mint'], ['ACTIVITY', 'yellow'], ['EV
       assert.ok(row.props.className.split(/\s+/).includes(legacyClass));
       assert.doesNotMatch(row.props.className, /agenda-color-/);
       const expected = `--agenda-color-bg: var(--fm-${token}); --agenda-color-accent: var(--fm-outline);`;
-      const source = readFileSync('apps/web/src/features/agenda/ui/agenda-surface.module.css', 'utf8');
+      const source = readFileSync('apps/web/src/features/agenda/calendar/agenda-surface.module.css', 'utf8');
       const indicator = source.indexOf(`:global(.agenda-color-indicator.${legacyClass}):where(.scope, .scope *)`);
       assert.notEqual(indicator, -1);
       assert.equal(source.slice(source.indexOf('{', indicator) + 1, source.indexOf('}', indicator)).trim(), expected);
@@ -116,8 +116,8 @@ for (const [category, token] of [['CLASS', 'mint'], ['ACTIVITY', 'yellow'], ['EV
 test('explicit widget palette keeps existing color classes and exact shared pairs without local overrides', async () => {
   const pairs = { BLUE: ['#dbeafe', '#1d4ed8'], GREEN: ['#dcfce7', '#166534'], YELLOW: ['#fef3c7', '#854d0e'],
     ORANGE: ['#ffedd5', '#9a3412'], PINK: ['#fce7f3', '#9d174d'], PURPLE: ['#f3e8ff', '#6b21a8'], GRAPHITE: ['#edf0f5', '#64748b'] };
-  const source = readFileSync('apps/web/src/features/agenda/ui/agenda-surface.module.css', 'utf8');
-  const parity = readFileSync('apps/shared-ui/brujula-parity.css', 'utf8');
+  const source = readFileSync('apps/web/src/features/agenda/calendar/agenda-surface.module.css', 'utf8');
+  const parity = readFileSync('apps/web/src/application/shell/styles/brujula-parity.css', 'utf8');
   for (const [color, [bg, accent]] of Object.entries(pairs)) {
     for (const category of ['CLASS', 'ACTIVITY', 'EVALUATION']) {
       const { view } = await widget([occurrence({ category, color })]);
@@ -138,7 +138,7 @@ test('explicit widget palette keeps existing color classes and exact shared pair
 });
 
 test('widget CSS contract keeps natural height, shrinking text tracks and scoped reduced-motion feedback', () => {
-  const css = readFileSync('apps/web/src/features/agenda/ui/agenda-ux.module.css', 'utf8');
+  const css = readFileSync('apps/web/src/features/agenda/calendar/agenda-ux.module.css', 'utf8');
   assert.match(css, /\.agenda-widget-open\)\s*\{[^}]*grid-template-columns:\s*52px minmax\(0, 1fr\)/);
   assert.match(css, /\.agenda-widget-copy\)\s*\{[^}]*overflow-wrap:\s*anywhere/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*agenda-widget-open/);

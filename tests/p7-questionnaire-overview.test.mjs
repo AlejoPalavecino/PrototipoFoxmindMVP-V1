@@ -5,7 +5,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 // Resolve extensionless shared UI imports with the repository's real-source loader.
-const { AttemptSession } = loadTsModule('apps/web/src/application/academic-AttemptSession.tsx');
+const { AttemptSession } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptSession.tsx');
 const room = { id: 'a1111111-1111-4111-8111-111111111111', units: [] };
 const questions = [
   { id: 'development', type: 'DEVELOPMENT', prompt: 'First <script>literal</script>\nquestion', points: '2', options: [] },
@@ -32,7 +32,7 @@ test('response sheet shows the effective individual deadline instead of the gene
 });
 
 test('consultation preserves individual deadlines, explicit no deadline and general fallback in the classroom zone',()=>{
- const {AttemptHistory}=loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+ const {AttemptHistory}=loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
  const activity={...initial('ASSIGNMENT').activity,deadlineAt:'2026-06-01T18:00:00Z',zone:'America/Argentina/Buenos_Aires'};
  const preview=effectiveDeadlineAt=>renderToStaticMarkup(React.createElement(AttemptHistory,{api:{fileUrl:()=>''},
    room:{...room,role:'student'},activityId:activity.id,activityPreview:activity,effectiveDeadlineAt,onClose(){}}));

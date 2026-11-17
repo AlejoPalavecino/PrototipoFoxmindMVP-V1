@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
@@ -19,7 +20,7 @@ test('tarjeta de práctica no filtra consignas, respuestas ni soluciones en el c
  const {StudyWorkspace}=componentWithPorts('apps/web/src/features/study/ui/study-workspace.tsx',ports);
  const detail={...base,creations:[],practices:[{id:'practice',title:'Practicar lo aprendido',status:'ACTIVE',questions:[{id:'q',prompt:'CONSIGNA_PRIVADA',explanation:'SOLUCION_PRIVADA'}],answers:{q:'RESPUESTA_PRIVADA'}}],conversations:[{id:'chat',title:'Práctica',turns:[{id:'u',role:'user',text:'Quiero practicar',generation:{...input,kind:'QUIZ'}},{id:'a',role:'assistant',generationRequestId:'request',practiceId:'practice'}]}]};
  const view=hookView(StudyWorkspace,{detail,catalog:{classrooms:[]},onReload:async()=>{}});
- try{await view.flush();const transcript=descendants(view.tree,node=>node.type==='div'&&node.props['aria-label']==='Mensajes con Foxy')[0];const rendered=JSON.stringify(transcript);assert.ok(rendered.includes('Practicar lo aprendido'));for(const secret of ['CONSIGNA_PRIVADA','SOLUCION_PRIVADA','RESPUESTA_PRIVADA'])assert.equal(rendered.includes(secret),false);assert.equal(descendants(transcript,node=>node.type?.name==='FoxyMarkdown').length,0);}finally{view.close();}
+ try{await view.flush();const transcript=descendants(view.tree,node=>node.type==='div'&&node.props['aria-label']==='Mensajes con Foxy')[0];const rendered=renderToStaticMarkup(transcript);assert.ok(rendered.includes('Practicar lo aprendido'));for(const secret of ['CONSIGNA_PRIVADA','SOLUCION_PRIVADA','RESPUESTA_PRIVADA'])assert.equal(rendered.includes(secret),false);assert.equal(descendants(transcript,node=>node.type?.name==='FoxyMarkdown').length,0);}finally{view.close();}
 });
 
 test('recarga pendiente bloquea doble envío y ofrece cancelar la identidad persistida',async()=>{

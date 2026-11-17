@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -20,11 +21,11 @@ async function openSuggestion(view) {
   assert.ok(descendants(view.tree, node => node.type?.name === 'Dialog' && node.props.title === 'Revisar sugerencia').length);
 }
 async function fixture({ state = 'READY', dirty = false, failure = false } = {}) {
-  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ui/GradingAiReview.tsx');
+  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ai-review/GradingAiReview.tsx');
   const calls = [], applied = [], job = { id: 'job', state, snapshotHash: 'snapshot', proposal: state === 'READY' ? structuredClone(proposal) : null };
   const api = { call: async (...args) => { calls.push(args); if (args[1] === 'GET') { if (failure) throw new Error('Carga fallida'); return job; }
     return { revision: '3' }; } };
-  const view = hookView(GradingAiReview, { api, roomId, attemptId, revision: '2', dirty, onApplied: async result => { applied.push(result); } });
+  const view = hookView(GradingAiReview, gradingFixtureProps('GradingAiReview', { api, roomId, attemptId, revision: '2', dirty, onApplied: async result => { applied.push(result); } }));
   await view.flush(); return { view, calls, applied, job };
 }
 
@@ -92,10 +93,10 @@ test('pendiente, error y obsoleto no permiten aplicar propuesta', async () => {
 });
 
 test('editor de corrección integra el panel para el intento y informa si hay cambios locales', async () => {
-  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/ui/GradingEditor.tsx');
+  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/editing/GradingEditor.tsx');
   const data = { revision: '2', canSave: true, archived: false, activity: { title: 'Trabajo', type: 'ASSIGNMENT', questions: [] },
     attempt: { number: 1, firstName: 'Alumno', lastName: 'Sintético', attachments: [] }, grade: { id: null, isPublished: false, pending: true, finalGrade: null, overallFeedback: null } };
-  const view = hookView(GradingEditor, { api: { call: async () => data, fileUrl: () => '' }, roomId, attemptId, onClose() {}, onChanged: async () => {} });
+  const view = hookView(GradingEditor, gradingFixtureProps('GradingEditor', { api: { call: async () => data, fileUrl: () => '' }, roomId, attemptId, onClose() {}, onChanged: async () => {} }));
   try { await view.flush();
     const panel = descendants(view.tree, n => n.type?.name === 'GradingAiReview')[0]; assert.ok(panel);
     assert.equal(panel.props.attemptId, attemptId); assert.equal(panel.props.roomId, roomId); assert.equal(panel.props.dirty, false);
@@ -106,12 +107,12 @@ test('editor de corrección integra el panel para el intento y informa si hay ca
 });
 
 test('preguntas invertidas se identifican por referencia y la edición se aplica a la pregunta correcta', async () => {
-  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ui/GradingAiReview.tsx');
+  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ai-review/GradingAiReview.tsx');
   const calls = [], reversed = { schemaVersion: 'grading-proposal-v1', overallGrade: null, overallFeedback: '', warnings: [], questions: [
     { ref: 'Q2', points: '2.00', feedback: 'Devolución segunda' }, { ref: 'Q1', points: '1.00', feedback: 'Devolución primera' } ] };
   const api = { call: async (...args) => { calls.push(args); return args[1] === 'GET'
     ? { id: 'job', state: 'READY', snapshotHash: 'snapshot', proposal: structuredClone(reversed) } : { applied: true }; } };
-  const view = hookView(GradingAiReview, { api, roomId, attemptId, revision: '2', dirty: false, onApplied: async () => {} });
+  const view = hookView(GradingAiReview, gradingFixtureProps('GradingAiReview', { api, roomId, attemptId, revision: '2', dirty: false, onApplied: async () => {} }));
   try {
     await view.flush();
     await openSuggestion(view);

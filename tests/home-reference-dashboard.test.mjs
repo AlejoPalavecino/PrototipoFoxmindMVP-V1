@@ -32,7 +32,7 @@ async function withHome(aggregate, body, accountRole = 'teacher', { readPage = o
         module: options.module, page: readPage(options) };
     },
   };
-  const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx');
+  const { Home } = loadTsModule('apps/web/src/features/home/dashboard/Home.tsx');
   const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client, agendaClient,
     onCreate: () => calls.push('create'), onJoin: () => calls.push('join'), onClassrooms: () => calls.push('classrooms'),
     onAgenda() {}, onAction: target => calls.push(target) });
@@ -152,7 +152,7 @@ test('Home keeps its main widgets and decorative illustration inside the welcome
 });
 
 for (const teacher of [true, false]) test(`Contextual ${teacher ? 'teacher' : 'student'} actions select only authorized active rooms through the approved dialog`, async () => {
-  const { ClassroomActions } = loadTsModule('apps/web/src/features/home/ui/HomeShortcuts.tsx');
+  const { ClassroomActions } = loadTsModule('apps/web/src/features/home/dashboard/HomeShortcuts.tsx');
   const role = teacher ? 'teacher' : 'student', otherRole = teacher ? 'student' : 'teacher';
   const rooms = [['forbidden', otherRole, false], ['archive', role, true], ['first', role, false], ['second', role, false]]
     .map(([id, role, archived]) => ({ id, classroom: { id, name: id, role, archived, division: 'A' } }));
@@ -289,7 +289,7 @@ test('Home completes the paginated review queue and opens the exact attempt from
 });
 
 test('Private drafts stay in their classroom and reopen the exact draft without publishing', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   const room = { id: 'other', name: 'Aula', role: 'teacher', archived: false, units: [] };
   const draft = { id: 'draft', title: 'Borrador privado', type: 'ASSIGNMENT', status: 'DRAFT' };
   const calls = [];

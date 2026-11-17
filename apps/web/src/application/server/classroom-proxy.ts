@@ -6,7 +6,10 @@ import { generationSchema } from './activity-generation-proxy.ts';
 import { isClassroomCoverKey } from '../../../../../src/core/domain/classrooms/cover.ts';
 import { parseBrujulaSearchQuery } from '../../../../../src/core/domain/classrooms/brujula-search.ts';
 import { parseEvaluationRubric } from '../../../../../src/core/domain/grading/evaluation-rubric.ts';
-import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction, parseWallQuery, parseWallMutation, privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseNotificationQuery, PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/index.ts';
+import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../../src/core/domain/curriculum/ai.ts';
+import { parseWallQuery, parseWallMutation } from '../../../../../src/core/domain/communication/wall.ts';
+import { privateGradingInput, gradeCorrectionInput, gradePublicationInput } from '../../../../../src/core/domain/grading/grading.ts';
+import { parseNotificationQuery, PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/home/notifications.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;

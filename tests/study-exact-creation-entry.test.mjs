@@ -7,11 +7,13 @@ test('volver de una carpeta activa y crear durante la recarga abre un borrador v
  const router={isReady:true,query:{id:'active'},asPath:'/carpetas-de-estudio/active',pathname:'/carpetas-de-estudio/[id]',replace(){},push(){}};
  const active={folder:{id:'active',name:'Mi carpeta activa',subject:'Fotografía',status:'ACTIVE',units:[]},sources:[],conversations:[],creations:[],practices:[],exams:[]};
  const catalog={items:[active.folder],classrooms:[],covers:[]},loading=deferred();let lists=0;
+ const transport={list:async()=>++lists===1?catalog:loading.promise,get:async()=>structuredClone(active)};
+ const {useStudyFolders}=componentWithPorts('apps/web/src/features/study/folders/use-study-folders.ts',{'../api.ts':{createStudyClient:()=>transport}});
  function StudyCollectionView(){}function StudyWizard(){}function StudyWorkspace(){}
  const {StudyScreen}=componentWithPorts('apps/web/src/screens/study-screen.tsx',{
   'next/router':{useRouter:()=>router},
   '../features/identity/index.ts':{createAccountClient:()=>({session:async()=>({authenticated:true,user:{emailVerified:true,accountRole:'student',firstName:'Cuenta',lastName:'Prueba'}})})},
-  '../features/study/index.ts':{StudyCollectionView,StudyWizard,StudyWorkspace,studySurface:{root:''}},
+  '../features/study/index.ts':{useStudyFolders,StudyCollectionView,StudyWizard,StudyWorkspace,studySurface:{root:''}},
   '../features/study/api.ts':{StudyError:class extends Error{},createStudyClient:()=>({list:async()=>++lists===1?catalog:loading.promise,get:async()=>structuredClone(active)}),createStudyRevisionController:()=>({replace(){}})},
  });
  const view=hookView(StudyScreen,{});

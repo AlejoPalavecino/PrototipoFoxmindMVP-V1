@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { deferred, descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
 const screenPath = 'apps/web/src/screens/notifications-screen.tsx';
-const reviewPath = 'apps/web/src/screens/notification-review.tsx';
+const reviewPath = 'apps/web/src/application/workflows/notification-review/NotificationReview.tsx';
 const invitation = {
   id: 'a113cc1c-c934-4e73-bc67-236ba15ac355', name: 'Ciencias', teacher: 'Ana Luna',
   subject: 'Biología', division: '2º B', expiresAt: '2026-11-30T12:00:00Z', coverKey: 'math',

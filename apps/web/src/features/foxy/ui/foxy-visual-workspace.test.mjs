@@ -7,7 +7,7 @@ import {hookView,descendants} from "../../../../../../tests/agenda-ui-helpers.te
 
 const conversationId=randomUUID(),assetId=randomUUID(),jobId=randomUUID(),topicId=randomUUID(),otherTopicId=randomUUID();
 const job={id:jobId,conversationId,assetId,kind:'IMAGE',aspectRatio:'1:1',state:'READY',errorCode:null};
-const {FoxyVisualWorkspace,FoxyVisualTimeline}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-visual-workspace.tsx",{});
+const {FoxyVisualWorkspace,FoxyVisualTimeline}=componentWithPorts("apps/web/src/features/foxy/visuals/foxy-visual-workspace.tsx",{});
 
 function fixture(overrides={}) {
  const calls=[],record=name=>(...args)=>calls.push([name,...args]);

@@ -1,0 +1,124 @@
+.library, .upload { --library-line: #dce2f0; --library-muted: #555d77; min-width: 0; display: grid; gap: 14px; }
+
+.library :is(button, input, a):focus-visible, .upload :is(button, input, textarea, select, summary):focus-visible, .picker:focus-within { outline: 3px solid #9a3e00; outline-offset: 2px; }
+
+.upload .modes button { border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; color: #555d77; }
+
+.upload .modes button[aria-pressed=true] { background: white !important; border-color: #e9c4aa !important; color: #923810; box-shadow: 0 2px 6px #34274018 !important; font-weight: 700; }
+
+.drop { display: grid; justify-items: center; gap: 7px; padding: 16px; border-radius: 16px; text-align: center; border: 1px dashed #9eacd0; background: #f4f6fc; }
+
+.uploadIcon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #e8e1f7; color: #694b93; }
+
+.picker { display: inline-grid; align-items: center; position: relative; min-height: 44px; border: 1px solid var(--library-line); border-radius: 12px; padding: 6px 12px; background: white; color: #8e370c; cursor: pointer; }
+
+.picker input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: inherit; }
+
+.picker:has(input:disabled) { opacity: .6; cursor: default; }
+
+.fileFeedback { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; border-radius: 13px; background: #edf6f1; color: #22543f; overflow-wrap: anywhere; }
+
+.fileFeedback p { margin: 2px 0 0; }
+
+.working { display: flex; align-items: center; gap: 8px; margin: 0; }
+
+.working span { width: 16px; height: 16px; border: 2px solid #dbb49b; border-top-color: #9a3e00; border-radius: 50%; animation: spin .8s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) { .working span { animation: none; }
+}
+
+.form fieldset { display: grid; gap: 12px; border: 0; padding: 0; min-width: 0; }
+
+.form label { display: grid; gap: 4px; }
+
+.form textarea { resize: vertical; }
+
+.organize { min-width: 0; border: 1px solid var(--library-line); border-radius: 15px; padding: 12px; background: white; }
+
+.organize summary { cursor: pointer; min-height: 32px; font-weight: 700; }
+
+.organize small { color: var(--library-muted); font-weight: 400; margin-left: 6px; }
+
+.assignment { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-block: 9px; }
+
+@media (max-width: 540px) { .assignment { grid-template-columns: minmax(0, 1fr); }
+}
+
+dialog.dialog { width: min(720px, calc(100% - 22px)) !important; max-width: none !important; }
+
+.upload .organize small { display: inline !important; }
+
+.organize > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;color:#34475d}
+
+.organize > header svg{width:20px;height:20px;color:#a34211}
+
+.activityChoices{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #c6d3e1}
+
+.activityChoices > small{margin:0;color:#485c73}
+
+.activityChoices label{display:flex;align-items:center;gap:10px;border:1px solid #c6d3e1;border-radius:12px;padding:10px;background:#f5f8fb}
+
+.activityChoices input[type=checkbox]{width:19px;height:19px;min-height:0;flex:none;accent-color:#b74710}
+
+.activityChoices label small{display:block!important;margin:2px 0 0;font-size:12px}
+
+.fileFeedback[data-state=error]{color:#a02626;background:#fff0ef;border:1px solid #d59a94}
+
+.fileFeedback[data-state=pending]{color:#78511b;background:#fff5df;border:1px solid #d8bb83}
+
+.fileFeedback[data-state=success]{color:#24623e;background:#e3f1e7;border:1px solid #91b9a0}
+
+.upload :global(.p5-form-footer) { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* Exact classroom library: two-step upload and material sheet. */
+.detailsFields { display:grid; gap:12px; }
+
+.form [hidden],.upload [hidden] { display:none!important; }
+
+.steps { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; margin:0 0 11px; padding:0; gap:7px; }
+
+.steps li { font-size:12px; font-weight:750; padding:9px 10px; border-radius:9px; background:#edf0f4; color:#4e6376; }
+
+.steps [aria-current] { color:#8b370f; background:#ffe8d6; }
+
+.organize { padding:0; border:0; }
+
+.organize>header { display:none; }
+
+.activityChoices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; border:0; padding-top:0; }
+
+.activityChoices>strong,.activityChoices>p,.activityChoices>div { grid-column:1/-1; }
+
+.activityChoices>strong { font-size:13px; }
+
+.activityChoices label { padding:8px 10px; min-height:44px; background:#f4f7fa; border:1px solid #d1dce6; border-radius:10px; font-size:12px; }
+
+.activityChoices label:has(:checked) { background:#e9f3ed; border-color:#a8c5b3; }
+
+.activityChoices label small { font-size:11px; }
+
+.activityChoices label>span { min-width:0; overflow-wrap:anywhere; }
+
+.drop { grid-template-columns:auto minmax(0,1fr); text-align:left; justify-items:start; column-gap:10px; padding:13px; background:#f2f7fa; border-color:#7897ad; border-radius:13px; position:relative; }
+
+.uploadIcon { grid-row:1/3; background:transparent; color:#336780; width:24px; height:24px; align-self:center; }
+
+.drop>strong { font-size:13px; }
+
+.drop>small { grid-column:2; font-size:12px; }
+
+.drop>.picker { position:absolute; inset:0; padding:0; opacity:0; }
+
+.drop:has(input:focus-visible) { outline:3px solid #236a91; outline-offset:3px; }
+
+@media(max-width:520px) { .activityChoices { grid-template-columns:minmax(0,1fr); }
+}
+
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(dialog.dialog,dialog.readerDialog) { max-height:calc(100dvh - 24px); overflow-y:auto; overscroll-behavior:contain; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(dialog.dialog,dialog.readerDialog)>header h2 { min-width:0; overflow-wrap:anywhere; font-family:Nunito,sans-serif; font-size:21px; font-weight:800; line-height:1.3; color:#202c3d; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .dialog .form label { font-size:13px; font-weight:800; color:#26364a; }
+
+@media(max-width:360px) { .steps li { overflow-wrap:anywhere; }
+}

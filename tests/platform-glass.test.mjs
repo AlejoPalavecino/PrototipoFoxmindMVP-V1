@@ -3,16 +3,17 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import postcss from 'postcss';
 import { dirname, resolve } from 'node:path';
+import { appStylesheets } from './helpers/global-style-fixture.mjs';
 
 const read = path => existsSync(path) ? readFileSync(path, 'utf8') : '';
 const tokens = postcss.parse(read('apps/shared-ui/design-tokens.css'));
-const platform = postcss.parse(read('apps/shared-ui/folders-controls.css'));
+const platform = postcss.parse(read('apps/web/src/application/shell/styles/folders-controls.css'));
 function cascade(path) {
   assert.ok(existsSync(path), `Missing selected stylesheet ${path}`);
   return read(path).replace(/@import\s+['"]([^'"]+)['"];?/g, (_, imported) => cascade(resolve(dirname(path), imported)));
 }
-const folders = () => cascade('apps/shared-ui/folders.css');
-const academic = read("apps/web/src/application/styles/academic.css");
+const folders = () => cascade('apps/web/src/application/shell/styles/folders.css');
+const academic = read("apps/web/src/application/shell/styles/academic.css");
 const declarations = new Map();
 tokens.walkDecls(declaration => declarations.set(declaration.prop, declaration.value));
 function color(name) {
@@ -58,11 +59,13 @@ test('one shared palette retains the selected folder colors and legible semantic
 
 test('tokens load before their consumers and selected folder composition wins last', () => {
   const app = read('apps/web/pages/_app.tsx');
-  const paths = ['shared-ui/design-tokens.css', 'styles/globals.css', 'src/application/styles/academic.css', 'shared-ui/folders.css'];
-  const indexes = paths.map(path => app.indexOf(path));
+  const paths = ['apps/shared-ui/design-tokens.css', 'apps/web/styles/globals.css', 'apps/web/src/application/shell/styles/academic.css', 'apps/web/src/application/shell/styles/folders.css'];
+  const sheets = appStylesheets();
+  const indexes = paths.map(path => sheets.indexOf(resolve(path)));
   assert.ok(indexes.every(index => index >= 0), 'Every stylesheet must be loaded');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
   assert.doesNotMatch(app, /import\s+['"][^'"]*glass\.css/);
+  assert.ok(sheets.every(path => !/glass\.css$/i.test(path)));
   assert.ok(folders().includes(platform.toString()), 'Selected cascade retains native academic control safeguards');
   for (const source of [academic, read('apps/web/styles/globals.css'), folders()]) {
     assert.match(source, /var\(--fm-ink/);
@@ -73,10 +76,12 @@ test('tokens load before their consumers and selected folder composition wins la
 
 test('standalone renderer uses the same palette and stylesheet cascade', () => {
   const standalone = read('apps/p5-preview/main.tsx');
-  const indexes = ['shared-ui/design-tokens.css', 'src/application/styles/academic.css', 'shared-ui/folders.css'].map(path => standalone.indexOf(path));
+  const sheets = appStylesheets('apps/p5-preview/main.tsx');
+  const indexes = ['apps/shared-ui/design-tokens.css', 'apps/web/src/application/shell/styles/academic.css', 'apps/web/src/application/shell/styles/folders.css'].map(path => sheets.indexOf(resolve(path)));
   assert.ok(indexes.every(index => index >= 0), 'Standalone styles must not diverge from Next');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
   assert.doesNotMatch(standalone, /import\s+['"][^'"]*glass\.css/);
+  assert.ok(sheets.every(path => !/glass\.css$/i.test(path)));
 });
 
 test('checkboxes and radios never inherit full-width text input sizing', () => {

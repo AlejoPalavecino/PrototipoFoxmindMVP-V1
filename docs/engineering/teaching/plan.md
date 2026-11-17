@@ -10,4 +10,4 @@ El avance de temas dados/total es una medida distinta del cumplimiento y del ren
 
 La UI presenta el mapa de unidades y temas junto al detalle seleccionado; en celular el mapa se abre con «Elegir tema». El docente marca el tema desde el detalle. Al confirmar en el servidor, se muestra el éxito y «Deshacer» puede restaurar el estado anterior (incluido NEXT). El estudiante comparte la estructura visual en modo consulta. El lector de un recurso se abre sobre el Plan; al cerrarlo se conserva el tema seleccionado. Las animaciones respetan la preferencia de movimiento reducido.
 
-Fuentes: [PlanWorkspace](../../../apps/web/src/features/curriculum/ui/PlanWorkspace.tsx), [Plan](../../../apps/web/src/application/academic-plan.tsx), [modelo](../data-model.md). [Evidencia actual](../../verification/flows.md).
+Fuentes: [PlanWorkspace](../../../apps/web/src/features/curriculum/plan/PlanWorkspace.tsx), [Plan](../../../apps/web/src/application/workflows/classroom-workspace/ClassroomPlan.tsx), [modelo](../data-model.md). [Evidencia actual](../../verification/flows.md).

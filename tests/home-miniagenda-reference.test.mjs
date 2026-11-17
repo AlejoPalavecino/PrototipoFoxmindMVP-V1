@@ -16,7 +16,7 @@ function walk(value) {
 const textOf = nodes => nodes.filter(node => typeof node === 'string' || typeof node === 'number').join(' ');
 
 test('Teacher agenda uses the date tile once and keeps only local time or all-day below the title', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/queue/HomeRow.tsx');
   for(const [item,expected] of [[timed,'22:30'],[allDay,'Todo el día']]){
     const nodes=walk(HomeAgendaRow({item,timeZone:'America/Argentina/Buenos_Aires',onAction(){},dateInTileOnly:true,generatedAt:'2026-10-20T12:00:00Z'}));
     const timing=nodes.find(node=>node?.props?.className==='fm-home-agenda-time');
@@ -35,7 +35,7 @@ test('Agenda time converts timed events across zones and preserves all-day label
 });
 
 test('Agenda preview presents event, converted time and type with the exact action target', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/queue/HomeRow.tsx');
   const calls = [];
   const nodes = walk(HomeAgendaRow({ item: timed, timeZone: 'America/Argentina/Buenos_Aires', onAction: target => calls.push(target) }));
   const text = textOf(nodes);
@@ -52,7 +52,7 @@ test('Agenda preview presents event, converted time and type with the exact acti
 });
 
 test('All-day agenda row exposes its label and respects disabled action state', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/queue/HomeRow.tsx');
   const nodes = walk(HomeAgendaRow({ item: allDay, timeZone: 'UTC', onAction() {}, busy: true }));
   const text = textOf(nodes);
   assert.match(text, /Jornada completa/);

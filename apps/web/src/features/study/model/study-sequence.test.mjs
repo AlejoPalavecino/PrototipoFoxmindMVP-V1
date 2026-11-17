@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStudyRevisionController} from "../api/study-client.ts";
+import { createStudyRevisionController } from './study-revision-controller.ts';
 import {studyInstant,studyLocalMinute} from "./study-time.ts";
 import { loadTsModule } from "../../../../../../tests/helpers/load-ts-module.mjs";
 import { hookView, descendants, deferred } from "../../../../../../tests/agenda-ui-helpers.test.mjs";
 
 test('adding study sessions to Agenda requires explicit confirmation in a FoxMind dialog', async () => {
-  const { StudyExamPlanner } = loadTsModule('apps/web/src/features/study/ui/study-practice.tsx');
+  const { StudyExamPlanner } = loadTsModule('apps/web/src/features/study/practice/study-practice.tsx');
   const original = globalThis.window;
   let nativePrompts = 0;
   globalThis.window = { confirm() { nativePrompts++; return false; } };

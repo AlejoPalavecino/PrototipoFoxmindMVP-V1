@@ -1,3 +1,5 @@
+import { participationFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
+import { authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -10,10 +12,10 @@ const activity = { id: 'draft', type: 'ASSIGNMENT', status: 'DRAFT', title: 'Eco
   instructions: 'Compará dos ambientes.', questions: [], instructionFiles: [], materials: [], deadlineAt: null };
 
 test('leaving a changed activity allows returning to the same local draft without writing', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx');
   let closed = 0, writes = 0;
-  const view = hookView(ActivityAuthoring, { api: { call: async () => { writes++; } }, room,
-    data: { activity, revision: '1' }, materials: [], onSaved: async () => {}, onClose: () => { closed++; } });
+  const view = hookView(ActivityAuthoring, authoringFixtureProps('ActivityAuthoring', { api: { call: async () => { writes++; } }, room,
+    data: { activity, revision: '1' }, materials: [], onSaved: async () => {}, onClose: () => { closed++; } }));
   try {
     await view.flush();
     const title = () => descendants(view.tree, n => n.props['aria-label'] === 'Título de la actividad')[0];
@@ -31,7 +33,7 @@ test('leaving a changed activity allows returning to the same local draft withou
 });
 
 test('redistributing three rubric weights assigns the remainder to the first criterion', () => {
-  const { EvaluationRubricEditor } = loadTsModule('apps/web/src/features/activity-authoring/ui/EvaluationRubric.tsx');
+  const { EvaluationRubricEditor } = loadTsModule('apps/web/src/features/activity-authoring/drafting/EvaluationRubric.tsx');
   const criteria = [{ name: 'Evidencia', description: 'Describe', weight: 20 },
     { name: 'Claridad', description: 'Explica', weight: 20 }, { name: 'Relaciones', description: 'Compara', weight: 60 }];
   let changed;
@@ -42,18 +44,18 @@ test('redistributing three rubric weights assigns the remainder to the first cri
 });
 
 test('a selected file stays local and a practical response uses the acknowledged revision only on final confirmation', async () => {
-  const { PracticalAttempt } = loadTsModule('apps/web/src/features/participation/ui/PracticalAttempt.tsx');
+  const { PracticalAttempt } = loadTsModule('apps/web/src/features/participation/practical/PracticalAttempt.tsx');
   const editor = { epoch: '1', token: 'editor-in-memory' };
   const receipt = { submittedAt: '2026-11-11T17:00:00Z', appliedDeadlineAt: '2026-11-11T16:30:00Z', submittedLate: true };
   const calls = [];
-  const view = hookView(PracticalAttempt, { classroomId: room.id, editor,
+  const view = hookView(PracticalAttempt, participationFixtureProps('PracticalAttempt', { classroomId: room.id, editor,
     data: { activity: { ...activity, zone: 'UTC' }, canTransfer: true, attempt: {
       id: 'attempt', number: 1, status: 'DRAFT', revision: '1', epoch: '1', attachments: [],
     } }, refresh: async () => {}, api: { attempt: async (...args) => {
       calls.push(args);
       return args[0].endsWith('/practical-response') ? { revision: '2', text: args[1].text } : receipt;
     } },
-  });
+  }));
   try {
     await view.flush();
     const file = descendants(view.tree, n => n.type === 'input' && n.props.type === 'file')[0];
@@ -83,7 +85,7 @@ test('a selected file stays local and a practical response uses the acknowledged
 });
 
 test('student consultation does not render answer keys even if the input includes private fields', async () => {
-  const { ActivityPreview } = loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
+  const { ActivityPreview } = loadTsModule('apps/web/src/application/workflows/activity-session/ActivityPreview.tsx');
   const questionnaire = { ...activity, type: 'QUESTIONNAIRE', objective: 'Comparar dos ambientes.',
     questions: [{ id: 'q1', prompt: 'Pregunta privada', points: '9.00', scoringRule: 'PARTIAL',
       options: [{ id: 'o1', text: 'Clave privada', correct: true }] }],
@@ -106,7 +108,7 @@ test('student consultation does not render answer keys even if the input include
 });
 
 test('switching classroom tabs keeps an open student draft mounted without starting again', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   const { useState } = await import('react');
   const draft = { ...activity, status: 'PUBLISHED', zone: 'UTC' };
   const session = { activity: draft, canStart: true, attempt: null };
@@ -144,7 +146,7 @@ test('switching classroom tabs keeps an open student draft mounted without start
 });
 
 test('the activity brief is still readable when the attempt history request fails', async () => {
-  const { AttemptHistory } = loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+  const { AttemptHistory } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
   const view = hookView(AttemptHistory, { room, api: { call: async () => { throw new Error('Historial temporalmente no disponible'); } },
     activityId: activity.id, activityPreview: { ...activity, status: 'PUBLISHED' }, onClose() {}, onChanged() {}, onResume() {} });
   try {

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const css = readFileSync('apps/web/src/features/agenda/ui/agenda-ux.module.css', 'utf8');
+const css = readFileSync('apps/web/src/features/agenda/calendar/agenda-ux.module.css', 'utf8');
 const scope = '.scope.scope:global(#agenda-main)';
 function declarations(selector) {
   const start = css.indexOf(`${scope} :global(${selector}) {`);
@@ -31,7 +31,7 @@ test('compact monthly event indicators have an Agenda-local visible override', (
 });
 
 test('month keeps populated/empty day semantics, exact counts and date selection', async () => {
-  const { AgendaMonth } = loadTsModule('apps/web/src/features/agenda/ui/AgendaMonth.tsx');
+  const { AgendaMonth } = loadTsModule('apps/web/src/features/agenda/calendar/AgendaMonth.tsx');
   const { expandAgendaEvent } = loadTsModule('src/core/domain/agenda/index.ts');
   const items = [1, 2, 3, 4].flatMap(id => expandAgendaEvent({
     id: `synthetic-${id}`, revision: '0', title: `Evento ${id}`, description: '', category: 'CLASS',

@@ -7,7 +7,7 @@ import {descendants} from './agenda-ui-helpers.test.mjs';
 
 const room={id:'classroom',role:'teacher',name:'Ciencias Naturales',subject:'Biología',division:'A',academicYear:2026,teacher:'Docente Demo',timezone:'America/Argentina/Buenos_Aires',coverKey:'biology',archived:false,units:[{topics:[{status:'TAUGHT'},{status:'PENDING'}]},{topics:[]}]};
 test('Classroom header keeps course identity, real counts and role-specific actions', () => {
-  const { ClassroomHeader } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomHeader.tsx');
+  const { ClassroomHeader } = loadTsModule('apps/web/src/features/classrooms/workspace/ClassroomHeader.tsx');
   for (const [role, pendingLabel, primaryLabel, pendingSection] of [
     ['teacher', 'por revisar', 'Invitar estudiantes', 'progress'],
     ['student', 'por hacer', 'Mi progreso', 'activities'],
@@ -37,7 +37,7 @@ test('Classroom header keeps course identity, real counts and role-specific acti
   assert.equal(descendants(archived, n => n.type === 'button' && n.props['aria-label'] === 'Invitar estudiantes')[0]?.props.disabled, true);
 });
 for(const teacher of [true,false])test(`Classroom navigation preserves exact destinations and labels for ${teacher?'teacher':'student'}`,()=>{
-  const {ClassroomNavigation}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx');
+  const {ClassroomNavigation}=loadTsModule('apps/web/src/features/classrooms/workspace/ClassroomNavigation.tsx');
   const calls=[];
   const tree=ClassroomNavigation({teacher,selected:'plan',onSelect:value=>calls.push(value),tabsRef:{current:null}});
   const buttons=descendants(tree,n=>n.type==='button');

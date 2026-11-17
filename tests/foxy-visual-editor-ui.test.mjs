@@ -12,7 +12,7 @@ const turn=()=>new Promise(resolve=>setImmediate(resolve));
 const diagram={schemaVersion:'foxy-diagram-v1',title:'Ciclo privado',description:'Descripción del ciclo',direction:'TOP_DOWN',nodes:[{id:'a',label:'Agua'},{id:'b',label:'Vapor'},{id:'c',label:'Nube <script>'}],edges:[{from:'a',to:'b',label:'Evapora'},{from:'b',to:'c',label:'Condensa'},{from:'c',to:'a',label:'Precipita'},{from:'a',to:'c',label:'Relación adicional'}]};
 
 test('authorized diagram reader presents every real node and edge legibly without flattening branching or cycles',()=>{
- const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader.tsx',{}),info=inspection();info.asset.kind='DIAGRAM';info.payload.diagram=diagram;
+ const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),info=inspection();info.asset.kind='DIAGRAM';info.payload.diagram=diagram;
  const tree=FoxyVisualReader({assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`});
  const html=renderToStaticMarkup(tree);assert.match(html,/aria-label="Esquema de conceptos"/);assert.match(html,/Ciclo privado/);assert.match(html,/Nube &lt;script&gt;/);assert.doesNotMatch(html,/<img|<script>/);
  const relations=descendants(tree,node=>node.type==='li'&&node.props.className==='parity-foxy-conceptRelation');assert.equal(relations.length,4);
@@ -20,7 +20,7 @@ test('authorized diagram reader presents every real node and edge legibly withou
 });
 
 test('diagram rendering enforces private-reader guards and invalid structure or IMAGE keep PNG fallback',()=>{
- const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader.tsx',{}),info=inspection();info.asset.kind='DIAGRAM';info.payload.diagram=diagram;
+ const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),info=inspection();info.asset.kind='DIAGRAM';info.payload.diagram=diagram;
  const props={assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`};
  for(const patch of [{inspection:{...info,canPreview:false}},{assetId:other},{error:'Sin acceso'},{loading:true},{assetFileUrl:()=>`https://external.invalid/${id}`}])assert.doesNotMatch(renderToStaticMarkup(FoxyVisualReader({...props,...patch})),/Ciclo privado|Agua|Evapora|Esquema de conceptos|<img/);
  for(const patch of [{asset:{...info.asset,kind:'IMAGE'}},{payload:{...info.payload,diagram:{...diagram,nodes:[]}}},{payload:{...info.payload,diagram:{...diagram,edges:[{from:'a',to:'missing',label:'Inválida'}]}}}]){
@@ -28,7 +28,7 @@ test('diagram rendering enforces private-reader guards and invalid structure or 
  }
 });
 async function fixture(){const calls=[],client={inspectAsset:async()=>inspection(),updateVisualEditorial:async(asset,input)=>{calls.push({asset,input});return inspection('1',input.title);}};
-  const {createFoxyVisualEditorController}=loadTsModule('apps/web/src/features/foxy/model/foxy-visual-editor-controller.ts');
+  const {createFoxyVisualEditorController}=loadTsModule('apps/web/src/features/foxy/visuals/foxy-visual-editor-controller.ts');
   const controller=createFoxyVisualEditorController({client,onChange(){}});controller.syncAsset(id);await turn();return {client,controller,calls};}
 
 test('editor retries the same uncertain request and original restoration is an unsaved draft',async()=>{
@@ -74,7 +74,7 @@ test('editor validates title and description while allowing optional empty descr
 });
 
 test('reader exports current editorial text and hides both metadata and links during errors',()=>{
-  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader.tsx',{}),calls=[];
+  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),calls=[];
   const props={assetId:id,inspection:inspection('2','Editado <script>'),loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onDownload:text=>calls.push(text)};
   const tree=FoxyVisualReader(props);assert.match(renderToStaticMarkup(tree),/Editado &lt;script&gt;/);
   descendants(tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT'))[0].props.onClick();assert.deepEqual(calls,['Editado <script>\n\nContenido guardado']);
@@ -83,7 +83,7 @@ test('reader exports current editorial text and hides both metadata and links du
 
 test('dialog cancel and Escape require discard confirmation and preserve the unsaved draft',async()=>{
   const {controller:c}=await fixture();const calls=[];
-  const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader-dialog.tsx',{});
+  const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader-dialog.tsx',{});
   c.updateDraft({title:'Mi edición',description:'Sin guardar'});
   const props={assetId:id,state:c.getState(),actions:c,assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onClose:()=>calls.push('close'),sharing:null};
   const view=hookView(FoxyVisualReaderDialog,props),button=label=>descendants(view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes(label))[0];
@@ -95,7 +95,7 @@ test('dialog cancel and Escape require discard confirmation and preserve the uns
 
 test('reader opens sharing explicitly and returns without losing external publication state',async()=>{
   const {controller:c}=await fixture(),calls=[];
-  const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader-dialog.tsx',{});
+  const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader-dialog.tsx',{});
   const props={assetId:id,state:c.getState(),actions:{...c,refresh:()=>{}},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onClose:()=>calls.push('close'),sharing:'Destino conservado'};
   const view=hookView(FoxyVisualReaderDialog,props);
   try{await view.flush();assert.doesNotMatch(renderToStaticMarkup(view.tree),/Destino conservado/);
@@ -106,13 +106,13 @@ test('reader opens sharing explicitly and returns without losing external public
 });
 
 test('reopening an uncertain publication exposes its retry instead of locking it behind the reader',async()=>{
-  const {controller:c}=await fixture();const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader-dialog.tsx',{});
+  const {controller:c}=await fixture();const {FoxyVisualReaderDialog}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader-dialog.tsx',{});
   const view=hookView(FoxyVisualReaderDialog,{assetId:id,state:c.getState(),actions:{...c,refresh(){}},sharePending:true,assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onClose(){},sharing:'Reintentar solicitud'});
   try{await view.flush();assert.match(renderToStaticMarkup(view.tree),/Reintentar solicitud/);assert.match(renderToStaticMarkup(view.tree),/Directo a tu Biblioteca/);}finally{view.close();c.dispose();}
 });
 
 test('new editorial revision invalidates previous publication and is included in preparation',async()=>{
-  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/model/foxy-visual-publication-controller.ts'),room=randomUUID(),calls=[];
+  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/visuals/foxy-visual-publication-controller.ts'),room=randomUUID(),calls=[];
   const old={id:randomUUID(),assetId:id,assetRevision:'2',editorialRevision:'0',sourceKind:'VISUAL',state:'PUBLISHED',classroomId:room,title:'Anterior',unitId:null,topicId:null,revision:'5'};
   const client={listVisualPublications:async()=>({items:[old]}),prepareVisualPublication:async(asset,input)=>{calls.push(input);return {publication:{...old,...input,state:'READY'}};},inspectPublication:async()=>({publication:old}),confirmPublication:async()=>{throw Error('No confirmation authorized');}};
   const c=createFoxyVisualPublicationController({client,loadClassroom:async()=>({id:room,role:'teacher',archived:false,revision:'2',units:[]}),onChange(){}});
@@ -120,7 +120,7 @@ test('new editorial revision invalidates previous publication and is included in
 });
 
 test('deduplicated preparation restores the original destination metadata and requires fresh review',async()=>{
-  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/model/foxy-visual-publication-controller.ts');
+  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/visuals/foxy-visual-publication-controller.ts');
   const room=randomUUID(),unit=randomUUID(),topic=randomUUID(),pub={id:randomUUID(),assetId:id,assetRevision:'2',editorialRevision:'1',sourceKind:'VISUAL',state:'READY',classroomId:room,title:'Título anterior',unitId:null,topicId:null,revision:'3'},calls=[];
   const detail={id:room,name:'Aula',role:'teacher',archived:false,revision:'5',units:[{id:unit,name:'Unidad nueva',topics:[{id:topic,name:'Tema nuevo'}]}]};
   const client={listVisualPublications:async()=>({items:[]}),prepareVisualPublication:async()=>({created:false,publication:pub}),inspectPublication:async()=>({publication:pub,classroomRevision:'5',classroomArchived:false,editorialSnapshot:{title:pub.title,description:'Texto congelado',revision:pub.editorialRevision}}),confirmPublication:async()=>{calls.push('confirm');return {publicationId:pub.id,materialId:randomUUID(),publicationRevision:'4',classroomRevision:'6'};}};
@@ -132,7 +132,7 @@ test('deduplicated preparation restores the original destination metadata and re
 });
 
 test('previous READY preparation opens explicitly after editing while new preparation uses the current revision',async()=>{
-  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/model/foxy-visual-publication-controller.ts');
+  const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/features/foxy/visuals/foxy-visual-publication-controller.ts');
   const room=randomUUID(),pub={id:randomUUID(),assetId:id,assetRevision:'2',editorialRevision:'0',sourceKind:'VISUAL',state:'READY',classroomId:room,title:'Texto anterior',unitId:null,topicId:null,revision:'3'},calls=[];
   const detail={id:room,name:'Aula',role:'teacher',archived:false,revision:'5',units:[]};
   const client={listVisualPublications:async()=>({items:[pub],nextAfterId:null}),inspectPublication:async()=>({publication:pub,classroomRevision:'5',classroomArchived:false,editorialSnapshot:{title:pub.title,description:'Texto congelado',revision:pub.editorialRevision}}),confirmPublication:async()=>{calls.push('confirm');return {publicationId:pub.id,materialId:randomUUID(),publicationRevision:'4',classroomRevision:'6'};},prepareVisualPublication:async(asset,input)=>{calls.push(input);return {created:true,publication:{...pub,...input,id:randomUUID()}};}};

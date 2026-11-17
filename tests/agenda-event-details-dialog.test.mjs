@@ -5,7 +5,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { privateEvent, day, zone } from './agenda-event-form-helpers.test.mjs';
 import { deferred, descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const { EventDetails } = loadTsModule('apps/web/src/features/agenda/ui/EventDetails.tsx');
+const { EventDetails } = loadTsModule('apps/web/src/features/agenda/event-details/EventDetails.tsx');
 const later = '2026-10-28';
 const series = () => privateEvent({ repeat: { kind: 'DAILY', untilDate: later } });
 function text(children) {

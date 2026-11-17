@@ -66,9 +66,12 @@ test('modern Agenda public surface excludes infrastructure and presentation and 
   const source = readFileSync(infrastructure, 'utf8');
   assert.doesNotMatch(source, /classrooms|createAcademicAgenda/);
   assert.match(source, /createAcademic: AcademicAgendaFactory/);
-  for (const layer of ['application', 'infrastructure', 'presentation']) {
-    for (const file of readdirSync(`apps/api/src/modules/agenda/${layer}`)) {
-      assert.doesNotMatch(readFileSync(`apps/api/src/modules/agenda/${layer}/${file}`, 'utf8'), /core\/domain\/index\.ts/);
+  for (const capability of ['events', 'academic-projection']) {
+    const root = `apps/api/src/modules/agenda/${capability}`;
+    const files = readdirSync(root, { recursive: true }).filter(file => file.endsWith('.ts'));
+    assert.ok(files.length, `${capability} must have inspected source files`);
+    for (const file of files) {
+      assert.doesNotMatch(readFileSync(`${root}/${file}`, 'utf8'), /core\/domain\/index\.ts/);
     }
   }
 });

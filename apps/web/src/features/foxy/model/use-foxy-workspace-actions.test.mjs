@@ -7,8 +7,8 @@ function harness(useRealActions=false){const slots=[],cleanups=new Map(),adapter
  useRef:v=>{const i=cursor++;return slots[i]??={current:v};},useEffect:(fn,deps)=>{const i=cursor++;if(!same(slots[i]?.deps,deps)){slots[i]={deps};effects.push([i,fn]);}},
  useMemo:(fn,deps)=>{const i=cursor++;if(!same(slots[i]?.deps,deps))slots[i]={deps,value:fn()};return slots[i].value;},useCallback:(fn,deps)=>{const i=cursor++;if(!same(slots[i]?.deps,deps))slots[i]={deps,value:fn};return slots[i].value;}};
  const createFoxyWorkspaceActions=options=>{const a={options,syncs:0,disposed:0,getState:()=>({leave:null,openingResource:false,loadingDestinationId:null,error:null}),sync(){this.syncs++;},dispose(){this.disposed++;},requestNavigate:href=>options.onNavigate(href)};adapters.push(a);return a;};
- const factory=useRealActions?loadTsModule("apps/web/src/features/foxy/model/foxy-workspace-actions.ts").createFoxyWorkspaceActions:createFoxyWorkspaceActions;
- const api=loadTsModule("apps/web/src/features/foxy/model/use-foxy-workspace-actions.ts",{stubs:{react,
+ const factory=useRealActions?loadTsModule("apps/web/src/features/foxy/workspace/foxy-workspace-actions.ts").createFoxyWorkspaceActions:createFoxyWorkspaceActions;
+ const api=loadTsModule("apps/web/src/features/foxy/workspace/use-foxy-workspace-actions.ts",{stubs:{react,
 "./foxy-workspace-actions":{createFoxyWorkspaceActions:factory}}});
  const render=(runEffects=true)=>{cursor=0;dirty=false;tree=api.useFoxyWorkspaceActions(props);if(runEffects){const pending=effects;effects=[];for(const [i,fn] of pending){cleanups.get(i)?.();cleanups.set(i,fn());}}};
  return {first,second,adapters,navigations,get tree(){return tree;},get props(){return props;},setProps:p=>{props={...props,...p};dirty=true;},render,async flush(){for(let i=0;i<8;i++){if(dirty)render();await Promise.resolve();}},close(){for(const fn of cleanups.values())fn?.();}};

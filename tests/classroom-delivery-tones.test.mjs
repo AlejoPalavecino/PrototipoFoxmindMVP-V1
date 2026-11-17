@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const { AttemptHistory } = loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+const { AttemptHistory } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
 const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join('') : text(node?.props?.children ?? '');
 test('student activity cards distinguish received work from published feedback', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   const states = ['PENDING', 'DRAFT', 'SUBMITTED', 'REVIEWED'];
   const view = hookView(Activities, { room: { id: 'room', role: 'student', timezone: 'UTC', units: [] }, reload: async () => {},
     api: { call: async path => path.endsWith('/progress') ? { scope: 'classroom', students: [] } : path.endsWith('/library') ? [] : {

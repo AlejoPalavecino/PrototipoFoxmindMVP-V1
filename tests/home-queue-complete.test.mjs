@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadTsModule} from './helpers/load-ts-module.mjs';
-const {completeHomeQueue}=loadTsModule('apps/web/src/features/home/model/home-queue.ts');
+const {completeHomeQueue}=loadTsModule('apps/web/src/features/home/queue/home-queue.ts');
 const page=(ids,nextCursor=null)=>({status:'ready',items:ids.map(id=>({id})),nextCursor,totalItems:3});
 test('Home completes all queue pages without a new pagination control',async()=>{
  const calls=[];const client={page:async q=>{calls.push(q);return{subjectId:'owner',module:'review',page:page(['b','c'])};}};

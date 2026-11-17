@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('answer and submit client use separate explicit editor-bearing requests with fresh CSRF; old client shapes remain unchanged', async () => {

@@ -23,7 +23,7 @@ for (const filename of fs.readdirSync(helpers).filter(name => /\.tsx?$/.test(nam
 }
 const app = fs.readFileSync(path.join(source, 'apps/web/pages/_app.tsx'), 'utf8');
 if (app.includes('../src/application/application-shell.tsx')) {
-  const shell = fs.readFileSync(path.join(source, 'apps/web/src/application/application-shell.tsx'), 'utf8');
+  const shell = fs.readFileSync(path.join(source, 'apps/web/src/application/shell/ApplicationShell.tsx'), 'utf8');
   fs.writeFileSync(path.join(fixtureDir, 'application-shell.tsx'), shell.replace('<div className="fm3d-theme">', '<div className="fm3d-theme" data-qa-fixture="true">'));
   fs.writeFileSync(path.join(pages, '_app.tsx'), app.replace('../src/application/application-shell.tsx', '../fixtures/application-shell'));
 } else {

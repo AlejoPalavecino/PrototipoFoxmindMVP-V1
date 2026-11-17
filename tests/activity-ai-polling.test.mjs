@@ -1,3 +1,4 @@
+import { generationFixtureApi } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -5,7 +6,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView } from './agenda-ui-helpers.test.mjs';
 
 test('a delayed apply cannot reopen a draft after the generation context closes', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
   let finish, signal;
   const api = { call: async (path, method, _data, requestSignal) => {
     if (path.endsWith('/apply')) {
@@ -15,7 +16,7 @@ test('a delayed apply cannot reopen a draft after the generation context closes'
     return path.endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] };
   } };
   const opened = [];
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async id => { opened.push(id); }) });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, ({ id: 'room', revision: '2' }).id), { id: 'room', revision: '2' }, async id => { opened.push(id); }) });
   const view = hookView(Host, {});
   await view.flush();
   const request = view.tree.props.state.apply('job', {});
@@ -27,14 +28,14 @@ test('a delayed apply cannot reopen a draft after the generation context closes'
 });
 
 test('the initial catalogue cannot overwrite a later explicit refresh', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
   let finish, reads = 0;
   const api = { call: async path => {
     if (!path.endsWith('/sources')) return { jobs: [] };
     if (reads++ === 0) return new Promise(resolve => { finish = resolve; });
     return { revision: '3', sources: [{ sourceId: 'fresh' }] };
   } };
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async () => {}) });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, ({ id: 'room', revision: '2' }).id), { id: 'room', revision: '2' }, async () => {}) });
   const view = hookView(Host, {});
   try {
     await view.flush();
@@ -46,7 +47,7 @@ test('the initial catalogue cannot overwrite a later explicit refresh', async ()
 });
 
 test('a failed generation during initial loading preserves history and recovery', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
   const previous = { id: '11111111-1111-4111-8111-111111111111', state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN' };
   let finish;
   const api = { call: async (path, method) => {
@@ -54,7 +55,7 @@ test('a failed generation during initial loading preserves history and recovery'
     if (path.endsWith('/sources')) return { revision: '2', sources: [] };
     return new Promise(resolve => { finish = resolve; });
   } };
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async () => {}) });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, ({ id: 'room', revision: '2' }).id), { id: 'room', revision: '2' }, async () => {}) });
   const view = hookView(Host, {});
   try {
     await view.flush();
@@ -69,7 +70,7 @@ test('a failed generation during initial loading preserves history and recovery'
 });
 
 test('polling a completed generation synchronizes the open view and its existing recent-history row', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
   const job = { id: '11111111-1111-4111-8111-111111111111', classroomId: '22222222-2222-4222-8222-222222222222',
     baseRevision: '2', state: 'QUEUED', type: 'ASSIGNMENT', proposal: null, error: null, retryable: false,
     missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };
@@ -88,7 +89,7 @@ test('polling a completed generation synchronizes the open view and its existing
     return priorTimeout(callback, delay, ...args);
   };
   globalThis.clearTimeout = timer => { if (timer !== handle) priorClear(timer); };
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: job.classroomId, revision: '2' }, async () => {}) });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, ({ id: job.classroomId, revision: '2' }).id), { id: job.classroomId, revision: '2' }, async () => {}) });
   const view = hookView(Host, {});
   try {
     await view.flush();

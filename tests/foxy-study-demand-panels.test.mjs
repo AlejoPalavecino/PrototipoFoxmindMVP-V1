@@ -10,7 +10,7 @@ const props = { query: { q: 'mi búsqueda', context: 'ALL', type: 'ALL', status:
   page: { items: [], next: null, loading: false, error: null } };
 
 test('creation filter chips preserve the current search and issue complete queries', async () => {
-  const {FoxyCollectionPanel}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-collection-panel.tsx',{});
+  const {FoxyCollectionPanel}=componentWithPorts('apps/web/src/features/foxy/collections/foxy-collection-panel.tsx',{});
   const requests=[],view=hookView(FoxyCollectionPanel,{...props,onQuery:query=>requests.push(query)});
   try{await view.flush();noDisclosure(view.tree);assert.equal(button(view.tree,'Filtros'),undefined);button(view.tree,'Clases').props.onClick();assert.deepEqual(requests,[{...props.query,type:'PLAN'}]);assert.equal(descendants(view.tree,node=>node.type==='input')[0].props.value,'mi búsqueda');}finally{view.close();}
 });
@@ -48,7 +48,7 @@ test('Study material actions and unit topics open on demand; archived folders st
 });
 
 test('a ready Foxy visual opens the generator on demand and keeps the request draft', async () => {
-  const { FoxyVisualWorkspace } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-workspace.tsx', {});
+  const { FoxyVisualWorkspace } = componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-workspace.tsx', {});
   const view = hookView(FoxyVisualWorkspace, { capabilities: { IMAGE: true, DIAGRAM: true }, kind: 'IMAGE',
     prompt: 'Borrador', aspectRatio: '1:1', jobs: [{ id: 'j', assetId: 'a', state: 'READY', kind: 'IMAGE' }],
     selectedId: 'j', assetFileUrl: (id, mode) => '/api/v1/foxy-ai/assets/' + id + '/file?mode=' + mode,
@@ -124,7 +124,7 @@ for (const [scenario, expectedTarget] of [
     const composer = () => descendants(view.tree, node => node.type === 'textarea')[0];
     composer().props.onChange({ target: { value: 'Mi borrador' } });
     await view.flush();
-    const open = descendants(view.tree, node => node.type === 'button' && Array.isArray(node.props.children) && node.props.children.includes('Biblioteca'))[0];
+    const open = descendants(view.tree, node => node.type === 'button' && node.props['aria-label'] === 'Biblioteca')[0];
     const dialog = title => descendants(view.tree, node => node.type?.name === 'FoxyDialog' && node.props.title === title)[0];
     ownerDocument.activeElement = launcher;
     open.props.onClick({ currentTarget: launcher });

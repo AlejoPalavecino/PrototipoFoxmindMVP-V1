@@ -1,15 +1,15 @@
 // Actual Agenda and app styles; synthetic in-memory client, no account or provider.
 import { createRoot } from 'react-dom/client';
-import { Agenda } from '../../apps/web/src/features/agenda/ui/Agenda';
+import { Agenda } from '../../apps/web/src/features/agenda/calendar/Agenda';
 import { AppNavbar } from '../../apps/shared-ui/AppNavbar';
 import { expandAgendaEvent, type PrivateEvent } from '../../src/core/domain/agenda/index';
 import { type AgendaClient } from '../../apps/web/src/features/agenda/api/api';
 import '../../apps/shared-ui/design-tokens.css';
 import '../../apps/web/styles/globals.css';
-import '../../apps/web/src/application/styles/academic.css';
-import '../../apps/shared-ui/folders.css';
-import '../../apps/shared-ui/foxmind-3d.css';
-import '../../apps/shared-ui/workspace.css';
+import '../../apps/web/src/application/shell/styles/academic.css';
+import '../../apps/web/src/application/shell/styles/folders.css';
+import '../../apps/web/src/application/shell/styles/foxmind-3d.css';
+import '../../apps/web/src/application/shell/styles/workspace.css';
 
 const stamp = '2026-11-12T12:00:00Z', zone = 'America/Argentina/Buenos_Aires';
 const scenario = new URLSearchParams(location.search).get('scenario');

@@ -1,8 +1,9 @@
+import { studyFolderSettings } from '../folders/study-folder-persistence.ts';
 import {useEffect,useState} from 'react';
 import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
 import {learningCover} from '../../../../../shared-ui/parity-assets';
 import {Notice} from '../../../../../shared-ui/feedback';
-import {createStudyClient,type StudyCollection,type StudyDetail} from '../api/study-client';
+import type { StudyCollection, StudyDetail } from '../model/study-contracts.ts';
 
 export function StudyContext({detail,catalog,busy,onReload,onClose,onLibrary,onSaveAvailability,onWorkingChange}:{detail:StudyDetail;catalog:StudyCollection;busy:boolean;onReload:()=>Promise<void>;onClose:()=>void;onLibrary:()=>void;onSaveAvailability?:(ready:boolean)=>void;onWorkingChange?:(working:boolean)=>void}) {
  const {folder}=detail;
@@ -14,7 +15,7 @@ export function StudyContext({detail,catalog,busy,onReload,onClose,onLibrary,onS
  const groups=[{key:'plan',icon:'book',title:'Plan de estudio',count:folder.units.flatMap(unit=>unit.topics).length,label:'temas'},{key:'materials',icon:'folder',title:'Materiales',count:sources.length,label:'disponibles'},{key:'creations',icon:'spark',title:'Creaciones',count:creations.length,label:'propias'}] as const;
  useEffect(()=>onSaveAvailability?.(!busy&&!saving&&folder.status==='ACTIVE'&&(mode!=='classroom'||!!room)),[busy,saving,folder.status,mode,room?.id,onSaveAvailability]);
  useEffect(()=>onWorkingChange?.(saving),[saving,onWorkingChange]);
- async function save(){if(saving||busy)return;if(mode==='classroom'&&!room){setError('Elegí un aula disponible para continuar.');return;}setSaving(true);setError('');try{await createStudyClient().update(folder.id,{revision:folder.revision,linkedClassroomId:mode==='classroom'?link:null});await onReload();onClose();}catch(error){setError(error instanceof Error?error.message:'No pudimos guardar el vínculo. Tus materiales se conservan.');}finally{setSaving(false);}}
+ async function save(){if(saving||busy)return;if(mode==='classroom'&&!room){setError('Elegí un aula disponible para continuar.');return;}setSaving(true);setError('');try{await studyFolderSettings.save(folder.id,{revision:folder.revision,linkedClassroomId:mode==='classroom'?link:null});await onReload();onClose();}catch(error){setError(error instanceof Error?error.message:'No pudimos guardar el vínculo. Tus materiales se conservan.');}finally{setSaving(false);}}
  return <form id="study-context-form" className="study-exact-context" onSubmit={event=>{event.preventDefault();void save();}}>
   <div className="study-exact-context-modes" aria-label="Tipo de contexto">{([{value:'general',title:'Sin aula vinculada',note:'Tu biblioteca privada como referencia.',icon:'folder'},{value:'classroom',title:'Vincular a un aula',note:'Plan y materiales actualizados.',icon:'book'}] as const).map(item=><button type="button" key={item.value} disabled={busy||saving} aria-pressed={mode===item.value} onClick={()=>{setMode(item.value);if(item.value==='general')setLink('');}}><span><FoxmindIcon name={item.icon}/></span><div><b>{item.title}</b><small>{item.note}</small></div><FoxmindIcon name={mode===item.value?'check':'chevron-right'}/></button>)}</div>
   {mode==='classroom'&&<div className="study-exact-class-picks" aria-label="Elegir aula">{catalog.classrooms.map(item=><button type="button" key={item.id} disabled={busy||saving} aria-pressed={link===item.id} onClick={()=>setLink(item.id)}><img src={learningCover()} alt=""/><span><b>{item.name}</b><small>{item.academicYear}{item.archived?' · Archivada':''}</small></span><FoxmindIcon name={link===item.id?'check':'chevron-right'}/></button>)}{!catalog.classrooms.length&&<p>No tenés aulas disponibles. Podés seguir con tus materiales propios.</p>}</div>}

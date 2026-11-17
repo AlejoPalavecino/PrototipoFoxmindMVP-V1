@@ -1,3 +1,5 @@
+import { participationFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
+import { authoringFixtureProps, gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { useState } from 'react';
@@ -25,9 +27,9 @@ const button = (view, name) => select(view, node => node.type === 'button' && te
 const click = (view, name) => button(view, name).props.onClick();
 
 test('E03 conserva alcance multitema y exige confirmación separada antes de publicar', async () => {
-  const { ActivityAuthoring } = loadTsModule(source + '/activity-authoring/ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule(source + '/activity-authoring/drafting/ActivityAuthoring.tsx');
   const calls = [], published = deferred();
-  const view = hookView(ActivityAuthoring, {
+  const view = hookView(ActivityAuthoring, authoringFixtureProps('ActivityAuthoring', {
     room, materials: [], onClose() {}, onSaved: async () => {},
     data: { activity: draft, revision: '1' },
     api: { call: async (_path, _method, request) => {
@@ -35,7 +37,7 @@ test('E03 conserva alcance multitema y exige confirmación separada antes de pub
       if (request.operation.action === 'publish') return published.promise;
       return request.operation.action === 'create' ? { id: 'new', revision: '2' } : { revision: '3' };
     } },
-  });
+  }));
   try {
     await view.flush();
     component(view, 'ActivityAssignment').props.update({ unitIds: ['u1'], topicIds: ['t3'] });
@@ -63,16 +65,16 @@ test('E03 conserva alcance multitema y exige confirmación separada antes de pub
 });
 
 test('E03 cambiar de TP a cuestionario elimina la exigencia de adjunto del envío', async () => {
-  const { ActivityAuthoring } = loadTsModule(source + '/activity-authoring/ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule(source + '/activity-authoring/drafting/ActivityAuthoring.tsx');
   const calls = [];
-  const view = hookView(ActivityAuthoring, {
+  const view = hookView(ActivityAuthoring, authoringFixtureProps('ActivityAuthoring', {
     room, materials: [], onClose() {}, onSaved: async () => {},
     data: { activity: { ...draft, attachmentRequired: true }, revision: '1' },
     api: { call: async (_path, _method, request) => {
       calls.push(request.operation);
       return request.operation.action === 'create' ? { id: 'new', revision: '2' } : { revision: '3' };
     } },
-  });
+  }));
   try {
     await view.flush();
     component(view, 'ActivityTypeChoice').props.update('QUESTIONNAIRE');
@@ -85,8 +87,8 @@ test('E03 cambiar de TP a cuestionario elimina la exigencia de adjunto del enví
 });
 
 test('E03 no inicia generación sin idea privada y permite idea sin adjuntos', async () => {
-  const { GenerationSetup } = loadTsModule(source + '/activity-authoring/ui/GenerationSetup.tsx');
-  const { defaultGenerationForm } = loadTsModule(source + '/activity-authoring/ui/ActivityGenerationForm.tsx');
+  const { GenerationSetup } = loadTsModule(source + '/activity-authoring/generation/GenerationSetup.tsx');
+  const { defaultGenerationForm } = loadTsModule(source + '/activity-authoring/generation/ActivityGenerationForm.tsx');
   const requests = [];
   let setValue;
   const view = hookView(() => {
@@ -113,14 +115,14 @@ test('E03 no inicia generación sin idea privada y permite idea sin adjuntos', a
 });
 
 test('E04 mantiene la respuesta recuperada al navegar y confirma un solo envío con la revisión guardada', async () => {
-  const { QuestionnaireAttempt } = loadTsModule(source + '/participation/ui/QuestionnaireAttempt.tsx');
+  const { QuestionnaireAttempt } = loadTsModule(source + '/participation/questionnaire/QuestionnaireAttempt.tsx');
   const editor = { epoch: '1', token: 'editor-sintético' };
   const questions = [
     { id: 'q1', type: 'DEVELOPMENT', prompt: 'Describe el primero.', options: [] },
     { id: 'q2', type: 'SINGLE_CHOICE', prompt: 'Elegí un ejemplo.', options: [{ id: 'o1', text: 'Ejemplo A' }] },
   ];
   const calls = [], sent = deferred();
-  const view = hookView(QuestionnaireAttempt, {
+  const view = hookView(QuestionnaireAttempt, participationFixtureProps('QuestionnaireAttempt', {
     classroomId: room.id, editor, refresh: async () => {},
     data: { activity: { ...draft, questions }, canTransfer: true,
       attempt: { id: 'attempt', number: 1, status: 'DRAFT', revision: '1', epoch: '1',
@@ -130,7 +132,7 @@ test('E04 mantiene la respuesta recuperada al navegar y confirma un solo envío 
       calls.push({ path, input, capability });
       return path.endsWith('/answer') ? { revision: '2', answer: { ...input, savedAt: '2026-11-15' } } : sent.promise;
     } },
-  });
+  }));
   try {
     await view.flush();
     assert.equal(select(view, node => node.type === 'textarea').props.value, 'Respuesta recuperada');
@@ -157,11 +159,11 @@ test('E04 mantiene la respuesta recuperada al navegar y confirma un solo envío 
 });
 
 test('E05 un fallo al publicar conserva disponible la corrección privada con nota cero', async () => {
-  const { GradingEditor } = loadTsModule(source + '/grading/ui/GradingEditor.tsx');
+  const { GradingEditor } = loadTsModule(source + '/grading/editing/GradingEditor.tsx');
   const data = structuredClone(gradingView);
   Object.assign(data.grade, { id: 'saved', finalGrade: '0.00', pending: false });
   let publications = 0;
-  const view = hookView(GradingEditor, {
+  const view = hookView(GradingEditor, gradingFixtureProps('GradingEditor', {
     roomId: room.id, attemptId: data.attempt.id, onClose() {}, onChanged: async () => {},
     api: { call: async (path, method, payload) => {
       if (method === 'GET') return data;
@@ -170,7 +172,7 @@ test('E05 un fallo al publicar conserva disponible la corrección privada con no
       if (++publications === 1) throw new Error('No pudimos publicar.');
       return { ...data, canSave: false, grade: { ...data.grade, isPublished: true } };
     } },
-  });
+  }));
   try {
     await view.flush();
     click(view, 'Publicar calificación'); await view.flush();
@@ -187,20 +189,20 @@ test('E05 un fallo al publicar conserva disponible la corrección privada con no
 });
 
 test('E03 cambiar la idea de una propuesta recuperada impide aplicar una versión obsoleta', async () => {
-  const { ActivityGeneration } = loadTsModule(source + '/activity-authoring/ui/ActivityGeneration.tsx');
+  const { ActivityGeneration } = loadTsModule(source + '/activity-authoring/generation/ActivityGeneration.tsx');
   const job = {
     id: 'job', type: 'ASSIGNMENT', state: 'READY', topicIds: ['t1'], teacherBrief: 'Idea original.',
     proposal: { title: 'Primer borrador', questions: [], assignmentPrompts: [], warnings: [] },
   };
   let writes = 0;
-  const view = hookView(ActivityGeneration, {
+  const view = hookView(ActivityGeneration, authoringFixtureProps('ActivityGeneration', {
     room, onClose() {}, onApplied: async () => {},
     api: { call: async (path, method) => {
       if (method === 'POST') { writes++; return {}; }
       if (path.endsWith('/sources')) return { sources: [] };
       return path.endsWith('/job') ? job : { jobs: [job] };
     } },
-  });
+  }));
   try {
     await view.flush();
     click(view, 'Generaciones recientes');
@@ -218,10 +220,10 @@ test('E03 cambiar la idea de una propuesta recuperada impide aplicar una versió
 });
 
 test('E04 conservar el archivo rechazado deja volver a la edición antes de entregar', async () => {
-  const { PracticalAttempt } = loadTsModule(source + '/participation/ui/PracticalAttempt.tsx');
+  const { PracticalAttempt } = loadTsModule(source + '/participation/practical/PracticalAttempt.tsx');
   const editor = { epoch: '1', token: 'editor-sintético' };
   let uploads = 0, submissions = 0;
-  const view = hookView(PracticalAttempt, {
+  const view = hookView(PracticalAttempt, participationFixtureProps('PracticalAttempt', {
     classroomId: room.id, editor, refresh: async () => {},
     data: { activity: draft, canTransfer: true, attempt: { id: 'attempt', number: 1, status: 'DRAFT', revision: '1', epoch: '1',
       attachments: [], practicalResponse: 'Texto confirmado' } },
@@ -229,7 +231,7 @@ test('E04 conservar el archivo rechazado deja volver a la edición antes de entr
       attempt: async () => { submissions++; },
       uploadAttachment: async () => { uploads++; throw new Error('El archivo fue rechazado.'); },
     },
-  });
+  }));
   try {
     await view.flush();
     select(view, node => node.type === 'input' && node.props.type === 'file').props.onChange({
@@ -248,14 +250,14 @@ test('E04 conservar el archivo rechazado deja volver a la edición antes de entr
 });
 
 test('la rúbrica muestra criterios de forma directa, sin desplegable nativo', () => {
-  const { EvaluationRubric } = loadTsModule(source + '/activity-authoring/ui/EvaluationRubric.tsx');
+  const { EvaluationRubric } = loadTsModule(source + '/activity-authoring/drafting/EvaluationRubric.tsx');
   const tree = EvaluationRubric({ criteria: draft.evaluationRubric });
   assert.equal(descendants(tree, node => node.type === 'details' || node.type === 'summary').length, 0);
   assert.match(text(tree), /Evidencia.*Compara con ejemplos/);
 });
 
 test('consultar las fuentes de una propuesta conserva lo editado y vuelve a la misma sección', async () => {
-  const { ActivityGenerationProposal } = loadTsModule(source + '/activity-authoring/ui/ActivityGenerationProposal.tsx');
+  const { ActivityGenerationProposal } = loadTsModule(source + '/activity-authoring/generation/ActivityGenerationProposal.tsx');
   const original = {
     title: 'Propuesta inicial', objective: 'Analizar.', instructions: 'Comparar.', assignmentPrompts: [], questions: [],
     warnings: [], evidence: [{ item: 'assignment', index: 0, references: [{ sourceId: 'teacher-context', page: null }] }],
@@ -279,15 +281,15 @@ test('consultar las fuentes de una propuesta conserva lo editado y vuelve a la m
 });
 
 test('cerrar la sugerencia de calificación conserva la edición privada junto con su confirmación', async () => {
-  const { GradingAiReview } = loadTsModule(source + '/grading/ui/GradingAiReview.tsx');
+  const { GradingAiReview } = loadTsModule(source + '/grading/ai-review/GradingAiReview.tsx');
   const writes = [];
-  const view = hookView(GradingAiReview, {
+  const view = hookView(GradingAiReview, gradingFixtureProps('GradingAiReview', {
     roomId: room.id, attemptId: 'attempt', revision: '1', dirty: true, onApplied: async () => {},
     api: { call: async (path, method, payload) => {
       if (method === 'POST') { writes.push({ path, payload }); return {}; }
       return { id: 'job', state: 'READY', snapshotHash: 'hash', proposal: { overallGrade: '8', overallFeedback: 'Sugerencia', questions: [], warnings: [] } };
     } },
-  });
+  }));
   try {
     await view.flush();
     click(view, 'Revisar sugerencia'); await view.flush();

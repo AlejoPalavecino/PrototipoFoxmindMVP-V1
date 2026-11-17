@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import ts from 'typescript';
 
 test('classroom initial detail loader does not eagerly couple independent roster, history and invitation requests', async () => {
-  const path = 'apps/web/src/application/academic-ClassroomView.tsx';
+  const path = 'apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx';
   const source = ts.createSourceFile(path, await readFile(path, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   let loader;
   const find = node => {

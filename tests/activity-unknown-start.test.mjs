@@ -1,3 +1,4 @@
+import { generationFixtureApi, authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -52,12 +53,12 @@ test('A01 acknowledged regeneration dispatches once and another unknown successo
 });
 
 test('A01 reopening generation recovers the latest uncertain result before permitting another initial start', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
   const failed = { id: randomUUID(), classroomId: randomUUID(), state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN', proposal: null,
     retryable: false, missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };
   const calls = [], api = { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] }
     : args[0].endsWith(failed.id) ? failed : { jobs: [failed] }; } };
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: failed.classroomId, revision: '2' }, async () => {}) });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, ({ id: failed.classroomId, revision: '2' }).id), { id: failed.classroomId, revision: '2' }, async () => {}) });
   const view = hookView(Host, {});
   try {
     await view.flush(); assert.equal(view.tree.props.state.view?.id, failed.id);
@@ -111,8 +112,8 @@ test('A01 an older READY sibling cannot bypass an unresolved unknown successor e
 });
 
 test('A01 reopening after a newer READY successor preserves historical uncertainty without blocking new creation', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
-  const { ActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/use-activity-generation.ts');
+  const { ActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/generation/ActivityGeneration.tsx');
   const room = { id: randomUUID(), revision: '2', role: 'teacher', archived: false, units: [], plans: [] };
   const ancestor = { id: randomUUID(), classroomId: room.id, state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN', proposal: null,
     retryable: false, missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };
@@ -120,8 +121,8 @@ test('A01 reopening after a newer READY successor preserves historical uncertain
   const calls = [], jobs = [successor, ancestor], api = { call: async (...args) => {
     calls.push(args); return args[0].endsWith('/sources') ? { revision: room.revision, sources: [] } : { jobs };
   } };
-  const Host = () => React.createElement('output', { state: useActivityGeneration(api, room, async () => {}) });
-  const stateView = hookView(Host, {}), formView = hookView(ActivityGeneration, { api, room, onApplied: async () => {}, onClose() {} });
+  const Host = () => React.createElement('output', { state: useActivityGeneration(generationFixtureApi(api, (room).id), room, async () => {}) });
+  const stateView = hookView(Host, {}), formView = hookView(ActivityGeneration, authoringFixtureProps('ActivityGeneration', { api, room, onApplied: async () => {}, onClose() {} }));
   try {
     await stateView.flush(); await formView.flush();
     assert.notEqual(stateView.tree.props.state.view?.error, 'PROVIDER_OUTCOME_UNKNOWN', 'A resolved historical ancestor cannot reactivate the uncertain gate');

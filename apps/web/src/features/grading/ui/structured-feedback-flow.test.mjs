@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from '../../../../../../tests/helpers/frontend-feature-fixtures.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -10,9 +11,9 @@ const feature = 'apps/web/src/features/grading/ui/';
 const findButton = (view, label) => descendants(view.tree, node => node.type === 'button' && node.props.children === label)[0];
 
 test('pending result addresses the teacher and student according to the viewer', async () => {
-  const { PublishedResult } = loadTsModule(feature + 'PublishedResult.tsx');
+  const { PublishedResult } = loadTsModule('apps/web/src/features/grading/results/PublishedResult.tsx');
   for (const audience of ['teacher', 'student']) {
-    const view = hookView(PublishedResult, { audience, roomId: 'room', attemptId: 'attempt', api: { call: async () => ({ status: 'pending' }) } });
+    const view = hookView(PublishedResult, gradingFixtureProps('PublishedResult', { audience, roomId: 'room', attemptId: 'attempt', api: { call: async () => ({ status: 'pending' }) } }));
     try {
       await view.flush();
       const html = renderToStaticMarkup(view.tree);
@@ -26,21 +27,21 @@ test('pending result addresses the teacher and student according to the viewer',
 });
 
 test('structured teacher feedback saves privately, previews the saved version and renders from the public result', async () => {
-  const { GradingEditor } = loadTsModule(feature + 'GradingEditor.tsx');
-  const { PublishedResult } = loadTsModule(feature + 'PublishedResult.tsx');
+  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/editing/GradingEditor.tsx');
+  const { PublishedResult } = loadTsModule('apps/web/src/features/grading/results/PublishedResult.tsx');
   let data = structuredClone(gradingView);
   data.grade.id = 'saved';
   data.grade.pending = false;
   data.grade.finalGrade = '0.00';
   const calls = [];
-  const editor = hookView(GradingEditor, {
+  const editor = hookView(GradingEditor, gradingFixtureProps('GradingEditor', {
     api: { call: async (path, method, payload) => {
       calls.push({ path, method, payload });
       if (method === 'POST') data = { ...data, grade: { ...data.grade, overallFeedback: payload.overallFeedback } };
       return data;
     } },
     roomId: 'room', attemptId: 'attempt', onClose() {}, onChanged: async () => {},
-  });
+  }));
   try {
     await editor.flush();
     const change = value => descendants(editor.tree, node => node.type === 'textarea' && node.props['aria-label'] === 'Próximo paso')[0]
@@ -60,12 +61,12 @@ test('structured teacher feedback saves privately, previews the saved version an
     assert.equal(preview.props.value, data.grade.overallFeedback);
     assert.ok(calls.every(call => !call.path.includes('/publish-grade')));
 
-    const result = hookView(PublishedResult, {
+    const result = hookView(PublishedResult, gradingFixtureProps('PublishedResult', {
       api: { call: async () => ({ status: 'published', questions: [], attachments: [], grade: {
         finalGrade: '0.00', isEffective: true, publishedAt: '2026-11-11T00:00:00Z', overallFeedback: data.grade.overallFeedback,
       } }) },
       roomId: 'room', attemptId: 'attempt',
-    });
+    }));
     try {
       await result.flush();
       const html = renderToStaticMarkup(result.tree);

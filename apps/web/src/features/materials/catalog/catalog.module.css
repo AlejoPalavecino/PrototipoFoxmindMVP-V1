@@ -1,0 +1,133 @@
+.library, .upload { --library-line: #dce2f0; --library-muted: #555d77; min-width: 0; display: grid; gap: 14px; }
+
+.library :is(button, input, a):focus-visible, .upload :is(button, input, textarea, select, summary):focus-visible, .picker:focus-within { outline: 3px solid #9a3e00; outline-offset: 2px; }
+
+.library > [hidden] { display: none !important; }
+
+.search { position: relative; display: block; max-width: 500px; }
+
+.search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--library-muted); pointer-events: none; }
+
+.library .search input { padding-inline-start: 38px; min-height: 44px; width: 100%; }
+
+:global(#classroom-main) .library .search input { padding-inline-start: 40px; }
+
+.list { display: grid; gap: 12px; }
+
+.row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: clamp(14px, 2vw, 20px); min-width: 0; background: #fff; border: 1px solid var(--library-line); border-radius: 19px; box-shadow: 0 6px 20px #25264606; }
+
+.row[data-current=true] { border-color: #bc7856; }
+
+.row:focus-visible { outline: 3px solid #9a3e00; outline-offset: 2px; }
+
+.copy { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+
+.copy h3 { margin: 7px 0 3px; }
+
+.copy p { margin: 0; color: var(--library-muted); }
+
+.metadata, .rowActions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+
+.badge { background: #eee9fc; color: #4e3b78; border-radius: 99px; padding: 3px 9px; font-size: .78rem; }
+
+
+/* iter17: one toolbar and continuous file list. */
+.toolbar{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;background:#fff;border:1px solid #c4d2df;border-radius:17px;padding:16px}
+
+.search{max-width:none}
+.search>span,.location>span{display:block;font-size:13px;font-weight:800;margin-bottom:6px;color:#202c3d}
+.search>div{position:relative}
+.location select{width:100%;min-height:44px}
+.count{font-size:12px;font-weight:750;color:#475f73}
+
+.list{display:block;background:#fff;border:1px solid #c4d2df;border-radius:17px;padding:3px 16px}
+.list:empty{display:none}
+
+.row{flex-wrap:nowrap;padding:14px 0;gap:13px;background:none;border:0;border-bottom:1px solid #e0e8f0;border-radius:0;box-shadow:none}
+.row:last-child{border-bottom:0}
+.row[data-current=true]{outline:2px solid #b74710;outline-offset:3px;border-radius:8px}
+
+.fileMark{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:none;width:44px;height:46px;border-radius:11px;background:#e7f2fa;color:#315e7d}
+.fileMark svg{width:17px;height:17px}
+.fileMark small{font-size:9px;font-weight:850}
+.copy h3{font-size:14px!important;margin:0 0 4px!important}
+.copy p{font-size:11px;line-height:1.6;margin:3px 0}
+.metadata{display:none}
+.linked{font-size:11px;color:#315f55;display:block;margin-top:4px}
+
+:global(#classroom-main) .rowActions button{font-size:12px;display:inline-flex;gap:8px;align-items:center;min-height:44px;background:transparent;border:0;padding:8px}
+.rowActions svg{width:18px;height:18px}
+
+@media(max-width:650px){.toolbar{grid-template-columns:1fr}
+.row{flex-wrap:wrap}
+.copy{flex:1 1 calc(100% - 65px)}
+.rowActions{margin-left:57px}
+.list{padding-inline:13px}
+}
+
+.row { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:13px 0; }
+
+.rowActions { margin-left:0; }
+
+.copy p { line-height:1.45; }
+
+.copy p+p { font-size:12px; }
+
+.count { margin:0 0 -7px 2px; }
+
+@media(max-width:650px) and (min-width:521px) { .toolbar { grid-template-columns:1.4fr 1fr; }
+}
+
+@media(max-width:520px) { .toolbar { padding:12px; gap:9px; }
+ .list { padding:2px 11px; }
+ .row { gap:8px; }
+ .fileMark { width:37px; min-height:41px; }
+ :global(#classroom-main) .rowActions button { font-size:11px; padding:6px 8px; }
+ .rowActions svg { display:none; }
+}
+
+
+/* Visual comparison at 1440/390: match the reference form and continuous list. */
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) { margin:0 0 8px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) h2 { font-family:Nunito,sans-serif; font-size:24px; font-weight:800; line-height:1.25; color:#202c3d; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) { min-height:44px; font-size:13px; font-weight:800; padding:11px 18px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) svg { width:17px; height:17px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar { padding:15px 17px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar :is(input,select) { min-height:44px; font-family:Nunito,sans-serif; font-size:14px; font-weight:700; line-height:1.4; border:1px solid #9daec2; border-radius:12px; color:#202c3d; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar input::placeholder { font-size:14px; font-weight:700; color:#4b6176; opacity:1; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar select { appearance:auto; background-image:none; padding:10px 14px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .count { font-size:12px; color:#4b6176; font-weight:800; line-height:1.4; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy h3 { font-family:Nunito,sans-serif; font-size:14px; font-weight:800; line-height:1.35; color:#202c3d; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy p { color:#516980; font-size:11px; font-weight:750; line-height:1.45; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy p+p { color:#42566b; font-size:12px; font-weight:400; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .rowActions button { font-family:Nunito,sans-serif; font-weight:800; }
+
+@media(max-width:520px) {
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) h2 { font-size:22px; }
+
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) { font-size:12px; }
+
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar { padding:12px; }
+}
+
+
+/* Reaudit: empty collection and short-viewport dialogs follow UI Lab. */
+.empty { background:#fff; border:1px solid #bdccda; border-radius:16px; padding:25px; text-align:center; }
+
+.empty>svg { width:24px; height:24px; color:#43647e; margin:0 auto 5px; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .empty h3 { font-family:Nunito,sans-serif; font-size:17px; font-weight:800; margin:0; }
+
+:global(#foxmind-product.fm3d-theme #classroom-main) .empty p { font-size:13px; margin:5px 0 0; }

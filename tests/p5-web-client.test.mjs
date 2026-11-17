@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 import { safeDestination as classroomDestination, authHref as classroomAuthHref, classroomHomeDestination, classroomHomeHref } from '../apps/web/src/application/navigation/destinations.ts';
-import { createWebClassroomClient } from '../apps/web/src/application/academic-classroom-client.ts';
+import { createWebClassroomClient } from '../apps/web/src/application/clients/classroom-client.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
@@ -102,14 +102,14 @@ test('a late session response cannot restore a private classroom screen after ac
   const { ClassroomsScreen } = loadTsModule('apps/web/src/screens/classrooms-screen.tsx', { stubs: {'next/router': { useRouter: () => router },
 'next/head': () => null,
 'next/link': () => null,
-"../application/academic-Classrooms.tsx":{ClassroomsApp: ClassroomApp},
-"../application/academic-useAgendaTarget.ts":{useAgendaTarget: () => ({ requested: false })},
+"../application/workflows/classroom-collection/ClassroomsApp.tsx":{ClassroomsApp: ClassroomApp},
+"../application/navigation/use-agenda-target.ts":{useAgendaTarget: () => ({ requested: false })},
 "../features/identity/index.ts":{createAccountClient: () => ({ session: signal => {
       sessionSignal = signal;
       return new Promise(resolve => { finish = resolve; });
     } })},
 "../application/navigation/destinations":{safeDestination:classroomDestination,authHref:classroomAuthHref,classroomHomeDestination,classroomHomeHref},
-"../application/academic-classroom-client.ts":{createWebClassroomClient: (_fetch, onFailure) => {
+"../application/clients/classroom-client.ts":{createWebClassroomClient: (_fetch, onFailure) => {
       requireAccount = onFailure;
       return {};
     }}} });

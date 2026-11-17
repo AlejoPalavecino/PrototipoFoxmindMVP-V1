@@ -18,7 +18,7 @@ Puntos disponibles positivos; cero ganado o nota final cero son válidos. Las en
 
 La nota efectiva sólo apunta a un resultado publicado. Rectificar modifica sólo la nota final del mismo resultado publicado, exige motivo y registra actor, fecha, nota anterior y nueva; conserva puntos, publishedAt e identidad de la calificación efectiva y notifica al estudiante. No reescribe respuestas, recepción ni publicación original. Los promedios excluyen notas ausentes/privadas, sin confundirlas con cero. Consultá [progreso](progress.md).
 
-Fuentes: [editor](../../../apps/web/src/features/grading/ui/GradingEditor.tsx), [motor](../../../apps/api/src/modules/grading/domain/scoring.ts), [corrección](../../../apps/api/src/modules/grading/review/application/grading.ts), [publicación](../../../apps/api/src/modules/grading/publication/application/grade-publication.ts). [Evidencia actual](../../verification/flows.md).
+Fuentes: [editor](../../../apps/web/src/features/grading/editing/GradingEditor.tsx), [motor](../../../apps/api/src/modules/grading/domain/scoring.ts), [corrección](../../../apps/api/src/modules/grading/review/application/grading.ts), [publicación](../../../apps/api/src/modules/grading/publication/application/grade-publication.ts). [Evidencia actual](../../verification/flows.md).
 
 ## Organización del backend
 

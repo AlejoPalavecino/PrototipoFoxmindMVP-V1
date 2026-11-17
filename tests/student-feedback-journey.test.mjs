@@ -1,3 +1,5 @@
+import { participationFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import { renderToStaticMarkup } from 'react-dom/server';
 import assert from 'node:assert/strict';
@@ -12,7 +14,7 @@ const attempt = { id: 'attempt', number: 1, epoch: '1', revision: '1', status: '
 const session = { activity, attempt, reception: { open: true, deadlineAt: null }, expected: true, archived: false, canTransfer: false };
 
 test('opening an exact submitted attempt prioritizes feedback and avoids duplicated answers', async () => {
-  const { AttemptHistory } = loadTsModule("apps/web/src/application/academic-AttemptHistory.tsx");
+  const { AttemptHistory } = loadTsModule("apps/web/src/application/workflows/activity-session/AttemptHistory.tsx");
   const view = hookView(AttemptHistory, { room: { id: 'room', role: 'student', timezone: 'UTC' }, activityId: 'activity', attemptId: 'attempt',
     api: { call: async path => path.endsWith('/attempts/attempt/history') ? session : { activity, attempts: [attempt], delivered: true } }, onClose() {}, onChanged: async () => {} });
   try {
@@ -28,10 +30,10 @@ test('opening an exact submitted attempt prioritizes feedback and avoids duplica
 });
 
 test('pending results retain submitted answers; published results replace fallback with grade and feedback', async () => {
-  const { PublishedResult } = loadTsModule("apps/web/src/features/grading/ui/PublishedResult.tsx");
+  const { PublishedResult } = loadTsModule("apps/web/src/features/grading/results/PublishedResult.tsx");
   const published = { status: 'published', grade: { finalGrade: '9.00', isEffective: true, publishedAt: '2026-10-28T12:00:00Z', overallFeedback: 'Devolución docente' }, questions: [], attachments: [] };
   for (const data of [{ status: 'pending' }, published]) {
-    const view = hookView(PublishedResult, { api: { call: async () => data }, roomId: 'room', attemptId: 'attempt', pendingContent: 'Respuestas del envío' });
+    const view = hookView(PublishedResult, gradingFixtureProps('PublishedResult', { api: { call: async () => data }, roomId: 'room', attemptId: 'attempt', pendingContent: 'Respuestas del envío' }));
     try {
       await view.flush();
       assert.equal(renderToStaticMarkup(view.tree).includes('Respuestas del envío'), data.status === 'pending');
@@ -42,8 +44,8 @@ test('pending results retain submitted answers; published results replace fallba
 
 for (const [file, component] of [['QuestionnaireAttempt', 'QuestionnaireAttempt'], ['PracticalAttempt', 'PracticalAttempt']]) {
   test(`${component}: a receipt must not invent the grading status`, async () => {
-    const Component = loadTsModule(`apps/web/src/features/participation/ui/${file}.tsx`)[component];
-    const view = hookView(Component, { api: {}, classroomId: 'room', data: session, editor: null, refresh: async () => {} });
+    const Component = loadTsModule('apps/web/src/features/participation/index.ts')[file];
+    const view = hookView(Component, participationFixtureProps(component, { api: {}, classroomId: 'room', data: session, editor: null, refresh: async () => {} }));
     try {
       await view.flush();
       const html = renderToStaticMarkup(view.tree);
@@ -61,17 +63,17 @@ for (const [component, endpoint, type] of [
   ['PracticalAttempt', 'submit-practical', 'ASSIGNMENT'],
 ]) {
   test(`${component}: a confirmed submission keeps its receipt and cannot be sent twice after refresh failure`, async () => {
-    const Component = loadTsModule(`apps/web/src/features/participation/ui/${component}.tsx`)[component];
+    const Component = loadTsModule('apps/web/src/features/participation/index.ts')[component];
     const receipt = { submittedAt: '2026-10-28T12:05:00Z', submittedLate: true, appliedDeadlineAt: '2026-10-28T12:00:00Z' };
     const draft = { ...attempt, status: 'DRAFT', submittedAt: null, submittedLate: null,
       ...(type === 'ASSIGNMENT' ? { answers: [], practicalResponse: 'Respuesta guardada' } : {}) };
     const calls = [];
     let failedRefresh = 0, exits = 0;
-    const view = hookView(Component, { classroomId: 'room', data: { ...session,
+    const view = hookView(Component, participationFixtureProps(component, { classroomId: 'room', data: { ...session,
       activity: { ...activity, type, ...(type === 'ASSIGNMENT' ? { questions: [] } : {}) }, canTransfer: true, attempt: draft },
       editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async (path, payload) => { calls.push({ path, payload }); return receipt; } },
       refresh: async () => { if (calls.length) { failedRefresh++; throw Error('Sin conexión'); } },
-      onClose: () => { exits++; } });
+      onClose: () => { exits++; } }));
     try {
       await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
       assert.equal(calls.length, 0);

@@ -1,6 +1,6 @@
 import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import {useEffect,useState} from 'react';
-import type {StudyFolder} from '../api/study-client';
+import type {StudyFolder} from '../model/study-contracts.ts';
 import {Notice} from '../../../../../shared-ui/feedback';
 import s from './study.module.css';
 import {studyUploadPolicy,validateStudyUpload} from '../model/study-file-policy';

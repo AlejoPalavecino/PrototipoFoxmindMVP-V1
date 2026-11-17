@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Notice } from '../../../shared-ui/feedback';
 import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { authHref } from '../application/navigation/destinations';
-import { getDocumentEntryPath, isFoxyDocument } from '../application/foxy-document-boundary';
-import { createFoxyNavigationBridge } from '../application/foxy-navigation-bridge';
+import { getDocumentEntryPath, isFoxyDocument } from '../application/navigation/foxy-document-boundary';
+import { createFoxyNavigationBridge } from '../application/navigation/foxy-navigation-bridge';
 import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
-import { FoxyWorkspaceSession } from './foxy-workspace-session';
+import { FoxyWorkspaceSession } from '../application/workflows/foxy-workspace/FoxyWorkspaceSession';
 
 const account = createAccountClient();
 type Binding = { navigate: (href: string) => void; shouldBlock: () => boolean };

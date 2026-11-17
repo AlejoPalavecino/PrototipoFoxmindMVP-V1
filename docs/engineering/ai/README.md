@@ -15,7 +15,7 @@ La [matriz actual](../../verification/flows.md) registra recorridos con proveedo
 
 Los adaptadores pertenecen al módulo que define su contrato: curriculum para extracción, activities para generación, grading para análisis/corrección, foxy para conversaciones y recursos, study para estudio privado. `platform/ai` conserva admisión, presupuesto y cliente técnico; `bootstrap` selecciona y conecta proveedores. Un proveedor compartido no convierte todas las capacidades IA en un único dominio.
 
-Fuentes: [extracción](../../../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts), [actividades](../../../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts), [Foxy](../../../apps/api/src/modules/foxy/infrastructure/providers/), [Estudio](../../../apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts), [admisión compartida](../../../apps/api/src/platform/ai/admission.ts), [composición](../../../apps/api/src/bootstrap/application.ts).
+Fuentes: [extracción](../../../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts), [actividades](../../../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts), [Foxy](../../../apps/api/src/modules/foxy/), [Estudio](../../../apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts), [admisión compartida](../../../apps/api/src/platform/ai/admission.ts), [composición](../../../apps/api/src/bootstrap/application.ts).
 
 ## Ejecución con SDK oficiales
 

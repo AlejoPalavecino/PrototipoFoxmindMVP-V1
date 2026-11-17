@@ -7,7 +7,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 const roomId = 'a1111111-1111-4111-8111-111111111111', resourceId = 'b1111111-1111-4111-8111-111111111111';
 test('Foxy handoff offers both real actions, keeps dirty resources gated and does not claim automatic conversion', async () => {
-  const { FoxyActivityHandoffPanel } = componentWithPorts("apps/web/src/screens/foxy-activity-handoff-panel.tsx", {});
+  const { FoxyActivityHandoffPanel } = componentWithPorts("apps/web/src/application/workflows/foxy-workspace/FoxyActivityHandoffPanel.tsx", {});
   const calls = [], runtime = { activityHandoff: { reset: () => calls.push('reset'), confirm: () => calls.push('confirm') } };
   const resource = { resource: { id: resourceId, title: 'Recurso', markdown: '<script>privado</script>' }, dirty: true, busy: false, pending: null };
   const view = hookView(FoxyActivityHandoffPanel, { runtime, state: {}, resource, classrooms: [], onNavigate() {}, locked: false });
@@ -20,7 +20,7 @@ test('Foxy handoff offers both real actions, keeps dirty resources gated and doe
 });
 
 test('Foxy handoff requires explicit reviewed checkbox and receipt navigates using IDs only', async () => {
-  const { FoxyActivityHandoffPanel } = componentWithPorts("apps/web/src/screens/foxy-activity-handoff-panel.tsx", {});
+  const { FoxyActivityHandoffPanel } = componentWithPorts("apps/web/src/application/workflows/foxy-workspace/FoxyActivityHandoffPanel.tsx", {});
   const calls = [], payload = { title: 'Trabajo', objective: 'Objetivo', instructions: '<script>Consigna</script>', teacherComment: '', evaluationRubric: [{ name: 'Criterio', description: '', weight: 100 }] };
   const runtime = { activityHandoff: { reset: () => {}, confirm: () => calls.push('confirm') } };
   const state = { review: { input: { payload } }, busy: false, pending: false, receipt: null };

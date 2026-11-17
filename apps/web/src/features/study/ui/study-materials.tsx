@@ -1,6 +1,9 @@
+import type { StudyRun } from '../model/study-commands.ts';
+import { studyFolderSettings } from '../folders/study-folder-persistence.ts';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Notice } from '../../../../../shared-ui/feedback';
-import { createStudyClient, validateStudyPlan, type StudyCollection, type StudyDetail } from '../api/study-client';
+import type { StudyCollection, StudyDetail } from '../model/study-contracts.ts';
+import { validateStudyPlan } from '../model/study-transitions.ts';
 import { canManageStudyMaterial } from '../model/study-discovery';
 import { StudyUpload } from './study-upload';
 import { StudyPlanEditor } from './study-wizard';
@@ -8,7 +11,7 @@ import { StudyDocxPreview } from './study-docx-preview';
 import { StudyConfirmation } from './study-confirmation';
 import s from './study.module.css';
 
-type Run = (action: string, data?: Record<string, unknown>) => Promise<unknown>;
+type Run=StudyRun;
 type Topic = StudyDetail['folder']['units'][number]['topics'][number];
 
 function StudyFileLinks({href,plan=false,onPreview}:{href:string;plan?:boolean;onPreview?:()=>void}) {
@@ -75,7 +78,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
     if (link !== (folder.linkedClassroomId ?? '') && !window.confirm('Cambiar el vínculo deja de usar los materiales del aula anterior. ¿Querés continuar?')) return;
     setWorking(true);
     try {
-      await createStudyClient().update(folder.id, { revision: folder.revision, units, linkedClassroomId: link || null });
+      await studyFolderSettings.save(folder.id, { revision: folder.revision, units, linkedClassroomId: link || null });
       await onReload();
       setDirty(false);
       setSettings(false);
@@ -178,7 +181,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
       <StudyPlanEditor units={units} onChange={value => { setUnits(value); setDirty(true); }}/>
       <StudyUpload purpose="plan" ensureFolder={async () => folder} onReady={id => {
         setWorking(true);
-        void createStudyClient().update(folder.id, { revision: folder.revision, planFileId: id })
+        void studyFolderSettings.setPlan(folder.id, folder.revision, id)
           .then(onReload).catch((failure: Error) => setError(failure.message)).finally(() => setWorking(false));
       }}/>
       <button className={s.primary} disabled={!dirty} type="button" onClick={() => void save()}>Guardar cambios</button>

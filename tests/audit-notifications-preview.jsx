@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Notifications } from '../apps/web/src/features/notifications/ui/Notifications.tsx';
+import { Notifications } from '../apps/web/src/features/notifications/inbox/Notifications.tsx';
 const state = window.auditNotifications = { calls: [], pending: [], lateReject: false };
 const make = (id, name, readAt) => ({ id, classroomId: 'a1111111-1111-4111-8111-111111111111', classroomName: name,
   eventType: 'WALL_NOTICE', postId: 'b1111111-1111-4111-8111-111111111111', replyId: null, createdAt: '2026-01-01T00:00:00Z', readAt });

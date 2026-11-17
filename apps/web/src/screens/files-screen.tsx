@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { PrivateFilePanel } from './private-file-panel.tsx';
+import { PrivateFilePanel } from '../application/workflows/private-files/PrivateFilePanel.tsx';
 import { parseFileContext } from '../features/files/api.ts';
 import { useEffect, useState } from 'react';
 import { AccountNavbar } from '../application/navigation/account-navbar.tsx';

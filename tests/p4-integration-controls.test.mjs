@@ -14,12 +14,12 @@ test('browser API helper accepts a successful empty logout response with a JSON 
   assert.equal((await api(page, 'POST', '/auth/logout', {})).status, 204);
 });
 
-test('combined manifest and lock preserve all final P3 exact pins and P4 additions', () => {
+test('combined manifest and lock preserve current exact pins, the frontend maintenance patch and P4 additions', () => {
   const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
   const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
   const p3 = { '@nestjs/common': '12.1.3', '@nestjs/core': '12.1.3', '@nestjs/platform-express': '12.3.2',
     '@node-rs/argon2': '2.2.2', '@prisma/adapter-pg': '7.10.0', '@prisma/client': '7.10.0',
-    'class-variance-authority': '0.7.1', clsx: '2.1.1', next: '16.4.2', nodemailer: '10.3.1', pg: '8.23.1',
+    'class-variance-authority': '0.7.1', clsx: '2.1.1', next: '16.4.5', nodemailer: '10.3.1', pg: '8.23.1',
     react: '19.3.1', 'react-dom': '19.3.1', 'reflect-metadata': '0.2.2', rxjs: '7.8.2', 'tailwind-merge': '3.7.0', validator: '13.15.35',
     '@playwright/test': '1.64.1', '@tailwindcss/postcss': '4.3.3', '@types/node': '24.19.2', '@types/react': '19.3.0',
     '@types/react-dom': '19.3.0', '@types/validator': '13.15.10', prisma: '7.10.0', tailwindcss: '4.3.3', typescript: '5.9.3' };

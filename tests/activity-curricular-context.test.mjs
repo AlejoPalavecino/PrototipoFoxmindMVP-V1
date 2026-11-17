@@ -16,18 +16,18 @@ function assertContext(html) {
   assert.ok(html.indexOf('Segundo tema visible') < html.indexOf('Primer tema visible'), 'Display preserves explicit activity topic order');
 }
 test('A05 activity detail preserves its unit and every selected topic in activity order', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   const view = hookView(Activities, { room, api: { call: async path => path.endsWith('/preview')?{activity}:{ activities: [activity] } }, reload: async () => {} });
   try {
     await view.flush(); const card = descendants(view.tree, n => n.type === 'article' && n.props['aria-label'] === activity.title)[0]; assert.ok(card);
     descendants(card,n=>n.type==='button'&&n.props['aria-label']===`Abrir ${activity.title}`)[0].props.onClick();await view.flush();
     const detail=descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0];assert.equal(detail.props.activityPreview,activity);
-    const {ActivityPreview}=loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
+    const {ActivityPreview}=loadTsModule('apps/web/src/application/workflows/activity-session/ActivityPreview.tsx');
     assertContext(renderToStaticMarkup(React.createElement(ActivityPreview,{api:{fileUrl:()=>''},room,activity:detail.props.activityPreview,teacher:true})));
   } finally { view.close(); }
 });
 test('A05 student consultation displays the instructions and curricular context without revealing questions before the attempt or their private keys', () => {
-  const { ActivityPreview } = loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
+  const { ActivityPreview } = loadTsModule('apps/web/src/application/workflows/activity-session/ActivityPreview.tsx');
   const html = renderToStaticMarkup(React.createElement(ActivityPreview, { api: { fileUrl: () => '' }, room: { ...room, role: 'student' }, activity, teacher: false }));
   assertContext(html);
   assert.match(html, /aria-label="Consulta de actividad"/);

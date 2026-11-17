@@ -6,7 +6,7 @@ const room = { id: 'b1111111-1111-4111-8111-111111111111', role: 'teacher', arch
 const payload = { title: 'Actividad revisada', objective: 'Comprender.', teacherComment: '', instructions: 'Explicá el concepto.', unitId: room.units[0].id, topicIds: [room.units[0].topics[0].id], evaluationRubric: [{ name: 'Conceptos', description: 'Relaciona.', weight: 100 }] };
 
 test('Foxy handoff requires saved clean source and explicit review; retry reuses the same request', async () => {
-  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/model/foxy-activity-handoff.ts');
+  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/resources/foxy-activity-handoff.ts');
   let dirty = false, attempts = 0; const calls = [];
   const controller = createFoxyActivityHandoff({ source: () => ({ resource, dirty, busy: false, pending: null }),
     prepare: async (id, input) => { calls.push({ id, input }); if (++attempts === 1) throw new Error('network'); return { activityId: resource.id, classroomId: room.id, revision: '5' }; },
@@ -19,7 +19,7 @@ test('Foxy handoff requires saved clean source and explicit review; retry reuses
 });
 
 test('Foxy handoff refuses invalid criteria, archived destinations and changed source after review', async () => {
-  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/model/foxy-activity-handoff.ts');
+  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/resources/foxy-activity-handoff.ts');
   let current = resource; const calls = [];
   const controller = createFoxyActivityHandoff({ source: () => ({ resource: current, dirty: false, busy: false, pending: null }),
     prepare: async (...args) => { calls.push(args); }, onChange: () => {} });
@@ -30,7 +30,7 @@ test('Foxy handoff refuses invalid criteria, archived destinations and changed s
 });
 
 test('Foxy handoff discard fences a late receipt from the abandoned review', async () => {
-  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/model/foxy-activity-handoff.ts');
+  const { createFoxyActivityHandoff } = await import('../apps/web/src/features/foxy/resources/foxy-activity-handoff.ts');
   let resolve;
   const controller = createFoxyActivityHandoff({ source: () => ({ resource, dirty: false, busy: false, pending: null }),
     prepare: () => new Promise(done => { resolve = done; }), onChange: () => {} });

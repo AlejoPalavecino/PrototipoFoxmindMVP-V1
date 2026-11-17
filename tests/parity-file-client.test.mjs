@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createClassroomClient} from '../apps/web/src/application/academic-client.ts';
+import {createClassroomClient} from '../apps/web/src/application/transport/classroom-client.ts';
 test('plan y biblioteca aceptan Office aprobado y bloquean documentos mayores a 20 MB antes de subir', async () => {
  const calls=[];
  const api=createClassroomClient({csrfToken:async()=> 'csrf', fetch:async(path, options)=>{calls.push({path,options});return Response.json(path.endsWith('/files')?{id:'f'}:{id:'f',ready:true});}});

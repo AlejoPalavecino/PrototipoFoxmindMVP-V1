@@ -1,7 +1,8 @@
+import { readStudyDocxPreview } from '../folders/study-folder-persistence.ts';
 import { useEffect, useState } from 'react';
 import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback';
-import { createStudyClient } from '../api/study-client';
+
 import s from './study.module.css';
 
 type Props = { folderId: string; sourceId: string; title: string; downloadHref: string; onClose: () => void };
@@ -10,8 +11,7 @@ export function StudyDocxPreview({ folderId, sourceId, title, downloadHref, onCl
   const [preview, setPreview] = useState<{ text: string } | null>();
   useEffect(() => {
     let active = true;
-    const path = `/${encodeURIComponent(folderId)}/docx-preview/${encodeURIComponent(sourceId)}`;
-    void createStudyClient().call<{ text: string }>(path).then(result => {
+    void readStudyDocxPreview(folderId, sourceId).then(result => {
       if (active) setPreview(typeof result.text === 'string' ? result : null);
     }).catch(() => { if (active) setPreview(null); });
     return () => { active = false; };

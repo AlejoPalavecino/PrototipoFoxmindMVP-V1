@@ -56,7 +56,7 @@ El selector ofrece iniciales y cuatro avatares Foxy. Guardar cambios aplica nomb
 
 ## Componentes y estados
 
-El candidato usa Nunito en el espacio privado, superficies claras, navegación compacta y portadas ilustradas. La base compartida define colores y tipografía junto con los controles y estilos de cada vista. [Base de paridad](../../apps/shared-ui/parity-foundation.css) · [Controles Brújula](../../apps/shared-ui/brujula-controls.css)
+El candidato usa Nunito en el espacio privado, superficies claras, navegación compacta y portadas ilustradas. La base compartida define colores y tipografía junto con los controles y estilos de cada vista. [Base de paridad](../../apps/web/src/application/shell/styles/parity-foundation.css) · [Controles Brújula](../../apps/web/src/application/shell/styles/brujula-controls.css)
 
 | Elemento | Implementación |
 |---|---|
@@ -64,8 +64,8 @@ El candidato usa Nunito en el espacio privado, superficies claras, navegación c
 | Navegación y chat | [AppNavbar](../../apps/shared-ui/AppNavbar.tsx) y [FoxyChatLayout](../../apps/shared-ui/FoxyChatLayout.tsx) |
 | Herramientas y espera | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) y [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx) |
 | Posición de lectura y mensajes nuevos | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
-| Pasos, portadas y revisión | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx) y [estilos del asistente](../../apps/shared-ui/brujula-wizard.css) |
-| Carga de programa y análisis al crear aula | [ClassroomProcessing](../../apps/web/src/features/classrooms/ui/ClassroomProcessing.tsx), estados reales e indeterminados; [comparación con UI Lab](../verification/product-parity/classrooms-collection/README.md#carga-del-programa-y-análisis-de-foxy) |
+| Pasos, portadas y revisión | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx) y [estilos del asistente](../../apps/web/src/features/classrooms/styles/brujula-wizard.css) |
+| Carga de programa y análisis al crear aula | [ClassroomProcessing](../../apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx), estados reales e indeterminados; [comparación con UI Lab](../verification/product-parity/classrooms-collection/README.md#carga-del-programa-y-análisis-de-foxy) |
 | Confirmaciones de Estudio | [StudyConfirmation](../../apps/web/src/features/study/ui/study-confirmation.tsx) |
 
 Los estados de carga y guardado indican la operación. Un vacío explica qué falta y ofrece la acción permitida. Los errores recuperables conservan los datos ingresados. Para verificar un cambio, comprobá foco, teclado, contraste, tamaño de controles, movimiento reducido y ajuste al ancho real. [Evidencia](../verification/README.md) · [Política documental](../documentation-policy.md)

@@ -26,4 +26,4 @@ Los archivos legados muestran la descripción guardada originalmente en el cuerp
 
 Ambos roles autorizados pueden buscar y abrir un recurso. El diálogo muestra su ficha, asociaciones autorizadas y las acciones de lectura o descarga disponibles. Puede abrirse desde Biblioteca o desde Plan.
 
-Fuentes: [UI](../../../apps/web/src/features/materials/ui/Library.tsx), [lector](../../../apps/web/src/features/materials/ui/MaterialReader.tsx), [servicio](../../../apps/api/src/bootstrap/academic-materials-composition.ts). En el [ensayo actual](../../verification/flows.md) se verificaron TEXT, revisión con otra identidad de archivo, eliminación y lectura estudiantil; los formatos no ensayados no se dan por verificados.
+Fuentes: [UI](../../../apps/web/src/features/materials/catalog/Library.tsx), [lector](../../../apps/web/src/features/materials/reader/MaterialReader.tsx), [servicio](../../../apps/api/src/bootstrap/academic-materials-composition.ts). En el [ensayo actual](../../verification/flows.md) se verificaron TEXT, revisión con otra identidad de archivo, eliminación y lectura estudiantil; los formatos no ensayados no se dan por verificados.

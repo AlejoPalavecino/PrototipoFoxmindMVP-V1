@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { componentWithPorts } from './foxmind-3d-flows-loader.test.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-const { AccountProfile } = componentWithPorts('apps/web/src/features/identity/ui/account-profile.tsx', {});
+const { AccountProfile } = componentWithPorts('apps/web/src/features/identity/profile/account-profile.tsx', {});
 const profile = { id:'avatar-test', firstName:'Cuenta', lastName:'Sintética', email:'avatar@example.test', accountRole:'student', avatarKey:'initials' };
 
 const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join('') : text(node?.props?.children ?? '');

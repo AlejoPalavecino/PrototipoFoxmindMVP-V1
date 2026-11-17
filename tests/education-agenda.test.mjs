@@ -5,7 +5,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
 test('Agenda keeps the next deadline visible and every later deadline accessible without duplicating actions', async () => {
-  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/ui/Upcoming.tsx');
+  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
   const items = ['first', 'second', 'third'].map(id => ({ id, target: { kind: 'activity', activityId: id, classroomId: 'room' } }));
   const opened = [], onOpen = target => opened.push(target);
   let setBusy;

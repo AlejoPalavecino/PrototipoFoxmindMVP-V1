@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const { AccountProfile } = loadTsModule('apps/web/src/features/identity/ui/account-profile.tsx');
+const { AccountProfile } = loadTsModule('apps/web/src/features/identity/profile/account-profile.tsx');
 const profile = { id: 'user', firstName: 'Cuenta', lastName: 'Sintética', email: 'test@example.test', accountRole: 'teacher', avatarKey: 'initials' };
 const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join('') : text(node?.props?.children ?? '');
 const button = (view, label) => descendants(view.tree, node => (node.type === 'button' || node.type?.name === 'Button') && text(node) === label)[0];
