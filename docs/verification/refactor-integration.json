@@ -23,7 +23,8 @@
       "boundaries": true,
       "frontendGuard": true,
       "taskboard": true,
-      "productionWorkingDiff": false
+      "productionWorkingDiff": false,
+      "fullRangeWhitespace": true
     }
   },
   "preservation": {
@@ -171,7 +172,9 @@
   "verification": {
     "apiBuild": {
       "exitCode": 0,
-      "afterFinalFormatting": "pending"
+      "afterFinalFormatting": {
+        "exitCode": 0
+      }
     },
     "webBuild": {
       "exitCode": 0,
