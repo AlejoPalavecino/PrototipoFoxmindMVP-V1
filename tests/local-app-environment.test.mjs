@@ -1,9 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseEnv} from 'node:util';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers} from '../scripts/local-app-environment.mjs';
+import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency} from '../scripts/local-app-environment.mjs';
 
 const localOwner={project:'foxmind-local-0123456789abcdef',ports:{database:54321,storage:54322,scanner:54323,smtp:54324,inbox:54325}};
+
+test('local startup diagnoses a missing or stale Next installation against this checkout lockfile', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'foxmind-local-next-'));
+  t.after(() => rm(root, {recursive: true, force: true}));
+  await writeFile(join(root, 'package-lock.json'), JSON.stringify({packages: {'node_modules/next': {version: '1.2.3'}}}));
+  const next = join(root, 'node_modules', 'next');
+  await assert.rejects(verifyLocalWebDependency(root), /missing.*1\.2\.3.*npm ci/i);
+  await mkdir(next, {recursive: true});
+  await writeFile(join(next, 'package.json'), JSON.stringify({version: '1.2.2'}));
+  await assert.rejects(verifyLocalWebDependency(root), /1\.2\.2.*1\.2\.3.*npm ci/);
+  await writeFile(join(next, 'package.json'), JSON.stringify({version: '1.2.3'}));
+  await verifyLocalWebDependency(root);
+});
 
 test('local stop validates every running container before stopping only owned IDs',async()=>{
   const calls=[];

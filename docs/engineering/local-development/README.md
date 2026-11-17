@@ -15,6 +15,8 @@ La IA del helper es sintética e inyectada; no lee archivos de claves ni llama a
 
 ## Arranque habitual para pruebas con Gemini real
 
+Antes de detener la instancia o preparar servicios, `local:up` y `local:restart` comparan la versión instalada de Next con el lockfile del checkout. Si difieren, ejecutá `npm ci` desde la raíz y volvé a iniciar la app.
+
 Por pedido del usuario, cuando solicite levantar la app para probar se usa la clave ya configurada en `.env` de raíz, con Gemini real. No regenerar ni copiar esa clave a código, documentación o variables NEXT_PUBLIC. Si falta, solicitar restaurarla. Las suites automatizadas y el helper documental anterior siguen siendo sintéticos; no consumen API por defecto.
 
 - `npm run local:up`: configura infraestructura local propia, aplica migraciones a esa base, compila API/web y arranca ambas en segundo plano. Web: `http://127.0.0.1:3000`; API: `http://127.0.0.1:3001`.

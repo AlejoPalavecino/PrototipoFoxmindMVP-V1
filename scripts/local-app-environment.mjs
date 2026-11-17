@@ -1,4 +1,21 @@
 import {parseEnv} from 'node:util';
+import {readFile} from 'node:fs/promises';
+import {join} from 'node:path';
+
+export async function verifyLocalWebDependency(root) {
+  const lock = JSON.parse(await readFile(join(root, 'package-lock.json'), 'utf8'));
+  const expected = lock.packages['node_modules/next'].version;
+  let installed;
+  try {
+    const manifest = await readFile(join(root, 'node_modules', 'next', 'package.json'), 'utf8');
+    installed = JSON.parse(manifest).version;
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  if (installed !== expected) {
+    throw Error(`Local Next.js installation: ${installed ?? 'missing'}. This checkout requires ${expected}. Run npm ci, then npm run local:up.`);
+  }
+}
 
 /** Preserve untouched values (especially the API key) and reject ambiguous files. */
 export function updateEnvironment(original, updates) {

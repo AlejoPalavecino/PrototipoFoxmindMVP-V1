@@ -8,7 +8,7 @@ import {createServer} from 'node:net';
 import {setTimeout as delay} from 'node:timers/promises';
 import {P4_IMAGES,P4_SCANNER_START} from './p4-services.mjs';
 import {MAILPIT_IMAGE} from './mailpit-test-runtime.mjs';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers} from './local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency} from './local-app-environment.mjs';
 import {runLocalApiBuild} from './local-api-build.mjs';
 
 const root=resolve(import.meta.dirname,'..'),folder=resolve(root,'.test-artifacts/local-app'),execute=promisify(execFile);
@@ -17,7 +17,13 @@ const file=name=>resolve(folder,name),json=async name=>JSON.parse(await readFile
 const save=async(name,value)=>writeFile(file(name),JSON.stringify(value,null,2),{mode:0o600});
 async function command(executable,args,environment=process.env,timeout=240000){
   try{const result=await execute(executable,args,{cwd:root,env:environment,windowsHide:true,timeout,maxBuffer:8*1024*1024});return result.stdout.trim();}
-  catch{throw Error('Local command failed: '+(executable==='docker'?'Docker services':args[0]));}
+  catch(error){
+    if(args[0]==='node_modules/next/dist/bin/next' && args[1]==='build'){
+      const reason=error.killed ? 'timeout or termination' : 'exit '+error.code;
+      throw Error(`Local web build failed (${reason}). Run npm run web:build for the compiler diagnostics.`);
+    }
+    throw Error('Local command failed: '+(executable==='docker'?'Docker services':args[0]));
+  }
 }
 async function available(port=0){const server=createServer();await new Promise((done,fail)=>{server.once('error',fail);server.listen(port,'127.0.0.1',done);});const selected=server.address().port;await new Promise(done=>server.close(done));return selected;}
 async function stop(){
@@ -30,6 +36,7 @@ async function stop(){
   throw Error('Local supervisor stop not confirmed');
 }
 async function up(){
+  await verifyLocalWebDependency(root);
   const original=await readFile('.env','utf8'),existing=parseEnv(original);
   if(!existing.AI_API_KEY?.trim()||existing.AI_ENABLED!=='true')throw Error('Configure the existing root Gemini key and AI_ENABLED=true first');
   if(await command('git',['check-ignore','.env'])!=='.env')throw Error('Root .env must remain ignored');
