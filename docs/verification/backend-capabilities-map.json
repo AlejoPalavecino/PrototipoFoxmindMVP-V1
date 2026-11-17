@@ -3714,7 +3714,7 @@
       "capability": "progress",
       "role": "infrastructure",
       "sha256": "777ed405f85bcaa4c600f4b12529d39af7ccc43a058ce9503cf4df8b78a9d7c0",
-      "currentSha256": "a1e3cb8a9d080bed277f4c3960440158ad75a753df3ef86c410341a316247b11",
+      "currentSha256": "ba1758336051d8e4b7a4070197002648415dbfa7bec8cf457e5212a217bbe701",
       "status": "moved",
       "snapshotRecordedCurrentSha256": "5cbb7b8d06e2fd8491c26a00d9e056307b51167c2a94c2cd6b21b852186e2c0b"
     },
@@ -4659,7 +4659,7 @@
       "capability": "history",
       "role": "infrastructure",
       "sha256": "43408e0c39709b966e86e43179092f8577f021ad4e884714e054e26dc2d362c3",
-      "currentSha256": "a2df105a5243e8c0517e0de703d57fb018365c21d615dc0acfd35d1735dabf86",
+      "currentSha256": "0ca2d9fa100b2409dae9621e57b0f429d028e1d2459c66f0d140975351780d6a",
       "status": "moved",
       "snapshotRecordedCurrentSha256": "2113068c2df107e83fdff0bafac46a94718a5d3f3d02b15d1877eaf26e97b65f"
     },
@@ -4769,7 +4769,7 @@
       "capability": "questionnaires",
       "role": "infrastructure",
       "sha256": "0ee8abf88b681aa8cddb50abada100ab8cf8e9e49c348b89ec138c88365b1265",
-      "currentSha256": "0ee320cab06a2c8219c2b48b3629dd16df3d0a650496f280834fb09fe602ae03",
+      "currentSha256": "411a1e2302b11c6ab27e27143fa4392c3c06877c2abd35fa16b63c8c21ba593f",
       "status": "moved",
       "snapshotRecordedCurrentSha256": "dafae2cdd3de622f27a74e13688ec7a7d17015e95aa5f76d75d67e25ceb80f97"
     },
@@ -5726,7 +5726,7 @@
       "capability": "memberships",
       "role": "domain",
       "sha256": null,
-      "currentSha256": "470f27f03cc6909c3877854ae12ce0a0fa5159f7dc6c2e0835bbf3776c6f2861",
+      "currentSha256": "92bb7fa386e5751c6ac3c916403874f5534700e2e33da19a33d9fc6a850a494f",
       "status": "added",
       "snapshotRecordedCurrentSha256": "99f5621c6417ef836569c80f3043d3fb606092132cac339d521161b20f7c0b59"
     },
@@ -6015,7 +6015,7 @@
       "capability": null,
       "role": "domain",
       "sha256": null,
-      "currentSha256": "aaa6f7d03996e7c1c1758dd5bbbf2c6e7e468959f460bf92f6f5787ec26d71bf",
+      "currentSha256": "fde9bf64f91bc3ab0d7775895909111a8dc55f43d091a906cce461d178a4f7dd",
       "status": "added",
       "snapshotRecordedCurrentSha256": "5e04b8f72d2449dd9380f63fbd5c293d290ab942f6b76707cca1229d69270700"
     },
@@ -6252,7 +6252,7 @@
       "capability": "notifications",
       "role": "application",
       "sha256": null,
-      "currentSha256": "2982b94732293002cfba46510a5b9e7a692f26ef9c4f0ec81ab663af89129161",
+      "currentSha256": "26d6baa6b767b5a201486cf946f8671b62989751bc302e21e5b249ed7d57e3a8",
       "status": "added",
       "snapshotRecordedCurrentSha256": "1669eaf641f6ee70ddf34fa441db7959d896f942952b3f323c9fd8f2c9a22e34"
     },
@@ -6575,7 +6575,7 @@
       "capability": "generation",
       "role": "application",
       "sha256": null,
-      "currentSha256": "3acb6ab620cd641e0670398685bae68f84a44c3743fdd64b927ac1e90d2a204e",
+      "currentSha256": "5f30f6ee5b303d93539d0326abff49b0a4f375178567968eeda27d20fb6b21a4",
       "status": "added",
       "snapshotRecordedCurrentSha256": "57566f942ac05e2e8a9b40e32500a5dc45c0c7bcfb1713167dc0cc0de53fede2"
     },
@@ -6696,7 +6696,7 @@
       "capability": "sources",
       "role": "domain",
       "sha256": null,
-      "currentSha256": "d532ad1e9f3e7d1701fcea5fa33458c093614f87866bf76861a1633144b3720b",
+      "currentSha256": "2768f2c6162a400c3e0366e1f4d1832fb209344f96abb835b1dd7572b70dd615",
       "status": "added",
       "snapshotRecordedCurrentSha256": "d631afe336bc1307f44c0fbbd46a93cf062d3c51d3bf48ecf921501f09bbda1c"
     },
@@ -8309,8 +8309,8 @@
     "backendSnapshot": "d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1",
     "frontendSnapshot": "eba381b3f28662daaca366687d34b12cfb30d955",
     "files": 615,
-    "sourceSha256": "b98b1752f2eebc45c148037c6f6f34092ec9a262806276f59669bd3a97247f85",
-    "updatedMapHashes": 579,
+    "sourceSha256": "2e3155e4b8578f035bff97c38525da3d1cdc4146c90bfe6d2d814136120fe12e",
+    "updatedMapHashes": 587,
     "testHashesUpdated": 155,
     "combinedEvidence": "docs/verification/refactor-integration.json"
   }

@@ -8,4 +8,3 @@ export interface WallNotificationRow {
   createdAt: Date;
   readAt: Date | null;
 }
-

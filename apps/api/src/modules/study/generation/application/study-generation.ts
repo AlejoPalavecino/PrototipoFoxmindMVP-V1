@@ -134,5 +134,3 @@ export async function applyStudyGeneration(tx: StudyQuery, r: FolderRow, plan: P
     return { creation };
 }
 function isStudyAction(value: string): value is StudyAction { return ['CHAT', 'NOTE', 'OUTLINE', 'QUIZ', 'EXERCISE', 'MOCK_EXAM', 'PLAN'].includes(value); }
-
-

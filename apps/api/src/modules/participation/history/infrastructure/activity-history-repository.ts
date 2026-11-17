@@ -3,7 +3,7 @@ import { requireReady } from '../../../files/public.ts';
 import type { ActivityHistoryRepository } from '../application/activity-history.ts';
 export const repository: Omit<ActivityHistoryRepository, 'readActivityTopics' | 'activityEvent'> = {
  randomUUID,
- 
+
 
  requireReady,
  expectedStudents(tx, input) {return tx.query<Awaited<ReturnType<ActivityHistoryRepository['expectedStudents']>>[number]>(`SELECT e.student_id AS "studentId",u.first_name AS "firstName",u.last_name AS "lastName"

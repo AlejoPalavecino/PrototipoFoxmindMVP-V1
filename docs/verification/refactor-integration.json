@@ -106,11 +106,72 @@
       }
     ],
     "mainRemainingLocalPaths": 12,
-    "originalWorktreeHeadsAndStagedContentPreserved": true
+    "originalWorktreeHeadsAndStagedContentPreserved": true,
+    "finalWhitespaceCleanup": [
+      {
+        "file": "apps/api/src/modules/classrooms/memberships/domain/classroom-code.ts",
+        "astIdentical": true,
+        "beforeSha256": "99f5621c6417ef836569c80f3043d3fb606092132cac339d521161b20f7c0b59",
+        "afterSha256": "64ae0c8a4d66020e942884f774767dfd52103e35635af3ab169120fb6ac4518e"
+      },
+      {
+        "file": "apps/api/src/modules/foxy/domain/grounding-sources.ts",
+        "astIdentical": true,
+        "beforeSha256": "5e04b8f72d2449dd9380f63fbd5c293d290ab942f6b76707cca1229d69270700",
+        "afterSha256": "d8c19c7b053f44ceb48e82c3aa669ab8e4639b84b1c922d3312b80b9d7636eb7"
+      },
+      {
+        "file": "apps/api/src/modules/grading/progress/infrastructure/progress-repository.ts",
+        "astIdentical": true,
+        "beforeSha256": "5cbb7b8d06e2fd8491c26a00d9e056307b51167c2a94c2cd6b21b852186e2c0b",
+        "afterSha256": "5ff07213881fd70dce69fa5a9c666ea6f035a644b2526a29d8438f70e907de4d"
+      },
+      {
+        "file": "apps/api/src/modules/home/notifications/application/notification-records.ts",
+        "astIdentical": true,
+        "beforeSha256": "1669eaf641f6ee70ddf34fa441db7959d896f942952b3f323c9fd8f2c9a22e34",
+        "afterSha256": "22cc2a3acaf6e50fa97eaee6168321ce5f7f1552995592ed486fafa4cdc0d1fd"
+      },
+      {
+        "file": "apps/api/src/modules/participation/history/infrastructure/activity-history-repository.ts",
+        "astIdentical": true,
+        "beforeSha256": "2113068c2df107e83fdff0bafac46a94718a5d3f3d02b15d1877eaf26e97b65f",
+        "afterSha256": "aad6ccd29805dca17fd7853d827f60a2297f34ba4afd24d203b762b8d3f18f9c"
+      },
+      {
+        "file": "apps/api/src/modules/participation/questionnaires/infrastructure/questionnaire-attempts-repository.ts",
+        "astIdentical": true,
+        "beforeSha256": "dafae2cdd3de622f27a74e13688ec7a7d17015e95aa5f76d75d67e25ceb80f97",
+        "afterSha256": "9082c5ee40d846e2d12819ab42b86101616d455c02e599e14aa734f5f8e1c082"
+      },
+      {
+        "file": "apps/api/src/modules/study/generation/application/study-generation.ts",
+        "astIdentical": true,
+        "beforeSha256": "57566f942ac05e2e8a9b40e32500a5dc45c0c7bcfb1713167dc0cc0de53fede2",
+        "afterSha256": "347485a4bdd6a9a30b9c81eadd5e9a50f1728ab6651fa5e32f4aef58bc162674"
+      },
+      {
+        "file": "apps/api/src/modules/study/sources/domain/topics.ts",
+        "astIdentical": true,
+        "beforeSha256": "d631afe336bc1307f44c0fbbd46a93cf062d3c51d3bf48ecf921501f09bbda1c",
+        "afterSha256": "4cf314106b973c4f9fcd175c133b9cc4dd37264add6706329063804ba235676d"
+      },
+      {
+        "file": "docs/work-log/2026-11-16-root-backend-capabilities-execution.md",
+        "beforeSha256": "a57162c850ff53633cea4c4f70962eb42e9e72343756b00eac50f74f64ebd55a",
+        "afterSha256": "74cc47e5277f64b19c6c4f365ab2c9bc008806613cdaf4e2d607fb3abcdbaa82"
+      },
+      {
+        "file": "odd/tasks/backend-capabilities.md",
+        "beforeSha256": "0662da982a131d10307e812a05131c2f8aa21d9fef678c3b126493f1e92c8a0a",
+        "afterSha256": "23c187553d9349f184dc2e5d074a3164f6a2b90bffb2fae1ba8308f2632126f4"
+      }
+    ]
   },
   "verification": {
     "apiBuild": {
-      "exitCode": 0
+      "exitCode": 0,
+      "afterFinalFormatting": "pending"
     },
     "webBuild": {
       "exitCode": 0,
@@ -254,6 +315,12 @@
     "taskboard": {
       "tasks": 4,
       "valid": true
+    },
+    "fullRangeWhitespace": {
+      "base": "dd6f4bc92b959cce0e2c68343291614270c4a17e",
+      "exitCode": 0,
+      "productionAstIdentical": 8,
+      "documentationFiles": 2
     }
   },
   "changesDuringIntegration": [

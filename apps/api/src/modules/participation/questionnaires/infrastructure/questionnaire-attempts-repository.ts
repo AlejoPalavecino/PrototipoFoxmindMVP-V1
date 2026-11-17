@@ -2,11 +2,11 @@ import { randomUUID, randomBytes } from 'node:crypto';
 import type { QuestionnaireAttemptsRepository } from '../application/questionnaire-attempts.ts';
 export const repository: Omit<QuestionnaireAttemptsRepository, 'enqueueSubmittedAttemptGradingAi' | 'assertAttemptWrite' | 'activityEvent' | 'questionnaireUnanswered' | 'submissionReceipt'> = {
  randomUUID,
- 
- 
- 
 
- 
+
+
+
+
  question(tx, input) {return tx.query<Awaited<ReturnType<QuestionnaireAttemptsRepository['question']>>[number]>(`SELECT q.id,q.type::text,
         COALESCE((SELECT array_agg(o.id ORDER BY o.id) FROM question_options o WHERE o.question_id=q.id),'{}'::uuid[]) AS "optionIds"
         FROM questions q WHERE q.id=$1::uuid AND q.activity_id=$2::uuid FOR SHARE OF q`, input.questionId, input.activityId);},

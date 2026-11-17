@@ -6,4 +6,3 @@ export function groundingSources(snapshot: FoxyGroundingSnapshot): FoxyGrounding
       purpose: 'attachment', targetId: null }],
   }))];
 }
-

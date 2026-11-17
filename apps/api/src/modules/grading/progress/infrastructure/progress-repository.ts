@@ -1,7 +1,7 @@
 import type { ProgressRepository } from '../application/progress.ts';
 export const repository: Omit<ProgressRepository, 'studentSnapshot' | 'displayReferences'> = {
- 
- 
+
+
  progressRows(tx, input) {return tx.query<Awaited<ReturnType<ProgressRepository['progressRows']>>[number]>(`SELECT e.student_id AS "studentId",a.id,a.title,a.type::text,sa.is_expected AS expected,
       CASE WHEN first.id IS NULL THEN NULL ELSE jsonb_build_object('id',first.id,'number',first.attempt_number,
         'submittedAt',first.submitted_at,'appliedDeadlineAt',first.applied_deadline_at,'late',first.submitted_late) END AS "firstSubmission",

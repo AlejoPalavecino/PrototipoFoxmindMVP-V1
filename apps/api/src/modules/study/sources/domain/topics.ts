@@ -5,8 +5,3 @@ export function selectTopics(value: unknown, topics: {
 }[]) { if (value === undefined)
     return topics; if (!Array.isArray(value) || value.length > 100 || value.some(id => !topics.some(t => t.id === id)) || new Set(value).size !== value.length)
     studyFail('INVALID_INPUT'); return topics.filter(t => value.includes(t.id)); }
-
-
-
-
-

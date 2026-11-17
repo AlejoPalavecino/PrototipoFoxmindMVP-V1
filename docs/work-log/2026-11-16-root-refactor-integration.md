@@ -65,3 +65,9 @@ El estado local previo se preservó además en stash0da372d48b2f985c0ba9d2aa0a9f
 Controles sobre main actualizado: ambos snapshots son ancestros, sin diff en API/core/Prisma/web/shared-ui/package/lock; docs208 archivos/1122 enlaces/0issues,guardAST0excepciones,guardfrontendPASS yTTP4 válido. Los builds y recorridos se ejecutaron en el worktree de integración; no se reinstalaron dependencias ni se inició el runtime retenido de main. Archivos .env, claves, datos retenidos y servicios ajenos no se leyeron ni modificaron.
 
 Entrega: integrado localmente y recuperable. Sin push, PR, despliegue ni retiro de compatibilidad. Permanecen los límites de verificación proporcional del [recibo](../verification/refactor-integration.json): grupos completos DB/servicios/browser/wrappers no repetidos, proveedor real y producción fuera del alcance. No queda trabajo autorizado pendiente de implementación, integración o verificación. La publicación remota requiere un pedido específico.
+
+### Higiene final sobre todo el rango
+
+El chequeo incremental estaba verde, pero `git diff --check dd6f4bc main` detectó whitespace previo en ocho altas backend y dos registros. Se normalizaron únicamente espacios de fin de línea y líneas vacías al EOF. Comparación estructural completa del AST, incluidos valores de identificadores/literales: ocho fuentes idénticas en semántica; no se cambió ningún comportamiento. El recibo conserva las diez rutas y hashes antes/después. Las fuentes originales siguen intactas y el mapa de hashes actual se regeneró.
+
+El primer helper de formato no aceptó la salida CRLF y código2 de git diff --check, y se detuvo sin cambiar archivos; se corrigió su lectura de salida. Después, el chequeo de todo el rango quedó EXIT0. API se recompila tras la limpieza; las suites funcionales previas conservan su validez por identidad AST. Este ajuste se entrega en un commit de higiene separado, sin nuevos cambios de producto.

@@ -241,4 +241,3 @@ Ampliación de aceptación autorizada por el usuario: «Adaptá también esos E2
 ## Riesgos y verificación
 
 Conservar actor/tx, orden de locks, revisiones, idempotencia, custodia, snapshots IA y liquidación. Cambios de transacciones/concurrencia exigen pruebas y revisión independiente. Las tareas de movimiento preservan tests; las nuevas restricciones/regresiones ejecutan RED/GREEN. Fuentes y logs de comprobación: docs/work-log/2026-11-16-root-backend-capabilities-execution.md. El diseño aprobado conserva esquema, datos y HTTP; cualquier divergencia se presenta antes de modificarlo.
-
