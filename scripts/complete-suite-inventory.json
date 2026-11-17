@@ -434,6 +434,7 @@
     "tests/foxy-study-demand-panels.test.mjs",
     "tests/foxy-visual-editor-ui.test.mjs",
     "tests/frontend-authoring-cases.test.mjs",
+    "tests/activity-question-review.test.mjs",
     "tests/frontend-boundaries.test.mjs",
     "tests/frontend-classroom-workflows.test.mjs",
     "tests/frontend-foxy-cases.test.mjs",

@@ -18,7 +18,27 @@ export interface ActivityDraftValues {
   allowLate: boolean;
   questions: ActivityQuestion[];
 }
-export interface DraftProblem { message: string; tab: 'instructions' | 'questions' | 'rubric' }
+export interface DraftProblem { message: string; tab: 'instructions' | 'questions' | 'rubric'; questionIndex?: number }
+
+function questionProblem(question: ActivityQuestion): string | null {
+  const validText = (value: string) => value.trim() && [...value].length <= 20000
+    && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(value);
+  if (!validText(question.prompt)) return 'Completá la consigna con hasta 20.000 caracteres y sin caracteres de control.';
+  if (!/^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(question.points) || !/[1-9]/.test(question.points))
+    return 'Ingresá puntos positivos con hasta dos decimales.';
+  if (question.type === 'DEVELOPMENT') return question.options.length || question.scoringRule != null
+    ? 'Una pregunta de desarrollo no admite opciones ni regla de puntuación. Revisá su tipo.' : null;
+  if (!['SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(question.type)) return 'Elegí un tipo de pregunta válido.';
+  if (question.options.length < 2) return 'Agregá al menos dos opciones.';
+  const invalidOption = question.options.findIndex(option => !validText(option.text));
+  if (invalidOption !== -1) return `Completá la opción ${invalidOption + 1} con hasta 20.000 caracteres y sin caracteres de control.`;
+  const correct = question.options.filter(option => option.correct).length;
+  if (question.type === 'SINGLE_CHOICE' && correct !== 1) return 'Marcá una sola respuesta correcta.';
+  if (question.type === 'MULTIPLE_CHOICE' && correct < 2) return 'Marcá al menos dos respuestas correctas.';
+  if (question.type === 'SINGLE_CHOICE' ? question.scoringRule !== 'EXACT' : !['EXACT', 'PARTIAL'].includes(question.scoringRule ?? ''))
+    return 'Elegí una regla de puntuación válida para el tipo de pregunta.';
+  return null;
+}
 
 export function activityReviewProblem(draft: ActivityDraftValues): DraftProblem | null {
   if (!draft.objective.trim()) return { message: 'Escribí el objetivo de aprendizaje.', tab: 'instructions' };
@@ -30,6 +50,12 @@ export function activityReviewProblem(draft: ActivityDraftValues): DraftProblem 
     return { message: 'Completá cada criterio de la rúbrica, la evidencia esperada y su peso.', tab: 'rubric' };
   try { parseEvaluationRubric(draft.evaluationRubric); }
   catch { return { message: 'Revisá los criterios y comprobá que sus pesos sumen 100 %.', tab: 'rubric' }; }
+  if (draft.type !== 'ASSIGNMENT') {
+    for (const [questionIndex, question] of draft.questions.entries()) {
+      const message = questionProblem(question);
+      if (message) return { message: `Pregunta ${questionIndex + 1}: ${message}`, tab: 'questions', questionIndex };
+    }
+  }
   return null;
 }
 

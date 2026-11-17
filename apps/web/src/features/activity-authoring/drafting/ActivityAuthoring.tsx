@@ -119,7 +119,10 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
     if (!validateScope()) return false;
     if (!locked) {
       const problem = activityReviewProblem(draft);
-      if (problem) return contentProblem(problem.message, problem.tab);
+      if (problem) {
+        if (problem.questionIndex !== undefined) setQuestionIndex(problem.questionIndex);
+        return contentProblem(problem.message, problem.tab);
+      }
     }
     setStep(2);
     return true;

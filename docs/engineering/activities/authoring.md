@@ -10,6 +10,8 @@ El recorrido IA pide alcance e idea docente en la primera etapa. «Ajustes y fue
 
 Ambos caminos comparten jerarquía, editor de consignas y revisión final. Materiales/comentario y rúbrica se despliegan cuando se necesitan; los errores conducen al campo correspondiente. La ficha de actividad separa «Qué tenés que hacer», contexto, materiales y plazo, y muestra las entregas por intento. El modo IA agrega selección de fuentes y progreso real del trabajo; no publica automáticamente ni usa una demora simulada en producto.
 
+Al pasar a Revisión, el editor comprueba la consigna, los puntos y, en preguntas de selección, las opciones, claves y regla de puntuación. Si hay un error abre la primera pregunta afectada e indica qué corregir. Se aplica también al editar una propuesta de IA.
+
 ## Contrato y compatibilidad
 
 El transporte del aula usa POST /classrooms/:id/activities con revisión y operación create/save/publish/withdraw/metadata/deadline. La UI envía `unitIds`, `topicIds`, `objective`, `teacherComment` y `evaluationRubric` además del contenido, archivos, materiales, preguntas y plazo. El servicio valida forma/revisión/permisos; el proxy no los sustituye.

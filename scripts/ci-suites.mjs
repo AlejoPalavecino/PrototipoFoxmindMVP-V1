@@ -58,6 +58,7 @@ export const suites = {
     "tests/frontend-boundaries.test.mjs",
     "tests/frontend-participation-cases.test.mjs",
     "tests/frontend-authoring-cases.test.mjs",
+    "tests/activity-question-review.test.mjs",
     "tests/frontend-classroom-workflows.test.mjs",
     "tests/frontend-foxy-cases.test.mjs",
     "tests/frontend-grading-cases.test.mjs",

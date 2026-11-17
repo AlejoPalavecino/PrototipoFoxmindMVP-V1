@@ -110,7 +110,7 @@ test('draft payload keeps files and rubric while stripping question identity and
   assert.deepEqual(payload.evaluationRubric, draft.evaluationRubric);
   assert.deepEqual(payload.questions, [{ type: 'SINGLE_CHOICE', prompt: 'Question', points: '2', scoringRule: null, options: [{ text: 'Option', correct: false }] }]);
   assert.deepEqual(buildActivityDraftPayload({ ...draft, type: 'ASSIGNMENT' }, null).questions, []);
-  assert.equal(activityReviewProblem(draft), null);
+  assert.equal(activityReviewProblem(draft).tab, 'questions');
   assert.equal(activityReviewProblem({ ...draft, evaluationRubric: [] }).tab, 'rubric');
   assert.equal(activityReviewProblem({ ...draft, objective: '' }).tab, 'instructions');
 });
