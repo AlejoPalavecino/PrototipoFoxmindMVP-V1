@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "status": "READY_TO_PUBLISH",
+  "base": "880612e9b3c2e1d95bc6649e471e470fd1605255",
+  "authorization": "User authorized push, consolidation into main and retirement of all other local/remote branches on2026-11-17.",
+  "publication": {
+    "pushed": false,
+    "deployed": false
+  },
+  "backup": {
+    "directory": "C:\\Users\\alejo\\AppData\\Local\\FoxMind\\git-backups\\2026-11-17-main-only",
+    "bundle": "C:\\Users\\alejo\\AppData\\Local\\FoxMind\\git-backups\\2026-11-17-main-only\\all-branches-and-work.bundle",
+    "sha256": "56bc286433534331609f3a0a5535b57465dd143e806252842524907b2f3aaa83",
+    "verifiedInOriginalRepository": true,
+    "verifiedInEmptyBareRepository": true,
+    "completeHistory": true,
+    "refs": 62,
+    "dirtyWorktreeSnapshots": 6,
+    "worktreeFilesPreserved": true
+  },
+  "scope": {
+    "integratedRuntimeAlreadyVerified": "docs/verification/refactor-integration.json",
+    "newProductionChanges": false,
+    "retiredDesignFiles": 9,
+    "cancelledMainDraftsArchived": 3,
+    "uiLab": {
+      "compared": 368,
+      "duplicates": 341,
+      "differentContent": 0,
+      "uniqueHistoricalRecords": 27,
+      "configNotInspected": 1
+    },
+    "legacyPrototypes": "Captured in external backup and left in detached worktrees; not resumed or promoted over approved current design."
+  },
+  "pendingTeachingJourney": {
+    "commit": "c6dd43f0",
+    "file": "tests/p9-teaching-remainder-integration.test.mjs",
+    "sha256": "23e9eba624161ce1428a137ad556b42deab641a91ffa3bef98abe689caefef43",
+    "e2e": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "durationSeconds": 115,
+      "cleanupFailures": 0
+    },
+    "retry": {
+      "redReproduced": true,
+      "pureGreen": 1,
+      "progress429ObservedInE2E": false,
+      "actualP6RetryAfterSeconds": 45
+    },
+    "assertionsPreserved": true,
+    "independentReview": "Source and syntax only; E2E attributed to executor.",
+    "localEvidence": "C:/Users/alejo/.codex/worktrees/refactor-integration/ProtipoFoxMind/.test-artifacts/main-consolidation/p9-final-receipts.json"
+  },
+  "branchCleanup": {
+    "pending": true,
+    "plannedLocalBranchesRemoved": 13,
+    "plannedRemoteBranchesRemoved": 3,
+    "keep": "main",
+    "worktreeFileDeletion": false
+  },
+  "checks": {
+    "documentation": {
+      "files": 211,
+      "links": 1126,
+      "issues": 0
+    },
+    "inventory": {
+      "entries": 685,
+      "exclusions": 57,
+      "routes": 23
+    },
+    "boundaries": {
+      "passed": true,
+      "frozenExceptions": 0
+    },
+    "frontendOwnership": true,
+    "taskboard": {
+      "tasks": 7,
+      "valid": true
+    },
+    "diffCheck": true
+  },
+  "limits": [
+    "No deployment, real provider calls or retained-data changes.",
+    "No historical/cancelled prototype resumed; unique artifacts remain recoverable in backup and original worktree.",
+    "No claim of a new complete application test run; only pending P9 was newly executed for this publication.",
+    "Worktrees retain private local configuration and files after detaching; only branch refs are retired."
+  ]
+}
