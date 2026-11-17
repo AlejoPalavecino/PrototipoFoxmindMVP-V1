@@ -21,7 +21,7 @@ export function StudyPracticePreview({
             <FoxmindIcon name="edit" />
           </span>
           <div>
-            <small>Creación privada</small>
+            <small>Creación privada · Intento {practice.attemptNumber ?? 1}</small>
             <h3>{practice?.title ?? 'Práctica personal'}</h3>
           </div>
         </div>

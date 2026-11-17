@@ -19,6 +19,13 @@ export function FoxyVisualReader(props:FoxyVisualReaderProps) {
   const preview=visualReaderPreview(props), info=preview?props.inspection:null;
   const diagram=readableDiagram(info),nodeLabels=new Map(diagram?.nodes.map(node=>[node.id,node.label]));
   const title=info?.editorial?.title??info?.payload?.title??'',description=info?.editorial?.description??info?.payload?.description??'';
+  const fileUrl = preview ? props.assetFileUrl(props.assetId, 'download') : '';
+  const download = fileUrl === `/api/v1/foxy-ai/assets/${props.assetId}/file?mode=download` ? fileUrl : '';
+  const completeDiagram = diagram && [
+    title, description,
+    'Conceptos\n' + diagram.nodes.map(node => '- ' + node.label).join('\n'),
+    ...(diagram.edges.length ? ['Relaciones\n' + diagram.edges.map(edge => `- ${nodeLabels.get(edge.from)} — ${edge.label} → ${nodeLabels.get(edge.to)}`).join('\n')] : []),
+  ].filter(Boolean).join('\n\n');
   return <>
     <header><div><h2 id="foxy-visual-reader-title" tabIndex={-1}>Tu creación</h2><p>Imágenes y esquemas</p></div><button type="button" className="p5-close" aria-label="Cerrar diálogo" disabled={props.locked} onClick={props.onClose}><FoxmindIcon name="close"/></button></header>
     <div className="brujula-dialog-body">
@@ -39,6 +46,8 @@ export function FoxyVisualReader(props:FoxyVisualReaderProps) {
     <footer className="parity-foxy-dialogFooter"><button type="button" onClick={props.onClose}>Cerrar</button>{info&&<>
       {info.canEdit&&props.onEdit&&<button type="button" disabled={props.locked||props.editLocked} onClick={props.onEdit}><FoxmindIcon name="edit"/>Editar</button>}
       <button type="button" onClick={()=>props.onDownload?.(`${title}\n\n${description}`)}><FoxmindIcon name="download"/>Descargar TXT</button>
+      {completeDiagram && <button type="button" onClick={() => props.onDownload?.(completeDiagram)}>Descargar esquema completo (TXT)</button>}
+      {download && <a className="p5-action" href={download}><FoxmindIcon name="download"/>Descargar archivo visual</a>}
       <button type="button" className="p5-primary" disabled={props.locked} onClick={props.onShare}><FoxmindIcon name="book"/>Llevar a Biblioteca</button>
     </>}</footer>
   </>;

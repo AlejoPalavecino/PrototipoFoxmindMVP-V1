@@ -125,7 +125,16 @@ export function createFoxyWorkspaceRuntime(options: Options) {
     onChange: () => batch(() => {}), onReconcile: reconcileManagement });
   const resource = { ...resourceBase, async open(conversationId: string, turnId: string) {
     const result = await resourceBase.open(conversationId, turnId);
-    if (!closed && result === 'opened') await history.refreshList(); return result;
+    if (!closed && result === 'opened') {
+      const loaded = resourceBase.getState().resource;
+      await history.refreshList();
+      const current = history.getState();
+      if (!closed && loaded && current.resourceId === loaded.id && !current.selectedId) {
+        const published = current.items.find(item => item.state === 'PUBLISHED' && item.resourceRevision === loaded.revision);
+        if (published) await history.select(published.id);
+      }
+    }
+    return result;
   } };
   const activityHandoff = createFoxyActivityHandoff({ source: () => resourceBase.getState(),
     prepare: (id, input, signal) => client.prepareActivity(id, input, signal), onChange: () => batch(() => {}) });

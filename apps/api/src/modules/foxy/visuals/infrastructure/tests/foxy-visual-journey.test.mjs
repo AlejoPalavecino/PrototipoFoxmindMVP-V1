@@ -19,8 +19,9 @@ async function setup(pool,api,options={}){
 }
 test('visual start atomically reserves one private asset, durable job and conversation revision', {timeout:120000},async()=>{
  const api=await modules();await withAiDatabase(async({pool})=>{const x=await setup(pool,api),input=command(),first=await x.service.start(x.owner,x.conversation.id,input);
+  assert.equal(first.job.prompt,input.prompt);assert.equal((await x.service.list(x.owner,x.conversation.id,{limit:20,afterId:null})).items[0].prompt,input.prompt);
   assert.equal(first.created,true);assert.equal(first.job.state,'QUEUED');assert.equal(first.job.kind,'IMAGE');assert.equal(first.job.conversationId,x.conversation.id);assert.equal(first.conversationRevision,'1');
-  assert.deepEqual(Object.keys(first.job).sort(),['aspectRatio','assetId','conversationId','createdAt','errorCode','id','kind','state']);
+  assert.deepEqual(Object.keys(first.job).sort(),['aspectRatio','assetId','conversationId','createdAt','errorCode','id','kind','prompt','state']);
   const replay=await x.service.start(x.owner,x.conversation.id,input);assert.equal(replay.created,false);assert.equal(replay.job.id,first.job.id);assert.equal(replay.job.assetId,first.job.assetId);assert.equal(replay.conversationRevision,'1');
   await assert.rejects(x.service.start(x.owner,x.conversation.id,{...input,prompt:'Diferente'}),code('CONFLICT'));
   const [count]=await x.query('SELECT (SELECT count(*) FROM foxy_visual_jobs)::int jobs,(SELECT count(*) FROM foxy_visual_assets)::int assets,(SELECT sum(charge_bytes) FROM foxy_visual_assets)::text used');

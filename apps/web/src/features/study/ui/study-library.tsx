@@ -7,13 +7,17 @@ import {canManageStudyMaterial} from '../model/study-discovery';
 import {StudyUpload} from './study-upload';
 import {StudyDocxPreview} from './study-docx-preview';
 import {StudyConfirmation} from './study-confirmation';
+import { StudyMaterialEditor } from './study-material-editor';
 
 export function StudyLibrary({detail,catalog,busy,run,onContext,onStudyTopic,onClose,attachments}:{detail:StudyDetail;catalog:StudyCollection;busy:boolean;run:StudyRun;onContext:()=>void;onStudyTopic:(topic:StudyTopic)=>void;onClose:()=>void;attachments?:ReactNode}) {
  const [tab,setTab]=useState('materials'),[query,setQuery]=useState(''),[origin,setOrigin]=useState('');
  const [upload,setUpload]=useState(false),[working,setWorking]=useState(false),[error,setError]=useState('');
  const [pending,setPending]=useState<{fileId:string;title:string}>(),[reading,setReading]=useState<StudySource>(),[removing,setRemoving]=useState<StudySource>();
+ const [editId, setEditId] = useState<string>();
  const {folder}=detail,room=catalog.classrooms.find(item=>item.id===folder.linkedClassroomId),writable=folder.status==='ACTIVE'&&!busy&&!working;
+ const editing = folder.materials?.find(material => material.id === editId);
  const materials=detail.sources.filter(source=>source.kind!=='PLAN');
+ const plan = detail.sources.find(source => source.kind === 'PLAN' && source.fileId === folder.planFileId && source.available);
  const matches=materials.filter(source=>(!origin||source.origin===origin)&&source.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
  const href=(source:StudySource)=>source.origin==='OWN'?`/api/v1/study-folders/${folder.id}/uploads/${source.fileId}/file`:`/api/v1/files/${source.fileId}/content`;
  async function add(material:{fileId:string;title:string}){setPending(material);setWorking(true);setError('');try{await run('ADD_MATERIAL',material);setPending(undefined);setUpload(false);}catch(error){setError(error instanceof Error?error.message:'El archivo está listo. Volvé a intentar agregarlo.');}finally{setWorking(false);}}
@@ -25,13 +29,56 @@ export function StudyLibrary({detail,catalog,busy,run,onContext,onStudyTopic,onC
    <div className="study-exact-library-actions"><button className="primary" disabled={!writable} onClick={()=>setUpload(true)}><FoxmindIcon name="plus"/>Agregar material</button><span><FoxmindIcon name="lock"/>Sólo en tu carpeta</span></div>
    <label className="study-exact-search"><FoxmindIcon name="search"/><span className="sr-only">Buscar material</span><input type="search" placeholder="Buscar en tus materiales" value={query} onChange={event=>setQuery(event.target.value)}/></label>
    <div className="study-exact-filter-row" aria-label="Filtrar materiales">{[['','Todos'],['CLASSROOM','Del aula'],['OWN','Mis materiales']].map(([value,label])=><button key={value} aria-pressed={origin===value} onClick={()=>setOrigin(value)}>{label}</button>)}</div>
-   <div className="study-exact-library-list">{matches.map(source=><article key={source.id} className="study-exact-library-file"><button className="study-exact-library-file-main" disabled={!source.available} onClick={()=>setReading(source)}><span className={`study-exact-document-icon ${source.extension?.startsWith('ppt')?'peach':source.extension?.startsWith('doc')?'mint':'sky'}`}><FoxmindIcon name="file"/><small>{source.extension?.toUpperCase()??'Archivo'}</small></span><span><b>{source.title}</b><small>{source.origin==='OWN'?'Propio · Esta carpeta':`Del aula · ${room?.name??'Aula vinculada'}`}</small><span className="study-exact-source-status"><FoxmindIcon name={source.available?'check':'warning'}/>{!source.available?'Sin acceso':source.readable===false?'Guardado · sin lectura IA':'En contexto'}</span></span></button>{canManageStudyMaterial(folder,source)&&<button className="study-exact-icon" disabled={!writable} aria-label={`Quitar ${source.title}`} onClick={()=>setRemoving(source)}><FoxmindIcon name="trash"/></button>}</article>)}</div>
+   <div className="study-exact-library-list">{matches.map(source => (
+     <article key={source.id} className="study-exact-library-file" data-origin={source.origin.toLowerCase()}>
+       <button type="button" className="study-exact-library-file-main" disabled={!source.available} onClick={() => setReading(source)}>
+         <span className={`study-exact-document-icon ${source.extension?.startsWith('ppt') ? 'peach' : source.extension?.startsWith('doc') ? 'mint' : 'sky'}`}>
+           <FoxmindIcon name="file"/><small>{source.extension?.toUpperCase() ?? 'Archivo'}</small>
+         </span>
+         <span>
+           <b>{source.title}</b>
+           <small>{source.origin === 'OWN' ? 'Propio · Esta carpeta' : `Del aula · ${room?.name ?? 'Aula vinculada'}`}</small>
+           <span className="study-exact-source-status">
+             <FoxmindIcon name={source.available ? 'check' : 'warning'}/>
+             {!source.available ? 'Sin acceso' : source.readable === false ? 'Guardado · sin lectura IA' : 'En contexto'}
+           </span>
+         </span>
+       </button>
+       {canManageStudyMaterial(folder, source) && <>
+         <button type="button" className="study-exact-icon" disabled={!writable} aria-label={`Editar ${source.title}`} title="Editar material"
+           onClick={() => setEditId(source.id)}><FoxmindIcon name="edit"/></button>
+         <button type="button" className="study-exact-icon" disabled={!writable} aria-label={`Quitar ${source.title}`} title="Quitar material"
+           onClick={() => setRemoving(source)}><FoxmindIcon name="trash"/></button>
+       </>}
+     </article>
+   ))}</div>
    {!matches.length&&<div className="study-exact-library-empty"><FoxmindIcon name="book"/><h3>{materials.length?'No encontramos ese material':'Tus ideas también tienen fuentes'}</h3><p>{materials.length?'Probá otro nombre o cambiá el filtro.':'Agregá un PDF, Word o PowerPoint. Foxy lo tendrá como referencia en tus próximas consultas.'}</p></div>}
    <p className="study-exact-library-footnote"><FoxmindIcon name={room?'check':'lock'}/>{room?'Los materiales del aula se consultan actualizados. Tus archivos propios no se comparten.':'Los archivos propios se incluyen sin necesidad de volver a adjuntarlos.'}</p>
    {attachments}
-  </>:<div className="study-exact-folder-plan">{folder.units.map((unit,index)=><section key={unit.id}><h3><span>{index+1}</span>{unit.title}</h3>{unit.topics.map(topic=><button key={topic.id} disabled={!writable} onClick={()=>onStudyTopic(topic)}><FoxmindIcon name="book"/><span>{topic.title}</span><b>Estudiar</b><FoxmindIcon name="chevron-right"/></button>)}</section>)}</div>}
+  </>:<div className="study-exact-folder-plan">
+    {plan && <div className="study-exact-plan-file">
+      <span><FoxmindIcon name="file"/> Documento original del plan</span>
+      <div>
+        {['pdf', 'docx'].includes(plan.extension ?? '') && <button type="button" onClick={() => setReading(plan)}>Abrir plan</button>}
+        <a href={href(plan) + '?mode=download'}>Descargar plan</a>
+      </div>
+    </div>}
+    {folder.units.map((unit,index)=><section key={unit.id}><h3><span>{index+1}</span>{unit.title}</h3>{unit.topics.map(topic=><button key={topic.id} disabled={!writable} onClick={()=>onStudyTopic(topic)}><FoxmindIcon name="book"/><span>{topic.title}</span><b>Estudiar</b><FoxmindIcon name="chevron-right"/></button>)}</section>)}
+  </div>}
   {upload&&<Dialog title="Agregar material" className="study-exact-upload-dialog" onClose={()=>{if(!working)setUpload(false);}}><p>El archivo queda en tu carpeta privada.</p>{pending?<button disabled={working} onClick={()=>void add(pending)}>Reintentar agregar material</button>:<StudyUpload purpose="material" ensureFolder={async()=>folder} onBusyChange={setWorking} onReady={(fileId,title)=>void add({fileId,title})}/>}</Dialog>}
   {reading&&(reading.extension==='docx'?<StudyDocxPreview folderId={folder.id} sourceId={reading.id} title={reading.title} downloadHref={href(reading)+'?mode=download'} onClose={()=>setReading(undefined)}/>:<Dialog title={reading.title} className="study-exact-reader" onClose={()=>setReading(undefined)}><p>{reading.origin==='OWN'?'Material privado · Esta carpeta':`Del aula · ${room?.name??'Aula vinculada'}`}</p>{reading.extension==='pdf'||['png','jpg','jpeg'].includes(reading.extension??'')?<iframe title={`Vista previa: ${reading.title}`} src={href(reading)+'?mode=preview'}/>:<p>Podés descargar el original para consultar este formato.</p>}<footer className="study-exact-dialog-footer"><button onClick={()=>setReading(undefined)}><FoxmindIcon name="arrow-left"/>Volver a la biblioteca</button><a href={href(reading)+'?mode=download'}>Descargar</a></footer></Dialog>)}
   {removing&&<StudyConfirmation title="¿Quitamos este material?" description={`«${removing.title}» dejará de usarse en las próximas consultas de esta carpeta. Las conversaciones anteriores se conservan.`} confirmLabel="Quitar material" destructive busy={!writable} onClose={()=>setRemoving(undefined)} onConfirm={async()=>{await run('REMOVE_MATERIAL',{materialId:removing.id});}}/>}
+  {editing && <StudyMaterialEditor
+    key={editing.id}
+    modal
+    material={editing}
+    units={folder.units}
+    busy={!writable}
+    onClose={() => setEditId(undefined)}
+    onSave={async (title, topicIds) => {
+      await run('EDIT_MATERIAL', { materialId: editing.id, title, topicIds });
+      setEditId(undefined);
+    }}
+  />}
  </div>;
 }

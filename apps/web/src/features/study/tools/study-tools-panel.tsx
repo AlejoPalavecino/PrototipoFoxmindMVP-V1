@@ -39,6 +39,13 @@ export function StudyToolsPanel({
             color: 'rose',
           },
           {
+            kind: 'EXERCISE',
+            title: 'Crear ejercicios',
+            hint: 'Aplicá lo aprendido con una devolución.',
+            icon: 'clipboard',
+            color: 'rose',
+          },
+          {
             kind: 'MOCK_EXAM',
             title: 'Preparar una evaluación',
             hint: 'Un simulacro sin nota académica.',

@@ -4,6 +4,52 @@ import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { executeStudyAiText } from '../apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
 
+test('PostgreSQL: concurrent Study generation and feedback use one slot per owner and feedback dispatches once after release', { timeout: 90000 }, async () => {
+  await withAgendaDatabase(async ({ pool }) => {
+    const ownerId = randomUUID(), generationId = randomUUID(), feedbackId = randomUUID();
+    await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Synthetic','AI','no-login',now(),'student')`, [ownerId, `${ownerId}@example.invalid`]);
+    const database = { async $transaction(operation) {
+      const client = await pool.connect();
+      await client.query('BEGIN');
+      try {
+        const result = await operation({ async $queryRawUnsafe(sql, ...values) { return (await client.query(sql, values)).rows; } });
+        await client.query('COMMIT'); return result;
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
+    } };
+    const configuration = { backend: 'gemini-developer', apiKey: 'synthetic-only', model: 'synthetic-model',
+      maxInputTokens: 100, maxOutputTokens: 50, deadlineMs: 8000, maxConcurrency: 2,
+      dailyActorRequests: 10, dailyGlobalRequests: 20, dailyBudgetUsd: 1, inputUsdPerMillion: 1, outputUsdPerMillion: 1 };
+    const request = { system: 'Synthetic', messages: [{ role: 'user', parts: [{ kind: 'text', text: 'Synthetic' }] }] };
+    const result = { text: '{}', finish: 'stop', usage: { inputTokens: 10, outputTokens: 5, reasoningTokens: null, cachedInputTokens: null } };
+    const started = Promise.withResolvers(), release = Promise.withResolvers(), waiting = Promise.withResolvers();
+    const dispatches = [];
+    const generation = executeStudyAiText({ configuration, database, ownerId, requestId: generationId, request,
+      transport: { provider: 'gemini', async count() { return 10; }, async generate() {
+        dispatches.push('generation'); started.resolve(); await release.promise; return result;
+      } } });
+    let feedback;
+    try {
+      await Promise.race([started.promise, generation]);
+      feedback = executeStudyAiText({ configuration, database, ownerId, requestId: feedbackId, request, waitForAdmission: true,
+        transport: { provider: 'gemini', async count() { return 10; }, async generate() { dispatches.push('feedback'); return result; } },
+        async authorize() { waiting.resolve(); } });
+      await Promise.race([waiting.promise, feedback]);
+      const inFlight = await pool.query('SELECT request_id,state FROM study_ai_dispatches WHERE owner_id=$1', [ownerId]);
+      assert.deepEqual(inFlight.rows, [{ request_id: generationId, state: 'RUNNING' }]);
+      assert.deepEqual(dispatches, ['generation']);
+    } finally {
+      release.resolve();
+      await Promise.all([generation, feedback]);
+    }
+    const completed = await pool.query('SELECT request_id,state,dispatch_count FROM study_ai_dispatches WHERE owner_id=$1', [ownerId]);
+    assert.deepEqual(new Map(completed.rows.map(row => [row.request_id, [row.state, row.dispatch_count]])),
+      new Map([[generationId, ['DONE', 1]], [feedbackId, ['DONE', 1]]]));
+    assert.deepEqual(dispatches, ['generation', 'feedback']);
+  });
+});
+
 test('PostgreSQL: expired Study waits for reservation commit before releasing it, without generation', { timeout: 90000 }, async () => {
   await withAgendaDatabase(async ({ pool }) => {
     const ownerId = randomUUID(), requestId = randomUUID();

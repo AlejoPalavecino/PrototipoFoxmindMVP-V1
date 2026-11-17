@@ -38,7 +38,14 @@
 #foxmind-product.fm3d-theme .study-exact-library-dialog>header h2{color:#202c3d;text-shadow:none;letter-spacing:-.4px}
 @media(max-width:680px){#foxmind-product.fm3d-theme dialog.study-exact-library-dialog[open]{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;inset:8px;margin:0;height:calc(100dvh - 16px)}#foxmind-product.fm3d-theme .study-exact-library .study-exact-library-actions>.primary{font-size:12px;padding:9px;border-radius:10px}#foxmind-product.fm3d-theme .study-exact-library .study-exact-library-scope>button{font-size:11px}}
 #foxmind-product.fm3d-theme .study-exact-collection{color:#202c3d;font-family:Nunito,system-ui,sans-serif}
-.study-exact-collection-toolbar{margin-bottom:20px;display:flex;align-items:center}
+.study-exact-collection-toolbar{margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.study-exact-collection-filters{display:grid;grid-template-columns:minmax(145px,1fr) minmax(126px,.65fr) minmax(145px,.8fr);flex:1 1 430px;gap:8px;min-width:0}
+.study-exact-collection-filters .study-exact-search{margin:0}
+.study-exact-collection-filters select{width:100%;min-width:0;min-height:42px;font-size:13px}
+@media(max-width:540px){
+ .study-exact-collection-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .study-exact-collection-filters .study-exact-search{grid-column:1/-1}
+}
 .study-exact-segmented{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;background:#e3e9f0;border:1px solid #cbd7e3;border-radius:15px}
 #foxmind-product.fm3d-theme .study-exact-segmented>button{border:1px solid transparent;min-height:38px;background:transparent;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:750;color:#485c73;box-shadow:none}
 #foxmind-product.fm3d-theme .study-exact-segmented>button[aria-pressed=true]{background:#26364b;color:#fff;border-color:#26364b}
@@ -69,7 +76,6 @@
 .study-exact-draft-actions>button{display:flex;align-items:center;justify-content:center;gap:8px}
 .study-exact-empty{text-align:center;background:#fff;border:1px solid #cbd5df;border-radius:24px;padding:26px 24px 34px}
 .study-exact-empty>img{width:180px;height:145px;object-fit:contain}.study-exact-empty h2{font-size:23px;margin:10px 0}.study-exact-empty p{max-width:50ch;margin:0 auto 20px}
-.study-exact-archived{margin-top:24px;font-size:13px;color:#526779}.study-exact-archived>button{display:flex;align-items:center;justify-content:space-between;width:100%;margin:8px 0}
 #foxmind-product.fm3d-theme .study-exact-subtitle{font-size:13px;line-height:1.6;color:#52687b;margin:0 0 20px}
 #foxmind-product.fm3d-theme .study-exact-dialog-footer{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;border-top:1px solid #d2dde6;margin:20px -20px -20px;padding:15px 20px;background:#fff;flex:none}
 #foxmind-product.fm3d-theme .study-exact-dialog-footer :is(button,a),#foxmind-product.fm3d-theme .study-exact-draft-actions>button{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:1px solid #c2cfdb;background:#fff;color:#344e64;border-radius:12px;min-height:42px;font-size:13px;font-weight:800;padding:10px 14px;text-decoration:none;box-shadow:none}
@@ -126,6 +132,15 @@
 #foxmind-product.fm3d-theme .study-exact-dialog-tabs>button{border:1px solid transparent;background:transparent;padding:8px 11px;color:#50687b;font-weight:800;border-radius:10px;box-shadow:none}
 #foxmind-product.fm3d-theme .study-exact-dialog-tabs>button[aria-pressed=true]{border-color:#c7aa91;background:#ffecdd;color:#873e17}
 .study-exact-folder-plan>section{margin-bottom:18px}.study-exact-folder-plan h3{display:flex;align-items:center;gap:9px;font-size:15px;margin:0 0 8px}.study-exact-folder-plan h3>span{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#e2edf7;font-size:12px;color:#456179}
+.study-exact-plan-file{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:11px;border:1px solid #c3d2df;background:#fff;border-radius:12px;font-size:13px;font-weight:750;color:#30495e}
+.study-exact-plan-file>span,.study-exact-plan-file>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.study-exact-plan-file svg{width:17px;height:17px}
+#foxmind-product.fm3d-theme .study-exact-plan-file :is(a,button){display:inline-flex;align-items:center;min-height:40px;border:1px solid #c3d2df;border-radius:9px;background:#eef4f8;color:#344e64;padding:7px 10px;font-size:12px;font-weight:750;text-decoration:none;box-shadow:none}
+.study-exact-material-editor{display:grid;gap:14px}
+#foxmind-product.fm3d-theme .study-exact-folder-options-launch{display:grid;place-items:center;flex:none;width:42px;height:42px;padding:0;border-radius:11px}
+.study-exact-folder-options-launch svg{width:18px;height:18px}
+.study-exact-tool-form .study-exact-form-pair{grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 0}
+.study-exact-tool-form .study-exact-form-pair :is(input,select){width:100%;min-width:0}
 #foxmind-product.fm3d-theme .study-exact-folder-plan>section>button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:12px 5px;border:0;border-bottom:1px solid #d3dee8;background:transparent;color:#30495e;box-shadow:none;border-radius:0;font-size:13px}.study-exact-folder-plan button>span{flex:1}.study-exact-folder-plan button>b{font-size:11px}.study-exact-folder-plan button>svg{width:16px;height:16px;flex:none}
 .study-exact-reader iframe{width:100%;height:55dvh;border:1px solid #cad6df;border-radius:12px}
 .study-exact-chat-attachments h3{font-size:15px;margin-top:20px}

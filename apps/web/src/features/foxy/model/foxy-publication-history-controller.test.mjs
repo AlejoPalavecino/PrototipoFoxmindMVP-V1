@@ -118,3 +118,26 @@ test('text history refuses a VISUAL inspection and keeps it out of text rows',as
  const f=fixture(),c=create(f),visual={id:a,sourceKind:'VISUAL',assetId:randomUUID(),assetRevision:'2',classroomId:room,title:'Imagen',unitId:null,topicId:null,state:'READY',revision:'3'};
  c.syncResource();f.inspections.push(inspection(visual));await c.select(a);assert.equal(c.getState().inspection,null);assert.ok(c.getState().inspectionError);assert.ok(!c.getState().items.some(p=>p.id===a));c.dispose();
 });
+
+test('a discard revision received by the list does not abort a fresh inspection already in flight', async () => {
+  const f = fixture(), c = create(f), id = randomUUID();
+  const before = item(id, 'READY', '2');
+  const after = { ...before, state: 'DISCARDED', revision: '3' };
+  const pending = deferred();
+  let current = before, gate = false, inspectedSignal;
+  f.client.listPublications = async () => ({ items: [current], nextAfterId: null });
+  f.client.inspectPublication = async (_id, signal) => {
+    if (gate) { inspectedSignal = signal; await pending.promise; }
+    return { publication: current, classroomRevision: '4', classroomArchived: false, errorCode: null };
+  };
+  c.syncResource(); await c.refreshList(); await c.select(id);
+  current = after; gate = true;
+  const refreshing = c.refreshSelected();
+  await c.refreshList();
+  const aborted = inspectedSignal.aborted;
+  pending.resolve(); await refreshing;
+  assert.equal(aborted, false);
+  assert.equal(c.getState().inspection?.publication.state, 'DISCARDED');
+  assert.equal(c.getState().inspectionError, null);
+  c.dispose();
+});

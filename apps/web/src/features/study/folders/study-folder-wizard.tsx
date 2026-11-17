@@ -20,9 +20,10 @@ import { requireStudyPlan, validateStudyUpload } from '../model/study-file-polic
 const api = studyDraftOperations;
 type Operation = 'upload' | 'check' | 'import' | 'analyze' | 'save' | 'create';
 type PlanFile = Pick<StudyUploadStatus, 'id' | 'name' | 'ready'>;
-export function StudyWizard({ catalog, folder, onClose, onCreated, onSaved, }: {
+export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCreated, onSaved, }: {
   catalog: StudyCollection;
   folder?: StudyFolder;
+  initialClassroomId?: string;
   onClose: () => void;
   onSaved?: () => void;
   onCreated: (folder: StudyFolder) => void;
@@ -30,8 +31,11 @@ export function StudyWizard({ catalog, folder, onClose, onCreated, onSaved, }: {
   const [step, setStep] = useState(folder?.wizardStep ?? 0), [name, setName] = useState(folder?.name ?? '');
   const [subject, setSubject] = useState(folder?.subject ?? '');
   const [year, setYear] = useState(String(folder?.academicYear ?? new Date().getFullYear()));
-  const [banner, setBanner] = useState(folder?.bannerKey ?? 'literature'), [linked, setLinked] = useState(folder?.linkedClassroomId ?? '');
-  const [programSource, setProgramSource] = useState(folder?.linkedClassroomId ? 'classroom' : 'own');
+  const initialLink = folder
+    ? folder.linkedClassroomId ?? ''
+    : catalog.classrooms.find(room => room.id === initialClassroomId)?.id ?? '';
+  const [banner, setBanner] = useState(folder?.bannerKey ?? 'literature'), [linked, setLinked] = useState(initialLink);
+  const [programSource, setProgramSource] = useState(initialLink ? 'classroom' : 'own');
   const [units, setUnits] = useState<StudyUnit[]>(folder?.units ?? []);
   const [planId, setPlanId] = useState(folder?.planFileId ?? null);
   const [file, setFile] = useState<PlanFile | null>(folder?.planFileId
@@ -42,7 +46,7 @@ export function StudyWizard({ catalog, folder, onClose, onCreated, onSaved, }: {
 
     }
     : null);
-  const [method, setMethod] = useState<'manual' | 'ai' | 'classroom' | null>(folder?.planOrigin ? 'classroom' : null), [analysisFailed, setAnalysisFailed] = useState(false);
+  const [method, setMethod] = useState<'manual' | 'ai' | 'classroom' | null>(initialLink ? 'classroom' : null), [analysisFailed, setAnalysisFailed] = useState(false);
   const [operation, setOperation] = useState<Operation | null>(null), [error, setError] = useState('');
   const [dirty, setDirty] = useState(false), [saved, setSaved] = useState(!!folder), [leave, setLeave] = useState(false);
   const draft = useRef(folder), lock = useRef(false), fileVersion = useRef(0), heading = useRef<HTMLHeadingElement>(null);

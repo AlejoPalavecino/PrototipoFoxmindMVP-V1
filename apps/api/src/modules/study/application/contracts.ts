@@ -15,6 +15,7 @@ export interface StudyOptions {
     database: StudyDatabase;
     authenticate: StudyAuthentication;
     files?: {
+        prepareRead?(tx: StudyQuery, source: StudySource, docxPreview?: boolean): Promise<StudyDocumentRead>;
         assertOwn(tx: StudyQuery, ownerId: string, folderId: string, fileId: string, purpose: 'plan' | 'material'): Promise<void>;
         readText?(tx: StudyQuery, source: StudySource): Promise<string>;
         previewDocx?(tx: StudyQuery, source: StudySource): Promise<string>;
@@ -43,4 +44,8 @@ export interface StudyOptions {
         requestId: string;
         authorize?: () => Promise<void>;
     }) => Promise<Awaited<ReturnType<typeof generateDevelopmentFeedback>>>;
+}
+export interface StudyDocumentRead {
+    version: string;
+    load(): Promise<{ text: string; document?: StudySource['document'] }>;
 }

@@ -1,0 +1,24 @@
+# Correcciones de la auditoría de Foxy AI y Mi Estudio
+
+Coordinador root, 17 de noviembre de 2026. Checkout principal de FoxMind, rama main, base 375a2d75. El usuario autorizó probar generación real de imágenes y resolver los hallazgos de la auditoría. La entrega es local. [Tablero y huellas de aceptación](../../odd/tasks/foxy-study-audit-fixes.md).
+
+## Resultado en la aplicación
+
+| Superficie | Evidencia de aceptación |
+| --- | --- |
+| Ilustración y esquema | Gemini generó un JPEG de 1024 × 1024 y un esquema con conceptos, relaciones y PNG válido. La ilustración editada persistió. El JPEG publicado se descargó como alumna y coincidió byte a byte con el privado. La alumna recibió 403 en los archivos privados docente y de preparación. [Generación y publicación real](2026-11-17-imagen-foxy-gemini-real.md) |
+| Foxy docente | El chat recargado conserva la consigna y la posición cronológica del esquema. El lector descarga los binarios privados y el TXT completo del esquema. Los textos ofrecen Word y TXT y las planificaciones anteriores recuperan los saltos de párrafo. Se verificaron filtros de historial y creaciones, destino ya publicado al reabrir, descarte de preparación y revisión de temas y fuentes. Una consulta de estado que recibió 429 se recuperó sin enviar de nuevo el mensaje. [Recorridos y pruebas](2026-11-17-docente-foxy-auditoria.md) |
+| Actividades | Una idea privada con citas al contexto del docente generó tres consignas y dos criterios. Guardar el título editado dejó un TP privado visible sólo al docente. Desde una rúbrica lista se abrió el borrador exacto creado por el traspaso. [Gemini real y PostgreSQL](2026-11-17-contratos-actividad-gemini.md) |
+| Mi Estudio | Acceso desde aula, búsqueda y filtros, opciones de carpeta, archivado, reactivación y eliminación. PDF original del plan, título y temas del material, Word y TXT, número y estado de intento, aviso de repaso de 15 minutos y evento en Agenda. Gemini entregó tres ejercicios con la dificultad indicada. Cancelar conservó el estado tras recargar. [Pruebas de interfaz](2026-11-17-estudio-recuperacion-de-flujos.md) |
+| Recuperación de documentos | La auditoría inicial encontró catorce timeouts PostgreSQL en bloqueos de filas de usuario. La lectura de bytes y la extracción se trasladaron fuera de la transacción, con control de la fuente, custodia y versión en cada operación. En una prueba con lectura lenta se pudo consultar, cancelar, revocar acceso y cambiar la versión. La entrega del proveedor y la vista previa rechazaron las fuentes revocadas. [Ensayo RED/GREEN independiente](2026-11-17-ciclo-estudio-concurrencia.md) |
+| Devolución de práctica | El primer candidato aún devolvía 503 si otra solicitud ocupaba el cupo. La devolución espera dentro del plazo y revalida el acceso antes del despacho. En la comprobación final con el mismo alumno y carpetas distintas, el ejercicio devolvió 200 en 32,4 segundos y la devolución automática devolvió 200 en 41,5 segundos, con estado COMPLETE y respuestas intactas. Se probaron también ocupación, vencimiento y cuota en la interfaz. [Admisión y prueba simultánea](2026-11-17-contratos-estudio-admision-feedback.md) |
+
+En el build final se recorrieron a 320 y 390 px el diálogo de fuentes y el traspaso de rúbrica. Se verificaron el singular del contador, el único encabezado y la acción de revisión, el cierre, el foco y el ancho de los controles. Los recorridos reales usan cuentas y objetos sintéticos locales. No se midió capacidad de producción ni se usaron dispositivos físicos o lectores de pantalla.
+
+## Configuración local y entrega
+
+La generación de imágenes quedó habilitada en la configuración privada de este checkout con las tarifas del modelo verificadas para esta corrida. El almacenamiento de visuales privados del docente quedó en 100 MiB para permitir nuevas imágenes junto a las ya guardadas. Las cuotas diarias de solicitudes y presupuesto recuperaron sus valores previos. La ampliación temporal de tasa de identidad terminó al detener la instancia. No se exportaron claves ni se modificaron la configuración de producción o los valores por defecto de otros entornos.
+
+Se verificaron el build estricto de API y web con `npm run local:restart`, límites con `npm run lint:boundaries`, rutas de pruebas con `node scripts/run-complete-suite.mjs --check`, enlaces con `npm run docs:check` y recorrido de Estudio con `node scripts/run-ci-suite.mjs --suite study`. Al cierre, `npm run local:stop` conservó los datos y `npm run local:status` confirmó STOPPED. No se crearon commits ni se publicó o desplegó el cambio.
+
+La batería rápida completa pasó en los 476 archivos del candidato con 2.909 pruebas, cero fallos y cero omitidas. La suite de Estudio cerró 93/93. La comprobación adicional de admisión, ejecución y visuales cerró 24/24. Los grupos se solapan. No se ejecutó la matriz extendida completa de todos los dominios.

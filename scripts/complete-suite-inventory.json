@@ -679,6 +679,8 @@
     "tests/study-exact-repaso.test.mjs",
     "tests/study-feature.test.mjs",
     "tests/study-runtime.test.mjs",
+    "tests/study-source-concurrency-database.test.mjs",
+    "tests/study-ui-audit-regressions.test.mjs",
     "tests/teacher-home-polish.test.mjs",
     "tests/technical-backend-modules.test.mjs",
     "tests/ux-chat-polish.test.mjs",

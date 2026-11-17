@@ -1,6 +1,8 @@
 // Deliberate inventory: no helper discovery or opt-in/live-provider tests.
 export const suites = {
   study: [
+    'tests/study-source-concurrency-database.test.mjs',
+    'tests/study-ui-audit-regressions.test.mjs',
     'apps/web/src/features/study/model/study-discovery.test.mjs',
     'apps/web/src/features/study/model/study-file-policy.test.mjs',
     'apps/api/src/modules/study/generation/application/engine.test.ts',

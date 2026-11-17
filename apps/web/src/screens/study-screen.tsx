@@ -14,6 +14,7 @@ export function StudyScreen() {
   const router = useRouter();
   const [session, setSession] = useState<AccountSession>();
   const [wizard, setWizard] = useState(false);
+  const [entryClassroomId, setEntryClassroomId] = useState<string>();
   const [collectionStatus, setCollectionStatus] = useState('ACTIVE');
   const [retry, setRetry] = useState(0);
   const id = typeof router.query.id === 'string' ? router.query.id : undefined;
@@ -31,6 +32,15 @@ export function StudyScreen() {
   }
   const folders = useStudyFolders({ folderId: id, onAccessError });
   const { collection, detail, error, busy, setError, run } = folders;
+  useEffect(() => {
+    if (!router.isReady || id || !collection || router.query.crear !== '1') return;
+    const classroom = collection.classrooms.find(room => room.id === router.query.aula);
+    if (classroom) {
+      setEntryClassroomId(classroom.id);
+      setWizard(true);
+    }
+    void router.replace('/carpetas-de-estudio', undefined, { shallow: true });
+  }, [router, id, collection]);
   useEffect(() => {
     if (!router.isReady) return;
     let active = true;
@@ -104,6 +114,7 @@ export function StudyScreen() {
               <StudyWizard
                 key={id ?? 'new-folder'}
                 catalog={collection}
+                initialClassroomId={id ? undefined : entryClassroomId}
                 folder={
                   id && detail?.folder.id === id && detail.folder.status === 'DRAFT'
                     ? detail.folder
@@ -133,7 +144,10 @@ export function StudyScreen() {
                 status={collectionStatus}
                 onStatusChange={setCollectionStatus}
                 catalog={collection}
-                onCreate={() => setWizard(true)}
+                onCreate={() => {
+                  setEntryClassroomId(undefined);
+                  setWizard(true);
+                }}
                 onEnter={(folderId) => void router.push(`/carpetas-de-estudio/${folderId}`)}
               />
             ) : !wizard ? (

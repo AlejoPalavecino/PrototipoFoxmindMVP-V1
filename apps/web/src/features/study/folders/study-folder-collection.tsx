@@ -25,11 +25,20 @@ export function StudyCollectionView({
     [removal, setRemoval] = useState<StudyCollection['items'][number]>();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState('');
-  const status = controlledStatus ?? localStatus,
-    setStatus = onStatusChange ?? setLocalStatus;
-  const available = catalog.items.filter((item) => !removed.includes(item.id)),
-    items = available.filter((item) => item.status === status);
-  const archived = available.filter((item) => item.status === 'ARCHIVED');
+  const [query, setQuery] = useState('');
+  const [year, setYear] = useState('');
+  const [classroom, setClassroom] = useState('');
+  const status = controlledStatus ?? localStatus;
+  const setStatus = onStatusChange ?? setLocalStatus;
+  const available = catalog.items.filter(item => !removed.includes(item.id));
+  const years = [...new Set(available.map(item => item.academicYear))].sort((a, b) => b - a);
+  const needle = query.trim().toLocaleLowerCase();
+  const items = available.filter(item => item.status === status &&
+    (!year || String(item.academicYear) === year) &&
+    (!classroom || (item.linkedClassroomId ?? 'OWN') === classroom) &&
+    (!needle || [item.name, item.subject].some(value => value?.toLocaleLowerCase().includes(needle))),
+  );
+  const filtering = Boolean(needle || year || classroom);
   return (
     <div className="parity-study-collection study-exact-collection">
       <header>
@@ -48,6 +57,7 @@ export function StudyCollectionView({
             {[
               ['ACTIVE', 'Activas'],
               ['DRAFT', 'Borradores'],
+              ['ARCHIVED', 'Archivadas'],
             ].map(([value, label]) => (
               <button key={value} aria-pressed={status === value} onClick={() => setStatus(value)}>
                 {label}
@@ -55,18 +65,42 @@ export function StudyCollectionView({
               </button>
             ))}
           </div>
+          <div className="study-exact-collection-filters">
+            <label className="study-exact-search">
+              <FoxmindIcon name="search" />
+              <span className="sr-only">Buscar carpeta</span>
+              <input type="search" placeholder="Buscar carpeta" value={query} onChange={event => setQuery(event.target.value)} />
+            </label>
+            <label>
+              <span className="sr-only">Año</span>
+              <select value={year} onChange={event => setYear(event.target.value)}>
+                <option value="">Todos los años</option>
+                {years.map(value => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </label>
+            <label>
+              <span className="sr-only">Vínculo con aula</span>
+              <select value={classroom} onChange={event => setClassroom(event.target.value)}>
+                <option value="">Todos los vínculos</option>
+                <option value="OWN">Sin aula vinculada</option>
+                {catalog.classrooms.map(room => <option key={room.id} value={room.id}>{room.name}</option>)}
+              </select>
+            </label>
+          </div>
         </div>
         {error && <Notice error>{error}</Notice>}
         {!items.length ? (
           <div className="study-exact-empty">
             <img src="/foxmind/classroom-world.webp" alt="" />
             <h2>
-              {status === 'DRAFT' ? 'Todavía no tenés borradores' : 'Todavía no tenés carpetas'}
+              {filtering ? 'No encontramos carpetas' : status === 'DRAFT' ? 'Todavía no tenés borradores'
+                : status === 'ARCHIVED' ? 'Todavía no tenés carpetas archivadas' : 'Todavía no tenés carpetas'}
             </h2>
             <p>
-              {status === 'DRAFT'
+              {filtering ? 'Probá otro nombre o cambiá los filtros.' : status === 'DRAFT'
                 ? 'Usá Guardar y salir para retomar la creación de una carpeta más adelante.'
-                : 'Creá una carpeta para guardar tu programa y ordenar tus temas.'}
+                : status === 'ARCHIVED' ? 'Cuando archives una carpeta, vas a poder consultarla desde acá.'
+                  : 'Creá una carpeta para guardar tu programa y ordenar tus temas.'}
             </p>
           </div>
         ) : (
@@ -118,19 +152,18 @@ export function StudyCollectionView({
                     <img src={learningCover(folder.bannerKey)} alt="" />
                     <span>
                       <FoxmindIcon name="lock" />
-                      Privada
+                      {folder.status === 'ARCHIVED' ? 'Archivada' : 'Privada'}
                     </span>
                   </span>
                   <span className="study-exact-card-body">
                     <strong>{folder.name}</strong>
-                    <span>{folder.subject || folder.academicYear}</span>
-                    {folder.linkedClassroomId && (
-                      <span className="study-exact-linked">
-                        <FoxmindIcon name="book" />
-                        {catalog.classrooms.find((room) => room.id === folder.linkedClassroomId)
-                          ?.name ?? 'Aula vinculada'}
-                      </span>
-                    )}
+                    <span>{[folder.subject, folder.academicYear].filter(Boolean).join(' · ')}</span>
+                    <span className="study-exact-linked">
+                      <FoxmindIcon name="book" />
+                      {folder.linkedClassroomId
+                        ? catalog.classrooms.find(room => room.id === folder.linkedClassroomId)?.name ?? 'Aula vinculada'
+                        : 'Materiales propios'}
+                    </span>
                     <span className="study-exact-card-bottom">
                       <span>Abrir carpeta</span>
                       <FoxmindIcon name="arrow-right" />
@@ -140,17 +173,6 @@ export function StudyCollectionView({
               ),
             )}
           </div>
-        )}
-        {!!archived.length && (
-          <details className="study-exact-archived">
-            <summary>Carpetas archivadas · {archived.length}</summary>
-            {archived.map((folder) => (
-              <button key={folder.id} onClick={() => onEnter(folder.id)}>
-                {folder.name}
-                <FoxmindIcon name="arrow-right" />
-              </button>
-            ))}
-          </details>
         )}
       </section>
       {removal && (

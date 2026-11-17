@@ -143,3 +143,21 @@ test('previous READY preparation opens explicitly after editing while new prepar
     c.setTitle('Nueva edición');await c.prepare();assert.equal(calls[1].editorialRevision,'2');
   }finally{c.dispose();}
 });
+
+test('the private reader exports the binary and a complete diagram without changing its existing TXT action', () => {
+  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),calls=[];
+  const info=inspection();
+  info.asset.kind='DIAGRAM';
+  info.payload.diagram=diagram;
+  const props={assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},
+    onDownload:text=>calls.push(text),assetFileUrl:(asset,mode)=>'/api/v1/foxy-ai/assets/'+asset+'/file?mode='+mode};
+  const tree=FoxyVisualReader(props);
+  const link=descendants(tree,n=>n.type==='a'&&n.props.href.endsWith('mode=download'))[0];
+  assert.ok(link);
+  assert.equal(link.props.href,props.assetFileUrl(id,'download'));
+  descendants(tree,n=>n.type==='button'&&n.props.children==='Descargar esquema completo (TXT)')[0].props.onClick();
+  assert.match(calls[0],/Conceptos\n- Agua/);
+  assert.match(calls[0],/Relaciones\n.*Evapora.*→/);
+  const denied=FoxyVisualReader({...props,inspection:{...info,canPreview:false}});
+  assert.equal(descendants(denied,n=>n.type==='a').length,0);
+});

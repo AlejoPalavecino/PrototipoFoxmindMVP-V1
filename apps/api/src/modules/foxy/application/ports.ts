@@ -282,5 +282,17 @@ export interface FoxyResourceRepositoryPort {
 
 import type { StartFoxyVisual, FoxyVisualKind, FoxyAspectRatio } from '../../../../../../src/core/domain/foxy/visual.ts';
 import type { VisualProfile } from '../domain/visual-profile.ts';
+type PrivateVisualJob = {
+    id: string; conversationId: string; prompt: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio;
+    state: string; assetId: string; errorCode: string | null; createdAt: string;
+};
+type VisualJobReceipt = { created: boolean; job: PrivateVisualJob; conversationRevision: string };
 export interface FoxyVisualRepositoryPort {
-    cancel(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): ReturnType<FoxyVisualRepositoryPort['get']>; replay(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; } | null>; enqueue(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual, snapshot: FoxyGroundingSnapshot, profile: VisualProfile, quota: bigint): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; }>; get(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): Promise<{ id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; } | null>; list(tx: SqlTransaction, owner: string, conversationId: string, page: { limit: number; afterId: string | null; }): Promise<{ items: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }[]; nextAfterId: string | null; }>; }
+    cancel(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): Promise<PrivateVisualJob | null>;
+    replay(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual): Promise<VisualJobReceipt | null>;
+    enqueue(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual, snapshot: FoxyGroundingSnapshot,
+        profile: VisualProfile, quota: bigint): Promise<VisualJobReceipt>;
+    get(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): Promise<PrivateVisualJob | null>;
+    list(tx: SqlTransaction, owner: string, conversationId: string, page: { limit: number; afterId: string | null }):
+        Promise<{ items: PrivateVisualJob[]; nextAfterId: string | null }>;
+}

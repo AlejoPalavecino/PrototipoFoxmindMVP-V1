@@ -30,7 +30,7 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
   const attachments = createChatAttachmentService({ database, storage: files.storage, student: authenticate,
     teacher: createFoxyAuthentication(identity.configuration.security), folderQuota: configuration.studyQuotaBytes,
     inspect: inspectContent, scan: bytes => files.scanner.scan(bytes) });
-  const provider = (context?: { ownerId: string; requestId: string; authorize?: () => Promise<void> }) => {
+  const provider = (context?: { ownerId: string; requestId: string; authorize?: () => Promise<void> }, waitForAdmission = false) => {
     if (options.study) return {
       async generate(input: Parameters<StudyProvider['generate']>[0]) {
         await context?.authorize?.();
@@ -40,11 +40,11 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     if (options.ai !== undefined || !configuration.ai || !context) {
       throw Object.assign(new Error('AI_UNAVAILABLE'), { code: 'AI_UNAVAILABLE' });
     }
-    return createGeminiStudyProvider(configuration.ai, database, context.ownerId, context.requestId, context.authorize);
+    return createGeminiStudyProvider(configuration.ai, database, context.ownerId, context.requestId, context.authorize, undefined, { waitForAdmission });
   };
   const service = createStudyService({ database, authenticate, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
     generate: (input, context) => executeStudy(input, provider(context)),
-    feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources, provider(context)) });
+    feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources, provider(context, true)) });
   const reminders = createStudyReminderRuntime({ database, authenticate });
   const admit = async (request: IncomingMessage, response: ServerResponse) => {
     void response;

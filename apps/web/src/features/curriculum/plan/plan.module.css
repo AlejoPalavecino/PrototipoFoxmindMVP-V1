@@ -1,4 +1,7 @@
 /* UI Lab teaching-library: unit map, topic detail and mobile topic chooser. */
+.studyEntry { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:8px 12px; margin:0 0 14px; border:1px solid #b8cfc0; border-radius:11px; color:#25543c; background:#e7f2ec; font-weight:750; text-decoration:none; }
+.studyEntry:hover { background:#dcefe4; }
+.studyEntry svg { width:17px; height:17px; }
 .workspace { display:grid; grid-template-columns:minmax(202px,.75fr) minmax(0,2fr); gap:20px; align-items:start; min-width:0; }
 .navigation,.topicDialog { display:grid; gap:14px; min-width:0; }
 .unit { min-width:0; background:#fff; border:1px solid #bdccda; border-radius:16px; overflow:hidden; }

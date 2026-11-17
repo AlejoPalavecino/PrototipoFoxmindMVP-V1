@@ -5,7 +5,6 @@ import { classroomHomeHref } from '../../navigation/destinations';
 import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
-import { FoxyVisualTimeline } from '../../../features/foxy/index.ts';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createWebClassroomClient } from '../../clients/classroom-client';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms';
@@ -167,7 +166,13 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&
       <PendingLeaveDialog reason={ui.leave.reason} cancel={() => actions.cancelLeave()} proceed={() => { void actions.discardAndContinue(); }} />}
-    <FoxyWorkspace visualTimeline={state.visual&&(state.visual.jobs.length>0||state.visual.pending||state.visual.error)?<FoxyVisualTimeline {...state.visual} onStop={id=>void runtime.visual.cancel(id)} onRetry={()=>void runtime.visual.retry()} onOpen={id=>{runtime.visual.select(id);setVisualCreating(false);setVisualConversation(visualChat?.id??null);}}/>:undefined} previewContext={previewContext} onStartActivity={classroomId=>{void actions.requestNavigate(classroomHomeHref({kind:'create-activity',classroomId}));}} onNewDraft={()=>setThreadAddress(null)} identity={identity} destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
+    <FoxyWorkspace visualTimeline={state.visual ? {
+      ...state.visual,
+      onStop: id => void runtime.visual.cancel(id),
+      onRetry: () => void runtime.visual.retry(),
+      onRefresh: () => void runtime.visual.refresh(),
+      onOpen: id => { runtime.visual.select(id); setVisualCreating(false); setVisualConversation(visualChat?.id ?? null); },
+    } : undefined} previewContext={previewContext} onStartActivity={classroomId=>{void actions.requestNavigate(classroomHomeHref({kind:'create-activity',classroomId}));}} onNewDraft={()=>setThreadAddress(null)} identity={identity} destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
       onConversationQuery={query => { void catalog?.controller.setConversationQuery(query); }}
       onCreationQuery={query => { void catalog?.controller.setCreationQuery(query); }}
       onMoreConversations={() => { void catalog?.controller.moreConversations(); }} onMoreCreations={() => { void catalog?.controller.moreCreations(); }}
@@ -198,7 +203,9 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
       await request;
       const result = runtime.visual.getState();
       return !!result.pending || result.jobs.some(job => !before.includes(job.id));
-    }} onActivityHandoff={(conversationId, turnId, mode) => { void Promise.resolve(actions.resource.open(conversationId, turnId)).then(result => { if (result === 'opened') setHandoffStart({ turnId, mode }); }); }} controller={actions.chat} state={state.chat} classrooms={state.classrooms}
+    }} onActivityHandoff={(conversationId, turnId, mode) => { void Promise.resolve(actions.resource.open(conversationId, turnId)).then(result => {
+      if (result === 'opened') { runtime.activityHandoff.reset(); setHandoffStart({ turnId, mode }); }
+    }); }} controller={actions.chat} state={state.chat} classrooms={state.classrooms}
       onOpenResource={(conversationId, turnId) => { void actions.resource.open(conversationId, turnId); }} />
     {!visualDraft&&activeVisual&&!visualCreating&&selectedVisual?.state==='READY'&&state.visualEditor&&<FoxyVisualReaderDialog key={selectedVisual.assetId} assetId={selectedVisual.assetId}
       state={state.visualEditor} actions={runtime.visualEditor} assetFileUrl={runtime.assetFileUrl} onClose={()=>setVisualConversation(null)}

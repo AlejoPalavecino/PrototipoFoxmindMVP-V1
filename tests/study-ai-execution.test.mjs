@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 const path = 'apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
@@ -8,20 +10,21 @@ const request = { system: 'synthetic', messages: [{ role: 'user', parts: [{ kind
 const result = { text: '{"synthetic":true}', finish: 'stop', usage: { inputTokens: 10, outputTokens: 8, reasoningTokens: 3, cachedInputTokens: null } };
 const fail = code => Object.assign(new Error(code), { code });
 
-function fixture({ stage, denied = false, busy = false, conflict = false } = {}) {
+function fixture({ stage, denied = false, busy = false, conflict = false, owned, authorize, config = configuration } = {}) {
   const events = [], settlements = [], states = [];
+  let admissionChecks = 0;
   const database = { async $transaction(operation) { return operation({ async $queryRawUnsafe(sql, ...values) {
-    if (sql.includes('AS running')) return [{ running: busy ? 2n : 0n }];
-    if (sql.includes('AS owned')) return [{ owned: false }];
+    if (sql.includes('AS running')) { admissionChecks++; return [{ running: busy ? 2n : 0n }]; }
+    if (sql.includes('AS owned')) return [{ owned: owned?.() ?? false }];
     if (sql.startsWith('INSERT INTO study_ai_dispatches')) { events.push('admit'); return conflict ? [] : [{ id: 'dispatch' }]; }
     if (sql.startsWith('UPDATE study_ai_dispatches')) states.push(values[1]);
     return [];
   } }); } };
   const { executeStudyAiText } = loadTsModule(path, { stubs: {
     '../../../../../platform/ai/admission.ts': { activeAiOwnersSql: 'synthetic', async lockAiAdmission() {} },
-    '../../../../../platform/ai/text-profiles.ts': { createDefaultTextProfile(config, task) { assert.equal(config, configuration); assert.equal(task, 'study'); return { id: 'study' }; } },
+    '../../../../../platform/ai/text-profiles.ts': { createDefaultTextProfile(effective, task) { assert.equal(effective, config); assert.equal(task, 'study'); return { id: 'study' }; } },
     '../../../../../platform/ai/text-budget.ts': {
-      async reserveAiTextBudget(_tx, _row, count, config, table) { events.push('reserve'); assert.equal(count, 10); assert.equal(config, configuration); assert.equal(table, 'study_ai_dispatches'); return !denied; },
+      async reserveAiTextBudget(_tx, _row, count, effective, table) { events.push('reserve'); assert.equal(count, 10); assert.equal(effective, config); assert.equal(table, 'study_ai_dispatches'); return !denied; },
       async settleAiTextBudget(_tx, _row, _config, usage, table) { assert.equal(table, 'study_ai_dispatches'); settlements.push(usage); },
     },
     '../../../../../platform/ai/text-execution.ts': { async executeAiText(options) {
@@ -37,8 +40,9 @@ function fixture({ stage, denied = false, busy = false, conflict = false } = {})
     } },
   } });
   const transport = { provider: 'gemini', async generate() { events.push('generate'); if (stage === 'unknown') throw fail('PROVIDER_OUTCOME_UNKNOWN'); return result; } };
-  return { events, settlements, states, run: () => executeStudyAiText({ configuration, database, ownerId: 'owner', requestId: 'request', request, transport,
-    async authorize() { events.push('authorize'); } }) };
+  return { events, settlements, states, get admissionChecks() { return admissionChecks; },
+    run: waitForAdmission => executeStudyAiText({ configuration: config, database, ownerId: 'owner', requestId: 'request',
+      request, transport, waitForAdmission, async authorize() { events.push('authorize'); await authorize?.(); } }) };
 }
 
 test('Study execution preserves admission, reservation, revalidation and normalized usage', async () => {
@@ -90,7 +94,69 @@ test('Study execution blocks quota before dispatch and preserves busy/idempotenc
   }
 });
 
-function adapterFixture(failure) {
+test('Study feedback waits for the prior job of the same owner before admitting, reserving and dispatching once', async () => {
+  let checks = 0;
+  const f = fixture({ owned: () => ++checks === 1 });
+  assert.equal(await f.run(true), result);
+  assert.equal(f.admissionChecks, 2);
+  assert.deepEqual(f.events, ['authorize', 'admit', 'authorize', 'count', 'reserve', 'authorize', 'generate', 'authorize']);
+  assert.deepEqual(f.states, ['DONE']);
+});
+
+test('Study feedback reauthorizes while busy and never admits after revocation', async () => {
+  const f = fixture({ owned: () => true, authorize() { throw fail('SOURCE_UNAVAILABLE'); } });
+  await assert.rejects(f.run(true), { code: 'SOURCE_UNAVAILABLE' });
+  assert.deepEqual(f.events, ['authorize']);
+  assert.deepEqual(f.settlements, []);
+});
+
+test('Study feedback stops waiting within its deadline and leaves no dispatch or reservation when capacity stays busy', async () => {
+  const f = fixture({ config: { ...configuration, deadlineMs: 40 }, busy: true });
+  const started = performance.now();
+  await assert.rejects(f.run(true), { code: 'AI_BUSY' });
+  assert.ok(performance.now() - started >= 30);
+  assert.equal(f.admissionChecks, 1);
+  assert.deepEqual(f.events, []);
+  assert.deepEqual(f.settlements, []);
+});
+
+test('Study feedback never claims a slot if reauthorization runs past its deadline', async () => {
+  const f = fixture({ config: { ...configuration, deadlineMs: 1300 }, busy: true,
+    authorize: () => new Promise(resolve => setTimeout(resolve, 400)) });
+  await assert.rejects(f.run(true), { code: 'AI_TIMEOUT' });
+  assert.equal(f.admissionChecks, 1);
+  assert.deepEqual(f.events, ['authorize']);
+  assert.deepEqual(f.settlements, []);
+});
+
+test('Study feedback never retries admission after budget denial or unknown provider outcome', async () => {
+  for (const [options, code] of [[{ denied: true }, 'QUOTA_EXCEEDED'], [{ stage: 'unknown' }, 'PROVIDER_OUTCOME_UNKNOWN']]) {
+    const f = fixture(options);
+    await assert.rejects(f.run(true), { code });
+    assert.equal(f.admissionChecks, 1);
+    assert.equal(f.events.filter(event => event === 'generate').length, options.denied ? 0 : 1);
+    assert.deepEqual(f.states, ['FAILED']);
+  }
+});
+
+test('Study HTTP distinguishes busy capacity, timeout and provider throttling', async () => {
+  const { createStudyHandler } = loadTsModule('apps/api/src/modules/study/folders/presentation/http.ts');
+  const handler = createStudyHandler({ command: async (_req, _id, body) => { throw fail(body.code); } }, async () => {});
+  const server = createServer((req, res) => handler(req, res, () => { res.statusCode = 404; res.end(); }));
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    for (const [code, status] of [['AI_BUSY', 503], ['AI_TIMEOUT', 504], ['AI_RATE_LIMITED', 429]]) {
+      const response = await fetch(`http://127.0.0.1:${server.address().port}/api/v1/study-folders/fixture/commands`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }),
+      });
+      assert.equal(response.status, status);
+      assert.deepEqual(await response.json(), { error: { code } });
+    }
+  } finally { await new Promise(resolve => server.close(resolve)); }
+});
+
+function adapterFixture(failure, options) {
   const captured = {};
   const { createGeminiStudyProvider } = loadTsModule('apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts', { stubs: {
     '../../../../../platform/ai/gemini-text-transport.ts': { createGeminiTextTransport(options) { captured.transport = options; return 'transport'; } },
@@ -98,7 +164,7 @@ function adapterFixture(failure) {
     './study-ai-execution.ts': { async executeStudyAiText(options) { captured.execution = options; if (failure) throw fail(failure); return result; } },
   } });
   const client = { countTokens() {}, generateContent() {} }, database = {}, authorize = async () => {};
-  return { captured, client, database, authorize, provider: createGeminiStudyProvider(configuration, database, 'owner', 'request', authorize, client) };
+  return { captured, client, database, authorize, provider: createGeminiStudyProvider(configuration, database, 'owner', 'request', authorize, client, options) };
 }
 
 test('Study adapter preserves SDK override, source markers, PDF bytes and academic schema', async () => {
@@ -132,11 +198,19 @@ test('Study adapter preserves input guards before SQL/execution', async () => {
   assert.equal(f.captured.execution, undefined);
 });
 
+test('Study adapter requests an admission wait only for callers that opt in', async () => {
+  const normal = adapterFixture();
+  const feedback = adapterFixture(undefined, { waitForAdmission: true });
+  for (const f of [normal, feedback]) await f.provider.generate({ system: '', prompt: 'synthetic' });
+  assert.equal(normal.captured.execution.waitForAdmission, undefined);
+  assert.equal(feedback.captured.execution.waitForAdmission, true);
+});
+
 test('Study adapter maps neutral errors to existing API codes and preserves permission/timeout errors', async () => {
-  for (const code of ['AI_RATE_LIMITED', 'PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT', 'AI_TIMEOUT', 'FORBIDDEN', 'QUOTA_EXCEEDED']) {
+  for (const code of ['AI_BUSY', 'AI_RATE_LIMITED', 'PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT', 'AI_TIMEOUT', 'FORBIDDEN', 'QUOTA_EXCEEDED']) {
     const f = adapterFixture(code);
     await assert.rejects(f.provider.generate({ system: '', prompt: 'synthetic' }), {
-      code: ['AI_TIMEOUT', 'FORBIDDEN', 'QUOTA_EXCEEDED'].includes(code) ? code : 'AI_UNAVAILABLE',
+      code: ['PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT'].includes(code) ? 'AI_UNAVAILABLE' : code,
     });
   }
 });

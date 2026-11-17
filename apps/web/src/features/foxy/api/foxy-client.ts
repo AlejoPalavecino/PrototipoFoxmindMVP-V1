@@ -22,7 +22,7 @@ export interface FoxySource { sourceId: string; kind: FoxySourceKind; title: str
   currentPlan: boolean | null; createdAt: string; publishedAt: string | null; documentCount: number }
 export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | 'ATTACHMENT' | null; sourceTitle: string | null; documentTitle: string | null;
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
-export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'CANCELLED'; assetId: string; errorCode: string | null; createdAt: string }
+export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'CANCELLED'; assetId: string; errorCode: string | null; createdAt: string; prompt?: string }
 export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }
 export type FoxyCreationKind = 'NOTE' | 'PLAN' | 'ACTIVITY' | 'RUBRIC' | 'DIAGRAM' | 'IMAGE';
 export type FoxyCreationStatus = 'PRIVATE' | 'PREPARING' | 'DRAFT' | 'PUBLISHED';

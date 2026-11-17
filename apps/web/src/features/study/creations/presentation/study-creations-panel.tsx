@@ -44,6 +44,10 @@ export function StudyCreationsPanel({
         {[
           ['ALL', 'Todas'],
           ['NOTE', 'Apuntes'],
+          ['OUTLINE', 'Esquemas'],
+          ['QUIZ', 'Quizzes'],
+          ['EXERCISE', 'Ejercicios'],
+          ['MOCK_EXAM', 'Simulacros'],
           ['PLAN', 'Planes'],
         ].map(([value, label]) => (
           <button key={value} aria-pressed={creationType === value} onClick={() => onKind(value)}>
@@ -82,7 +86,9 @@ export function StudyCreationsPanel({
             <span>
               <b>{item.title ?? 'Práctica personal'}</b>
               <small>
-                {item.kind === 'MOCK_EXAM' ? 'Preparar una evaluación' : 'Practicar'} · Privada
+                {item.kind === 'MOCK_EXAM' ? 'Simulacro' : item.kind === 'EXERCISE' ? 'Ejercicios' : 'Quiz'}
+                {' · Intento '}{item.attemptNumber ?? 1}{' · '}
+                {item.status === 'FINALIZED' ? 'Finalizada' : Object.keys(item.answers ?? {}).length ? 'En curso' : 'Sin empezar'}
               </small>
             </span>
             <FoxmindIcon name="chevron-right" />

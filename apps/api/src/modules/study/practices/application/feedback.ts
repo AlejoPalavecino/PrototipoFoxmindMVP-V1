@@ -3,7 +3,7 @@ import type { FolderRow, StudyQuery, StudyFeedbackInput, StudyFeedbackResult } f
 import { studyFail, studyId } from '../../../../../../../src/core/domain/study/folders.ts';
 import { refsAvailable, conversationSources } from '../../sources/public.ts';
 import { practiceView } from './projections.ts';
-export type PreparedPracticeFeedback = { mode: 'feedback'; practiceId: string; input: StudyFeedbackInput };
+export type PreparedPracticeFeedback = { mode: 'feedback'; practiceId: string; input: StudyFeedbackInput; sources: StudyFeedbackInput['sources'] };
 export async function preparePracticeFeedback(tx: StudyQuery, r: FolderRow, p: Record<string, unknown>,
     options: Pick<StudyCommandPorts, 'sources' | 'files'>): Promise<PreparedPracticeFeedback> {
     const practice = r.state.practices.find(item => item.id === studyId(p.practiceId));
@@ -18,7 +18,7 @@ export async function preparePracticeFeedback(tx: StudyQuery, r: FolderRow, p: R
         if (!source.text && options.files?.readSource)
             Object.assign(source, await options.files.readSource(tx, source));
     }
-    return { mode: 'feedback', practiceId: practice.id, input: { practice: practice.privatePractice, answers: practice.answers,
+    return { mode: 'feedback', practiceId: practice.id, sources, input: { practice: practice.privatePractice, answers: practice.answers,
         sources: sources.filter(source => source.text.trim() || source.document) } };
 }
 export function applyPracticeFeedback(r: FolderRow, plan: PreparedPracticeFeedback, result: StudyFeedbackResult) {

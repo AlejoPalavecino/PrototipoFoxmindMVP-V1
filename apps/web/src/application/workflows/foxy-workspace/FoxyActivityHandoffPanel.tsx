@@ -31,11 +31,13 @@ export function FoxyActivityHandoffPanel({ runtime, state, resource, classrooms,
   }
   const unit = room?.units.find(item => item.id === form.unitId), review = state.review?.input.payload;
   return <section aria-label="Preparar actividad desde Foxy">
-    <h3>Continuar en Actividades</h3>
-    <p>Revisá el contenido y los criterios. El recurso original se conserva y la actividad se guarda como borrador privado.</p>
+    {!initialMode && !state.receipt && <>
+      <h3>Continuar en Actividades</h3>
+      <p>Revisá el contenido y los criterios. El recurso original se conserva y la actividad se guarda como borrador privado.</p>
+      <button type="button" className="p5-action" disabled={!clean || blocked} onClick={() => open('ACTIVITY')}>Preparar en Actividades</button>{' '}
+      <button type="button" className="p5-action" disabled={!clean || blocked} onClick={() => open('RUBRIC')}>Usar rúbrica en una actividad</button>
+    </>}
     {!clean && <p>Guardá los cambios del recurso antes de continuar.</p>}
-    <button type="button" className="p5-action" disabled={!clean || blocked} onClick={() => open('ACTIVITY')}>Preparar en Actividades</button>{' '}
-    <button type="button" className="p5-action" disabled={!clean || blocked} onClick={() => open('RUBRIC')}>Usar rúbrica en una actividad</button>
     {mode && !state.receipt && <form onSubmit={event => { event.preventDefault(); if (room && runtime.activityHandoff.review(room, form)) setReviewed(false); }}>
       <p>{mode === 'RUBRIC' ? 'Transcribí o ajustá los criterios del recurso en la rúbrica. Completá el objetivo y las consignas de la actividad.' : 'Se preparará un trabajo práctico con consignas de texto. Podés revisar el borrador y asignarlo desde Actividades.'}</p>
       <fieldset disabled={blocked || editing}><legend>Destino y contenido revisado</legend>

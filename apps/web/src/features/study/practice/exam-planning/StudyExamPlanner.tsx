@@ -200,7 +200,7 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
         allTopics
 
       })}
-      {agendaNotice && <Notice>{agendaNotice}</Notice>}
+      {agendaNotice && <Notice>{agendaNotice} <a href="/agenda">Abrir Agenda</a></Notice>}
       <footer className="study-exact-dialog-footer">
         <button disabled={busy || saving} onClick={onClose}>
           Cerrar

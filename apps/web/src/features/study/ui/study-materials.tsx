@@ -9,6 +9,7 @@ import { StudyUpload } from './study-upload';
 import { StudyPlanEditor } from './study-wizard';
 import { StudyDocxPreview } from './study-docx-preview';
 import { StudyConfirmation } from './study-confirmation';
+import { StudyMaterialEditor } from './study-material-editor';
 import s from './study.module.css';
 
 type Run=StudyRun;
@@ -196,5 +197,3 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
       }}/>}
   </div>;
 }
-
-function StudyMaterialEditor({material,units,busy,onClose,onSave,onDirtyChange}:{material:{title:string;topicIds:string[]};units:StudyDetail['folder']['units'];busy:boolean;onClose:()=>void;onSave:(title:string,topicIds:string[])=>Promise<unknown>;onDirtyChange:(v:boolean)=>void}){const[title,Title]=useState(material.title);const[topicIds,Topics]=useState(material.topicIds);const[error,SetError]=useState('');const dirty=title!==material.title||JSON.stringify(topicIds)!==JSON.stringify(material.topicIds);useEffect(()=>onDirtyChange(dirty),[dirty,onDirtyChange]);return <section className={s.unit}><h3>Editar material propio</h3><label>Título del material<input disabled={busy} value={title} onChange={e=>Title(e.target.value)}/></label><fieldset disabled={busy}><legend>Temas relacionados</legend>{units.flatMap(u=>u.topics).map(t=><label className={s.check} key={t.id}><input type="checkbox" checked={topicIds.includes(t.id)} onChange={e=>Topics(e.target.checked?[...topicIds,t.id]:topicIds.filter(id=>id!==t.id))}/>{t.title}</label>)}</fieldset>{error&&<Notice error>{error}</Notice>}<div className={s.actions}><button disabled={busy} onClick={()=>{if(!dirty||window.confirm('Hay cambios del material sin guardar. ¿Querés cancelarlos?')){onDirtyChange(false);onClose();}}}>Cancelar edición</button><button className={s.primary} disabled={busy||!dirty} onClick={()=>{if(!title.trim()||[...title.trim()].length>120){SetError('Escribí un título de entre 1 y 120 caracteres.');return;}void onSave(title.trim(),topicIds);}}>Guardar material</button></div><p role="status">{dirty?'Cambios sin guardar':'Material privado'}</p></section>;}

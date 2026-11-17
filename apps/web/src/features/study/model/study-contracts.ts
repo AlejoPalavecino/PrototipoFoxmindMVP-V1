@@ -94,6 +94,7 @@ export interface StudyQuestion {
 }
 export interface StudyPractice {
   id: string;
+  attemptNumber?: number;
   kind?: string;
   title?: string;
   status: string;

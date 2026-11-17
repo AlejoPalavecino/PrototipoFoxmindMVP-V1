@@ -3,6 +3,7 @@ export type { FoxyCatalogPage } from './collections/foxy-collection-panel.tsx';
 export { FoxyPublicationManagementPanel } from './publication/foxy-publication-management-panel.tsx';
 export { FoxyVisualPublicationPanel } from './visuals/foxy-visual-publication-panel.tsx';
 export { FoxyVisualWorkspace, FoxyVisualTimeline } from './visuals/foxy-visual-workspace.tsx';
+export { formatFoxyModelMarkdown } from './conversations/foxy-markdown-format.ts';
 export { FoxyVisualReaderDialog } from './visuals/foxy-visual-reader-dialog.tsx';
 export { FoxyWorkspace } from './workspace/foxy-workspace.tsx';
 export { createFoxyActivityHandoff } from './resources/foxy-activity-handoff.ts';

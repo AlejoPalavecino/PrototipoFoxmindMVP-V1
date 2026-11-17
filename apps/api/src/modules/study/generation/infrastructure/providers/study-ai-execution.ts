@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import type { AiTextRequest, AiTextTransport, AiTextUsage } from '../../../../../platform/ai/text-contract.ts';
 import { executeAiText, type AiTextMetric } from '../../../../../platform/ai/text-execution.ts';
+import { bounded } from '../../../../../platform/ai/execution.ts';
 import { createDefaultTextProfile, textProfileForSnapshot } from '../../../../../platform/ai/text-profiles.ts';
 import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
 import { reserveAiTextBudget, settleAiTextBudget } from '../../../../../platform/ai/text-budget.ts';
@@ -18,22 +20,43 @@ export async function executeStudyAiText(input: {
   configuration: AiConfiguration; database: StudyFileDatabase; ownerId: string; requestId: string;
   authorize?: () => Promise<void>; transport?: AiTextTransport; request: AiTextRequest; record?: (event: AiTextMetric) => void;
   transportForExecution?: (configuration: AiConfiguration) => AiTextTransport;
+  waitForAdmission?: boolean;
 }) {
   const { configuration, database, ownerId, requestId, authorize, transport, request } = input;
   const id = randomUUID(), started = performance.now();
-  const snapshot = await database.$transaction(async raw => {
+  const admit = (remaining = 8000) => database.$transaction(async raw => {
     const tx = { query: <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values) };
     await lockAiAdmission(tx);
     const [{ running }] = await tx.query<{ running: bigint }>(`SELECT count(*)::bigint AS running FROM (${activeAiOwnersSql}) q`);
     const [{ owned }] = await tx.query<{ owned: boolean }>(`SELECT EXISTS(SELECT 1 FROM (${activeAiOwnersSql}) q WHERE owner_id=$1::uuid) AS owned`, ownerId);
-    if (Number(running) >= configuration.maxConcurrency || owned) fail('AI_BUSY');
+    if (Number(running) >= configuration.maxConcurrency || owned) return null;
     const rows = await tx.query<{ execution_profile?: unknown }>(`INSERT INTO study_ai_dispatches(id,owner_id,request_id,lease_until,execution_profile)
       VALUES($1::uuid,$2::uuid,$3::uuid,clock_timestamp()+((COALESCE((SELECT (active_profiles->'study'->>'deadlineMs')::int FROM ai_execution_policy WHERE singleton),$4::int)+30000) * interval '1 millisecond'),
         (SELECT active_profiles->'study' FROM ai_execution_policy WHERE singleton))
       ON CONFLICT(owner_id,request_id) DO NOTHING RETURNING id,execution_profile`, id, ownerId, requestId, configuration.deadlineMs);
     if (!rows.length) fail('CONFLICT');
-    return rows[0].execution_profile;
-  }, { maxWait: 2000, timeout: 6000 });
+    return rows[0];
+  }, {
+    maxWait: Math.max(1, Math.min(2000, Math.floor(remaining / 4))),
+    timeout: Math.max(1, Math.min(6000, Math.floor(remaining * 3 / 4))),
+  });
+  const admissionDeadline = started + (configuration.executionProfiles?.study?.deadlineMs ?? configuration.deadlineMs);
+  const timeLeft = () => Math.floor(admissionDeadline - performance.now());
+  let admitted = await admit(input.waitForAdmission ? timeLeft() : undefined);
+  while (admitted === null) {
+    const beforeWait = timeLeft();
+    if (!input.waitForAdmission || beforeWait <= 0) fail('AI_BUSY');
+    await delay(Math.min(1000, beforeWait));
+    const beforeAuthorization = timeLeft();
+    if (beforeAuthorization <= 0) fail('AI_BUSY');
+    // The preceding transaction has ended. A revoked receipt or source must
+    // fail before claiming a slot, reserving budget or reaching the provider.
+    if (authorize) await bounded(authorize, AbortSignal.timeout(beforeAuthorization));
+    const remaining = timeLeft();
+    if (remaining <= 0) fail('AI_BUSY');
+    admitted = await admit(remaining);
+  }
+  const snapshot = admitted.execution_profile;
   let dispatched = false, completed = false, usage: AiTextUsage | undefined;
   let effective = configuration;
   try {

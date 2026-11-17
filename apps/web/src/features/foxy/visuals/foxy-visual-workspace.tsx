@@ -4,6 +4,7 @@ import type { FoxyVisualJob } from '../api/foxy-client';
 import styles from '../workspace/foxy-workspace.module.css';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { FoxyWait } from '../conversations/foxy-wait';
+import { ChatByline, type ChatIdentity } from '../../../../../shared-ui/FoxyChatLayout';
 type Props = { capabilities: Record<FoxyVisualKind, boolean>;
   topics?: {id:string;name:string}[]; initialTopicIds?:string[]; contextName?:string; materialCount?:number;
   kind: FoxyVisualKind; prompt: string; aspectRatio: FoxyAspectRatio; jobs: FoxyVisualJob[]; selectedId: string | null; busy: boolean; error: string | null; pending?: unknown;
@@ -44,10 +45,16 @@ export function FoxyVisualWorkspace(props: Props) {
   </section>;
 }
 
-export function FoxyVisualTimeline({jobs,pending,error,busy,onStop,onRetry,onOpen}:{jobs:FoxyVisualJob[];pending?:unknown;error?:string|null;busy?:boolean;onStop:(id:string)=>void;onRetry:()=>void;onOpen:(id:string)=>void}){
+export type FoxyVisualTranscript = { jobs: FoxyVisualJob[]; pending?: { prompt: string } | null; error?: string | null; busy?: boolean;
+  onStop: (id: string) => void; onRetry: () => void; onRefresh?: () => void; onOpen: (id: string) => void };
+export function FoxyVisualTimeline({ jobs, pending, error, busy, onStop, onRetry, onRefresh, onOpen, identity }: FoxyVisualTranscript & { identity?: ChatIdentity }) {
+  const request = (prompt: string) => <div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{prompt}</p></div>;
   return <div className="parity-foxy-visualTimeline">
-    {!!pending&&<FoxyWait generating queued title="Preparando tu solicitud visual"/>}
-    {jobs.map(job=><article key={job.id}>{job.state==='QUEUED'||job.state==='RUNNING'?<FoxyWait generating queued={job.state==='QUEUED'} title={job.state==='QUEUED'?'Tu solicitud está en cola':job.kind==='IMAGE'?'Diseñando una imagen para explicarla':'Diseñando tu esquema'} onStop={()=>onStop(job.id)} disabled={busy}/>:job.state==='READY'?<div className="parity-foxy-visualReady"><img src="/brujula/foxy-logotipo-redondo.webp" width={36} height={36} alt=""/><div><b>Foxy</b><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p><button type="button" onClick={()=>onOpen(job.id)}><FoxmindIcon name="file"/>Abrir creación</button></div></div>:<p role="status">{job.state==='CANCELLED'?'Detuviste la propuesta. Podés preparar otra cuando quieras.':'No pudimos completar esta propuesta. Podés volver a prepararla desde Herramientas.'}</p>}</article>)}
-    {error&&<p role="alert">{error}{!!pending&&<button type="button" disabled={busy} onClick={onRetry}>Reintentar</button>}</p>}
+    {pending&&<article className={`${styles.turn} parity-ai-turn`}>{request(pending.prompt)}{!error&&<FoxyWait generating queued title="Preparando tu solicitud visual"/>}</article>}
+    {jobs.map(job=><article key={job.id} className={`${styles.turn} parity-ai-turn`}>{job.prompt&&request(job.prompt)}
+      {job.state==='QUEUED'||job.state==='RUNNING'?<FoxyWait generating queued={job.state==='QUEUED'} title={job.state==='QUEUED'?'Tu solicitud está en cola':job.kind==='IMAGE'?'Diseñando una imagen para explicarla':'Diseñando tu esquema'} onStop={()=>onStop(job.id)} disabled={busy}/>
+      :job.state==='READY'?<div className="parity-foxy-visualReady"><img src="/brujula/foxy-logotipo-redondo.webp" width={36} height={36} alt=""/><div><b>Foxy</b><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p><button type="button" onClick={()=>onOpen(job.id)}><FoxmindIcon name="file"/>Abrir creación</button></div></div>
+      :<p role="status">{job.state==='CANCELLED'?'Detuviste la propuesta. Podés preparar otra cuando quieras.':job.errorCode==='AI_BUDGET_EXCEEDED'?'Se agotó el cupo de IA. Volvé a intentar cuando se renueve.':'No pudimos completar esta propuesta. Podés volver a prepararla desde Herramientas.'}</p>}</article>)}
+    {error&&<div role="alert"><p>{error}</p>{pending?<button type="button" disabled={busy} onClick={onRetry}>Reintentar solicitud</button>:onRefresh&&<button type="button" disabled={busy} onClick={onRefresh}>Volver a consultar</button>}</div>}
   </div>;
 }

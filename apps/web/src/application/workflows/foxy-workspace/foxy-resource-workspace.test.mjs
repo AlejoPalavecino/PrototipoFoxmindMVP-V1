@@ -117,3 +117,23 @@ test('handoff opens sharing directly for a saved resource while a conflict prior
  const conflict=fixture({initialHandoffMode:'RUBRIC',resource:{...resource,errorCode:'CONFLICT'}});
  try{await conflict.view.flush();const editor=descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-editor')[0];assert.equal(editor.props.hidden,false);assert.ok(descendants(editor,n=>n.type==='textarea'&&n.props.value===resource.draft.markdown).length);assert.equal(descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,true);assert.deepEqual(conflict.calls,[]);}finally{conflict.view.close();}
 });
+
+test('history identifies a previously shared version before selecting a destination again', async () => {
+ const oldVersion={...publication,state:'PUBLISHED',resourceRevision:'0'};
+ const f=fixture({resource:{...resource,dirty:false},history:{items:[oldVersion],nextAfterId:null,loading:false}});
+ try{
+   await f.view.flush();
+   const html=renderToStaticMarkup(f.view.tree);
+   assert.match(html,/Compartida desde una versión guardada|Editar esta creación no modifica/);
+   assert.doesNotMatch(html,/Privada hasta que decidas compartirla/);
+   assert.match(html,/Descargar Word/);
+ }finally{f.view.close();}
+});
+
+test('legacy model markdown line breaks are restored without changing already formatted content', () => {
+ const {formatFoxyModelMarkdown}=componentWithPorts('apps/web/src/features/foxy/conversations/foxy-markdown-format.ts',{});
+ const legacy='# Luz\\n\\n- Apertura\\n- Exposición';
+ assert.equal(formatFoxyModelMarkdown(legacy),'# Luz\n\n- Apertura\n- Exposición');
+ const edited='Foto\n\nTexto literal de código: \\n';
+ assert.equal(formatFoxyModelMarkdown(edited),edited);
+});

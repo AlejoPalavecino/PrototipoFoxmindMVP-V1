@@ -72,6 +72,7 @@ export function createFoxyWorkspaceActions(options: Options) {
       create: (...args: Parameters<Runtime['chat']['create']>) => { const copied = structuredClone(args); return guarded(() => runtime.chat.create(...copied)); },
       send: (...args: Parameters<Runtime['chat']['send']>) => { if (active()) return runtime.chat.send(...args); },
       retry: () => { if (active()) return runtime.chat.retry(); },
+      refreshActiveTurn: () => { if (active()) return runtime.chat.refreshActiveTurn(); },
       cancel: () => { if (active()) return runtime.chat.cancel(); },
       setFullClassroom: (value: boolean) => { if (active()) return runtime.chat.setFullClassroom(value); },
       loadMore: () => { if (active()) return runtime.chat.loadMore(); },
@@ -79,6 +80,7 @@ export function createFoxyWorkspaceActions(options: Options) {
       loadSources: (...args: Parameters<Runtime['chat']['loadSources']>) => { if (active()) return runtime.chat.loadSources(...args); },
       selectSource: (id: string) => { if (active()) return runtime.chat.selectSource(id); },
       selectTopic: (id: string) => { if (active()) return runtime.chat.selectTopic(id); },
+      resolveToolSelection: (...args: Parameters<Runtime['chat']['resolveToolSelection']>) => { if (active()) return runtime.chat.resolveToolSelection(...args); },
       loadCitations: (id: string) => { if (active()) return runtime.chat.loadCitations(id); },
     },
     resource: {

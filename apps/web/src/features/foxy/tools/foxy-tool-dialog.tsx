@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 
-export function FoxyToolDialog({ title, contextName, materialCount, topics, busy, error, onPrepare, onClose }: {
-  title:string; contextName:string; materialCount:number; topics:{id:string;name:string}[]; busy?:boolean; error?:string|null;
+export function FoxyToolDialog({ title, contextName, materialCount, topics, initialTopicIds, busy, error, onPrepare, onClose }: {
+  title:string; contextName:string; materialCount:number; topics:{id:string;name:string}[]; initialTopicIds?: string[]; busy?:boolean; error?:string|null;
   onPrepare:(brief:string,topicIds:string[])=>Promise<boolean>; onClose:()=>void;
 }) {
-  const [brief,setBrief]=useState(''),[selected,setSelected]=useState(topics.map(topic=>topic.id)),[localError,setLocalError]=useState(''),[submitting,setSubmitting]=useState(false);
+  const [brief,setBrief]=useState(''),[selected,setSelected]=useState(initialTopicIds ?? topics.map(topic=>topic.id)),[localError,setLocalError]=useState(''),[submitting,setSubmitting]=useState(false);
   async function prepare(){
     if(!brief.trim()){setLocalError('Contá qué querés preparar para que Foxy tenga un punto de partida.');return;}
     if(submitting||busy)return;

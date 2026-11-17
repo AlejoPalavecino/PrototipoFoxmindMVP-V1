@@ -5,10 +5,10 @@ import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { ChatAttachmentButton } from '../../../../../shared-ui/ChatAttachmentControls';
 type Unit = { id: string; name: string; topics: { id: string; name: string }[] };
-export function FoxyLibraryPanel({ attachments, attachmentHref, sources, classroomName, units, disabled, error, onContext, onTopic, onRemove, onUpload, onOpenSource, onMoreSources }: {
+export function FoxyLibraryPanel({ attachments, attachmentHref, sources, selectedSourceIds, classroomName, units, disabled, error, onContext, onScope, onTopic, onRemove, onUpload, onOpenSource, onMoreSources }: {
   attachments: ChatAttachment[]; sources: FoxySource[]; classroomName?: string | null; units: Unit[]; disabled?: boolean; error?: string;
   onContext: () => void; onTopic: (name:string) => void; onRemove: (id:string) => void; onUpload: (id:string,file:File,copy:boolean) => Promise<void>;
-  onOpenSource?: (source:FoxySource)=>void; onMoreSources?:()=>void;
+  selectedSourceIds?: string[]; onScope?: () => void; onOpenSource?: (source:FoxySource)=>void; onMoreSources?:()=>void;
   attachmentHref?: (id:string)=>string;
 }) {
   const [tab,setTab]=useState('materials'),[filter,setFilter]=useState('all'),[query,setQuery]=useState('');
@@ -17,6 +17,7 @@ export function FoxyLibraryPanel({ attachments, attachmentHref, sources, classro
   const shared=sources.filter(item=>(filter==='all'||filter==='classroom')&&item.title.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es')));
   return <div className="parity-foxy-library">
     <div className="parity-foxy-libraryScope"><span className="parity-foxy-toolIcon mint"><FoxmindIcon name={classroomName?'layers':'lock'}/></span><div><strong>{classroomName??'Tu biblioteca privada'}</strong><small>{classroomName?'Materiales del aula + tus archivos':'Archivos de este chat'}</small></div><button type="button" onClick={onContext}>{classroomName?'Cambiar':'Vincular aula'}</button></div>
+    {onScope && <button type="button" onClick={onScope}>Ajustar temas y fuentes</button>}
     <nav className="parity-foxy-dialogTabs" aria-label="Contenido de la biblioteca">{[['materials','Materiales'],['plan','Plan de estudio']].map(([value,label])=><button key={value} type="button" aria-pressed={tab===value} onClick={()=>setTab(value)}>{label}{value==='materials'&&<span>{attachments.length+sources.filter(item=>item.available).length}</span>}</button>)}</nav>
     {tab==='plan'?<div className="parity-foxy-folderPlan">{units.map((unit,i)=><section key={unit.id}><h3><span>{i+1}</span>{unit.name}</h3>{unit.topics.map(topic=><button key={topic.id} type="button" onClick={()=>onTopic(topic.name)}><FoxmindIcon name="book"/><span>{topic.name}</span><b>Estudiar</b><FoxmindIcon name="chevron-right"/></button>)}</section>)}{!units.length&&<p>Vinculá un aula para consultar su recorrido. También podés trabajar sólo con tus archivos.</p>}</div>:<>
       <div className="parity-foxy-libraryActions"><ChatAttachmentButton label="Agregar material" disabled={disabled} onUpload={onUpload}/><span><FoxmindIcon name="lock"/>Sólo en este chat</span></div>
@@ -25,7 +26,7 @@ export function FoxyLibraryPanel({ attachments, attachmentHref, sources, classro
       {error&&<p role="alert">{error}</p>}
       <div className="parity-foxy-libraryList">
         {own.map(item=><article className="parity-foxy-libraryFile" data-origin="private" key={item.id}><a className="parity-foxy-libraryFileMain" href={attachmentHref?.(item.id)} target="_blank" rel="noopener noreferrer" aria-label={`Abrir ${item.name}`}><DocumentIcon kind={item.name.split('.').at(-1)}/><span><strong>{item.name}</strong><small>Propio · Este chat</small><span className="parity-foxy-sourceStatus"><FoxmindIcon name="check"/>En contexto</span></span></a><button type="button" disabled={disabled} aria-label={`Quitar ${item.name}`} onClick={()=>setRemoving(item)}><FoxmindIcon name="trash"/></button></article>)}
-        {shared.map(item=><article className="parity-foxy-libraryFile" data-origin="classroom" key={item.sourceId}><button type="button" className="parity-foxy-libraryFileMain" disabled={!item.available||!onOpenSource} onClick={()=>onOpenSource?.(item)}><DocumentIcon kind={item.extension??'Archivo'}/><span><strong>{item.title}</strong><small>Del aula · {classroomName}</small><span className={`parity-foxy-sourceStatus ${item.available?'':'error'}`}><FoxmindIcon name={item.available?'check':'help'}/>{item.available?'En contexto':'No disponible'}</span></span></button></article>)}
+        {shared.map(item=><article className="parity-foxy-libraryFile" data-origin="classroom" key={item.sourceId}><button type="button" className="parity-foxy-libraryFileMain" disabled={!item.available||!onOpenSource} onClick={()=>onOpenSource?.(item)}><DocumentIcon kind={item.extension??'Archivo'}/><span><strong>{item.title}</strong><small>Del aula · {classroomName}</small><span className={`parity-foxy-sourceStatus ${item.available?'':'error'}`}><FoxmindIcon name={item.available?'check':'help'}/>{!item.available?'No disponible':selectedSourceIds && !selectedSourceIds.includes(item.sourceId)?'Disponible':'En contexto'}</span></span></button></article>)}
         {!own.length&&!shared.length&&<div className="parity-foxy-libraryEmpty"><FoxmindIcon name="book"/><h3>{attachments.length+sources.length?'No encontramos ese material':'Tus ideas también tienen fuentes'}</h3><p>{attachments.length+sources.length?'Probá otro nombre o cambiá el filtro.':'Agregá un PDF, Word o PowerPoint. Foxy lo tendrá como referencia en tus próximas consultas.'}</p></div>}
       </div>
       {onMoreSources&&<button type="button" onClick={onMoreSources}>Cargar más materiales</button>}

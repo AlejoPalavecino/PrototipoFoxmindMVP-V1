@@ -110,3 +110,16 @@ test('A2 context-only generation presents teacher content as a citable source, n
   assert.equal(records[0].context, undefined, 'Teacher evidence is separated from requested counts and objective');
   assert.deepEqual(calls[0][1].contents.at(-1), calls[1][1].contents.at(-1), 'Preflight includes the exact citable content');
 });
+
+test('A2 a private teacher idea supports teacher-context citations without additional context', async () => {
+  const { adapter } = await fixture();
+  const request = { ...input(), context: ' ', teacherBrief: 'Luz acumulada durante un intervalo. Pedí comparar dos exposiciones.' };
+  const result = await adapter.generateActivity(request);
+  assert.deepEqual(result.json, json);
+  assert.equal(JSON.stringify(result).includes(request.teacherBrief), false);
+});
+
+test('A2 teacher-context citations require context or a private teacher idea', async () => {
+  const { adapter } = await fixture();
+  await assert.rejects(adapter.generateActivity({ ...input(), context: '', teacherBrief: ' ' }), { code: 'INVALID_AI_OUTPUT' });
+});

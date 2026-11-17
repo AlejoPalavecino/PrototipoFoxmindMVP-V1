@@ -110,7 +110,7 @@ export function StudyWorkspace({
   useEffect(() => setArchived(f.status === 'ARCHIVED'), [f.status]);
 
   const panelLauncher = useRef<HTMLButtonElement | null>(null);
-  function openPanelFrom(next: 'context' | 'library', launcher: HTMLButtonElement) {
+  function openPanelFrom(next: 'context' | 'library' | 'options', launcher: HTMLButtonElement) {
     panelLauncher.current = launcher;
     Panel(next);
   }
@@ -329,6 +329,17 @@ export function StudyWorkspace({
               </span>
               <FoxmindIcon name="chevron-right" />
             </button>
+            <button
+              type="button"
+              className="study-exact-folder-options-launch"
+              aria-haspopup="dialog"
+              aria-label="Opciones de la carpeta"
+              title="Opciones de la carpeta"
+              disabled={busy}
+              onClick={(event) => openPanelFrom('options', event.currentTarget)}
+            >
+              <FoxmindIcon name="more" />
+            </button>
           </>
         }
       >
@@ -454,6 +465,7 @@ export function StudyWorkspace({
       )}
       {panel === 'tool' && (
         <StudyToolDialog
+          kind={kind}
           title={toolTitle}
           folderName={f.name}
           sourceCount={
@@ -461,11 +473,15 @@ export function StudyWorkspace({
           }
           brief={toolBrief}
           selected={selected}
+          count={count}
+          difficulty={difficulty}
           topics={topics}
-          error={toolError}
+          error={toolError || generationIssue || ''}
           disabled={busy || !active || generation.blocked || !!generationIssue}
           onBrief={setToolBrief}
           onSelected={Selected}
+          onCount={Count}
+          onDifficulty={Difficulty}
           onClose={closePanel}
           onSubmit={() => {
             if (!toolBrief.trim()) {

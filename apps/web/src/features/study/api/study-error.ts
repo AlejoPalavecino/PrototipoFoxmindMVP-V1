@@ -10,6 +10,9 @@ const messages: Record<string, string> = {
   EMAIL_VERIFICATION_REQUIRED: 'Verificá tu correo para estudiar.',
   QUOTA_EXCEEDED: 'Alcanzaste el espacio disponible. Tus materiales siguen guardados.',
   AI_UNAVAILABLE: 'Foxy no está disponible por ahora. Conservamos tus entradas; volvé a intentar.',
+  AI_BUSY: 'Foxy está ocupado con otra solicitud. Esperá un momento y volvé a intentar.',
+  AI_TIMEOUT: 'Foxy alcanzó el tiempo máximo para responder. Podés volver a intentar.',
+  AI_RATE_LIMITED: 'El proveedor de IA alcanzó una cuota de solicitudes. Esperá antes de volver a intentar.',
   AI_FAILED: 'Foxy no pudo terminar. Conservamos tus entradas; volvé a intentar.',
   PENDING:
     'La solicitud sigue en proceso. Esperá y actualizá la carpeta antes de volver a intentar.',

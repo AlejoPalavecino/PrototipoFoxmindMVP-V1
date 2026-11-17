@@ -41,3 +41,19 @@ test('Foxy handoff requires explicit reviewed checkbox and receipt navigates usi
     assert.doesNotMatch(calls.at(-1), /Consigna|privado|Texto/);
   } finally { receipt.close(); }
 });
+
+test('opening the rubric directly shows its form once and omits the redundant mode choices', async () => {
+  const { FoxyActivityHandoffPanel } = componentWithPorts('apps/web/src/application/workflows/foxy-workspace/FoxyActivityHandoffPanel.tsx', {});
+  const runtime = { activityHandoff: {} };
+  const resource = { resource: { id: resourceId, title: 'Rúbrica', markdown: 'Criterios originales' } };
+  const view = hookView(FoxyActivityHandoffPanel, {
+    runtime, state: {}, resource, classrooms: [], onNavigate() {}, initialMode: 'RUBRIC', locked: false,
+  });
+  try {
+    await view.flush();
+    const html = renderToStaticMarkup(view.tree);
+    assert.doesNotMatch(html, /Continuar en Actividades|Preparar en Actividades|Usar rúbrica en una actividad/);
+    assert.match(html, /Transcribí o ajustá los criterios/);
+    assert.match(html, /Aula de la actividad|Revisar borrador/);
+  } finally { view.close(); }
+});

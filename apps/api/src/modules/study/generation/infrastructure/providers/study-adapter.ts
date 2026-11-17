@@ -14,7 +14,8 @@ const record = createAiTextMetricSink(line => process.stderr.write(line));
 /** Compatibility entry point; SQL admission and accounting belong to execution. */
 export function createGeminiStudyProvider(configuration: AiConfiguration, database: StudyFileDatabase,
   ownerId: string, requestId: string, authorize?: () => Promise<void>,
-  clientOverride?: Pick<GoogleGenAI['models'], 'countTokens' | 'generateContent'>): StudyProvider {
+  clientOverride?: Pick<GoogleGenAI['models'], 'countTokens' | 'generateContent'>,
+  options?: { waitForAdmission?: boolean }): StudyProvider {
   const transport = clientOverride ? createGeminiTextTransport({ apiKey: configuration.apiKey, deadlineMs: configuration.deadlineMs,
     client: { models: clientOverride } }) : undefined;
   return { async generate(input) {
@@ -27,12 +28,13 @@ export function createGeminiStudyProvider(configuration: AiConfiguration, databa
     }
     try {
       const result = await executeStudyAiText({ configuration, database, ownerId, requestId, authorize, transport, record,
+        waitForAdmission: options?.waitForAdmission,
         ...(clientOverride ? {} : { transportForExecution: (pinned: AiConfiguration) => createExecutionTransport(pinned, 'study') }),
         request: { system, messages: [{ role: 'user', parts }], schema: studySchemaFor(input.context) } });
       return JSON.parse(result.text) as unknown;
     } catch (error) {
       const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
-      if (['AI_BUSY', 'AI_TIMEOUT', 'AI_INPUT_LIMIT', 'QUOTA_EXCEEDED', 'SOURCE_UNAVAILABLE', 'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'CONFLICT'].includes(code)) throw error;
+      if (['AI_BUSY', 'AI_TIMEOUT', 'AI_RATE_LIMITED', 'AI_INPUT_LIMIT', 'QUOTA_EXCEEDED', 'SOURCE_UNAVAILABLE', 'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'CONFLICT'].includes(code)) throw error;
       fail('AI_UNAVAILABLE');
     }
   } };

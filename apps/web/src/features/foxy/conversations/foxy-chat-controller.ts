@@ -4,20 +4,22 @@ import type { WebFoxyClient, FoxyCapabilities, FoxyConversation, FoxyConversatio
 
 type SourcePage = { items: FoxySource[]; next: FoxySourceCursor | null };
 type State = { curriculum: FoxyCurriculum | null; selection: SendFoxyMessage['selection']; sources: Record<FoxySourceKind, SourcePage>; citations: Record<string, FoxyCitation[]>; capabilities: FoxyCapabilities | null; conversations: FoxyConversation[]; nextConversationCursor: FoxyConversationCursor | null; current: FoxyConversation | null;
-  turns: FoxyTurn[]; activeTurn: { id: string; sequence: number; state: FoxyTurn['state'] } | null; nextAfterSequence: number | null; pending: SendFoxyMessage | null; error: string | null; busy: boolean };
+  turns: FoxyTurn[]; activeTurn: { id: string; sequence: number; state: FoxyTurn['state'] } | null; nextAfterSequence: number | null; pending: SendFoxyMessage | null; error: string | null; pollError: string | null; busy: boolean };
 type Options = { client: WebFoxyClient; onChange: (state: State) => void; uuid?: () => string;
   setTimeout?: typeof globalThis.setTimeout; clearTimeout?: typeof globalThis.clearTimeout };
 export function createFoxyChatController(options: Options) {
-  const emptyContext = () => ({ curriculum: null, selection: { topicIds: [], sourceIds: [] },
+  const emptyContext = () => ({ curriculum: null, selection: { topicIds: [], sourceIds: [] }, pollError: null,
     sources: { PLAN: { items: [], next: null }, MATERIAL: { items: [], next: null }, ACTIVITY: { items: [], next: null } }, citations: {} });
   let state: State = { ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const loadingSources = new Set<FoxySourceKind>();
   let pendingContext: CreateFoxyConversation | null = null;
   let epoch = 0, disposed = false, cancelling = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
   const schedule = options.setTimeout ?? globalThis.setTimeout, clear = options.clearTimeout ?? globalThis.clearTimeout;
+  let pollAttempts = 0;
   const update = (patch: Partial<State>) => { if (!disposed) { state = { ...state, ...patch }; options.onChange(state); } };
   const valid = (version: number) => !disposed && version === epoch && !abort.signal.aborted;
-  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); if (timer !== undefined) clear(timer); timer = undefined; polling = false; cancelling = false; return epoch; }
+  function stopTimer() { if (timer !== undefined) clear(timer); timer = undefined; }
+  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); stopTimer(); polling = false; pollAttempts = 0; cancelling = false; return epoch; }
   function mergeTurns(older: FoxyTurn[], newer: FoxyTurn[]): FoxyTurn[] {
     const merged: FoxyTurn[] = [];
     for (const turn of [...newer, ...older]) {
@@ -26,7 +28,7 @@ export function createFoxyChatController(options: Options) {
     return merged.sort((a, b) => a.sequence - b.sequence);
   }
   function add(turn: FoxyTurn) { update({ turns: mergeTurns(state.turns, [turn]) }); }
-  function poll(conversationId: string, turnId: string, version: number): void {
+  function poll(conversationId: string, turnId: string, version: number, delay = 2000): void {
     if (!valid(version)) return;
     if (timer !== undefined || polling) return;
     timer = schedule(async () => {
@@ -37,11 +39,22 @@ export function createFoxyChatController(options: Options) {
         if (cancelling || state.turns.some(item => item.id === turn.id && item.state === 'CANCELLED')) { polling = false; return; }
         add(turn);
         const active = state.turns.find(item => item.state === 'QUEUED' || item.state === 'RUNNING');
-        update({ activeTurn: active ? { id: active.id, sequence: active.sequence, state: active.state } : null });
+        pollAttempts = 0;
+        update({ activeTurn: active ? { id: active.id, sequence: active.sequence, state: active.state } : null, pollError: null });
         polling = false;
         if (active) poll(conversationId, active.id, version);
-      } catch { if (valid(version)) { polling = false; update({ error: 'No pudimos actualizar la respuesta.' }); } }
-    }, 2000);
+      } catch (error) {
+        if (!valid(version)) return;
+        polling = false;
+        if (cancelling || state.activeTurn?.id !== turnId) return;
+        const failure = error as { status?: number; code?: string };
+        const rateLimited = failure?.status === 429 || failure?.code === 'RATE_LIMITED';
+        const transient = rateLimited || failure?.status === undefined || failure.status >= 500;
+        const attempt = ++pollAttempts;
+        update({ pollError: rateLimited ? 'Hay muchas consultas en este momento. Volvé a consultar el estado en unos segundos.' : 'No pudimos actualizar la respuesta. Podés volver a consultar el estado.' });
+        if (transient && attempt <= 3) poll(conversationId, turnId, version, (rateLimited ? 15000 : 4000) * 2 ** (attempt - 1));
+      }
+    }, delay);
   }
   async function select(id: string) {
     if (disposed) return;
@@ -65,7 +78,7 @@ export function createFoxyChatController(options: Options) {
   }
   async function dispatch(intent: SendFoxyMessage) {
     const current = state.current; if (disposed || !current || state.busy) return;
-    const version = epoch; update({ busy: true, error: null, pending: intent });
+    const version = epoch; pollAttempts = 0; update({ busy: true, error: null, pollError: null, pending: intent });
     try {
       const receipt = await options.client.sendMessage(current.id, intent, abort.signal);
       if (!valid(version)) return 'uncertain' as const;
@@ -85,11 +98,19 @@ export function createFoxyChatController(options: Options) {
       if ((error as { code?: string }).code === 'INVALID_INPUT') {
         update({ busy: false, pending: null, error: 'Revisá el mensaje antes de enviarlo.' }); return 'invalid' as const;
       }
+      if ((error as { code?: string }).code === 'AI_BUDGET_EXCEEDED') {
+        update({ busy: false, pending: null, error: 'Se agotó el cupo de IA. Podés volver a intentar cuando se renueve.' }); return 'invalid' as const;
+      }
       update({ busy: false, error: 'No pudimos confirmar el envío. Podés reintentar.' }); return 'uncertain' as const;
     }
   }
   return {
     getState: () => state,
+    refreshActiveTurn() {
+      if (disposed || !state.current || !state.activeTurn || polling || cancelling) return;
+      stopTimer(); pollAttempts = 0;
+      poll(state.current.id, state.activeTurn.id, epoch, 0);
+    },
     async cancel() {
       const current = state.current, active = state.activeTurn, version = epoch;
       if (!current || !active || cancelling || state.busy) return;
@@ -97,7 +118,8 @@ export function createFoxyChatController(options: Options) {
       try {
         const turn = await options.client.cancelTurn(current.id, active.id, abort.signal);
         if (!valid(version)) return;
-        add(turn); update({ activeTurn: null, busy: false });
+        stopTimer(); pollAttempts = 0;
+        add(turn); update({ activeTurn: null, busy: false, pollError: null });
       } catch {
         if (valid(version)) {
           update({ busy: false, error: 'No pudimos detener la solicitud. Volvé a intentar.' });
@@ -230,7 +252,8 @@ export function createFoxyChatController(options: Options) {
         const page = await options.client.sources(id, { kind, limit: 50, after: before.next }, abort.signal);
         if (valid(version)) {
           const known = new Set(before.items.map(item => item.sourceId));
-          update({ sources: { ...state.sources, [kind]: { items: [...before.items, ...page.items.filter(item => !known.has(item.sourceId))], next: page.next } } });
+          update({ sources: { ...state.sources, [kind]: { items: [...before.items, ...page.items.filter(item => !known.has(item.sourceId))], next: page.next } },
+            ...(state.error === 'No pudimos cargar las fuentes del aula.' ? { error: null } : {}) });
         }
       } catch { if (valid(version)) update({ error: 'No pudimos cargar las fuentes del aula.' }); }
       finally { if (valid(version)) loadingSources.delete(kind); }

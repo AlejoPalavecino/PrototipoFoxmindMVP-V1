@@ -192,3 +192,23 @@ test('definitive INVALID_INPUT clears uncertain retry and permits corrected inpu
   await c.send('CHAT','Texto corregido',{topicIds:[],sourceIds:[]});
   const sends=f.calls.filter(x=>x.name==='send');assert.equal(sends.length,2);assert.equal(sends[1].args[1].text,'Texto corregido');c.dispose();
 });
+
+test('a transient rate limit retries the same turn without a second send and clears the warning on success', async () => {
+  const f = fixture(), c = create(f);
+  let reads = 0;
+  f.client.getTurn = async () => {
+    if (++reads === 1) throw Object.assign(new Error('rate'), { code: 'RATE_LIMITED', status: 429 });
+    return { id: f.id, sequence: 1, state: 'READY', purpose: 'CHAT', message: 'Hola' };
+  };
+  await c.init(); await c.select(f.a.id); await c.send('CHAT', 'Hola', { topicIds: [], sourceIds: [] });
+  await f.timers.at(-1).fn();
+  assert.ok(c.getState().pollError);
+  assert.equal(c.getState().activeTurn.id, f.id);
+  assert.ok(f.timers.at(-1).ms > 2000);
+  assert.ok(!f.timers.at(-1).cleared);
+  await f.timers.at(-1).fn();
+  assert.equal(c.getState().activeTurn, null);
+  assert.equal(c.getState().pollError, null);
+  assert.equal(f.calls.filter(event => event.name === 'send').length, 1);
+  c.dispose();
+});

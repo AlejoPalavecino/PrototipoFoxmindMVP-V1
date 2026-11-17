@@ -9,14 +9,14 @@ import { validateVisualProfile, type VisualProfile } from '../../domain/visual-p
 export { validateVisualProfile, type VisualProfile } from '../../domain/visual-profile.ts';
 
 type Row = { id: string; owner_id: string; conversation_id: string; asset_id: string; input_hash: string; kind: StartFoxyVisual['kind'];
-  aspect_ratio: StartFoxyVisual['aspectRatio']; state: string; error_code: string | null; created_at: Date; conversation_revision: bigint };
+  prompt: string; aspect_ratio: StartFoxyVisual['aspectRatio']; state: string; error_code: string | null; created_at: Date; conversation_revision: bigint };
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 export function visualHash(conversationId: string, input: StartFoxyVisual): string {
   return createHash('sha256').update(JSON.stringify(['foxy-visual-v1',assetUuid(conversationId),input.revision,input.kind,input.prompt,
     input.selection.topicIds.map(x=>x.toLowerCase()),input.selection.sourceIds.map(x=>x.toLowerCase()),input.aspectRatio,...(input.selection.mode ? [input.selection.mode] : [])])).digest('hex');
 }
 function view(row: Row) { return { id: row.id, conversationId: row.conversation_id, kind: row.kind, aspectRatio: row.aspect_ratio,
-  state: row.state, assetId: row.asset_id, errorCode: row.error_code, createdAt: row.created_at.toISOString() }; }
+  prompt: row.prompt, state: row.state, assetId: row.asset_id, errorCode: row.error_code, createdAt: row.created_at.toISOString() }; }
 function result(row: Row, created: boolean) { return { created, job: view(row), conversationRevision: String(row.conversation_revision) }; }
 export function createFoxyVisualRepository(options: { assets: FoxyPrivateAssetReservationPort; settleCancelled?(tx: SqlTransaction, jobId: string): Promise<boolean> }) {
   return {

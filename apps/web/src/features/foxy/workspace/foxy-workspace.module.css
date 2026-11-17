@@ -460,3 +460,20 @@
 .foxyMark .orbitTwo { left:auto; right:0; top:58px; background:#ffead8; border-color:#e2b792; color:#984516; transform:rotate(12deg); }
 .foxyMark svg { width:19px; height:19px; }
 @media(max-width:680px){.welcomePrompts{grid-template-columns:1fr;gap:7px}}
+.catalogFilters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: .5rem;
+  margin-block: .5rem .75rem;
+}
+.catalogFilters label {
+  display: grid;
+  min-width: 0;
+  gap: .25rem;
+  font-size: .8125rem;
+  font-weight: 700;
+}
+.catalogFilters select {
+  min-width: 0;
+  min-height: 2.5rem;
+}

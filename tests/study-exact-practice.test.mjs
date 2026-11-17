@@ -50,3 +50,45 @@ test('la devolución de desarrollo sólo permite reintentar mientras no esté co
   try{await view.flush();const retry=button(view.tree,'Reintentar devolución');if(status==='PENDING'){assert.ok(retry);await retry.props.onClick();assert.equal(calls[0][0],'RETRY_FEEDBACK');}else{assert.equal(retry,undefined);assert.ok(descendants(view.tree,node=>node.type?.name==='FoxyMarkdown'&&node.props.markdown==='Orientación real guardada').length);}}finally{view.close();}
  }
 });
+
+test('la devolución informa ocupación, plazo o cuota sin sugerir guardar de nuevo la práctica finalizada', async () => {
+  const { StudyPracticeView } = componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx', {});
+  const { StudyError } = componentWithPorts('apps/web/src/features/study/api/study-error.ts', {});
+  for (const [code, status, explanation] of [
+    ['AI_BUSY', 503, /ocupado/i],
+    ['AI_TIMEOUT', 504, /tiempo/i],
+    ['AI_RATE_LIMITED', 429, /cuota/i],
+  ]) {
+    const failure = new StudyError(code, status);
+    assert.match(failure.message, explanation);
+    for (const automatic of [true, false]) {
+      const mixed = { ...practice, status: automatic ? 'ACTIVE' : 'FINALIZED',
+        answers: { q1: ['a'], q2: 'Explicación' }, feedback: { status: 'PENDING' } };
+      const calls = [];
+      const view = hookView(StudyPracticeView, {
+        practice: mixed, busy: false,
+        run: async action => { calls.push(action); if (action === 'RETRY_FEEDBACK') throw failure; },
+        onDirtyChange() {}, onNewAttempt: async () => {},
+      });
+      try {
+        await view.flush();
+        if (automatic) {
+          button(view.tree, 'Siguiente').props.onClick(); await view.flush();
+          button(view.tree, 'Revisar').props.onClick(); await view.flush();
+          button(view.tree, 'Finalizar').props.onClick(); await view.flush();
+          await descendants(view.tree, node => node.type?.name === 'StudyConfirmation')[0].props.onConfirm();
+        } else {
+          await button(view.tree, 'Reintentar devolución').props.onClick();
+        }
+        await view.flush();
+        const alerts = descendants(view.tree, node => node.type?.name === 'Notice');
+        assert.ok(alerts.some(node => typeof node.props.children === 'string' &&
+          explanation.test(node.props.children) && /respuestas.*guardadas/i.test(node.props.children)));
+        assert.equal(button(view.tree, 'Reintentar guardado'), undefined);
+        assert.equal(calls.at(-1), 'RETRY_FEEDBACK');
+      } finally {
+        view.close();
+      }
+    }
+  }
+});

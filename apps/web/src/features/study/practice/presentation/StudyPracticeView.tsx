@@ -21,6 +21,7 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
   const [answers, setAnswers] = useState<Record<string, string | string[]>>(practice.answers ?? {});
   const [index, setIndex] = useState(0), [review, setReview] = useState(false), [confirmation, setConfirmation] = useState(false);
   const [state, setState] = useState('Tus respuestas se guardan en esta carpeta'), [error, setError] = useState('');
+  const [feedbackError, setFeedbackError] = useState('');
   const changed = useRef(false), saving = useRef(false), timer = useRef<ReturnType<typeof setTimeout> | null>(null), heading = useRef<HTMLElement>(null);
   const finished = practice.status === 'FINALIZED', answersRef = useRef(answers);
   answersRef.current = answers;
@@ -101,6 +102,16 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
     timer.current = setTimeout(() => void save(next), 900);
 
   }
+  async function requestFeedback() {
+    setFeedbackError('');
+    try {
+      await run('RETRY_FEEDBACK', { practiceId: practice.id });
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : 'No pudimos completar la devolución.';
+      setFeedbackError(`${message} Tus respuestas siguen guardadas.`);
+    }
+  }
+
   async function finish() {
     if (timer.current)
       clearTimeout(timer.current);
@@ -115,17 +126,7 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
       setState('Práctica guardada');
       setConfirmation(false);
       if (practice.questions.some((q) => q.type === 'DEVELOPMENT' && answered(q.id)))
-        try {
-          await run('RETRY_FEEDBACK', {
-            practiceId: practice.id
-
-          });
-
-        }
-        catch {
-          setError('La práctica ya está finalizada. Tus respuestas se conservaron; podés reintentar la devolución orientativa.');
-
-        }
+        await requestFeedback();
 
     }
     catch (error) {
@@ -174,6 +175,7 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
             Reintentar guardado
           </button>
         </Notice>)}
+        {feedbackError && <Notice error>{feedbackError}</Notice>}
         {finished ? (renderStudyPracticeFeedback({
           practice,
           heading,
@@ -181,10 +183,7 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
           answerText,
           feedbackComplete,
           busy,
-          onRetryFeedback: () => void run('RETRY_FEEDBACK', {
-            practiceId: practice.id
-
-          }).catch(() => setError('Todav\u00eda no pudimos completar la devoluci\u00f3n. Tus respuestas siguen guardadas.'))
+          onRetryFeedback: requestFeedback
 
         })) : review ? (renderStudyPracticeReview({
           practice,

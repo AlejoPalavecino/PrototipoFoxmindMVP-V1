@@ -6,7 +6,7 @@ import type { FileService } from '../modules/files/custody/infrastructure/servic
 import { createStudyFiles } from '../modules/study/sources/infrastructure/uploads/service.ts';
 import { studyFileError, studyFileReady } from '../modules/study/sources/domain/upload-policy.ts';
 import type { StudyUploadRow, StudyFilePorts } from '../modules/study/sources/application/upload-ports.ts';
-import type { StudyOptions, StudySource } from '../modules/study/application/contracts.ts';
+import type { StudyDocumentRead, StudyOptions, StudyQuery, StudySource } from '../modules/study/application/contracts.ts';
 import { attachmentSources, readAttachment } from '../modules/files/custody/infrastructure/chat-attachment-repository.ts';
 
 export function createStudyFileIntegration(files:FileService,options:Pick<StudyFilePorts,'database'|'authenticate'|'quotaBytes'>) {
@@ -26,16 +26,23 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
     async readText(tx,source) {return (await read(tx,source)).text;},
     async readSource(tx,source) {return read(tx,source);},
     async previewDocx(tx,source) {return (await read(tx,source,true)).text;},
+    prepareRead,
   };
-  async function read(tx:Parameters<NonNullable<StudyOptions['files']>['assertOwn']>[0],source:StudySource,docxPreview=false) {
-    if(!source.available||!source.fileId)return {text:source.text};
+  async function read(tx:StudyQuery,source:StudySource,docxPreview=false) {
+    return (await prepareRead(tx,source,docxPreview)).load();
+  }
+  async function prepareRead(tx:StudyQuery,source:StudySource,docxPreview=false):Promise<StudyDocumentRead> {
+    const textOnly = {version:source.version,load:async()=>({text:source.text})};
+    if(!source.available||!source.fileId)return textOnly;
     if(!source.ownerId||!source.folderId)return studyFileError('FORBIDDEN');
     if (source.conversationId) {
       const current = await attachmentSources(tx, { ownerId: source.ownerId, folderId: source.folderId, conversationId: source.conversationId });
       const attachment = current.find(item => item.fileId === source.fileId);
       if (!attachment) return studyFileError('FILE_NOT_READY');
-      const parsed = await readAttachment(files.storage, attachment, AbortSignal.timeout(5000));
-      return { text: parsed.document.kind === 'text' ? parsed.document.text : '', document: parsed.document };
+      return { version: attachment.digest, async load() {
+        const parsed = await readAttachment(files.storage, attachment, AbortSignal.timeout(5000));
+        return { text: parsed.document.kind === 'text' ? parsed.document.text : '', document: parsed.document };
+      }};
     }
     const [folder]=await tx.query<{status:string;classroom_id:string|null}>(`SELECT status,state->'fields'->>'linkedClassroomId' AS classroom_id FROM study_folders WHERE id=$1::uuid AND owner_id=$2::uuid`,source.folderId,source.ownerId);
     if(!folder||folder.status==='DELETED')return studyFileError('FORBIDDEN');
@@ -55,16 +62,20 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
       if(!row||row.digest!==row.validated_digest||row.digest!==row.scanned_digest)return studyFileError('FILE_NOT_READY');
     }
     if(docxPreview && row.extension!=='docx')return studyFileError('PREVIEW_UNAVAILABLE');
-    if(!isDocumentExtension(row.extension))return {text:source.text};
-    const bytes=await files.storage.get(row.storage_key,Number(row.size_bytes));
-    if(bytes.length!==Number(row.size_bytes)||createHash('sha256').update(bytes).digest('hex')!==row.digest)return studyFileError('FILE_NOT_READY');
-    try {
-      const parsed=await parseActivityDocument(bytes,docxPreview?'docx-preview':row.extension,AbortSignal.timeout(5000));
-      return {text:parsed.document.kind==='text'?parsed.document.text:source.text,document:parsed.document};
-    } catch (error) {
-      if (docxPreview) return studyFileError('PREVIEW_UNAVAILABLE');
-      throw error;
-    }
+    if(!isDocumentExtension(row.extension))return textOnly;
+    const {digest,extension,storage_key,size_bytes}=row;
+    if(!digest)return studyFileError('FILE_NOT_READY');
+    return {version:digest, async load() {
+      const bytes=await files.storage.get(storage_key,Number(size_bytes));
+      if(bytes.length!==Number(size_bytes)||createHash('sha256').update(bytes).digest('hex')!==digest)return studyFileError('FILE_NOT_READY');
+      try {
+        const parsed=await parseActivityDocument(bytes,docxPreview?'docx-preview':extension,AbortSignal.timeout(5000));
+        return {text:parsed.document.kind==='text'?parsed.document.text:source.text,document:parsed.document};
+      } catch (error) {
+        if (docxPreview) return studyFileError('PREVIEW_UNAVAILABLE');
+        throw error;
+      }
+    }};
   }
   // The folder service authorizes the exact source/version both before and after generation.
   return {uploads,port,readSource:read};

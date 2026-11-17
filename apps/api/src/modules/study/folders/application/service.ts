@@ -4,6 +4,7 @@ import { CLASSROOM_COVER_KEYS } from '../../../../../../../src/core/domain/class
 import { STUDY_GENERATION_PENDING_MS, projectFolderSummary, projectFolder } from '../../domain/state.ts';
 import type { StudySummaryRow, FolderRow, StudyState, StudyQuery } from '../../application/contracts.ts';
 import { runCommand, publicState } from './commands.ts';
+import { createRequestDocuments } from '../../generation/public.ts';
 import type { StudyApplicationPorts } from '../../application/ports.ts';
 // Operational UTF-8 budget for the complete persisted JSON, receipts included.
 // Leaves headroom below the existing 4 MiB HTTP proxy response limit; it is not
@@ -39,6 +40,8 @@ export function createStudyService(options: StudyApplicationPorts) {
         });
     }
     async function generatedCommand(request: unknown, id: string, p: Record<string, unknown>) {
+        const documents = createRequestDocuments(options.files);
+        const contextPorts = { sources: options.sources, files: documents.files };
         const requestId = studyId(p.requestId), hash = options.digest(JSON.stringify({ ...p, revision: undefined }));
         const prepared = await run(request, true, async (tx, owner) => {
             const r = await load(tx, owner, id, true), prior = r.state.receipts[requestId];
@@ -58,7 +61,7 @@ export function createStudyService(options: StudyApplicationPorts) {
             if (Object.keys(r.state.receipts).length >= 2000)
                 studyFail('QUOTA_EXCEEDED');
             const candidate = structuredClone(r);
-            const operation = await prepareStudyOperation(tx, candidate, p, options);
+            const operation = await prepareStudyOperation(tx, candidate, p, contextPorts);
             reserveStudyOperation(candidate, operation, options);
             // Commit the real generation request with its receipt before leaving the transaction.
             // Preparation and reservation cannot create a resource or an assistant result card.
@@ -78,10 +81,11 @@ export function createStudyService(options: StudyApplicationPorts) {
         if (prepared.complete)
             return prepared.complete;
         try {
+            await documents.load(prepared.operation);
             const authorize = async () => run(request, true, async (tx, owner) => {
                 const row = await load(tx, owner, id, true);
                 if (String(row.revision) !== prepared.revision || row.status === 'ARCHIVED') studyFail('CONFLICT');
-                await validatePreparedStudyOperation(tx, row, p, prepared.operation, options, options.digest);
+                await validatePreparedStudyOperation(tx, row, p, prepared.operation, contextPorts, options.digest);
             });
             await authorize();
             const generated = await executePreparedStudyOperation(prepared.operation, options,
@@ -92,7 +96,7 @@ export function createStudyService(options: StudyApplicationPorts) {
                 if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
                 if (String(r.revision) !== prepared.revision || r.status === 'ARCHIVED')
                     studyFail('CONFLICT');
-                const current = await validatePreparedStudyOperation(tx, r, p, prepared.operation, options, options.digest);
+                const current = await validatePreparedStudyOperation(tx, r, p, prepared.operation, contextPorts, options.digest);
                 const result = await applyPreparedStudyOperation(tx, r, current, generated, options);
                 r.state.receipts[requestId] = { hash, result };
                 return { folder: projectFolder(await save(tx, r)), result };
@@ -145,17 +149,27 @@ export function createStudyService(options: StudyApplicationPorts) {
             if (activePreviews >= 2) studyFail('SERVICE_UNAVAILABLE');
             activePreviews++;
             try {
-                return await run(request, false, async (tx, owner) => {
+                const locate = async (tx: StudyQuery, owner: string) => {
                     const folder = await load(tx, owner, id, false);
                     const source = (await options.sources(tx, folder, options)).find(item => item.id === sourceKey && item.available);
                     if (!source) studyFail('FORBIDDEN');
-                    if (source.extension !== 'docx' || !options.files?.previewDocx) studyFail('PREVIEW_UNAVAILABLE');
-                    const text = await options.files.previewDocx(tx, { ...source, ownerId: owner, folderId: folder.id,
-                        classroomId: folder.state.fields.linkedClassroomId ?? undefined });
-                    const latest = await load(tx, owner, id, false);
-                    const stillAvailable = (await options.sources(tx, latest, options)).some(item =>
-                        item.id === sourceKey && item.available && item.fileId === source.fileId && item.version === source.version);
-                    if (!stillAvailable) studyFail('FORBIDDEN');
+                    if (source.extension !== 'docx') studyFail('PREVIEW_UNAVAILABLE');
+                    return { ...source, ownerId: owner, folderId: folder.id, classroomId: folder.state.fields.linkedClassroomId ?? undefined };
+                };
+                const prepare = options.files?.prepareRead;
+                const preview = options.files?.previewDocx;
+                if (!prepare && !preview) studyFail('PREVIEW_UNAVAILABLE');
+                const original = await run(request, false, async (tx, owner) => {
+                    const source = await locate(tx, owner);
+                    const read = prepare ? await prepare(tx, source, true) : undefined;
+                    return { source, read, text: read ? undefined : await preview!(tx, source) };
+                });
+                const text = original.read ? (await original.read.load()).text : original.text!;
+                return await run(request, false, async (tx, owner) => {
+                    const source = await locate(tx, owner);
+                    if (source.fileId !== original.source.fileId || source.version !== original.source.version ||
+                        source.classroomId !== original.source.classroomId) studyFail('FORBIDDEN');
+                    if (prepare && (await prepare(tx, source, true)).version !== original.read?.version) studyFail('FORBIDDEN');
                     return { text };
                 });
             } finally { activePreviews--; }

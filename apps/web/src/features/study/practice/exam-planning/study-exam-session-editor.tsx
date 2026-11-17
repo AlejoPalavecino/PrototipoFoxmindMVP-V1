@@ -86,6 +86,19 @@ export function renderStudyExamSessionEditor({ editing, timeZone, local, setEdit
             }} />
         </label>
       </div>
+      <label>
+        Aviso dentro de FoxMind
+        <select value={editing.reminderMinutes ?? ''} onChange={(event) => setEditing({
+          ...editing,
+          reminderMinutes: event.target.value === '' ? null : Number(event.target.value),
+        })}>
+          <option value="">Sin aviso</option>
+          <option value="0">Al comenzar</option>
+          <option value="15">15 minutos antes</option>
+          <option value="60">1 hora antes</option>
+          <option value="1440">1 día antes</option>
+        </select>
+      </label>
       <p className="study-exact-context-switch-note">
         Duración: {editing.minutes} minutos. Los cambios todavía no se guardan en el plan.
       </p>

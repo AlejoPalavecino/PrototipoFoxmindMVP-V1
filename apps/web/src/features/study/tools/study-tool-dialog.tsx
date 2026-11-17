@@ -3,29 +3,39 @@ import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../shared-ui/feedback';
 import type { StudyTopic } from '../model/study-contracts.ts';
 export function StudyToolDialog({
+  kind,
   title,
   folderName,
   sourceCount,
   brief,
   selected,
+  count,
+  difficulty,
   topics,
   error,
   disabled,
   onBrief,
   onSelected,
+  onCount,
+  onDifficulty,
   onSubmit,
   onClose,
 }: {
+  kind: string;
   title: string;
   folderName: string;
   sourceCount: number;
   brief: string;
   selected: string[];
+  count: number;
+  difficulty: string;
   topics: StudyTopic[];
   error: string;
   disabled: boolean;
   onBrief: (value: string) => void;
   onSelected: (value: string[]) => void;
+  onCount: (value: number) => void;
+  onDifficulty: (value: string) => void;
   onSubmit: () => void;
   onClose: () => void;
 }) {
@@ -95,6 +105,23 @@ export function StudyToolDialog({
               ))}
             </div>
           </fieldset>
+        )}
+        {['QUIZ', 'EXERCISE', 'MOCK_EXAM'].includes(kind) && (
+          <div className="study-exact-form-pair">
+            <label>
+              Cantidad de preguntas
+              <input type="number" min={1} max={30} required value={count || ''}
+                onChange={(event) => onCount(Number(event.target.value))} />
+            </label>
+            <label>
+              Dificultad
+              <select value={difficulty} onChange={(event) => onDifficulty(event.target.value)}>
+                <option value="EASY">Inicial</option>
+                <option value="MEDIUM">Intermedia</option>
+                <option value="HARD">Avanzada</option>
+              </select>
+            </label>
+          </div>
         )}
         {error && <Notice error>{error}</Notice>}
         <footer className="study-exact-dialog-footer">

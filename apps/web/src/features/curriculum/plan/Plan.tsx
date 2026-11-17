@@ -36,6 +36,11 @@ export function Plan({ api, room, reload, onOpenActivity, onOpenMaterial, select
   return <section className={`folder-plan ${styles.plan}`} aria-label="Plan de estudio">
     <header className="p5-section-head cl-section"><div><h2>Plan de estudio</h2><p>Elegí un tema para consultar sus materiales y actividades.</p></div>
       <span className={`parity-plan-summary ${styles.summary}`}><FoxmindIcon name="check"/>{room.units.flatMap(unit => unit.topics).filter(topic => topic.status === 'TAUGHT').length} de {room.units.flatMap(unit => unit.topics).length} temas dados</span></header>
+    {room.role === 'student' && room.units.some(unit => unit.topics.length > 0) && (
+      <a className={styles.studyEntry} href={`/carpetas-de-estudio?crear=1&aula=${encodeURIComponent(room.id)}`}>
+        <FoxmindIcon name="book"/> Crear carpeta de estudio
+      </a>
+    )}
     {error && <Notice error>{error}{reloadNeeded ? <button type="button" disabled={busy} onClick={() => void run(async () => { await reload(); setReloadNeeded(false); setNotice('Plan actualizado.'); })}>Actualizar Plan</button> : null}</Notice>}
     {busy ? <p role="status">Guardando avance…</p> : null}
     {notice || undo && writable ? <div className={styles.feedback}>

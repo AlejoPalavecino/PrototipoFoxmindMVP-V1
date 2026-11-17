@@ -93,3 +93,47 @@ test('creation collection defers destination navigation to the guarded resource 
   assert.equal(descendants(view.tree,n=>n.type==='a').length,0);
  } finally { view.close(); }
 });
+
+test('context, status, type and title filters are composed for the server', async () => {
+ const {FoxyCollectionPanel,FoxyConversationPanel}=componentWithPorts('apps/web/src/features/foxy/collections/foxy-collection-panel.tsx',{});
+ const page={items:[],next:null,loading:false,error:null}, classrooms=[{id:'room',name:'Fotografía'}], queries=[];
+ const query={q:'luz',context:'room',type:'RUBRIC',status:'PUBLISHED'};
+ const creations=hookView(FoxyCollectionPanel,{page,classrooms,query,onQuery:value=>queries.push(value)});
+ const history=hookView(FoxyConversationPanel,{page,classrooms,query:{q:'luz',context:'room'},onQuery:value=>queries.push(value)});
+ try{
+  await creations.flush();await history.flush();
+  descendants(creations.tree,n=>n.type==='input'&&n.props.type==='search')[0].props.onChange({target:{value:'contraste'}});
+  descendants(creations.tree,n=>n.type==='button'&&n.props.children==='Esquemas')[0].props.onClick();
+  descendants(history.tree,n=>n.type==='input'&&n.props.type==='search')[0].props.onChange({target:{value:'contraste'}});
+  assert.deepEqual(queries,[{...query,q:'contraste'},{...query,type:'DIAGRAM'},{q:'contraste',context:'room'}]);
+  assert.match(renderToStaticMarkup(creations.tree),/Todos los contextos|Todos los estados/);
+ }finally{creations.close();history.close();}
+});
+
+test('visual prompt survives a rebuilt transcript and keeps its place before later text', () => {
+ const {renderFoxyTranscript}=componentWithPorts('apps/web/src/features/foxy/conversations/foxy-transcript.tsx',{});
+ const turn=(id,at,message)=>({id,createdAt:at,state:'READY',purpose:'CHAT',message,answer:{markdown:'Respuesta'}});
+ const first=turn('first','2026-01-01T00:00:01Z','Primer texto');
+ const later=turn('later','2026-01-01T00:00:03Z','Texto posterior');
+ const visual={id:'visual',createdAt:'2026-01-01T00:00:02Z',kind:'DIAGRAM',state:'READY',prompt:'Consigna original del esquema'};
+ const html=renderToStaticMarkup(renderFoxyTranscript({state:{...chatState,turns:[first,later]},
+  chatFollow:{},controller:{},attachmentCount:0,enabled:true,visualTimeline:{jobs:[visual],onOpen(){}}}));
+ assert.ok(html.indexOf('Primer texto')<html.indexOf(visual.prompt));
+ assert.ok(html.indexOf(visual.prompt)<html.indexOf('Texto posterior'));
+ assert.match(html,/Abrir creación/);
+});
+
+test('the classroom scope announces one selected source in the singular', async () => {
+  const {FoxyScopeDialog}=componentWithPorts('apps/web/src/features/foxy/context/foxy-scope-dialog.tsx',{});
+  const empty={items:[],next:null};
+  const view=hookView(FoxyScopeDialog,{
+    curriculum:{units:[]},selection:{topicIds:[],sourceIds:['plan:sample']},
+    sources:{PLAN:empty,MATERIAL:empty,ACTIVITY:empty},error:null,onClose(){},
+  });
+  try {
+    await view.flush();
+    const html=renderToStaticMarkup(view.tree);
+    assert.match(html,/1 fuente seleccionada\./);
+    assert.doesNotMatch(html,/1 fuentes seleccionadas/);
+  } finally { view.close(); }
+});

@@ -63,8 +63,12 @@ export function createFoxyPublicationHistoryController(options: Options) {
       const selected = state.inspection?.publication;
       const updated = selected && safeItems.find(p => same(p.id, selected.id) && BigInt(p.revision) > BigInt(selected.revision));
       if (updated) {
-        selection++; selectedAbort.abort(); selectedAbort = new AbortController(); stopTimer();
-        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' });
+        stopTimer();
+        if (state.inspectionLoading) emit({ inspection: null });
+        else {
+          selection++; selectedAbort.abort(); selectedAbort = new AbortController();
+          emit({ inspection: null, inspectionError: 'La preparación cambió; actualizá su estado.' });
+        }
         if (disposed || version !== generation) return;
       }
       const existing = refresh ? [] : state.items;

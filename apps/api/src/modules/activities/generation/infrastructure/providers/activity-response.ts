@@ -24,7 +24,8 @@ export function activityResponse(response: GenerateContentResponse | AiTextResul
       const v = strictObject(raw, ['status', 'proposal']);
       if (v.status !== 'READY') throw new Error();
       json = { status: 'READY', proposal: parseActivityProposal(v.proposal, { type: input.type, counts: input.counts,
-        sourceIds: input.sources.map(s => s.sourceId), context: input.context,
+        sourceIds: input.sources.map(s => s.sourceId),
+        context: input.context.trim() ? input.context : input.teacherBrief ?? '',
         pdfPageCounts: Object.fromEntries(input.sources.filter(s => s.pageCount !== null).map(s => [s.sourceId, s.pageCount!])) }) };
     }
   }
