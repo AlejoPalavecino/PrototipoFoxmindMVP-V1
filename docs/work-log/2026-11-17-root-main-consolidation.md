@@ -45,3 +45,13 @@ Gates nuevos:docs211archivos/1126enlaces/0issues;inventario685entradas/57exclusi
 ### Push confirmado
 
 Git push origin main:EXIT0,dd6f4bc→21b88be2. HEADlocal yls-remote coinciden exactamente. No se modificaron datos retenidos ni servicios/proveedores;no haydeploy. Se continúa con retiro de las otras refs,usando leases por SHA remoto yrespaldo completo;los worktrees se desligan sin borrar sus archivos.
+
+### Rama única comprobada
+
+Main daab7b793b96f51f92cdaa6e93d8ca574af3f584 quedó publicado antes del retiro. Se desligaron8worktrees con status preparado/no preparado/no seguido idéntico antes/después;no se borró ningún archivo/configuración/dato. Gitprune retiró sólo2registros cuyas carpetas absolutas ya no existían. Se retiraron13ramas locales:12contenidas enmain y1ref de respaldo conservada enbundle. Las3remotas estaban integradas yse eliminaron mediante pushatomic conforce-with-lease por sus SHA esperados,protegiendo cambios concurrentes.
+
+Fetchprune yls-remote posteriores:única rama main,HEADlocal=origin/main=remoto,árbol principal limpio. Origin/HEAD es sólo el alias de la rama por defecto. Refs auxiliares de recuperación/checkpoints ystash no son ramas yse conservan;el bundle independiente contiene la historia completa ylos seis snapshots de cambios sincommit. La documentación final de cierre se publica enmain sin volver a crear ramas auxiliares.
+
+Resultado:todo el código vigente yla prueba pendiente están enmainpublicado. Registros/prototipos históricos cancelados oya sustituidos quedan preservados, sin reanudarlos ni contaminar la referencia actual. Sólo mainlocal/remoto;sin deploy. El cierre no amplía los resultados de pruebas ni afirma CIremoto verde:su ejecución no forma parte del recibo local.
+
+Respaldo probado adicionalmente:fetch del bundle a un repositorio bare vacío bajo el directorio externo de respaldo,seguido de git fsck --full --no-reflogs,ambosEXIT0. No se crearon ramas en el repositorio del proyecto para esa comprobación. Gates del cierre:docs211/1127/0,TTP7válido ydiffcheck0;mainlimpio. El commit final de este registro se publica ysu hash se coteja con origin/main yls-remote al terminar.

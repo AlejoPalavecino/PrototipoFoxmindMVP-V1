@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
-  "status": "PUBLISHED_CLEANUP_IN_PROGRESS",
+  "status": "PUBLISHED_MAIN_ONLY",
   "base": "880612e9b3c2e1d95bc6649e471e470fd1605255",
   "authorization": "User authorized push, consolidation into main and retirement of all other local/remote branches on2026-11-17.",
   "publication": {
     "pushed": true,
     "confirmedCommit": "21b88be2e335c91ebf9728995558003eda905bc1",
-    "deployed": false
+    "deployed": false,
+    "postCleanupSourceCommit": "daab7b793b96f51f92cdaa6e93d8ca574af3f584"
   },
   "backup": {
     "directory": "C:\\Users\\alejo\\AppData\\Local\\FoxMind\\git-backups\\2026-11-17-main-only",
@@ -17,7 +18,12 @@
     "completeHistory": true,
     "refs": 62,
     "dirtyWorktreeSnapshots": 6,
-    "worktreeFilesPreserved": true
+    "worktreeFilesPreserved": true,
+    "importedIntoEmptyBareRepository": true,
+    "restoredRepositoryFsck": {
+      "exitCode": 0,
+      "full": true
+    }
   },
   "scope": {
     "integratedRuntimeAlreadyVerified": "docs/verification/refactor-integration.json",
@@ -56,16 +62,90 @@
     "localEvidence": "C:/Users/alejo/.codex/worktrees/refactor-integration/ProtipoFoxMind/.test-artifacts/main-consolidation/p9-final-receipts.json"
   },
   "branchCleanup": {
-    "pending": true,
-    "plannedLocalBranchesRemoved": 13,
-    "plannedRemoteBranchesRemoved": 3,
-    "keep": "main",
-    "worktreeFileDeletion": false
+    "pending": false,
+    "localBranches": [
+      "main"
+    ],
+    "remoteBranches": [
+      "main"
+    ],
+    "removedLocal": [
+      {
+        "name": "codex/backend-capabilities",
+        "sha": "dd6f4bc92b959cce0e2c68343291614270c4a17e"
+      },
+      {
+        "name": "codex/foxmind-ai-runtime",
+        "sha": "69e2c014f0f1971a435e99bad2439ea130e779f4"
+      },
+      {
+        "name": "codex/foxmind-product-parity",
+        "sha": "be4deb6a6d83e8361fd55606134dc75492902535"
+      },
+      {
+        "name": "codex/foxmind-ui-lab",
+        "sha": "ef6828b96084b0fcaf9a883e4afb95e0871cf1d6"
+      },
+      {
+        "name": "codex/frontend-cohesion",
+        "sha": "dd6f4bc92b959cce0e2c68343291614270c4a17e"
+      },
+      {
+        "name": "codex/integration-backend-snapshot",
+        "sha": "d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1"
+      },
+      {
+        "name": "codex/integration-frontend-snapshot",
+        "sha": "eba381b3f28662daaca366687d34b12cfb30d955"
+      },
+      {
+        "name": "codex/pre-refactor-main-work",
+        "sha": "c2c823bc0c1c082da1776128d1394cc92310a544"
+      },
+      {
+        "name": "codex/refactor-integration",
+        "sha": "c6dd43f0df7e1157a6c461fdb3c7217745f6e003"
+      },
+      {
+        "name": "codex/refactor-ux-ui",
+        "sha": "d50b651a404d1867eccb045a963ef6ec44fee5a1"
+      },
+      {
+        "name": "fix/architecture-audit",
+        "sha": "c77d370cd49267f76238c7e7171f1624dc0feeb4"
+      },
+      {
+        "name": "foxmind_interactive_prototype_redesign",
+        "sha": "95fef894becd8de082e8c9f61235c6d0a0a213f8"
+      },
+      {
+        "name": "maqueta_didactica_foxmind",
+        "sha": "95fef894becd8de082e8c9f61235c6d0a0a213f8"
+      }
+    ],
+    "removedRemote": [
+      {
+        "sha": "d50b651a404d1867eccb045a963ef6ec44fee5a1",
+        "ref": "refs/heads/codex/refactor-ux-ui"
+      },
+      {
+        "sha": "95fef894becd8de082e8c9f61235c6d0a0a213f8",
+        "ref": "refs/heads/design/foxmind-maqueta-interactiva"
+      },
+      {
+        "sha": "c77d370cd49267f76238c7e7171f1624dc0feeb4",
+        "ref": "refs/heads/fix/architecture-audit"
+      }
+    ],
+    "detachedWorktrees": 8,
+    "missingRegistrationsPruned": 2,
+    "worktreeFilesDeleted": false,
+    "mainCleanAtVerification": true
   },
   "checks": {
     "documentation": {
       "files": 211,
-      "links": 1126,
+      "links": 1127,
       "issues": 0
     },
     "inventory": {

@@ -18,30 +18,6 @@ Ampliación autorizada el 2026-11-17: publicar todo el trabajo vigente en main y
 - **Evidence:** Snapshot backend d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1 y frontend eba381b3f28662daaca366687d34b12cfb30d955 desde dd6f4bc; índices alternativos y status original idéntico antes/después. Recibo local snapshots.json.
 - **Blocker:** none
 
-### TASK-005 — Historial y pendientes preservados antes de retirar ramas
-- **State:** DONE
-- **Depends on:** TASK-004
-- **Owner:** root
-- **Acceptance:** Refs/remoto/worktrees inventariados; snapshots de trabajo único y bundle verificado fuera del repo; sin secretos ni datos retenidos.
-- **Evidence:** Fetch fresco,14ramas locales/4remotas; bundle externo verificado con todas las refs y6snapshots de trabajo pendiente, SHA25656bc286433534331609f3a0a5535b57465dd143e806252842524907b2f3aaa83. Worktrees sin cambios por captura;27registros históricos UI Lab yprototipo cancelado preservados. Tres borradores cancelados de main archivados byteexactos fuera del repo.
-- **Blocker:** none
-
-### TASK-006 — Main consolidado, verificado y publicado
-- **State:** DONE
-- **Depends on:** TASK-005
-- **Owner:** root
-- **Acceptance:** Pendientes vigentes incorporados con comprobación proporcional; main sin cambios pendientes y push confirmado por igualdad de hashes remotos.
-- **Evidence:** P9adoptado en c6dd43f0,completo1PASS/0FAIL/0SKIP,cleanup0;retryRED/GREENpuro yrevisión independiente. Nueveassetsretirados en e5ccdf9c. Docs211/1126/0,inventario685/57/23,guards0excepciones,TTP7 ydiffcheckPASS. Pushmain21b88be2confirmado por igualdad local/ls-remote;sin cambios pendientes antes del cierre documental.
-- **Blocker:** none
-
-### TASK-007 — Sólo main con respaldo recuperable
-- **State:** IN_PROGRESS
-- **Depends on:** TASK-006
-- **Owner:** root
-- **Acceptance:** Única rama local y remota main; worktrees auxiliares detached o registro obsoleto retirado; archivos/datos preservados, bundle íntegro y estado final comprobado.
-- **Evidence:** Mainpublicado;retiro de13ramas locales/3remotas ydesvinculación deworktrees en curso,conbackupcompletoverificado.
-- **Blocker:** none
-
 ### TASK-002 — Candidato combinado conserva ambos refactors
 - **State:** DONE
 - **Depends on:** TASK-001
@@ -64,4 +40,27 @@ Ampliación autorizada el 2026-11-17: publicar todo el trabajo vigente en main y
 - **Owner:** root
 - **Acceptance:** Main contiene ambos snapshots y correcciones verificadas; trabajo ajeno de main preservado y comprobado; sin push/despliegue.
 - **Evidence:** Main fast-forward a6ad9f6b54998b454904d258d6a746ca26f18fa1f, contiene ambos snapshots. Se restauraron9eliminaciones y3documentos ajenos byteexactos;4adiciones/borradores ya absorbidos o sustituidos por su versión aprobada conservan backupc2c823bc ystash0da372d4. Sin diff productivo enmain;docs208/1122/0,guards0excepciones yTTP4 válidos. No push ni despliegue. El cierre documental se integra después sin cambiar el candidato productivo.
+- **Blocker:** none
+### TASK-005 — Historial y pendientes preservados antes de retirar ramas
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Refs/remoto/worktrees inventariados; snapshots de trabajo único y bundle verificado fuera del repo; sin secretos ni datos retenidos.
+- **Evidence:** Fetch fresco,14ramas locales/4remotas; bundle externo verificado con todas las refs y6snapshots de trabajo pendiente, SHA25656bc286433534331609f3a0a5535b57465dd143e806252842524907b2f3aaa83. Worktrees sin cambios por captura;27registros históricos UI Lab yprototipo cancelado preservados. Tres borradores cancelados de main archivados byteexactos fuera del repo.
+- **Blocker:** none
+
+### TASK-006 — Main consolidado, verificado y publicado
+- **State:** DONE
+- **Depends on:** TASK-005
+- **Owner:** root
+- **Acceptance:** Pendientes vigentes incorporados con comprobación proporcional; main sin cambios pendientes y push confirmado por igualdad de hashes remotos.
+- **Evidence:** P9adoptado en c6dd43f0,completo1PASS/0FAIL/0SKIP,cleanup0;retryRED/GREENpuro yrevisión independiente. Nueveassetsretirados en e5ccdf9c. Docs211/1126/0,inventario685/57/23,guards0excepciones,TTP7 ydiffcheckPASS. Pushmain21b88be2confirmado por igualdad local/ls-remote;sin cambios pendientes antes del cierre documental.
+- **Blocker:** none
+
+### TASK-007 — Sólo main con respaldo recuperable
+- **State:** DONE
+- **Depends on:** TASK-006
+- **Owner:** root
+- **Acceptance:** Única rama local y remota main; worktrees auxiliares detached o registro obsoleto retirado; archivos/datos preservados, bundle íntegro y estado final comprobado.
+- **Evidence:** Mainpublicado yhash local/origin/ls-remote idénticos. Sólo refs/heads/main localyremoto;13ramas locales/3remotas retiradasconleasesporSHA.8worktreesdetachedconstatusintacto,2registrosausentespruned,0archivosdeworktreeseliminados.Bundle externo completo verificado;mainlimpio. Recibo docs/verification/main-consolidation.json.
 - **Blocker:** none
