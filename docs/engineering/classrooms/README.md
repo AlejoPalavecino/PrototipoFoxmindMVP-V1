@@ -11,6 +11,8 @@ Un aula publicada tiene un único docente dueño. Un borrador incompleto es priv
 
 El asistente exige un PDF, DOC, DOCX, PPT o PPTX aprobado de hasta 20 MB y al menos una unidad con un tema. La API conserva la compatibilidad histórica con currículos manuales completos sin archivo. La zona horaria queda fija al crear el aula y la portada se elige del catálogo.
 
+Si el archivo sigue pendiente de validación, Guardar y salir conserva su referencia. Al reabrir el borrador se consulta el estado de ese mismo archivo. El asistente habilita la preparación del recorrido cuando el archivo está aprobado.
+
 ## Presentación compartida con Carpetas de estudio
 
 Los componentes de estado y servicios se reutilizan con Carpetas de estudio; aulas tiene una variante visual propia del asistente. Mis aulas presenta estados y búsqueda, siguiendo UI Lab: no incluye filtros adicionales de ciclo/división ni selector de tarjetas/lista. Cada espacio conserva sus campos, validaciones y servicios. El asistente de aulas dispone de una superficie amplia, encabezado opaco, área de contenido desplazable y pie de acciones visible. Ofrece las tres portadas de referencia y conserva la portada seleccionada de un borrador anterior si pertenece al catálogo legado.

@@ -77,7 +77,7 @@ export function Wizard({
     status: (id: string, signal?: AbortSignal) => api.fileStatus(id, signal),
   }), [api, draft.id]);
   const planFile = useClassroomPlanFile(fileOperations, payload.planFileId, actionLock, mounted, {
-    ready: id => setPayload(previous => ({ ...previous, planFileId: id })),
+    selected: id => setPayload(previous => ({ ...previous, planFileId: id })),
     start: () => { setProcessDismissed(false); setAnalyze(false); },
     error: setError,
   });

@@ -9,12 +9,13 @@ export interface ClassroomPlanFileOperations {
 /** Owns one file selection, its upload and approval polling; no curriculum or draft writes. */
 export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, planFileId: string | undefined,
   actionLock: RefObject<boolean>, mounted: RefObject<boolean>,
-  feedback: { ready: (id: string) => void; start: () => void; error: (message: string) => void }) {
+  feedback: { selected: (id: string) => void; start: () => void; error: (message: string) => void }) {
   const [file, setFile] = useState<FileState | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadName, setUploadName] = useState('');
   const [uploadFailure, setUploadFailure] = useState('');
   const fileSelection = useRef(0);
+  const uploadedFileId = useRef<string | undefined>(undefined);
   const callbacks = useRef(feedback);
   callbacks.current = feedback;
   useEffect(() => {
@@ -22,6 +23,8 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
       setFile(null);
       return;
     }
+    // Upload already returned this snapshot; approval polling owns its next read.
+    if (uploadedFileId.current === planFileId) return;
     const controller = new AbortController();
     const selection = fileSelection.current;
     const isCurrent = () => !controller.signal.aborted && selection === fileSelection.current;
@@ -47,7 +50,7 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
         if (controller.signal.aborted || selection !== fileSelection.current || actionLock.current || next.id !== file.id) return;
         setUploadFailure('');
         if (next.ready) {
-          callbacks.current.ready(next.id);
+          callbacks.current.selected(next.id);
           callbacks.current.error('');
         }
         if (next.ready || next.rejectionCode || next.validation === 'REJECTED' || ['REJECTED', 'ERROR'].includes(next.scan)) {
@@ -76,12 +79,14 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
     try {
       const state = await operations.upload(chosen);
       if (!mounted.current || selection !== fileSelection.current) return;
+      uploadedFileId.current = state.id;
       setFile(state);
-      if (state.ready) callbacks.current.ready(state.id);
+      if (state.ready) callbacks.current.selected(state.id);
       else if (state.rejectionCode || state.validation === 'REJECTED' || ['REJECTED', 'ERROR'].includes(state.scan)) {
         callbacks.current.error('El archivo no está aprobado. Revisá su estado o elegí otro archivo.');
         setUploadFailure('El archivo no está aprobado. Elegí otro archivo para continuar.');
       }
+      else callbacks.current.selected(state.id);
     } catch (e) {
       if (mounted.current && selection === fileSelection.current) { callbacks.current.error((e as Error).message); setUploadFailure((e as Error).message); }
     } finally {
@@ -99,7 +104,7 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
       const state = await operations.status(file.id);
       if (!mounted.current || selection !== fileSelection.current) return;
       setFile(state);
-      if (state.ready) callbacks.current.ready(state.id);
+      if (state.ready) callbacks.current.selected(state.id);
     } catch (failure) {
       if (mounted.current && selection === fileSelection.current) {
         callbacks.current.error((failure as Error).message);
@@ -113,6 +118,6 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
     }
   }
   return { file, uploading, uploadName, uploadFailure, upload, refresh,
-    remove() { fileSelection.current += 1; setFile(null); },
+    remove() { fileSelection.current += 1; uploadedFileId.current = undefined; setFile(null); },
   };
 }
