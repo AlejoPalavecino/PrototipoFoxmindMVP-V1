@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "VERIFIED_FOR_LOCAL_INTEGRATION",
+  "status": "INTEGRATED_LOCALLY",
   "baseCommit": "dd6f4bc92b959cce0e2c68343291614270c4a17e",
   "backendSnapshot": "d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1",
   "frontendSnapshot": "eba381b3f28662daaca366687d34b12cfb30d955",
@@ -8,14 +8,25 @@
   "branch": "codex/refactor-integration",
   "delivery": {
     "committed": true,
-    "mainUpdated": false,
+    "mainUpdated": true,
     "pushed": false,
     "deployed": false,
     "mainRuntimeStarted": false,
-    "mainDependenciesModified": false
+    "mainDependenciesModified": false,
+    "mainSourceCommit": "6ad9f6b54998b454904d258d6a746ca26f18fa1f",
+    "mainChecks": {
+      "documentation": {
+        "files": 208,
+        "links": 1122,
+        "issues": 0
+      },
+      "boundaries": true,
+      "frontendGuard": true,
+      "taskboard": true,
+      "productionWorkingDiff": false
+    }
   },
   "preservation": {
-    "originalWorktreeHeadsAndIndexesUntouched": true,
     "backendFiles": 932,
     "frontendFiles": 766,
     "missingOrOverwrittenProductionFiles": 0,
@@ -26,7 +37,76 @@
     "compatibilityEntry": "src/core/domain/index.ts retained",
     "mainBackupRef": "codex/pre-refactor-main-work",
     "mainBackupCommit": "c2c823bc0c1c082da1776128d1394cc92310a544",
-    "mainPreexistingPaths": 16
+    "mainPreexistingPaths": 16,
+    "mainStash": "0da372d48b2f985c0ba9d2aa0a9f7908941434c3",
+    "mainRestoration": [
+      {
+        "file": "design/agenda-polish/01-calm-focus.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/02-color-rhythm.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/03-compact-planner.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/04-school-orange.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/05-current-agenda-day-widget.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/design.json",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/agenda-polish/handoffs.json",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/system.html",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "design/system.md",
+        "state": "deletion-restored"
+      },
+      {
+        "file": "docs/documentation-map.json",
+        "state": "prior-additions-already-integrated"
+      },
+      {
+        "file": "docs/engineering/README.md",
+        "state": "link-integrated-and-approval-status-updated"
+      },
+      {
+        "file": "docs/engineering/backend-capabilities-plan.md",
+        "state": "approved-source-document-integrated-prior-draft-in-backup"
+      },
+      {
+        "file": "docs/work-log/2026-11-13-01a1d562-foxmind-ux-prototype.md",
+        "state": "untracked-restored-byte-exact"
+      },
+      {
+        "file": "docs/work-log/2026-11-13-worker-foxmind-ux-audit.md",
+        "state": "untracked-restored-byte-exact"
+      },
+      {
+        "file": "docs/work-log/2026-11-16-root-backend-capabilities-plan.md",
+        "state": "approved-source-document-integrated-prior-draft-in-backup"
+      },
+      {
+        "file": "odd/tasks/foxmind-ux-prototype.md",
+        "state": "untracked-restored-byte-exact"
+      }
+    ],
+    "mainRemainingLocalPaths": 12,
+    "originalWorktreeHeadsAndStagedContentPreserved": true
   },
   "verification": {
     "apiBuild": {

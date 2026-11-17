@@ -55,3 +55,13 @@ Publicación repetida completa:5 PASS/0 FAIL/0 SKIP,184s,cleanup0. Cuatro archiv
 La revisión independiente final verificó786 hashes actuales e históricos, cuatro sentencias AST de QuestionEditor idénticas y conservación de85/85 aserciones E2E más22 nuevas. Reejecutó descarte protegido3/3; no se atribuye ejecución E2E independiente. El [recibo combinado](../verification/refactor-integration.json) conserva fuentes de resultados y límites.
 
 Gates finales previos a main: docs208 archivos/1121 enlaces/0issues; TTP4 tareas válido; inventario685/57/23; diff-check0. Las fuentes productivas siguen preservadas salvo la limpieza EOF declarada. La integración está lista para fast-forward local, sin push. El cierre de main se registra tras ejecutarlo y comprobar sus cambios previos.
+
+### Entrega local completada
+
+Main pasó por fast-forward desde dd6f4bc a6ad9f6b54998b454904d258d6a746ca26f18fa1f. Incluye backendd79ee909,frontendeba381b3,merge399eaa58 yverificación6ad9f6b5. No se modificaron los HEAD ni el contenido preparado de los worktrees originales. El cierre documental posterior no cambia producción ni las pruebas verificadas.
+
+El estado local previo se preservó además en stash0da372d48b2f985c0ba9d2aa0a9f7908941434c3,ref codex/pre-refactor-main-work y copia byte exacta ignorada en el worktree de integración. Se restauraron las9eliminaciones de diseño y3documentos no seguidos ajenos, verificando hashes. Las2adiciones a mapa/guía ya están incluidas; los2borradores del backend se conservan en respaldo y su versión aprobada permanece activa. No se reinsertó el aviso obsoleto de implementación no autorizada. Main conserva12rutas ajenas sin commit; no se afirma árbol limpio.
+
+Controles sobre main actualizado: ambos snapshots son ancestros, sin diff en API/core/Prisma/web/shared-ui/package/lock; docs208 archivos/1122 enlaces/0issues,guardAST0excepciones,guardfrontendPASS yTTP4 válido. Los builds y recorridos se ejecutaron en el worktree de integración; no se reinstalaron dependencias ni se inició el runtime retenido de main. Archivos .env, claves, datos retenidos y servicios ajenos no se leyeron ni modificaron.
+
+Entrega: integrado localmente y recuperable. Sin push, PR, despliegue ni retiro de compatibilidad. Permanecen los límites de verificación proporcional del [recibo](../verification/refactor-integration.json): grupos completos DB/servicios/browser/wrappers no repetidos, proveedor real y producción fuera del alcance. No queda trabajo autorizado pendiente de implementación, integración o verificación. La publicación remota requiere un pedido específico.

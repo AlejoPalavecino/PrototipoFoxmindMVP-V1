@@ -33,9 +33,9 @@ Autorización del usuario para integrar backend y luego frontend, con el orden y
 - **Blocker:** none
 
 ### TASK-004 — Main actualizado y trabajo previo conservado
-- **State:** IN_PROGRESS
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** root
 - **Acceptance:** Main contiene ambos snapshots y correcciones verificadas; trabajo ajeno de main preservado y comprobado; sin push/despliegue.
-- **Evidence:** Respaldo previo de16rutas en commitc2c823bc y copia exacta; landing porfast-forward pendiente traschecksfinales. No se aplica el borrador pendiente sobre la especificación aprobada.
+- **Evidence:** Main fast-forward a6ad9f6b54998b454904d258d6a746ca26f18fa1f, contiene ambos snapshots. Se restauraron9eliminaciones y3documentos ajenos byteexactos;4adiciones/borradores ya absorbidos o sustituidos por su versión aprobada conservan backupc2c823bc ystash0da372d4. Sin diff productivo enmain;docs208/1122/0,guards0excepciones yTTP4 válidos. No push ni despliegue. El cierre documental se integra después sin cambiar el candidato productivo.
 - **Blocker:** none
