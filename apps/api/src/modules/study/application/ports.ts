@@ -21,6 +21,11 @@ export interface StudyApplicationPorts extends StudyCommandPorts {
  linkedClassrooms(tx: StudyQuery, owner: string): Promise<{ id: string; name: string; academicYear: number; archived?: boolean }[]>;
  verifyLink(tx: StudyQuery, owner: string, id: string | null): Promise<void>;
  digest(text: string): string;
+ createTimings?(flow: 'chat' | 'tool' | 'feedback'): {
+  now(): number;
+  stage(stage: 'prepare', durationMs: number, failure?: unknown): void;
+  measure<T>(stage: 'persist', operation: () => Promise<T>, classify?: (result: T) => unknown): Promise<T>;
+ };
 }
 export type StudyAgendaPort = NonNullable<StudyOptions['agenda']>;
 export type StudyProviderPort = Pick<StudyOptions, 'generate' | 'feedback'>;

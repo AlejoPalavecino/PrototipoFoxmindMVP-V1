@@ -1,0 +1,10 @@
+# Vista parcial de conversación Foxy
+
+- Agente `/root/stream`, implementación backend de TASK-004.
+- Fecha 2026-11-17. Rama `feature/latencia-ia`, checkout principal, base `6e9c131298073c9736e1401f8b48e9511e9f5a66`.
+- Alcance autorizado: streaming de Gemini en conversación general apta, vista parcial privada y resultado final validado. Pruebas sintéticas.
+- Implementación: el cliente neutral reutiliza el preflight y su límite temporal para `generateContentStream` en conversaciones generales sin adjuntos. Foxy decodifica sólo el prefijo Markdown privado y mantiene la validación estructurada final. El GET de turno revalida la autorización del lease en la misma transacción de lectura. El parcial vive en el proceso del worker y se retira ante fin, bloqueo o cancelación confirmada. El primer texto se mide desde el inicio de la generación.
+- RED inicial: el test nuevo falló en sus tres casos por ausencia de streaming, de rechazo del flujo malformado y del campo privado.
+- GREEN final: 8 pruebas de streaming pasaron. La corrida serial de nueve archivos de streaming, autoridad, cancelación, servicio, workers, adaptador, cliente neutral y transportes oficiales terminó con código 0, incluidos los escenarios PostgreSQL sintéticos. Una corrida inicial detectó una condición intermitente en el test preexistente que busca `d2` como subcadena de un DTO con UUID aleatorio. Ese caso pasó aislado y en las corridas seriales posteriores. Un intento de la suite registró inspección de limpieza Docker indisponible y el siguiente recuperó el entorno.
+- `npm.cmd run api:build`, `npm.cmd run lint:boundaries`, `npm.cmd run docs:check`, `node scripts/run-ci-suite.mjs --check` y `node scripts/run-complete-suite.mjs --check` terminaron con código 0.
+- Estado: verificación focalizada concluida. Evidencia con SDK sintético. En una instalación con varias réplicas, el parcial queda disponible en la instancia que ejecuta el trabajo y el resultado final se mantiene accesible desde todas. El coordinador conserva la verificación del flujo web y la integración del tablero.

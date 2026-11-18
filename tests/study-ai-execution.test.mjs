@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { createAiChatTimings, createAiTextMetricSink } from '../apps/api/src/platform/ai/text-metrics.ts';
 
 const path = 'apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
 const configuration = { model: 'synthetic', maxConcurrency: 2, deadlineMs: 5000 };
@@ -11,7 +12,8 @@ const result = { text: '{"synthetic":true}', finish: 'stop', usage: { inputToken
 const fail = code => Object.assign(new Error(code), { code });
 
 function fixture({ stage, denied = false, busy = false, conflict = false, owned, authorize, config = configuration } = {}) {
-  const events = [], settlements = [], states = [];
+  const events = [], settlements = [], states = [], timings = [];
+  const record = createAiTextMetricSink(line => timings.push(JSON.parse(line)));
   let admissionChecks = 0;
   const database = { async $transaction(operation) { return operation({ async $queryRawUnsafe(sql, ...values) {
     if (sql.includes('AS running')) { admissionChecks++; return [{ running: busy ? 2n : 0n }]; }
@@ -40,9 +42,10 @@ function fixture({ stage, denied = false, busy = false, conflict = false, owned,
     } },
   } });
   const transport = { provider: 'gemini', async generate() { events.push('generate'); if (stage === 'unknown') throw fail('PROVIDER_OUTCOME_UNKNOWN'); return result; } };
-  return { events, settlements, states, get admissionChecks() { return admissionChecks; },
+  return { events, settlements, states, timings, get admissionChecks() { return admissionChecks; },
     run: waitForAdmission => executeStudyAiText({ configuration: config, database, ownerId: 'owner', requestId: 'request',
-      request, transport, waitForAdmission, async authorize() { events.push('authorize'); await authorize?.(); } }) };
+      request, transport, waitForAdmission, timing: createAiChatTimings('study', waitForAdmission ? 'feedback' : 'chat', record),
+      async authorize() { events.push('authorize'); await authorize?.(); } }) };
 }
 
 test('Study execution preserves admission, reservation, revalidation and normalized usage', async () => {
@@ -94,13 +97,18 @@ test('Study execution blocks quota before dispatch and preserves busy/idempotenc
   }
 });
 
-test('Study feedback waits for the prior job of the same owner before admitting, reserving and dispatching once', async () => {
+test('Study feedback waits for the prior job of the same owner before admitting, reserving and dispatching once', async t => {
   let checks = 0;
   const f = fixture({ owned: () => ++checks === 1 });
   assert.equal(await f.run(true), result);
   assert.equal(f.admissionChecks, 2);
   assert.deepEqual(f.events, ['authorize', 'admit', 'authorize', 'count', 'reserve', 'authorize', 'generate', 'authorize']);
   assert.deepEqual(f.states, ['DONE']);
+  const [metric] = f.timings;
+  assert.deepEqual({ ...metric, durationMs: undefined },
+    { task: 'study', flow: 'feedback', stage: 'admission', code: 'COMPLETED', outcome: 'success', durationMs: undefined });
+  assert.ok(metric.durationMs >= 900, 'admission includes the wait while the prior job owns the slot');
+  t.diagnostic(`synthetic feedback admission: ${Math.round(metric.durationMs)} ms`);
 });
 
 test('Study feedback reauthorizes while busy and never admits after revocation', async () => {

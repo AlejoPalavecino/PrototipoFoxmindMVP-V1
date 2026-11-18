@@ -10,6 +10,7 @@ import { type FoxySourceKind, type FoxySourceCursor } from '../../../../../../sr
 export interface FoxyConversation { id: string; title: string; context: FoxyContext; revision: string }
 export interface FoxyConversationCursor { updatedAt: string; id: string }
 export interface FoxyTurn { id: string; sequence: number; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'STALE' | 'CANCELLED';
+  partialMarkdown?: string;
   classroomSources?: { revision: string; used: {sourceId:string;title:string}[]; excluded: {sourceId:string;title:string;reason:string}[] };
   purpose: FoxyPurpose; message: string; answer: { title: string; markdown: string; schemaVersion: 'foxy-answer-v1'; warnings: string[]; missingInformation: string[] } | null;
   errorCode: string | null; createdAt: string }

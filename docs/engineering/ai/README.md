@@ -56,9 +56,27 @@ El fence de conexión `application_name=foxmind-api-ai-execution-v1` evita que u
 
 El plazo impide iniciar generación después del vencimiento. Una reserva SQL ya iniciada se espera antes de liquidarla, evitando commits tardíos con presupuesto sin cerrar. Las transacciones de Estudio usan `maxWait=2000` y `timeout=6000`; la finalización contable puede terminar después del plazo del proveedor. No se promete cancelar la generación remota al abortar la espera local.
 
-Estudio emite métricas locales acotadas de tarea/proveedor/etapa count o generate/duración/estado/código. No incluyen modelo, prompts, respuestas, documentos, errores SDK crudos, claves ni identificadores personales. La generación incluye validación técnica y reautorización, no certifica aplicación o calidad educativa del resultado. No se incorpora un exportador externo.
+## Medición de latencia
 
-En fixtures, un contexto base excesivo con diez pares de historial pasa de once a dos conteos; con cuatro pares aptos pasa de siete a seis. El algoritmo conserva sólo un sufijo efectivamente contado, sin quitar fuentes. Con tokenización no monótona no garantiza encontrar el sufijo más largo posible. No se midieron latencia ni ahorro monetario real.
+Foxy y Estudio emiten eventos JSON de latencia en el registro de errores del servidor. Los campos son tarea, flujo, etapa, duración en milisegundos, resultado y código de una lista cerrada. Conteo y generación de Estudio incluyen el proveedor. Cada proceso emite hasta 100 eventos por minuto. El registro usa categorías fijas y duraciones, sin modelo, prompts, respuestas, documentos, claves, errores crudos ni identificadores.
+
+| Etapa | Foxy | Estudio |
+|---|---|---|
+| `queue` | Desde la creación del turno hasta que el worker lo toma, con tiempo de PostgreSQL. | |
+| `prepare` | Lectura del turno, autorización, fuentes e historial, hasta armar la entrada. | Desde el comando hasta que quedan preparados el contexto, documentos y autorización. |
+| `admission` | Reserva de presupuesto y revalidación transaccional del turno. | Admisión SQL y, si corresponde, espera y reintentos por capacidad de una devolución. |
+| `count` | Todos los conteos del preflight, con recorte y reautorización. | Conteo del proveedor. El resultado de esta etapa informa si el proveedor devolvió un conteo. El chequeo del límite ocurre después y puede impedir la generación. |
+| `generate` | Llamada de generación y validación del adaptador. | Generación, control de formato y reautorización. |
+| `first_text` | Desde el despacho hasta publicar la primera vista parcial, si el chat admite transmisión. | |
+| `persist` | Cierre durable del turno. | Aplicación del resultado y cierre del recibo. |
+
+Cuando el usuario detiene un turno de Foxy y la cancelación se confirma en la base, la generación y la persistencia registran `CANCELLED` si el proceso que está generando recibe la señal local. Si la persistencia sólo observa que perdió el lease, registra `STALE`, por ejemplo, cuando otro proceso actualizó el turno.
+
+En el navegador, `performance.getEntriesByType('measure')` permite observar las entradas `foxmind.ai.foxy.presentation.first_text`, `foxmind.ai.study.presentation.first_text`, `foxmind.ai.study.feedback.presentation.first_text` y sus equivalentes `final`. Miden desde el envío local hasta que React confirmó el contenido en la interfaz. Si sólo se entrega una respuesta completa, esa confirmación produce las dos entradas. Las mediciones quedan en la pestaña y usan un reloj independiente del servidor.
+
+Los ensayos de chat corto, PDF con historial y devolución concurrente usan datos y proveedores sintéticos. Sirven para comprobar la atribución de etapas; sus tiempos dependen del entorno y de la espera configurada en el escenario.
+
+En fixtures sintéticos de Foxy con diez pares, un contexto base excesivo se rechaza tras dos conteos. Cuando caben los últimos cuatro pares uniformes o los nueve más recientes y el primero es muy grande, la estimación baja los conteos de seis a tres. El proveedor confirma el sufijo seleccionado y su ticket evita otro conteo al generar. La relación entre bytes y tokens puede variar entre pares y modelos, de modo que pueden caber otros pares además del sufijo confirmado. La medición compara cantidad de conteos con un proveedor sintético.
 
 Fuentes: [ejecutor](../../../apps/api/src/platform/ai/text-execution.ts), [Gemini](../../../apps/api/src/platform/ai/gemini-text-transport.ts), [Claude](../../../apps/api/src/platform/ai/anthropic-text-transport.ts), [perfiles](../../../apps/api/src/platform/ai/text-profiles.ts), [registro/evidencia](../../work-log/2026-11-16-root-ai-runtime-design.md) y [tablero](../../../odd/tasks/ai-runtime.md).
 

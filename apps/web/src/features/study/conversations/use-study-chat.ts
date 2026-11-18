@@ -1,6 +1,7 @@
 import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import type { StudyRun, StudyAction, StudyCommandData } from '../model/study-commands.ts';
 import { startStudyConversation } from '../model/study-discovery.ts';
+import { startChatTiming, trackChatTiming } from '../../../shared/chat-timing.ts';
 type Options = {
   run: StudyRun;
   currentId?: string;
@@ -87,6 +88,7 @@ export function useStudyChat({
   }
   async function send() {
     if (!text.trim() || busy || !active || sending.current || blocked) return;
+    const started = startChatTiming();
     const submitted = text;
     sending.current = true;
     Pending(submitted);
@@ -99,8 +101,14 @@ export function useStudyChat({
         );
       }
       if (!id) return;
-      if (await command('CHAT', { conversationId: id, message: submitted, topicIds: selected }))
+      const response = await command('CHAT', { conversationId: id, message: submitted, topicIds: selected });
+      if (response) {
+        const answer = response.result?.conversation?.turns?.at(-1);
+        if (answer?.id && answer.role === 'assistant' && answer.text?.trim()) {
+          trackChatTiming('study', answer.id, started);
+        }
         Text((value) => (value === submitted ? '' : value));
+      }
     } catch {
       /* parent retains error */
     } finally {

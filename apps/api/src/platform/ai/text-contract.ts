@@ -35,8 +35,10 @@ export interface AiTextResult {
   finish: 'stop' | 'length' | 'blocked' | 'other';
   usage: AiTextUsage;
 }
+export type AiTextPreview = (accumulatedText: string | undefined) => void;
 export interface AiTextTransport {
   readonly provider: AiProvider;
   count(input: AiTransportRequest): Promise<number>;
   generate(input: AiTransportRequest): Promise<AiTextResult>;
+  stream?(input: AiTransportRequest, preview: AiTextPreview): Promise<AiTextResult>;
 }

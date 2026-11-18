@@ -1,7 +1,8 @@
-import { GoogleGenAI, type Content } from '@google/genai';
+import { GoogleGenAI, type Content, type GenerateContentParameters } from '@google/genai';
 import type { GeminiClient } from './gemini-client.ts';
 import type { AiTextTransport, AiTransportRequest, AiTextResult } from './text-contract.ts';
 import { geminiUsage } from './usage.ts';
+import { AiError } from './errors.ts';
 
 function contents(input: AiTransportRequest): Content[] {
   return input.messages.map(message => ({
@@ -25,7 +26,14 @@ export function createGeminiTextTransport(options: {
   if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0) throw new TypeError('Invalid AI deadline');
   if (!options.client && (typeof options.apiKey !== 'string' || !options.apiKey.trim())) throw new TypeError('Invalid AI credential');
   const httpOptions = { timeout: deadlineMs, retryOptions: { attempts: 1 } };
-  const client = options.client ?? new GoogleGenAI({ apiKey: options.apiKey, vertexai: false, httpOptions });
+  const client: GeminiClient = options.client ?? new GoogleGenAI({ apiKey: options.apiKey, vertexai: false, httpOptions });
+  const generation = (input: AiTransportRequest): GenerateContentParameters => ({
+    model: input.model, contents: contents(input), config: {
+      systemInstruction: input.system, maxOutputTokens: input.maxOutputTokens, candidateCount: 1, temperature: 0,
+      ...(input.schema ? { responseMimeType: 'application/json', responseJsonSchema: input.schema } : {}),
+      abortSignal: input.signal, httpOptions, automaticContinuation: false,
+    },
+  });
   return {
     provider: 'gemini',
     async count(input) {
@@ -42,11 +50,7 @@ export function createGeminiTextTransport(options: {
     },
     async generate(input) {
       input.signal.throwIfAborted();
-      const result = await client.models.generateContent({ model: input.model, contents: contents(input), config: {
-        systemInstruction: input.system, maxOutputTokens: input.maxOutputTokens, candidateCount: 1, temperature: 0,
-        ...(input.schema ? { responseMimeType: 'application/json', responseJsonSchema: input.schema } : {}),
-        abortSignal: input.signal, httpOptions, automaticContinuation: false,
-      } });
+      const result = await client.models.generateContent(generation(input));
       // Read only public text parts; the SDK convenience getter may emit warnings.
       const text = result.candidates
         ? (result.candidates[0]?.content?.parts ?? []).filter(part => !part.thought).map(part => part.text ?? '').join('')
@@ -55,5 +59,39 @@ export function createGeminiTextTransport(options: {
         finish: finish(result.candidates?.[0]?.finishReason, !!result.promptFeedback?.blockReason),
         usage: geminiUsage(result.usageMetadata) };
     },
+    ...(client.models.generateContentStream && { async stream(input, preview) {
+      input.signal.throwIfAborted();
+      const results = await client.models.generateContentStream!(generation(input));
+      let text = '', bytes = 0, reason: string | undefined, usage = {}, inconsistent = false;
+      let sentPreview = false;
+      function retractPreview() {
+        if (!sentPreview) return;
+        sentPreview = false;
+        preview(undefined);
+      }
+      for await (const result of results) {
+        input.signal.throwIfAborted();
+        if (result.usageMetadata) usage = { ...usage, ...result.usageMetadata };
+        if (result.promptFeedback?.blockReason) reason = 'SAFETY';
+        if ((result.candidates?.length ?? 0) > 1) inconsistent = true;
+        if (inconsistent) { retractPreview(); continue; }
+        const candidate = result.candidates?.[0];
+        const delta = (candidate?.content?.parts ?? []).filter(part => !part.thought).map(part => part.text ?? '').join('');
+        const nextReason = candidate?.finishReason === 'FINISH_REASON_UNSPECIFIED' ? undefined : candidate?.finishReason;
+        if (reason) {
+          if (delta || (nextReason && nextReason !== reason)) inconsistent = true;
+          if (inconsistent || finish(reason, false) !== 'stop') retractPreview();
+          continue;
+        }
+        reason = nextReason;
+        if (reason && finish(reason, false) !== 'stop') { retractPreview(); continue; }
+        if (!delta) continue;
+        bytes += Buffer.byteLength(delta);
+        if (bytes > 262144) throw new AiError('INVALID_AI_OUTPUT');
+        text += delta;
+        if (!reason) { sentPreview = true; preview(text); }
+      }
+      return { text, finish: inconsistent ? 'other' : finish(reason, false), usage: geminiUsage(usage) };
+    } }),
   };
 }

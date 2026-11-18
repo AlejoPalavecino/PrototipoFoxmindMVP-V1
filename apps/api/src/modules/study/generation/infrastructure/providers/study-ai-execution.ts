@@ -8,6 +8,7 @@ import { createDefaultTextProfile, textProfileForSnapshot } from '../../../../..
 import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
 import { reserveAiTextBudget, settleAiTextBudget } from '../../../../../platform/ai/text-budget.ts';
 import { lockAiAdmission, activeAiOwnersSql } from '../../../../../platform/ai/admission.ts';
+import { createAiChatTimings, type AiChatTimings } from '../../../../../platform/ai/text-metrics.ts';
 
 export interface StudyFileDatabase {
   $transaction<T>(operation: (tx: { $queryRawUnsafe<T = unknown>(sql: string, ...values: unknown[]): Promise<T> }) => Promise<T>,
@@ -21,8 +22,10 @@ export async function executeStudyAiText(input: {
   authorize?: () => Promise<void>; transport?: AiTextTransport; request: AiTextRequest; record?: (event: AiTextMetric) => void;
   transportForExecution?: (configuration: AiConfiguration) => AiTextTransport;
   waitForAdmission?: boolean;
+  timing?: AiChatTimings;
 }) {
   const { configuration, database, ownerId, requestId, authorize, transport, request } = input;
+  const timing = input.timing ?? createAiChatTimings('study', input.waitForAdmission ? 'feedback' : 'chat');
   const id = randomUUID(), started = performance.now();
   const admit = (remaining = 8000) => database.$transaction(async raw => {
     const tx = { query: <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values) };
@@ -42,20 +45,22 @@ export async function executeStudyAiText(input: {
   });
   const admissionDeadline = started + (configuration.executionProfiles?.study?.deadlineMs ?? configuration.deadlineMs);
   const timeLeft = () => Math.floor(admissionDeadline - performance.now());
-  let admitted = await admit(input.waitForAdmission ? timeLeft() : undefined);
-  while (admitted === null) {
-    const beforeWait = timeLeft();
-    if (!input.waitForAdmission || beforeWait <= 0) fail('AI_BUSY');
-    await delay(Math.min(1000, beforeWait));
-    const beforeAuthorization = timeLeft();
-    if (beforeAuthorization <= 0) fail('AI_BUSY');
-    // The preceding transaction has ended. A revoked receipt or source must
-    // fail before claiming a slot, reserving budget or reaching the provider.
-    if (authorize) await bounded(authorize, AbortSignal.timeout(beforeAuthorization));
-    const remaining = timeLeft();
-    if (remaining <= 0) fail('AI_BUSY');
-    admitted = await admit(remaining);
-  }
+  const admitted = await timing.measure('admission', async () => {
+    let row = await admit(input.waitForAdmission ? timeLeft() : undefined);
+    while (row === null) {
+      const beforeWait = timeLeft();
+      if (!input.waitForAdmission || beforeWait <= 0) fail('AI_BUSY');
+      await delay(Math.min(1000, beforeWait));
+      const beforeAuthorization = timeLeft();
+      if (beforeAuthorization <= 0) fail('AI_BUSY');
+      // The preceding transaction has ended. Recheck before claiming a slot.
+      if (authorize) await bounded(authorize, AbortSignal.timeout(beforeAuthorization));
+      const remaining = timeLeft();
+      if (remaining <= 0) fail('AI_BUSY');
+      row = await admit(remaining);
+    }
+    return row;
+  });
   const snapshot = admitted.execution_profile;
   let dispatched = false, completed = false, usage: AiTextUsage | undefined;
   let effective = configuration;
@@ -69,7 +74,10 @@ export async function executeStudyAiText(input: {
     const signal = AbortSignal.timeout(remaining);
     const selected = input.transportForExecution?.(effective) ?? transport;
     if (!selected) fail('AI_UNAVAILABLE');
-    const result = await executeAiText({ profile: { ...profile, deadlineMs: remaining }, request, authorize, signal, record: input.record,
+    const result = await executeAiText({ profile: { ...profile, deadlineMs: remaining }, request, authorize, signal, record(event) {
+      timing.stage(event.stage, event.durationMs, event.outcome === 'failure' ? { code: event.code } : undefined, event.provider);
+      input.record?.(event);
+    },
       transport: { provider: selected.provider, count: value => selected.count(value), async generate(value) {
         const result = await selected.generate(value);
         usage = result.usage;

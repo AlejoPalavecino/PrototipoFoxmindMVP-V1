@@ -8,7 +8,13 @@ import type { AiConfiguration } from '../../../../../platform/ai/configuration.t
 import { AiError } from '../../../../../platform/ai/errors.ts';
 import { foxyMessages, foxyInstruction, foxyResponseSchema } from './foxy-prompt.ts';
 import { foxyResponse } from './foxy-response.ts';
-type Configuration = { model: string; maxInputTokens: number; maxOutputTokens: number; deadlineMs: number };
+import { createFoxyStreamPreview } from './foxy-stream-preview.ts';
+type Configuration = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>
+  & Partial<Pick<AiConfiguration, 'executionProfile'>>;
+const streamingSchema = { ...foxyResponseSchema, propertyOrdering: Object.keys(foxyResponseSchema.properties) };
+function eligible(input: FoxyTextInput) {
+  return input.mode === 'GENERAL' && input.purpose === 'CHAT' && !input.sources.length && !input.documents.length;
+}
 function validate(input: FoxyTextInput): void {
   if (!input || !['GENERAL', 'CLASSROOM'].includes(input.mode) || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN', 'RUBRIC'].includes(input.purpose)
     || typeof input.message !== 'string' || !input.message.trim() || [...input.message].length > 5000
@@ -46,21 +52,24 @@ export function createGeminiFoxyTextAdapter(configuration: AiConfiguration): Gem
 }
 export class GeminiFoxyTextAdapter {
  private readonly execution: AiTextClient;
+ private readonly executionProvider: 'gemini' | 'anthropic';
  private readonly options: { client: GeminiClient; configuration: Configuration };
  constructor(options: { client: GeminiClient | AiTextClient; configuration: Configuration }) {
   this.execution = injectedTextClient(options.client, options.configuration, 'foxy', true);
+  this.executionProvider = options.configuration.executionProfile?.provider ?? 'gemini';
   this.options = { client: textClientCompatibilityView(this.execution, options.configuration, 'foxy'), configuration: options.configuration };
  }
- private call(input: FoxyTextInput) {
+ private call(input: FoxyTextInput, publish?: (markdown: string | undefined) => void) {
+  const streaming = eligible(input) && this.executionProvider === 'gemini';
   return { key: input, signal: input.signal, request: () => {
-   validate(input); return { system: foxyInstruction, messages: foxyMessages(input), schema: foxyResponseSchema };
-  } };
+   validate(input); return { system: foxyInstruction, messages: foxyMessages(input), schema: streaming ? streamingSchema : foxyResponseSchema };
+  }, ...(streaming && publish ? { preview: createFoxyStreamPreview(publish) } : {}) };
  }
  async countTokens(input: FoxyTextInput): Promise<number> { return this.execution.count(this.call(input)); }
- async generate(input: FoxyTextInput) {
+ async generate(input: FoxyTextInput, preview?: (markdown: string | undefined) => void) {
   validate(input);
   const responseInput = { ...input, sources: input.sources.map(source => ({ ...source, documentKeys: [...source.documentKeys] })),
    documents: input.documents.map(doc => ({ ...doc, sourceKeys: [...doc.sourceKeys] })) };
-  return foxyResponse(await this.execution.generate(this.call(input)), responseInput);
+  return foxyResponse(await this.execution.generate(this.call(input, preview)), responseInput);
  }
 }

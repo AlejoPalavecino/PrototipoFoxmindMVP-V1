@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { createAiChatTimings, createAiTextMetricSink } from '../../../../../platform/ai/text-metrics.ts';
+import { createFoxyTurnPreviews } from '../turn-preview.ts';
 
 const lease = { turnId: randomUUID(), ownerId: randomUUID(), conversationId: randomUUID(), leaseNonce: randomUUID() };
 const configuration = { model: 'synthetic', maxInputTokens: 1000, deadlineMs: 10000, maxJobAgeMs: 300000 };
@@ -63,9 +65,46 @@ test('uncertain dispatch and invalid output are terminal without retry', async (
 });
 
 test('lost lease on completion never triggers a second dispatch', async () => {
-  const f = fixture({ lost: true }); await run(f); assert.equal(names(f).filter(x => x === 'generate').length, 1);
+  const f = fixture({ lost: true }), metrics = [];
+  f.options.createTimings = () => createAiChatTimings('foxy', 'tool', event => metrics.push(event));
+  await run(f); assert.equal(names(f).filter(x => x === 'generate').length, 1);
   assert.equal(names(f).filter(x => x === 'finish').length, 1); assert.equal(names(f).filter(x => x === 'close').length, 1);
+  const metric = metrics.find(({ stage }) => stage === 'persist');
+  assert.equal(metric.outcome, 'failure');
+  assert.equal(metric.code, 'STALE');
 });
+
+for (const cancelByUser of [true, false]) {
+  test(`Foxy latency distinguishes ${cancelByUser ? 'confirmed user cancellation' : 'worker deadline'}`, async () => {
+    const f = fixture({ lost: true }), metrics = [];
+    const entered = Promise.withResolvers(), late = Promise.withResolvers();
+    const read = f.options.turns.loadClaimed;
+    f.options.turns.loadClaimed = async () => ({ ...await read(), purpose: 'CHAT' });
+    f.options.previews = createFoxyTurnPreviews();
+    f.options.configuration = { ...configuration, deadlineMs: cancelByUser ? 2000 : 50 };
+    f.options.provider.generate = async (input, publish) => {
+      publish('Primer fragmento.');
+      entered.resolve(input.signal);
+      return late.promise;
+    };
+    f.options.createTimings = () => createAiChatTimings('foxy', 'chat', event => metrics.push(event));
+    const running = run(f);
+    const signal = await entered.promise;
+    if (cancelByUser) f.options.previews.cancel(lease.ownerId, lease.conversationId, lease.turnId);
+    await running;
+    assert.equal(signal.aborted, true);
+    assert.equal(signal.reason.name, 'AbortError');
+    assert.equal(result(f).errorCode, 'PROVIDER_OUTCOME_UNKNOWN');
+    late.resolve({ json: response, inputTokens: 20, outputTokens: 30 });
+    await Promise.resolve();
+    assert.equal(names(f).filter(name => name === 'finish').length, 1);
+    assert.deepEqual(metrics.filter(({ stage }) => stage === 'generate' || stage === 'persist')
+      .map(({ stage, outcome, code }) => ({ stage, outcome, code })), [
+      { stage: 'generate', outcome: 'failure', code: cancelByUser ? 'CANCELLED' : 'AI_TIMEOUT' },
+      { stage: 'persist', outcome: 'failure', code: cancelByUser ? 'CANCELLED' : 'STALE' },
+    ]);
+  });
+}
 
 test('a citation identifies the exact authorized PDF when an activity has two documents', async () => {
   const f = fixture(), classroomId = randomUUID(), sourceId = `activity:${randomUUID()}`;
@@ -82,3 +121,34 @@ test('a citation identifies the exact authorized PDF when an activity has two do
   assert.ok(findCitation(outcome.answer) || findCitation(outcome.referenceMap) || findCitation(outcome.sourceReport),
     'persisted answer or private metadata must bind the authorized source to the cited document and page');
 });
+
+for (const withContext of [false, true]) {
+  test(`Foxy latency: ${withContext ? 'synthetic PDF and conversation history' : 'short synthetic chat'}`, async t => {
+    const f = fixture(), events = [];
+    const read = f.options.turns.loadClaimed;
+    f.options.queue.claim = async () => ({ ...lease, queueMs: 23 });
+    f.options.turns.loadClaimed = async () => ({ ...await read(), purpose: 'CHAT', message: 'PRIVATE_MARKER',
+      history: withContext ? [{ user: 'private question', assistant: { title: 'private title', markdown: 'private answer' } }] : [] });
+    f.options.loader.load = async () => ({
+      ...grounding,
+      sources: withContext ? [{ sourceKey: 's1', title: 'private file', kind: 'ATTACHMENT', text: '', documentKeys: ['d1'] }] : [],
+      documents: withContext ? [{ documentKey: 'd1', sourceKeys: ['s1'], document: { kind: 'pdf', bytes: Uint8Array.of(37, 80, 68, 70) },
+        pageCount: 1, warnings: [] }] : [],
+      referenceMap: withContext ? [{ sourceKey: 's1', sourceId: 'attachment:synthetic', documentKeys: ['d1'] }] : [],
+    });
+    f.options.provider.countTokens = async input => {
+      assert.equal(input.history.length, Number(withContext));
+      assert.equal(input.documents.length, Number(withContext));
+      return 20;
+    };
+    f.options.createTimings = () => createAiChatTimings('foxy', 'chat', createAiTextMetricSink(line => events.push(JSON.parse(line))));
+    await run(f);
+    assert.equal(result(f).state, 'READY');
+    assert.deepEqual(events.map(({ stage }) => stage), ['prepare', 'count', 'admission', 'generate', 'queue', 'persist']);
+    assert.equal(events.find(({ stage }) => stage === 'queue').durationMs, 23);
+    assert.ok(events.every(({ task, flow, outcome, durationMs }) =>
+      task === 'foxy' && flow === 'chat' && outcome === 'success' && Number.isFinite(durationMs) && durationMs >= 0));
+    assert.doesNotMatch(JSON.stringify(events), /private|requestId|turnId|model/i);
+    t.diagnostic(JSON.stringify(Object.fromEntries(events.map(({ stage, durationMs }) => [stage, Math.round(durationMs * 100) / 100]))));
+  });
+}

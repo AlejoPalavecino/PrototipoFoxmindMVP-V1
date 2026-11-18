@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { createFoxyTurnPreparation } from '../apps/api/src/modules/foxy/turns/infrastructure/turn-preparation.ts';
 
 const pair = i => ({ user: `Pregunta ${i}`, assistant: { title: `Título ${i}`, markdown: `Respuesta ${i}` } });
-function fixture({ count = () => 101, historyLength = 10, model = 'synthetic', revalidate = () => true } = {}) {
+function fixture({ count = () => 101, historyLength = 10, model = 'synthetic', revalidate = () => true,
+  history = Array.from({ length: historyLength }, (_, i) => pair(i)) } = {}) {
   const calls = [], validated = new WeakSet(), scope = { capability: {}, snapshot: { attachments: [{}] }, documents: [] };
   const grounding = { context: { kind: 'GENERAL' }, curriculum: null,
     sources: [{ sourceKey: 's1', title: 'Fuente sintética', text: 'Fuente esencial', kind: 'ATTACHMENT', documentKeys: ['d1'] }],
@@ -11,7 +12,7 @@ function fixture({ count = () => 101, historyLength = 10, model = 'synthetic', r
     referenceMap: [], warnings: [] };
   const options = {
     turns: { loadClaimed: async () => ({ purpose: 'CHAT', message: 'Pregunta actual',
-      history: Array.from({ length: historyLength }, (_, i) => pair(i)),
+      history,
       metadata: { model, promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } }) },
     authority: { open: async () => { calls.push(['open']); return scope; }, close: () => calls.push(['close']),
       revalidateGrounding: async () => { calls.push(['authorize']); return revalidate(calls); } },
@@ -27,6 +28,13 @@ function fixture({ count = () => 101, historyLength = 10, model = 'synthetic', r
 }
 const counts = fixture => fixture.calls.filter(call => call[0] === 'count');
 
+test('the complete history is kept after one successful count', async () => {
+  const f = fixture({ count: () => 80 });
+  const result = await f.prepare();
+  assert.deepEqual(counts(f).map(([, input]) => input.history.length), [10]);
+  assert.equal(result.input, counts(f)[0][1]);
+});
+
 test('ten history pairs and oversized essential source need only original and base counts', async t => {
   for (const byError of [false, true]) {
     const f = fixture({ count: () => { if (byError) throw Object.assign(Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' }); return 101; } });
@@ -37,18 +45,18 @@ test('ten history pairs and oversized essential source need only original and ba
     assert.equal(base.sources, original.sources);
     assert.equal(base.documents, original.documents);
     assert.equal(base.message, original.message);
-    t.diagnostic(JSON.stringify({ fixture: 'synthetic-oversized-base', previousCounts: 11, currentCounts: counts(f).length }));
+    t.diagnostic(JSON.stringify({ fixture: 'synthetic-oversized-base', previousCounts: 2, currentCounts: counts(f).length }));
   }
 });
 
-test('binary suffix search returns an actually validated input with complete latest pairs', async t => {
+test('uniform history finds a validated suffix in three counts instead of six', async t => {
   const f = fixture({ count: input => 20 + input.history.length * 20 });
   const result = await f.prepare();
   assert.deepEqual(result.input.history, [pair(6), pair(7), pair(8), pair(9)]);
   assert.equal(result.count, 100);
   assert.ok(f.validated.has(result.input), 'return the exact successful object, preserving its preflight ticket');
-  assert.ok(counts(f).length <= 6);
-  t.diagnostic(JSON.stringify({ fixture: 'synthetic-four-pairs-fit', previousCounts: 7, currentCounts: counts(f).length }));
+  assert.deepEqual(counts(f).map(([, input]) => input.history.length), [10, 0, 4]);
+  t.diagnostic(JSON.stringify({ fixture: 'synthetic-four-pairs-fit', previousCounts: 6, currentCounts: counts(f).length }));
   assert.equal(f.calls.filter(([kind]) => kind === 'authorize').length, counts(f).length);
   const original = counts(f)[0][1];
   for (const [, input] of counts(f)) {
@@ -56,6 +64,32 @@ test('binary suffix search returns an actually validated input with complete lat
     assert.equal(input.documents, original.documents);
     assert.equal(input.message, original.message);
   }
+});
+
+test('the size of each pair guides the suffix when the oldest answer is unusually large', async t => {
+  const history = Array.from({ length: 10 }, (_, i) => pair(i));
+  history[0].assistant.markdown = 'Explicación extensa. '.repeat(200);
+  const f = fixture({ history, count: input => {
+    const size = input.history.reduce((sum, entry) => sum + Buffer.byteLength(JSON.stringify(entry)), 0);
+    return 10 + Math.ceil(size / 8);
+  } });
+  const result = await f.prepare();
+  assert.deepEqual(counts(f).map(([, input]) => input.history.length), [10, 0, 9]);
+  assert.deepEqual(result.input.history, history.slice(1));
+  assert.equal(result.count, 100);
+  assert.ok(f.validated.has(result.input));
+  t.diagnostic(JSON.stringify({ fixture: 'synthetic-large-oldest-pair', previousCounts: 6, currentCounts: counts(f).length }));
+});
+
+test('an inaccurate size estimate cannot bypass the exact provider limit', async () => {
+  const f = fixture({ count: input => {
+    if (input.history.length >= 2) throw Object.assign(Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
+    return 20 + input.history.length * 70;
+  } });
+  const result = await f.prepare();
+  assert.deepEqual(counts(f).map(([, input]) => input.history.length), [10, 0, 4, 2, 1]);
+  assert.deepEqual(result.input.history, [pair(9)]);
+  assert.ok(f.validated.has(result.input));
 });
 
 test('revoked source and incompatible pending model stop before another count', async () => {
@@ -100,6 +134,7 @@ test('selected suffix retains the real Gemini adapter ticket without another cou
   const f = fixture();
   f.options.provider.countTokens = async input => { tokens = 20 + input.history.length * 20; return adapter.countTokens(input); };
   const result = await f.prepare(), before = sdkCounts;
+  assert.equal(before, 3);
   await adapter.generate(result.input);
   assert.equal(sdkCounts, before);
   assert.equal(generations, 1);

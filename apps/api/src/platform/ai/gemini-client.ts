@@ -4,5 +4,6 @@ export interface GeminiClient {
     countTokens(input: CountTokensParameters): Promise<CountTokensResponse>;
     countForGeneration?(input: GenerateContentParameters): Promise<CountTokensResponse>;
     generateContent(input: GenerateContentParameters): Promise<GenerateContentResponse>;
+    generateContentStream?(input: GenerateContentParameters): Promise<AsyncIterable<GenerateContentResponse>>;
   };
 }

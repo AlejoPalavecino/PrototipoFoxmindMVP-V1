@@ -2,20 +2,19 @@ import type { GoogleGenAI } from '@google/genai';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import type { AiPart } from '../../../../../platform/ai/text-contract.ts';
 import { createGeminiTextTransport } from '../../../../../platform/ai/gemini-text-transport.ts';
-import { createAiTextMetricSink } from '../../../../../platform/ai/text-metrics.ts';
+import { createAiChatTimings } from '../../../../../platform/ai/text-metrics.ts';
 import { createExecutionTransport } from '../../../../../platform/ai/profile-client.ts';
 import type { StudyProvider } from '../../../../../../../../src/core/domain/study/engine.ts';
 import { executeStudyAiText, type StudyFileDatabase } from './study-ai-execution.ts';
 import { studySchemaFor } from './study-response-schema.ts';
 
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
-const record = createAiTextMetricSink(line => process.stderr.write(line));
 
 /** Compatibility entry point; SQL admission and accounting belong to execution. */
 export function createGeminiStudyProvider(configuration: AiConfiguration, database: StudyFileDatabase,
   ownerId: string, requestId: string, authorize?: () => Promise<void>,
   clientOverride?: Pick<GoogleGenAI['models'], 'countTokens' | 'generateContent'>,
-  options?: { waitForAdmission?: boolean }): StudyProvider {
+  options?: { waitForAdmission?: boolean; flow?: 'chat' | 'tool' | 'feedback' }): StudyProvider {
   const transport = clientOverride ? createGeminiTextTransport({ apiKey: configuration.apiKey, deadlineMs: configuration.deadlineMs,
     client: { models: clientOverride } }) : undefined;
   return { async generate(input) {
@@ -27,7 +26,8 @@ export function createGeminiStudyProvider(configuration: AiConfiguration, databa
       parts.push(source.document.kind === 'pdf' ? { kind: 'pdf', bytes: source.document.bytes } : { kind: 'text', text: source.document.text });
     }
     try {
-      const result = await executeStudyAiText({ configuration, database, ownerId, requestId, authorize, transport, record,
+      const result = await executeStudyAiText({ configuration, database, ownerId, requestId, authorize, transport,
+        timing: createAiChatTimings('study', options?.flow ?? (options?.waitForAdmission ? 'feedback' : 'chat')),
         waitForAdmission: options?.waitForAdmission,
         ...(clientOverride ? {} : { transportForExecution: (pinned: AiConfiguration) => createExecutionTransport(pinned, 'study') }),
         request: { system, messages: [{ role: 'user', parts }], schema: studySchemaFor(input.context) } });

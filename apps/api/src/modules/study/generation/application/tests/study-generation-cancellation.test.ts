@@ -3,6 +3,7 @@ import test from 'node:test';
 import { createStudyService } from '../../../folders/application/service.ts';
 import type { StudyResult } from '../../../../../../../../src/core/domain/study/engine.ts';
 import type { FolderRow } from '../../../application/contracts.ts';
+import { createAiChatTimings, createAiTextMetricSink } from '../../../../../platform/ai/text-metrics.ts';
 
 function deferred<T>() {
   let resolve!: (value:T)=>void;
@@ -16,6 +17,8 @@ test('a cancelled study generation retains its receipt and cannot apply a late a
     state:{version:1,fields:{name:'Estudio',academicYear:2026,bannerKey:'general',units:[],linkedClassroomId:null,planFileId:null},
       conversations:[{id:conversationId,title:'Consulta',turns:[]}],materials:[],creations:[],practices:[],exams:[],memory:{},receipts:{}}};
   const providerReady=deferred<void>(), finish=deferred<StudyResult>();
+  const metricLines: string[] = [];
+  const record = createAiTextMetricSink(line => metricLines.push(line));
   const tx={query:async()=>[]};
   const study=createStudyService({
     uow:{run:async (_req,_write,operation)=>operation(tx,owner)},
@@ -25,6 +28,7 @@ test('a cancelled study generation retains its receipt and cannot apply a late a
       }},
     newId:()=>crypto.randomUUID(),sources:async()=>[],linkedClassrooms:async()=>[],verifyLink:async()=>{},
     digest:s=>s,importPlan:async()=>null,
+    createTimings: flow => createAiChatTimings('study', flow, record),
     generate:async()=>{ providerReady.resolve(); return finish.promise; },
   });
   const input={revision:'1',action:'CHAT',requestId,conversationId,message:'Hola',topicIds:[]};
@@ -38,4 +42,9 @@ test('a cancelled study generation retains its receipt and cannot apply a late a
   assert.deepEqual((await waiting).result,cancelled.result);
   assert.deepEqual(row.state.conversations[0]!.turns,[]);
   assert.deepEqual((await study.command({},folderId,input)).result,cancelled.result);
+  const stages = metricLines.map(line => JSON.parse(line));
+  assert.deepEqual(stages.map(({ task, flow, stage, outcome, code }) => ({ task, flow, stage, outcome, code })), [
+    { task: 'study', flow: 'chat', stage: 'prepare', outcome: 'success', code: 'COMPLETED' },
+    { task: 'study', flow: 'chat', stage: 'persist', outcome: 'failure', code: 'CANCELLED' },
+  ]);
 });

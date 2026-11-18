@@ -114,6 +114,7 @@
 .answer { border: 1px solid var(--foxy-border); background: white; }
 .request h3, .answer h4 { margin: 0 0 6px; }
 .request p, .answer p { margin: 0 0 8px; white-space: pre-wrap; }
+.partialText { overflow-wrap: anywhere; }
 .reviewNote { color: var(--foxy-accent); font-size: .85rem; font-weight: 700; }
 
 .composer { padding-top: 14px; border-top: 1px solid var(--foxy-border); }

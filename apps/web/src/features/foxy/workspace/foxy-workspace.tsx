@@ -18,6 +18,7 @@ import { FoxyCollectionPanel, FoxyConversationPanel, type FoxyCatalogState, type
 import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
 import { ChatByline, FoxyChatLayout, type ChatIdentity, type ChatView } from '../../../../../shared-ui/FoxyChatLayout';
 import { useChatAttachments } from '../../../shared/use-chat-attachments';
+import { commitChatTiming } from '../../../shared/chat-timing';
 import { teacherAttachmentPath, teacherAttachmentFilePath } from '../../../shared/chat-attachments';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxyContextPicker, type FoxyContextPreview } from '../context/foxy-context-picker';
@@ -32,7 +33,7 @@ type Classroom = { id: string; name: string; archived?: boolean; division?: stri
 type VisualChatDraft = { context: FoxyContext; onCreated: () => void };
 export function FoxyWorkspace({ visualTimeline, previewContext, onStartActivity, identity, onNewDraft, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { visualTimeline?: FoxyVisualTranscript; previewContext?: (id: string, signal: AbortSignal) => Promise<FoxyContextPreview>; onStartActivity?: (classroomId: string) => void; identity?: ChatIdentity; onNewDraft?: () => void; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft,details?:{materialCount:number}) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
   const [submittedMessage,setSubmittedMessage]=useState<{text:string;after:number;conversationId:string|null}|null>(null);
-  const chatFollow=useChatFollow(state.current?.id,JSON.stringify([state.turns.map(t=>[t.id,t.state]),state.pending?.requestId,state.activeTurn?.state,state.pollError,submittedMessage?.text,visualTimeline?.jobs.map(job=>[job.id,job.state]),visualTimeline?.pending?.prompt]));
+  const chatFollow=useChatFollow(state.current?.id,JSON.stringify([state.turns.map(t=>[t.id,t.state,t.partialMarkdown?.length]),state.pending?.requestId,state.activeTurn?.state,state.pollError,submittedMessage?.text,visualTimeline?.jobs.map(job=>[job.id,job.state]),visualTimeline?.pending?.prompt]));
   const inCurrentChat=submittedMessage?.conversationId===state.current?.id;
   const matchedSubmission=!!submittedMessage&&inCurrentChat&&state.turns.some(t=>t.sequence>submittedMessage.after&&t.message===submittedMessage.text);
   const pendingText=state.pending?.text??(inCurrentChat?submittedMessage?.text:undefined);
@@ -59,6 +60,17 @@ export function FoxyWorkspace({ visualTimeline, previewContext, onStartActivity,
   const [starting, setStarting] = useState<{ title: string; text: string; purpose: FoxyPurpose; mode: ToolMode | null; message: string; context: string; previousId?: string } | null>(null);
   const [startReady, setStartReady] = useState(false);
   const draftMode = !state.current || newChat;
+  useEffect(() => {
+    if (draftMode || view !== 'chat') return;
+    for (const turn of state.turns) {
+      if (turn.state === 'READY' && turn.answer?.markdown) {
+        commitChatTiming('foxy', turn.id, 'first_text');
+        commitChatTiming('foxy', turn.id, 'final');
+      } else if (turn.state === 'RUNNING' && turn.purpose === 'CHAT' && turn.partialMarkdown && !state.pollError) {
+        commitChatTiming('foxy', turn.id, 'first_text');
+      }
+    }
+  }, [draftMode, view, state.turns, state.pollError]);
   const draftContext: FoxyContext = context === 'GENERAL' ? { kind: 'GENERAL' } : { kind: 'CLASSROOM', classroomId: context };
   const attachmentPath = !draftMode && state.current ? teacherAttachmentPath(state.current.id) : undefined;
   const attachments = useChatAttachments(attachmentPath);

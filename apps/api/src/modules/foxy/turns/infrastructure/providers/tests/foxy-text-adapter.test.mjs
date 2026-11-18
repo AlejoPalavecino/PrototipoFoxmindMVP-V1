@@ -51,6 +51,24 @@ test('provider instructions explain the mutually exclusive response status field
   assert.match(instruction, /missingInformation[^.]*at least one/);
 });
 
+test('Foxy asks for brief answers to small requests and preserves depth for creations or follow-ups', async () => {
+  const f = await fixture();
+  const history = [{ user: '¿Qué es la exposición?', assistant: { title: 'Exposición', markdown: 'Es la luz que recibe el sensor.' } }];
+  await f.adapter.generate(input({ purpose: 'CHAT', message: 'Ampliá lo anterior con ejemplos', history }));
+  const generated = f.calls.at(-1)[1];
+  const { systemInstruction } = generated.config;
+  assert.match(systemInstruction, /focused questions, advice and short feedback[^.]*brief by default/);
+  assert.match(systemInstruction, /latest user message[^.]*asks for more detail[^.]*follow-up/);
+  assert.match(systemInstruction, /STUDY_MATERIAL, LESSON_PLAN and RUBRIC[^.]*complete/);
+  assert.match(systemInstruction, /materials, lesson plans, rubrics and assignment instructions[^.]*directly in CHAT/);
+  const context = JSON.parse(generated.contents[0].parts[0].text);
+  assert.equal(context.message, 'Ampliá lo anterior con ejemplos');
+  assert.deepEqual(context.history, history);
+  assert.equal(generated.config.maxOutputTokens, config.maxOutputTokens);
+  const countedControls = f.calls[0][1].contents.slice(0, -generated.contents.length).flatMap(c => c.parts ?? []);
+  assert.ok(countedControls.some(part => part.text?.includes(systemInstruction)));
+});
+
 test('modes are explicit, sources untrusted and no private ids or mapping are sent', async () => {
   for (const mode of ['GENERAL', 'CLASSROOM']) {
     const f = await fixture({ response: success(answer({ references: [] })) });

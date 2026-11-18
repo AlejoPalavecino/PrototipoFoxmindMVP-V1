@@ -1,5 +1,7 @@
 # Estado de FoxMind
 
+La rama local "feature/latencia-ia" incorpora mediciones por etapa, recorte de historial por tamaño, extensión según la tarea y lectura progresiva del chat docente general. [Tablero y verificación del candidato](../odd/tasks/ai-latency.md).
+
 Las correcciones locales del 17 de noviembre para Foxy y Mi Estudio recuperan los flujos de creación, archivo, publicación y práctica. Incluyen pruebas con imágenes, actividades y devoluciones concurrentes de Gemini real. [Validación y límites](work-log/2026-11-17-root-foxy-study-audit-fixes.md).
 
 La integración de backend por capacidades y frontend por casos de uso está publicada en `main`, única rama local y remota. Builds, lint, 2.879 pruebas rápidas vigentes y 23 E2E críticos pasan; ambos roles se recorrieron con Ego Lite y recursos sintéticos. La consolidación posterior incorporó el E2E pendiente de enseñanza con un nuevo resultado completo verde. Los worktrees auxiliares ysu trabajo único quedaron preservados sin ramas adicionales. El [recibo combinado](verification/refactor-integration.json), la [publicación y consolidación](verification/main-consolidation.json) y el [tablero](../odd/tasks/refactor-integration.md) registran commits, respaldos y límites. No hay despliegue. Los registros individuales siguientes describen sus candidatos de origen.

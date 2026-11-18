@@ -8,6 +8,8 @@ import type { ChatAttachmentSource } from '../../../../../../../src/core/domain/
 type Options = { uow: FoxyUnitOfWork; conversations: FoxyConversationRepositoryPort;
   turns: FoxyTurnRepositoryPort; configuration: { enabled: boolean; model: string };
   wakeWorker?(): void;
+  readPreview?(tx: SqlTransaction, ownerId: string, conversationId: string, turnId: string): Promise<string | undefined>;
+  cancelPreview?(ownerId: string, conversationId: string, turnId: string): void;
   digest(text: string): string;
   attachments?(tx: SqlTransaction, ownerId: string, conversationId: string): Promise<ChatAttachmentSource[]>;
   authority: { ownedRoom(tx: SqlTransaction, owner: string, id: string): Promise<void>; activeRoom(tx: SqlTransaction, owner: string, id: string): Promise<void> };
@@ -66,19 +68,23 @@ export function createFoxyTurnService(options: Options) {
       return receipt;
     },
     async cancel(request: unknown, conversationId: string, turnId: string) {
-      return options.uow.run(request, true, async (tx, actor) => {
+      const result = await options.uow.run(request, true, async (tx, actor) => {
         const conversation = await options.conversations.get(tx, actor.id, conversationId);
         if (!conversation) return fail('NOT_FOUND');
         if (conversation.context.kind === 'CLASSROOM') await options.authority.ownedRoom(tx, actor.id, conversation.context.classroomId);
         const turn = await options.turns.cancel(tx, actor.id, conversationId, turnId);
-        return turn ? publicTurn(turn) : fail('NOT_FOUND');
+        return turn ? { ownerId: actor.id, turn: publicTurn(turn) } : fail('NOT_FOUND');
       });
+      if (result.turn.state === 'CANCELLED') options.cancelPreview?.(result.ownerId, conversationId, turnId);
+      return result.turn;
     },
     async get(request: unknown, conversationId: string, turnId: string) {
       return options.uow.run(request, false, async (tx, actor) => {
         const turn = await options.turns.get(tx, actor.id, conversationId, turnId);
         if (!turn) return fail('NOT_FOUND');
-        return publicTurn(turn);
+        const partialMarkdown = turn.state === 'RUNNING' && turn.purpose === 'CHAT'
+          ? await options.readPreview?.(tx, actor.id, conversationId, turnId) : undefined;
+        return { ...publicTurn(turn), ...(partialMarkdown ? { partialMarkdown } : {}) };
       });
     },
     async list(request: unknown, conversationId: string, input: unknown) {

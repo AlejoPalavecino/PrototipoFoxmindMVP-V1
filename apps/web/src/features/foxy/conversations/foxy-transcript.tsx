@@ -32,6 +32,7 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
   setText: (text: string) => void; onSources: (turn: FoxyTurn) => void; enabled: boolean; mode: ToolMode | null;
 }) {
   const canStop = !state.busy;
+  const unreadActive = state.activeTurn && !state.turns.some(turn => turn.id === state.activeTurn?.id) ? state.activeTurn : null;
   const entries: { key: string; at: string; body: ReactNode }[] = state.turns.map(turn => ({
     key: turn.id, at: turn.createdAt,
     body: <article className={styles.turn + ' parity-ai-turn'}>
@@ -50,6 +51,7 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
       : turn.state === 'CANCELLED' ? <p role="status">Detuviste la respuesta. <button type="button" onClick={() => setText(turn.message)}>Retomar mensaje</button></p>
       : turn.state === 'FAILED' || turn.state === 'STALE' ? <p role="status">{failureMessage(turn)} <button type="button" onClick={() => setText(turn.message)}>Retomar mensaje</button></p>
       : !state.pollError && <FoxyWait queued={turn.state === 'QUEUED'} generating={turn.purpose !== 'CHAT'}
+        partialText={turn.state === 'RUNNING' && turn.purpose === 'CHAT' ? turn.partialMarkdown : undefined}
         title={turn.state === 'QUEUED' ? 'Tu solicitud está en cola' : turn.purpose === 'CHAT' ? 'Conectando las ideas' : 'Dándole forma a la propuesta'}
         onStop={() => void controller.cancel?.()} disabled={!canStop}/>}
       {turn.state === 'READY' && (turn.classroomSources || attachmentCount > 0 || !!state.citations?.[turn.id]?.length) &&
@@ -63,20 +65,26 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
     }
   }
   entries.sort((a, b) => (a.at ?? '').localeCompare(b.at ?? ''));
+  // The receipt already identifies the turn. Keep its waiting control mounted when the first full read arrives.
+  if (unreadActive) entries.push({ key: unreadActive.id, at: '',
+    body: <article className={styles.turn + ' parity-ai-turn'}>
+      {pendingVisible && !state.error && <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/><p>{pendingText}</p></div>}
+      {!state.pollError && <FoxyWait title={unreadActive.state === 'QUEUED' ? 'Tu solicitud está en cola' : pendingVisible && !state.error ? 'Leyendo tu pregunta' : 'Conectando las ideas'}
+        onStop={() => void controller.cancel?.()} disabled={!canStop}/>}
+    </article>,
+  });
 
   return <>
     <p className={styles.srOnly + ' parity-ai-srOnly'} role="status">{!state.activeTurn && !state.pending && state.turns.at(-1)?.state === 'READY' ? 'Respuesta de Foxy lista para leer.' : ''}</p>
     <div className={styles.transcript + ' parity-ai-transcript'} ref={chatFollow.ref} onScroll={chatFollow.onScroll} aria-label="Mensajes con Foxy">
       {!entries.length && !state.activeTurn && !pendingVisible && !visualTimeline?.pending && !visualTimeline?.error && <FoxyWelcome tool={tool} onExample={chooseExample}/>}
       {entries.map(({ key, body }) => <Fragment key={key}>{body}</Fragment>)}
-      {pendingVisible && <article className={styles.turn + ' parity-ai-turn'}>
+      {pendingVisible && (!unreadActive || state.error) && <article className={styles.turn + ' parity-ai-turn'}>
         <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/><p>{pendingText}</p></div>
         {state.error ? <p role="status">Envío sin confirmar. Tu mensaje se conserva. Usá Reintentar envío.</p>
           : !state.pollError && <FoxyWait title={state.pending ? 'Enviando tu mensaje' : state.activeTurn?.state === 'QUEUED' ? 'Tu solicitud está en cola' : 'Leyendo tu pregunta'}
             onStop={state.activeTurn ? () => void controller.cancel?.() : undefined} disabled={!canStop}/>}
       </article>}
-      {state.activeTurn && !state.turns.some(turn => turn.id === state.activeTurn?.id) && (!pendingVisible || !!state.error) && !state.pollError &&
-        <FoxyWait title={state.activeTurn.state === 'QUEUED' ? 'Tu solicitud está en cola' : 'Conectando las ideas'} onStop={() => void controller.cancel?.()} disabled={!canStop}/>}
       {state.pollError && state.activeTurn && <div role="status" className="parity-foxy-scopeBanner">
         <div><p>{state.pollError}</p><button type="button" onClick={() => controller.refreshActiveTurn?.()}>Volver a consultar</button>
           <button type="button" disabled={!canStop} onClick={() => void controller.cancel?.()}>Detener</button></div>

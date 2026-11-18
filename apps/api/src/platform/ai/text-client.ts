@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import type { AiTextProfile, AiTextRequest, AiTextResult, AiTextTransport } from './text-contract.ts';
+import type { AiTextPreview, AiTextProfile, AiTextRequest, AiTextResult, AiTextTransport } from './text-contract.ts';
 import { executeAiText, type AiTextMetric } from './text-execution.ts';
 import { snapshotTextRequest } from './text-request.ts';
 import { validateTextProfile } from './text-profiles.ts';
@@ -12,6 +12,7 @@ export interface AiTextCall {
  readonly authorize?: () => Promise<void>;
  readonly reserve?: (tokens: number) => Promise<void>;
  readonly onDispatch?: () => void;
+ readonly preview?: AiTextPreview;
  readonly record?: (event: AiTextMetric) => void;
 }
 export interface AiTextClient {
@@ -75,6 +76,7 @@ export function createAiTextClient(options: { profile: AiTextProfile; transport:
     async preflight(tokens) { counted.resolve(tokens); await resume.promise; },
     async reserve(tokens) { await state.next?.reserve?.(tokens); },
     onDispatch: () => state.next?.onDispatch?.(), record: event => (state.next ?? call).record?.(event),
+    preview: () => state.next?.preview,
    }).catch(error => {
     const failure = normalizeTextError(error); counted.reject(failure); resume.reject(failure);
     if (get(call.key) === state) set(call.key, { status: 'consumed', error: failure });

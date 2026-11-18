@@ -109,3 +109,7 @@ No hubo llamadas a proveedores reales ni prueba exitosa nueva de análisis indiv
 ## Pulido UX de Foxy y estudio — 2026-11-09
 
 Componentes reales recorridos con Ego Lite: envío/espera/error/recuperación de ambos chats, scroll de historia y salto al final, herramientas móviles, foco/Escape, plan IA con respuesta sintética controlada, unidades desplegables y geometría a 390 px. App local integrada: colección estudiantil y creación con cuatro pasos/portadas, usando cuentas y recursos propios sintéticos. La continuación visual recuperó capturas nativas e inspeccionó escritorio/móvil; se corrigieron compositor fuera del pliegue, recortes, jerarquía visual y encabezados transparentes al desplazar diálogos. No acredita una nueva respuesta exitosa de Gemini, todas las operaciones de persistencia ni auditoría WCAG. [Recibo detallado](foxy-study-ux-polish.json).
+
+## Lectura progresiva docente — 2026-11-17
+
+En Ego Lite a 390 px, el transcript y controlador de Foxy recibieron parciales de un cliente sintético. Se leyó el texto antes del resultado final, el foco permaneció en Detener y Enter canceló la respuesta. En una segunda consulta se recibió el contenido definitivo. El contenido no desbordó horizontalmente. El [registro del candidato](../work-log/2026-11-17-root-ai-latency.md) distingue este recorrido de las pruebas del proveedor y los permisos.

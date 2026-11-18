@@ -6,6 +6,8 @@ import type { FoxyGrounding } from '../../../../../../../src/core/domain/foxy/gr
 import { createFoxyTurnPreparation } from './turn-preparation.ts';
 import { workerAnswer } from './worker-output.ts';
 import type { AiExecutionSettings } from '../../../../../../../src/core/contracts/ai-execution.ts';
+import { createAiChatTimings, type AiChatTimings } from '../../../../platform/ai/text-metrics.ts';
+import type { createFoxyTurnPreviews } from './turn-preview.ts';
 
 type Prepared = { scope: FoxyClaimScope; grounding: FoxyGrounding; input: FoxyTextInput; count: number;
   provider: Options['provider']; configuration: Options['configuration'] };
@@ -15,10 +17,13 @@ type Options = { database: SqlDatabase; queue: { claim(): Promise<FoxyTurnLease 
   authority: Parameters<typeof createFoxyTurnPreparation>[0]['authority'] & {
     revalidateGrounding(cap: object, signal: AbortSignal, tx?: SqlTransaction): Promise<boolean> };
   loader: Parameters<typeof createFoxyTurnPreparation>[0]['loader'];
-  provider: { countTokens(input: FoxyTextInput): Promise<number>; generate(input: FoxyTextInput): Promise<{ json: FoxyTextResponse } & Usage> };
+  provider: { countTokens(input: FoxyTextInput): Promise<number>;
+    generate(input: FoxyTextInput, preview?: (markdown: string | undefined) => void): Promise<{ json: FoxyTextResponse } & Usage> };
+  previews?: ReturnType<typeof createFoxyTurnPreviews>;
   providerForExecution?: (configuration: Options['configuration']) => Options['provider'];
   budget: { reserve(tx: SqlTransaction, lease: FoxyTurnLease, count: number): Promise<'RESERVED' | 'ALREADY_DISPATCHED' | 'NO_BUDGET' | 'NOT_CURRENT'> };
   completion: { finish(lease: FoxyTurnLease, result: any): Promise<boolean> };
+  createTimings?: () => ReturnType<typeof createAiChatTimings>;
   configuration: { model: string; maxInputTokens: number; deadlineMs: number; maxJobAgeMs: number; maxConcurrency: number } & AiExecutionSettings };
 const RETRY_INTERVAL_MS = 1000;
 async function withAbort<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
@@ -50,6 +55,29 @@ async function reserve(options: Options, lease: FoxyTurnLease, prepared: Prepare
     return options.budget.reserve(tx, lease, prepared.count);
   }, { maxWait: 2000, timeout: 6000 });
 }
+async function generate(options: Options, prepared: Prepared, lease: FoxyTurnLease, controller: AbortController, timing: AiChatTimings) {
+  const { input, scope, provider, configuration } = prepared;
+  const eligible = input.mode === 'GENERAL' && input.purpose === 'CHAT' && configuration.executionProfile?.provider !== 'anthropic'
+    && !scope.snapshot.attachments?.length && !input.sources.length && !input.documents.length;
+  const preview = eligible ? options.previews?.open(lease, controller,
+    tx => options.authority.revalidateGrounding(scope.capability, controller.signal, tx)) : undefined;
+  const started = timing.now();
+  let observed = false;
+  try {
+    const result = await withAbort(provider.generate(input, preview && (markdown => {
+      if (preview.publish(markdown) && !observed) {
+        observed = true;
+        timing.stage('first_text', timing.now() - started);
+      }
+    })), controller.signal);
+    timing.stage('generate', timing.now() - started);
+    return result;
+  } catch (error) {
+    const failure = options.previews?.wasCancelled(controller.signal) ? { code: 'CANCELLED' } : error ?? null;
+    timing.stage('generate', timing.now() - started, failure);
+    throw error;
+  } finally { preview?.close(); }
+}
 export function createFoxyTextWorker(options: Options) {
   const preparation = createFoxyTurnPreparation(options);
   const active = new Set<Promise<boolean>>();
@@ -58,6 +86,7 @@ export function createFoxyTextWorker(options: Options) {
   let filling = false, wakeRequested = false;
   let timer: ReturnType<typeof setTimeout> | undefined, stopping: Promise<void> | undefined;
   async function run(lease: FoxyTurnLease): Promise<boolean> {
+      const timing = options.createTimings?.() ?? createAiChatTimings('foxy', 'chat');
       const controller = new AbortController();
       controllers.add(controller);
       const started = Date.now();
@@ -69,8 +98,9 @@ export function createFoxyTextWorker(options: Options) {
           const remaining = configuration.deadlineMs - (Date.now() - started);
           if (remaining <= 0) controller.abort();
           else deadline = setTimeout(() => controller.abort(), remaining);
-        }), controller.signal);
-        const reservation = await reserve(options, lease, prepared, controller.signal);
+        }, timing), controller.signal);
+        const reservation = await timing.measure('admission', () => reserve(options, lease, prepared!, controller.signal),
+          state => state === 'RESERVED' ? undefined : { code: state === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'STALE' });
         if (reservation === 'NOT_CURRENT') shouldFinish = false;
         else if (reservation !== 'RESERVED') outcome = { state: 'FAILED', errorCode: reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN' };
         else {
@@ -80,7 +110,7 @@ export function createFoxyTextWorker(options: Options) {
             throw Object.assign(new Error('CONFLICT'), { code: 'CONFLICT' });
           controller.signal.throwIfAborted();
           dispatched = true;
-          const generated = await withAbort(prepared.provider.generate(prepared.input), controller.signal);
+          const generated = await generate(options, prepared, lease, controller, timing);
           const usage = { inputTokens: generated.inputTokens, outputTokens: generated.outputTokens };
           try {
             const resolved = workerAnswer(generated.json, prepared.grounding);
@@ -97,7 +127,15 @@ export function createFoxyTextWorker(options: Options) {
         outcome = { state: 'FAILED', errorCode: code(error, dispatched),
           ...(reserved && !dispatched ? { usage: { inputTokens: 0, outputTokens: 0 } } : {}) };
       }
-      try { if (!shutdownComplete && shouldFinish && outcome) await options.completion.finish(lease, outcome); }
+      try {
+        if (lease.queueMs !== undefined) timing.stage('queue', lease.queueMs);
+        if (!shutdownComplete && shouldFinish && outcome) {
+          await timing.measure('persist', () => options.completion.finish(lease, outcome),
+            committed => committed ? undefined : {
+              code: options.previews?.wasCancelled(controller.signal) ? 'CANCELLED' : 'STALE',
+            });
+        }
+      }
       finally { clearTimeout(deadline); controllers.delete(controller); if (prepared) options.authority.close(prepared.scope); }
       return true;
   }

@@ -9,6 +9,7 @@ import { renderStudyPracticeProgress } from './study-practice-progress.tsx';
 import { renderStudyPracticeReview } from './study-practice-review.tsx';
 import { renderStudyPracticeFeedback } from './study-practice-feedback.tsx';
 import { renderStudyPracticeFooter } from './study-practice-footer.tsx';
+import { clearChatTiming, commitChatTiming, startChatTiming, trackChatTiming } from '../../../../shared/chat-timing.ts';
 export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAttempt, onClose, folderName, }: {
   practice: StudyPractice;
   busy: boolean;
@@ -33,6 +34,13 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
     typeof practice.feedback === 'object' &&
     'status' in practice.feedback &&
     practice.feedback.status === 'COMPLETE';
+  useEffect(() => {
+    if (finished && hasDevelopmentAnswers && feedbackComplete) {
+      commitChatTiming('study.feedback', practice.id, 'first_text');
+      commitChatTiming('study.feedback', practice.id, 'final');
+    }
+  }, [finished, hasDevelopmentAnswers, feedbackComplete, practice.id]);
+  useEffect(() => () => clearChatTiming('study.feedback', practice.id), [practice.id]);
   const empty = practice.questions.filter((question) => !answered(question.id)).length, question = practice.questions[index];
   useEffect(() => {
     heading.current?.focus();
@@ -104,9 +112,13 @@ export function StudyPracticeView({ practice, busy, run, onDirtyChange, onNewAtt
   }
   async function requestFeedback() {
     setFeedbackError('');
+    trackChatTiming('study.feedback', practice.id, startChatTiming());
     try {
-      await run('RETRY_FEEDBACK', { practiceId: practice.id });
+      const response = await run('RETRY_FEEDBACK', { practiceId: practice.id });
+      const feedback = response.result?.practice?.feedback as { status?: unknown } | undefined;
+      if (feedback?.status !== 'COMPLETE') clearChatTiming('study.feedback', practice.id);
     } catch (failure) {
+      clearChatTiming('study.feedback', practice.id);
       const message = failure instanceof Error ? failure.message : 'No pudimos completar la devolución.';
       setFeedbackError(`${message} Tus respuestas siguen guardadas.`);
     }

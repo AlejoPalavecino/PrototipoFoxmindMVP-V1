@@ -106,14 +106,17 @@ test('S2 absent AI, generic AI overrides and missing context never fall through 
   }
 });
 
-test('S1 configured provider receives original authority and enables admission waiting only for feedback', async t => {
-  const f = fixture(t), ai = { model: 'synthetic' }, authorize = async () => {}, input = { prompt: 'fixture' };
+test('S1 configured provider receives authority and the metric flow, with admission waiting only for feedback', async t => {
+  const f = fixture(t), ai = { model: 'synthetic' }, authorize = async () => {}, input = { action: 'CHAT', prompt: 'fixture' };
   const runtime = f.create({ ai });
   assert.deepEqual(await runtime.service.generate(input, { ownerId: 'owner', requestId: 'request', authorize }), { synthetic: input });
-  assert.deepEqual(f.captures.gemini, [ai, f.database, 'owner', 'request', authorize, undefined, { waitForAdmission: false }]);
+  assert.deepEqual(f.captures.gemini, [ai, f.database, 'owner', 'request', authorize, undefined, { flow: 'chat', waitForAdmission: false }]);
+  const tool = { ...input, action: 'NOTE' };
+  assert.deepEqual(await runtime.service.generate(tool, { ownerId: 'owner', requestId: 'tool', authorize }), { synthetic: tool });
+  assert.deepEqual(f.captures.gemini, [ai, f.database, 'owner', 'tool', authorize, undefined, { flow: 'tool', waitForAdmission: false }]);
   const feedback = { practice: {}, answers: {}, sources: [] };
   assert.deepEqual(await runtime.service.feedback(feedback, { ownerId: 'owner', requestId: 'feedback', authorize }), { synthetic: feedback });
-  assert.deepEqual(f.captures.gemini, [ai, f.database, 'owner', 'feedback', authorize, undefined, { waitForAdmission: true }]);
+  assert.deepEqual(f.captures.gemini, [ai, f.database, 'owner', 'feedback', authorize, undefined, { flow: 'feedback', waitForAdmission: true }]);
 });
 
 test('S1 cleanup timer is unreferenced, non-overlapping, retries sanitized failures and stops on close', async t => {

@@ -10,6 +10,7 @@ type Options = { database: SqlDatabase; configuration: Configuration };
 export type { FoxyTurnLease } from '../application/queue-contracts.ts';
 import type { FoxyTurnLease } from '../application/queue-contracts.ts';
 type Row = { id: string; owner_id: string; conversation_id: string; execution_profile?: unknown };
+type ClaimedRow = Row & { queue_ms: number };
 const eligible = `c.owner_id=t.owner_id AND c.deleted_at IS NULL AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
   AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id AND r.archived_at IS NULL))`;
 async function recover(tx: SqlTransaction, config: Configuration): Promise<number> {
@@ -45,10 +46,12 @@ export function createFoxyTurnQueue(options: Options) {
       const config = row.execution_profile != null || options.configuration.legacyExecutionProfiles
         ? configurationForJob(options.configuration, row.execution_profile, 'foxy') : options.configuration;
       const nonce = randomUUID();
-      const [updated] = await tx.query<Row>(`UPDATE foxy_turns SET state='RUNNING',lease_nonce=$2::uuid,
+      const [updated] = await tx.query<ClaimedRow>(`UPDATE foxy_turns SET state='RUNNING',lease_nonce=$2::uuid,
         lease_until=clock_timestamp()+$3::bigint*interval '1 millisecond',updated_at=clock_timestamp()
-        WHERE id=$1::uuid AND state='QUEUED' RETURNING id,owner_id,conversation_id`, row.id, nonce, config.deadlineMs + 10000);
-      return updated ? { turnId: updated.id, ownerId: updated.owner_id, conversationId: updated.conversation_id, leaseNonce: nonce, deadlineMs: config.deadlineMs } : null;
+        WHERE id=$1::uuid AND state='QUEUED' RETURNING id,owner_id,conversation_id,
+        EXTRACT(EPOCH FROM (updated_at-created_at))::float8 * 1000 AS queue_ms`, row.id, nonce, config.deadlineMs + 10000);
+      return updated ? { turnId: updated.id, ownerId: updated.owner_id, conversationId: updated.conversation_id,
+        leaseNonce: nonce, deadlineMs: config.deadlineMs, queueMs: updated.queue_ms } : null;
     });
   }
   async function current(lease: FoxyTurnLease): Promise<boolean> {

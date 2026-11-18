@@ -113,7 +113,7 @@ export interface StudyCommandResult {
   status?: string;
   message?: string;
   missing?: string[];
-  conversation?: Pick<StudyConversation, 'id' | 'title'>;
+  conversation?: Pick<StudyConversation, 'id' | 'title' | 'turns'>;
   creation?: StudyCreation;
   practice?: StudyPractice;
   exam?: StudyExam;

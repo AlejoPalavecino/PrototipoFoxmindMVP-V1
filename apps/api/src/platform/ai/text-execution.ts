@@ -1,4 +1,4 @@
-import type { AiTextProfile, AiTextRequest, AiTextResult, AiTextTransport, AiTextUsage } from './text-contract.ts';
+import type { AiTextPreview, AiTextProfile, AiTextRequest, AiTextResult, AiTextTransport, AiTextUsage } from './text-contract.ts';
 import { executionFailure, validateTextProfile } from './text-profiles.ts';
 import { snapshotTextRequest } from './text-request.ts';
 
@@ -9,6 +9,7 @@ export interface AiTextMetric {
 interface Options {
   profile: AiTextProfile; transport: AiTextTransport; request: AiTextRequest; signal?: AbortSignal;
   authorize?: () => Promise<void>; reserve?: (tokens: number) => Promise<void>; onDispatch?: () => void;
+  preview?: () => AiTextPreview | undefined;
   /** Interruptible caller pause; unlike a real SQL reservation, no commit needs draining here. */
   preflight?: (tokens: number) => Promise<void>;
   record?: (event: AiTextMetric) => void; now?: () => number;
@@ -67,7 +68,10 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
     await bounded(async () => { await options.authorize?.(); });
     check(); options.onDispatch?.(); dispatched = true;
     return await measure('generate', async () => {
-      const result = await options.transport.generate(input());
+      const preview = profile.task === 'foxy' && profile.provider === 'gemini' ? options.preview?.() : undefined;
+      const result = preview && options.transport.stream
+        ? await options.transport.stream(input(), text => { check(); preview(text); })
+        : await options.transport.generate(input());
       usage = result?.usage;
       if (!result || result.finish !== 'stop' || typeof result.text !== 'string' || !result.text.trim()
         || Buffer.byteLength(result.text) > 1_000_000 || !usage

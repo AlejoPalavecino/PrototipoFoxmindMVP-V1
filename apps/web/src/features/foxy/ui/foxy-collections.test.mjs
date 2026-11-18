@@ -137,3 +137,45 @@ test('the classroom scope announces one selected source in the singular', async 
     assert.doesNotMatch(html,/1 fuentes seleccionadas/);
   } finally { view.close(); }
 });
+
+test('partial chat text is readable while running and disappears on failure, cancellation, loss of contact or final answer', () => {
+ const {renderFoxyTranscript}=componentWithPorts("apps/web/src/features/foxy/conversations/foxy-transcript.tsx",{});
+ const turn={id:'turn',sequence:1,state:'RUNNING',purpose:'CHAT',message:'Hola',partialMarkdown:'Primer fragmento <b>sin interpretar</b>',answer:null};
+ function render(patch={},pollError=null) {
+   return renderToStaticMarkup(renderFoxyTranscript({state:{...chatState,pollError,turns:[{...turn,...patch}],activeTurn:{id:'turn',state:patch.state??'RUNNING'}},chatFollow:{},controller:{},enabled:true}));
+ }
+ assert.match(render(),/Primer fragmento &lt;b&gt;sin interpretar&lt;\/b&gt;/);
+ assert.match(render(),/Detener/);
+ for(const state of ['CANCELLED','FAILED','STALE','QUEUED']) assert.doesNotMatch(render({state}),/Primer fragmento/);
+ assert.doesNotMatch(render({purpose:'RUBRIC'}),/Primer fragmento/);
+ assert.doesNotMatch(render({},'Falló la consulta'),/Primer fragmento/);
+ const final=render({state:'READY',answer:{title:'Foxy',markdown:'Contenido final'}});
+ assert.match(final,/Contenido final/);
+ assert.doesNotMatch(final,/Primer fragmento/);
+});
+
+test('the acknowledged turn keeps the same stop control when its first HTTP reading arrives', () => {
+ const {renderFoxyTranscript}=componentWithPorts('apps/web/src/features/foxy/conversations/foxy-transcript.tsx',{});
+ const activeTurn={id:'accepted-turn',sequence:1,state:'RUNNING'};
+ const turn={...activeTurn,purpose:'CHAT',message:'Hola',createdAt:'2026-11-17T12:00:00Z',answer:null,partialMarkdown:'Primer fragmento'};
+ function render(turns,pendingVisible) {
+   return renderFoxyTranscript({state:{...chatState,error:null,turns,activeTurn},chatFollow:{},controller:{},
+     pendingText:'Hola',pendingVisible,enabled:true});
+ }
+ function runningControl(tree) {
+   const entry=descendants(tree,node=>node.type===React.Fragment&&node.key===activeTurn.id)[0];
+   assert.ok(entry,'the acknowledged turn must already occupy its keyed transcript entry');
+   const article=entry.props.children;
+   assert.equal(article.type,'article');
+   assert.equal(article.props.children[1]?.type.name,'FoxyWait');
+   const wait=article.props.children[1];
+   assert.equal(typeof wait.props.onStop,'function');
+   return wait;
+ }
+ for (const pendingVisible of [true,false]) {
+   const first=runningControl(render([],pendingVisible));
+   const next=runningControl(render([turn],false));
+   assert.equal(first.type,next.type);
+   assert.equal(next.props.partialText,'Primer fragmento');
+ }
+});

@@ -1,6 +1,7 @@
 import type { CreateFoxyConversation, FoxyPurpose, SendFoxyMessage } from '../../../../../../src/core/domain/foxy/foxy-ai.ts';
 import type { FoxySourceKind, FoxySourceCursor } from '../../../../../../src/core/domain/foxy/source-query.ts';
 import type { WebFoxyClient, FoxyCapabilities, FoxyConversation, FoxyConversationCursor, FoxyTurn, FoxyCurriculum, FoxySource, FoxyCitation } from '../api/foxy-client.ts';
+import { clearChatTiming, startChatTiming, trackChatTiming } from '../../../shared/chat-timing.ts';
 
 type SourcePage = { items: FoxySource[]; next: FoxySourceCursor | null };
 type State = { curriculum: FoxyCurriculum | null; selection: SendFoxyMessage['selection']; sources: Record<FoxySourceKind, SourcePage>; citations: Record<string, FoxyCitation[]>; capabilities: FoxyCapabilities | null; conversations: FoxyConversation[]; nextConversationCursor: FoxyConversationCursor | null; current: FoxyConversation | null;
@@ -16,10 +17,15 @@ export function createFoxyChatController(options: Options) {
   let epoch = 0, disposed = false, cancelling = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
   const schedule = options.setTimeout ?? globalThis.setTimeout, clear = options.clearTimeout ?? globalThis.clearTimeout;
   let pollAttempts = 0;
+  let timedTurnId: string | undefined;
+  function clearTiming() {
+    if (timedTurnId) clearChatTiming('foxy', timedTurnId);
+    timedTurnId = undefined;
+  }
   const update = (patch: Partial<State>) => { if (!disposed) { state = { ...state, ...patch }; options.onChange(state); } };
   const valid = (version: number) => !disposed && version === epoch && !abort.signal.aborted;
   function stopTimer() { if (timer !== undefined) clear(timer); timer = undefined; }
-  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); stopTimer(); polling = false; pollAttempts = 0; cancelling = false; return epoch; }
+  function reset(): number { loadingSources.clear(); clearTiming(); epoch++; abort.abort(); abort = new AbortController(); stopTimer(); polling = false; pollAttempts = 0; cancelling = false; return epoch; }
   function mergeTurns(older: FoxyTurn[], newer: FoxyTurn[]): FoxyTurn[] {
     const merged: FoxyTurn[] = [];
     for (const turn of [...newer, ...older]) {
@@ -27,7 +33,10 @@ export function createFoxyChatController(options: Options) {
     }
     return merged.sort((a, b) => a.sequence - b.sequence);
   }
-  function add(turn: FoxyTurn) { update({ turns: mergeTurns(state.turns, [turn]) }); }
+  function add(turn: FoxyTurn) {
+    if (timedTurnId === turn.id && ['FAILED', 'STALE', 'CANCELLED'].includes(turn.state)) clearTiming();
+    update({ turns: mergeTurns(state.turns, [turn]) });
+  }
   function poll(conversationId: string, turnId: string, version: number, delay = 2000): void {
     if (!valid(version)) return;
     if (timer !== undefined || polling) return;
@@ -78,16 +87,22 @@ export function createFoxyChatController(options: Options) {
   }
   async function dispatch(intent: SendFoxyMessage) {
     const current = state.current; if (disposed || !current || state.busy) return;
+    clearTiming();
+    const started = startChatTiming();
     const version = epoch; pollAttempts = 0; update({ busy: true, error: null, pollError: null, pending: intent });
     try {
       const receipt = await options.client.sendMessage(current.id, intent, abort.signal);
       if (!valid(version)) return 'uncertain' as const;
+      if (intent.purpose === 'CHAT') {
+        timedTurnId = receipt.turn.id;
+        trackChatTiming('foxy', timedTurnId, started);
+      }
       const revised = { ...current, revision: receipt.conversationRevision };
       update({ current: revised, conversations: state.conversations.map(item => item.id === revised.id ? revised : item), pending: null, busy: false, activeTurn: receipt.turn.state === 'QUEUED' || receipt.turn.state === 'RUNNING' ? receipt.turn : null });
       if (receipt.turn.state === 'QUEUED' || receipt.turn.state === 'RUNNING') poll(current.id, receipt.turn.id, version);
       else {
         try { const turn = await options.client.getTurn(current.id, receipt.turn.id, abort.signal); if (valid(version)) add(turn); }
-        catch { if (valid(version)) update({ error: 'No pudimos actualizar la respuesta.' }); }
+        catch { if (valid(version)) { clearTiming(); update({ error: 'No pudimos actualizar la respuesta.' }); } }
       }
       return 'accepted' as const;
     } catch (error) {
@@ -307,6 +322,6 @@ export function createFoxyChatController(options: Options) {
         }
       } catch { if (valid(version)) update({ busy: false, error: 'No pudimos cargar más mensajes.' }); }
     },
-    dispose() { if (disposed) return; disposed = true; epoch++; abort.abort(); if (timer !== undefined) clear(timer); timer = undefined; },
+    dispose() { if (disposed) return; clearTiming(); disposed = true; epoch++; abort.abort(); if (timer !== undefined) clear(timer); timer = undefined; },
   };
 }

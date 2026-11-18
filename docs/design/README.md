@@ -27,7 +27,7 @@ Crear actividad abre directamente el espacio enfocado Alcance → Contenido → 
 
 ## Foxy y Carpetas de estudio
 
-El chat ocupa el espacio disponible y reúne contexto, historial, herramientas, creaciones y biblioteca en una barra compacta. Nuevo chat tiene etiqueta visible. Los paneles conservan el borrador. Los mensajes muestran el avatar o las iniciales de la cuenta y el avatar de Foxy. La espera distingue envío, cola y procesamiento. Cuando se cancela una operación, el chat muestra el estado confirmado.
+El chat ocupa el espacio disponible y reúne contexto, historial, herramientas, creaciones y biblioteca en una barra compacta. Nuevo chat tiene etiqueta visible. Los paneles conservan el borrador. Los mensajes muestran el avatar o las iniciales de la cuenta y el avatar de Foxy. La espera distingue envío, cola y procesamiento. En el chat general docente sin fuentes, el texto de una respuesta compatible aparece por partes. Detener conserva el foco mientras crece el texto. Cuando se cancela una operación, el chat retira el parcial y muestra el estado confirmado.
 
 | Superficie | Docente | Estudiante |
 |---|---|---|

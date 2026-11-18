@@ -18,6 +18,7 @@ export const suites = {
     'apps/api/src/modules/study/folders/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-stream.test.mjs',
     'apps/api/src/platform/ai/text-client.test.mjs',
     'tests/backend-academic-runtime.test.mjs',
     'apps/api/src/modules/study/generation/application/tests/generation-transaction-phases.test.mjs',
@@ -73,6 +74,7 @@ export const suites = {
     'tests/ai-grading-snapshots.test.mjs',
     'tests/ai-foxy-execution-snapshot.test.mjs',
     'tests/ai-profile-client.test.mjs',
+    'tests/ai-chat-latency.test.mjs',
     'tests/ai-text-execution.test.mjs',
     'tests/ai-official-transports.test.mjs',
     'tests/ai-sdk-clients.test.mjs',

@@ -21,6 +21,7 @@ import {
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { useChatAttachments } from '../../../shared/use-chat-attachments';
 import { studentAttachmentPath } from '../../../shared/chat-attachments';
+import { commitChatTiming } from '../../../shared/chat-timing';
 
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
 import { useEffect, useRef, useState } from 'react';
@@ -189,6 +190,14 @@ export function StudyWorkspace({
     setPreview: setPracticePreview,
     newAttempt,
   } = useStudyPractice(command, () => PanelDirty(false));
+  useEffect(() => {
+    const answer = messages.at(-1);
+    if (tab === 'chat' && !practice && !pending && answer?.id && answer.role === 'assistant'
+      && (answer.content ?? answer.text)?.trim()) {
+      commitChatTiming('study', answer.id, 'first_text');
+      commitChatTiming('study', answer.id, 'final');
+    }
+  }, [messages, pending, practice, tab]);
   const follow = useChatFollow(
     current?.id,
     JSON.stringify([

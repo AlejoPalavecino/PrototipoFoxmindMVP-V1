@@ -40,6 +40,9 @@ export function createStudyService(options: StudyApplicationPorts) {
         });
     }
     async function generatedCommand(request: unknown, id: string, p: Record<string, unknown>) {
+        const timing = options.createTimings?.(p.action === 'RETRY_FEEDBACK' ? 'feedback' : p.action === 'CHAT' ? 'chat' : 'tool');
+        const preparationStarted = timing?.now() ?? 0;
+        const prepareTiming = (error?: unknown) => timing?.stage('prepare', timing.now() - preparationStarted, error);
         const documents = createRequestDocuments(options.files);
         const contextPorts = { sources: options.sources, files: documents.files };
         const requestId = studyId(p.requestId), hash = options.digest(JSON.stringify({ ...p, revision: undefined }));
@@ -77,9 +80,13 @@ export function createStudyService(options: StudyApplicationPorts) {
             r.state.receipts[requestId] = { hash, result: { status: 'PENDING', requestId }, pendingAt: new Date().toISOString() };
             const saved = await save(tx, r);
             return { revision: String(saved.revision), ownerId: owner, operation };
+        }).catch(error => {
+            prepareTiming(error ?? null);
+            throw error;
         });
         if (prepared.complete)
             return prepared.complete;
+        let ready = false, persisting = false;
         try {
             await documents.load(prepared.operation);
             const authorize = async () => run(request, true, async (tx, owner) => {
@@ -88,9 +95,12 @@ export function createStudyService(options: StudyApplicationPorts) {
                 await validatePreparedStudyOperation(tx, row, p, prepared.operation, contextPorts, options.digest);
             });
             await authorize();
+            ready = true;
+            prepareTiming();
             const generated = await executePreparedStudyOperation(prepared.operation, options,
                 { ownerId: prepared.ownerId, requestId, authorize });
-            return await run(request, true, async (tx, owner) => {
+            persisting = true;
+            const persist = () => run(request, true, async (tx, owner) => {
                 const r = await load(tx, owner, id, true);
                 const receipt = r.state.receipts[requestId];
                 if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
@@ -101,16 +111,24 @@ export function createStudyService(options: StudyApplicationPorts) {
                 r.state.receipts[requestId] = { hash, result };
                 return { folder: projectFolder(await save(tx, r)), result };
             });
+            return await (timing?.measure('persist', persist, ({ result }) => {
+                const status = (result as { status?: string } | undefined)?.status;
+                if (status === 'CANCELLED' || status === 'FAILED') return { code: status === 'CANCELLED' ? 'CANCELLED' : 'AI_UNAVAILABLE' };
+            }) ?? persist());
         }
         catch (error) {
+            if (!ready) prepareTiming(error ?? null);
             try {
-                const cancelled = await run(request, true, async (tx, owner) => { const r = await load(tx, owner, id, true);
+                const close = () => run(request, true, async (tx, owner) => { const r = await load(tx, owner, id, true);
                 const receipt = r.state.receipts[requestId];
                 if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
                 if (receipt?.hash === hash && (receipt.result as { status?: string })?.status === 'PENDING') {
                     r.state.receipts[requestId] = { hash, result: { status: 'FAILED' } };
                     await save(tx, r);
                 } });
+                const cancelled = await (ready && !persisting && timing
+                    ? timing.measure('persist', close, result => result ? { code: 'CANCELLED' } : error ?? null)
+                    : close());
                 if (cancelled) return cancelled;
             }
             catch { /* Preserve provider or authorization failure. */ }
