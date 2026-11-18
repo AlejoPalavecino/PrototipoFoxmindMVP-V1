@@ -1,6 +1,6 @@
 # Especificación funcional vigente de FoxMind
 
-Describe las reglas del candidato de paridad del 2026-11-15. El [registro de verificación](work-log/2026-11-15-root-product-parity.md) documenta la evidencia y lo que sigue en revisión. Las [funciones por rol](product/features-by-role.md), [guías de ingeniería](engineering/README.md) y [matriz de comprobaciones](verification/flows.md) detallan capacidades, implementación y evidencia.
+Reglas vigentes en la revisión del 18 de noviembre de 2026. La [matriz por rol](product/features-by-role.md) resume quién puede hacer qué, las [guías por dominio](engineering/README.md) explican su implementación y el [estado de FoxMind](implementation-roadmap.md) reúne las verificaciones y decisiones pendientes.
 
 ## 1. Cuenta, identidad y permisos
 
@@ -120,13 +120,13 @@ Tres medidas independientes: cumplimiento de entregas, rendimiento y avance de t
 
 Las familias son extracción de plan, generación de actividad, análisis individual, corrección asistida, Foxy docente y Estudio privado. Cada familia conserva sus reglas de privacidad, contexto y autorización.
 
-En los pilotos pedagógicos, el chat de Estudio ofrece explicación o ayuda gradual según el pedido. Las prácticas ejercitan aplicación y las devoluciones se apoyan en el intento entregado. En actividades, el borrador docente pide un desafío acorde al objetivo y al material, con criterios observables y revisión en el editor.
+El chat de Estudio ofrece explicación o ayuda gradual según el pedido. Las prácticas ejercitan aplicación y las devoluciones se apoyan en el intento entregado. En actividades, el borrador docente pide un desafío acorde al objetivo y al material, con criterios observables y revisión en el editor.
 
 Análisis individual: métricas anónimas, orientación docente; no corrección de respuestas ni diagnóstico/predicción personal. Corrección asistida: entrega/archivos autorizados y rúbrica opcional; minimizar datos no garantiza texto libre anónimo. Propuesta privada, docente usa/edita/descarta y publica por separado; motor objetivo permanece determinista.
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.
 
-En el lector privado de un visual listo, el docente puede guardar un título y un texto revisados, descargar ese contenido como TXT, descargar el archivo visual privado o iniciar una publicación a Biblioteca. Los esquemas ofrecen además un TXT con conceptos y relaciones. El archivo generado y las publicaciones anteriores se conservan. Cada nueva publicación requiere confirmar explícitamente la versión que se preparó.
+En el lector privado de un visual listo, el docente puede guardar un título y un texto revisados, descargar ese contenido como TXT, descargar el archivo visual privado o iniciar una publicación a Biblioteca. Los esquemas ofrecen además un TXT con conceptos y relaciones. El archivo generado y las publicaciones anteriores se conservan. Cada nueva publicación requiere confirmar explícitamente la versión que se preparó. En un chat general nuevo, Foxy puede producir una comparación de dos aperturas con cantidades exactas de flechas mediante un render local cuando el pedido coincide con el formato admitido. [Condiciones y límites](engineering/ai/foxy.md#consultas-privadas).
 
 La tarjeta Imágenes y esquemas permite iniciar un trabajo visual desde un chat nuevo. El botón Generar guarda la conversación en el contexto elegido y encola el visual. Los turnos de texto activan el procesador al confirmarse y se despachan cuando hay capacidad global y por docente. [Reglas de Foxy](engineering/ai/foxy.md)
 
@@ -176,6 +176,6 @@ Las propuestas de apunte, esquema, práctica y simulacro pueden quedar asociadas
 
 Quitar material, eliminar carpeta y agregar repasos a Agenda requieren confirmación en un diálogo de FoxMind. Cancelar o pulsar Escape conserva el estado anterior. Eliminar una carpeta cancela sus avisos futuros y conserva las sesiones ya incorporadas a Agenda. [Guía de Estudio](engineering/study/README.md)
 
-El presupuesto global de la plataforma, el cupo de almacenamiento productivo, el hosting y el piloto real siguen pendientes de decisión. La cuota mensual de IA por cuenta se especifica en la sección de asistencia IA.
+El hosting, el presupuesto global y el cupo productivo de almacenamiento siguen pendientes. El piloto con participantes está preparado para coordinar la medición de aprendizaje, utilidad y tiempo docente. Los ensayos técnicos y las lecturas de muestras respaldan recorridos concretos. [Guion del piloto](verification/piloto-con-participantes.md) · [Evidencia del arnés](work-log/2026-11-17-root-cierre-arnes.md).
 
 La [matriz de flujos](verification/flows.md) explicita PASS, alcance limitado y no ensayado. No es una certificación de seguridad/rendimiento o cobertura exhaustiva de todas las combinaciones.

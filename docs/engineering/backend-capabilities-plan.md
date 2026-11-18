@@ -6,7 +6,7 @@ Propuesta del 2026-11-16 sobre `main`, commit `dd6f4bc92b959cce0e2c6834329161427
 
 **Ampliación de aceptación aprobada:** el usuario pidió adaptar también seis E2E de UI anteriores dentro de la rama backend, sin cambiar la interfaz. Se preservan sus reglas de privacidad, permisos, concurrencia, persistencia y admisión; sólo se reconcilian guiones y selectores con la UI vigente. La ejecución queda en TASK-026–028 y el cierre global en TASK-024. El agente frontend conserva la migración de sus imports al núcleo; la entrada de compatibilidad sigue disponible por decisión explícita.
 
-**Resultado local:** implementación y seis E2E adaptados, con aceptación del alcance acordado y revisión independiente registradas en TASK-024. El mapa conserva615 fuentes API,134 pruebas reubicadas y37 archivos runtime nuevos. Las tandas finales verifican2808 fast,914 DB,52 servicios y75 browser seleccionados sin fallos/omitidas, además de19 wrappers y builds. Los33 archivos browser fuera de selección y los proveedores reales no se presentan como verificados. Los cambios permanecen locales, sin commits ni publicación.
+**Resultado local:** implementación y seis E2E adaptados, con aceptación del alcance acordado y revisión independiente registradas en TASK-024. El mapa conserva 615 fuentes API, 134 pruebas reubicadas y 37 archivos runtime nuevos. Las tandas finales verifican 2.808 fast, 914 de DB, 52 de servicios y 75 de navegador seleccionados sin fallos/omitidas, además de 19 wrappers y builds. Los 33 archivos browser fuera de selección y los proveedores reales no se presentan como verificados. El refactor se integró y publicó después en `main` junto con frontend. [Arquitectura vigente](architecture.md) · [Verificación del candidato integrado](../verification/refactor-integration.json).
 
 ## 1. Resultado, alcance y condiciones
 
@@ -174,10 +174,10 @@ En el cierre se recorren con Ego Lite y cuentas sintéticas los flujos afectados
 - Si un consumidor exige un puente de importación, será una reexportación nombrada hacia una sola implementación, con dueño, consumidores y condición de retiro registrados. No se duplican clases de error ni reglas.
 - Cada corte conserva una base verificable. Si falla, se detiene su avance y se corrige o revierte sólo el cambio propio mediante un diff revisado, preservando trabajo ajeno. No se hace reset global ni se tocan datos para recuperar una reorganización de código.
 - Una incompatibilidad de JSON, esquema, comportamiento HTTP, producto o proveedor se presenta como cambio de alcance antes de implementarla; no se agrega una migración incidental.
-- Documentar el resultado real en guías canónicas y roadmap sólo tras verificarlo. Esta propuesta y su futura tarea no reemplazan la arquitectura vigente mientras el código siga en transición.
+- Documentar el resultado real en guías canónicas y roadmap sólo tras verificarlo. El resultado integrado se describe en la [arquitectura vigente](architecture.md).
 
 ## 8. Decisiones para aprobar y primer paso
 
-El plan propone: mantener los 13 dominios; usar capacidad → capas necesarias con roles comprobables; colaboración por puertos y composición; bandeja en `home/notifications`; piloto estructural en Plan y piloto de contratos en Autoría; conservar datos, API, stack y proveedores. Estas son decisiones de diseño propuestas para aprobar con el plan, no cambios ya ejecutados.
+El plan propone: mantener los 13 dominios; usar capacidad → capas necesarias con roles comprobables; colaboración por puertos y composición; bandeja en `home/notifications`; piloto estructural en Plan y piloto de contratos en Autoría; conservar datos, API, stack y proveedores. El [tablero](../../odd/tasks/backend-capabilities.md) conserva el resultado de la ejecución de este diseño.
 
 Tras esa aprobación y la autorización de implementación, crear un único registro `odd/tasks/backend-capabilities.md` desde la plantilla TTP, desglosar P05/P06/P08–P11 en resultados verificables y comenzar P01. El orquestador será su único escritor y reflejará seis hitos en el plan nativo. Commits, publicación y despliegue mantienen sus autorizaciones propias.

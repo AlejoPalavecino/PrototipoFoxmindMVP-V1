@@ -25,7 +25,7 @@ Conservar Brújula y Foxy docente como referencia. Animaciones discretas con red
 - **Depends on:** TASK-001, TASK-002, TASK-003
 - **Owner:** root
 - **Acceptance:** Capturas reales de Ego Lite inspeccionadas en escritorio/móvil para chats/herramientas, colecciones y creación/plan; corregir hallazgos de UX dentro de la dirección aprobada y revalidar el candidato; conservar evidencia visual y límites actuales.
-- **Evidence:** 28 capturas nativas Ego Lite inspeccionadas, a 1440×1000/390×844; catálogo con 216 entradas y hashes verificados. Hallazgos corregidos en compositor, cascada móvil/selects, portadas, encabezado con scroll, jerarquía y estados de plan/chat. 74 tests verdes, dos regresiones RED→GREEN; tipos/lint/build correctos. docs:check 77/825/0. Ego finalizado, fixture detenido, app propia READY. Registro docs/work-log/2026-11-09-root-ux-visual.md.
+- **Evidence:** 28 capturas nativas Ego Lite inspeccionadas, a 1440×1000/390×844; catálogo con 216 entradas y hashes verificados. Hallazgos corregidos en compositor, cascada móvil/selects, portadas, encabezado con scroll, jerarquía y estados de plan/chat. 74 tests verdes, dos regresiones RED→GREEN; tipos/lint/build correctos. docs:check 77/825/0. Ego finalizado, fixture detenido, app propia READY. Registro [registro del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-09-root-ux-visual.md).
 - **Blocker:** none
 
 ### TASK-002 — Colecciones y creación coherentes

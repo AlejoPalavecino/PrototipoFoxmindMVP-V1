@@ -8,7 +8,7 @@
 
 ## Implementación y primera verificación
 
-- Astra: pantalla dedicada `ClassroomProcessing`, integración en Wizard y estilos acotados a aulas. Estados reales de upload/validación y SENDING/QUEUED/RUNNING; READY conserva aplicación explícita. Fallos de consulta se recuperan mediante GET, sin generar de nuevo. [Registro del implementador](2026-11-16-astra-classroom-processing.md).
+- Astra: pantalla dedicada `ClassroomProcessing`, integración en Wizard y estilos acotados a aulas. Estados reales de upload/validación y SENDING/QUEUED/RUNNING; READY conserva aplicación explícita. Fallos de consulta se recuperan mediante GET, sin generar de nuevo. [Registro del implementador](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-astra-classroom-processing.md).
 - Root repitió `node --test tests/classroom-processing.test.mjs tests/classroom-ai-ui.test.mjs`: 15/15 PASS; `git diff --check` acotado: PASS. Typecheck y regresiones del asistente ejecutados por Astra y documentados en su registro.
 - Ego TaskSpace1, producto y maqueta; referencias capturadas 1440,390,320. PDF sintético subido realmente a borrador propio «QA · Pantallas de carga», aprobado por servicio de archivos y conservado al regresar.
 - Extracción IA interceptada sólo en la pestaña de QA y sólo para ese borrador: SENDING/QUEUED/RUNNING/READY y error503 de consulta. Verificado Volver, Escape, reabrir, recuperar con GET y revisar propuesta con un único POST inicial y cero apply/publicaciones. No consumo de Gemini en esta pasada; la prueba real anterior había recibido error de cuota. Interceptación pendiente de retirar al finalizar QA.

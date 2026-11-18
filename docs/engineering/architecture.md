@@ -4,7 +4,7 @@ FoxMind es una plataforma educativa para organizar aulas, planes, materiales, ac
 
 ## Lectura del sistema
 
-1. Este documento explica tecnologías, componentes y límites.
+1. Abrí el [diagrama de arquitectura](../diagramas/arquitectura.html) para seguir una solicitud desde el navegador hasta los datos e integraciones.
 2. El [modelo de datos](data-model.md) explica entidades, relaciones e integridad.
 3. Las [funciones por rol y sección](../product/features-by-role.md) explican capacidades y permisos.
 4. El [diseño UX/UI vigente](../design/README.md) explica recorridos, estados y componentes.
@@ -71,7 +71,7 @@ Navegador -> Next /api/v1 -> Nest (composición y transportes)
 
 - [Identidad](identity/README.md) y [archivos](files/README.md): sesión, autorización y contenido privado.
 - [Aulas](classrooms/README.md), [enseñanza](teaching/README.md), [actividades](activities/README.md), [corrección](grading/README.md), [agenda](agenda/README.md) e [inicio](home/README.md): capacidades por dominio.
-- [IA](ai/README.md): extracción de planes, generación de actividades, análisis, asistencia de corrección y espacio Foxy; cada capacidad conserva sus límites y privacidad.
+- [IA](ai/README.md) cubre extracción de planes, generación de actividades, análisis, asistencia de corrección, Foxy y Estudio, además de los recursos visuales y la cuota mensual.
 - [Operación local](local-development/README.md) y [pruebas](testing/README.md): configuración, recursos propios y limpieza. Los procesos de trabajo y su ciclo de vida se describen en las guías correspondientes.
 
 La cuenta verificada que inicia sesión ordinariamente llega a `/inicio`; destinos explícitos permitidos e invitaciones conservan su flujo y la verificación sigue siendo obligatoria.
@@ -110,7 +110,7 @@ Los visuales de Foxy son opt-in separados (`AI_IMAGE_ENABLED`/`AI_DIAGRAM_ENABLE
 - El módulo raíz espera los cierres de Estudio, Foxy y workers con `Promise.allSettled` antes de cerrar correo, archivos y aulas; Prisma se destruye después en los módulos importados. Conserva el primer rechazo tras intentar la segunda fase.
 - No se agrega idempotencia de `close()` ni una garantía de drenaje completo ante rechazo: el `Promise.all` interno conserva su rechazo temprano si falla el cierre de avisos. No confundir el camino de cierre exitoso con tolerancia adicional a fallos.
 
-[architecture-host.test.mjs](../../tests/architecture-host.test.mjs) verifica el parser real, registro/montaje con bordes sintéticos y orden de cierre del root. [study-runtime.test.mjs](../../tests/study-runtime.test.mjs) verifica wiring, guardas de proveedor/admisión, no solapamiento, recuperación y espera de ambos pendientes en ambos órdenes. Son pruebas en memoria, no aceptación de servicios reales ni de transporte HTTP completo. **Risk item 4:** timer/drenaje concurrente requiere verificación independiente del padre antes del cierre de la tarea.
+[architecture-host.test.mjs](../../tests/architecture-host.test.mjs) verifica el parser real, registro/montaje con bordes sintéticos y orden de cierre del root. [study-runtime.test.mjs](../../tests/study-runtime.test.mjs) verifica wiring, guardas de proveedor/admisión, no solapamiento, recuperación y espera de ambos pendientes en ambos órdenes. Son pruebas en memoria, no aceptación de servicios reales ni de transporte HTTP completo.
 
 ## Persistencia y trabajos diferidos
 
@@ -160,11 +160,9 @@ La [reorganización aprobada](backend-capabilities-plan.md) mantiene esos 13 mó
 
 La bandeja pertenece a `home/notifications`; Muro y otros productores insertan sus avisos dentro de la transacción original. Las rutas HTTP existentes se conservan. La recepción de archivos utiliza un puerto de autorización y vuelve a comprobar la custodia al recibir el cuerpo, sin exponer el store al transporte. Estudio prepara, reserva, revalida, ejecuta fuera de la transacción y aplica el resultado junto con su recibo; cancelación y revocación siguen vigentes.
 
-El backend importa las reglas neutrales desde su archivo dueño en `src/core/domain/<dominio>`. El guard impide depender de `src/core/domain/index.ts`, incluso desde bootstrap. Esa entrada mantiene compatibilidad para los consumidores frontend concurrentes y las pruebas explícitas de identidad de exports; su retiro requiere migrar esos consumidores primero. Esta rama no modifica frontend ni da ese retiro por realizado.
+El frontend y el backend importan las reglas desde su dominio en `src/core/domain`. Los controles de arquitectura comprueban la dirección de estas dependencias y las entradas públicas de cada módulo. La fachada `domain/index.ts` conserva la compatibilidad de sus exportaciones. Los DTO compartidos viven en `src/core/contracts` y el contrato SQL de persistencia se define por separado.
 
-`scripts/migration-boundaries.mjs` y el guard AST protegen módulos, capacidades, contratos públicos, entradas de features y dirección de dependencias, con cero excepciones congeladas. El [mapa por archivo](../verification/backend-capabilities-map.json) conserva origen, destino y huellas de la base y del candidato. El resultado local y sus límites se registran en el [tablero de capacidades](../../odd/tasks/backend-capabilities.md) y su [registro de ejecución](../work-log/2026-11-16-root-backend-capabilities-execution.md); no equivalen a integración ni publicación.
-
-El núcleo agrupa reglas en `src/core/domain/<dominio>`; el frontend importa su dueño concreto, comprobado por un guard. `src/core/contracts` separa DTOs compartidos y `sql.ts` define persistencia: un tipo SQL no es una regla de dominio ni un contrato para exponer al navegador. `domain/index.ts` conserva una fachada global para consumidores existentes y pruebas de identidad; no se retira como parte del refactor frontend.
+La [verificación de integración](../verification/refactor-integration.json) reúne la evidencia del backend por capacidades y el frontend por casos de uso. El [mapa de archivos](../verification/backend-capabilities-map.json) conserva las rutas y huellas del refactor original.
 
 Estudio conserva motor neutral en `src/core/domain/study/engine.ts`, casos de uso en `modules/study/application` y cargas/avisos en su infraestructura/presentación. `bootstrap/study-file-integration.ts` y `bootstrap/study-agenda-integration.ts` conectan las capacidades sin conceder permisos docentes. Ver [Estudio](study/README.md) y [frontend](frontend/README.md).
 

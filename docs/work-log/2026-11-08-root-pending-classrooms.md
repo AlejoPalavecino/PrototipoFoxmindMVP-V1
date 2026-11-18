@@ -35,7 +35,7 @@ quality_reviewer `/root/review_pending`, sólo lectura, sin escrituras ni servic
 
 Ego Lite, TaskSpace 3, cerrada al terminar. Componentes reales con cliente de prueba en memoria (sin upstream/datos reales). Selector sólo docente; contador/estados separados; continuar recupera nombre; Cancelar/Escape no emiten DELETE y restituyen foco; eliminar emite una llamada, retira tarjeta, muestra vacío/contador0 y enfoca Pendientes; error conserva tarjeta y diálogo; estudiante sin selector. Tarjetas y lista observadas. Vista móvil con acciones de 44/48 px, sin overflow.
 
-[Escritorio 1440×1000](../design/current/teacher-pending-desktop.png), [móvil 390×844](../design/current/teacher-pending-mobile.png), [tablet 768×1024](../design/current/teacher-pending-tablet.png). Metadatos y hashes en catálogo actual (168 capturas). Las imágenes no prueban persistencia; esa evidencia corresponde al test de PostgreSQL y al test proxy/HTTP.
+[Escritorio 1440×1000](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/teacher-pending-desktop.png), [móvil 390×844](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/teacher-pending-mobile.png), [tablet 768×1024](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/teacher-pending-tablet.png). Metadatos y hashes en catálogo actual (168 capturas). Las imágenes no prueban persistencia; esa evidencia corresponde al test de PostgreSQL y al test proxy/HTTP.
 
 ## Fallos corregidos y límites
 

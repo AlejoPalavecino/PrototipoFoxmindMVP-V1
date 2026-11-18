@@ -1,60 +1,57 @@
-# Galería actual de FoxMind
+# Galería vigente de FoxMind
 
-Capturas del 12 de noviembre de 2026 sobre `main` (`398cc0b`). Chromium recorrió la aplicación compilada con servicios descartables y cuentas de prueba. Las respuestas de IA que aparecen son sintéticas. Los tamaños son 1440×1000 en escritorio y 390×844 en móvil. [Catálogo con metadatos y hashes](catalog.json) · [Evidencia de la auditoría](../../work-log/2026-11-12-root-documentation-audit.md)
+Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada de `main` en `2ed07b67`. Se usaron cuentas sintéticas, el aula «Fotografía y luz» y una carpeta de estudiante con una copia de su plan. Escritorio mide 1440×1000 y móvil, 390×844. [Catálogo de rutas, tamaños y hashes](catalog.json) · [Registro de captura](../../work-log/2026-11-18-galeria-docs.md) · [Guía de UX/UI](../README.md)
 
 ## Cuenta y acceso
 
-[Iniciar sesión](acceso-1440.png) · [Registro móvil](registro-390.png) · [Recuperar acceso](recuperacion-1440.png)
+[Iniciar sesión en escritorio](vigente-acceso-publico-1440.png)
 
 | Vista | Docente | Estudiante |
 |---|---|---|
-| Perfil y avatares | [Móvil](perfil-docente-390.png) | [Móvil](perfil-estudiante-390.png) |
-| Configuración de la cuenta | [Escritorio](cuenta-docente-1440.png) | [Escritorio](cuenta-estudiante-1440.png) |
+| Mi perfil | [Escritorio](vigente-perfil-docente-1440.png) · [Móvil](vigente-perfil-docente-390.png) | [Escritorio](vigente-perfil-estudiante-1440.png) · [Móvil](vigente-perfil-estudiante-390.png) |
 
 ## Inicio, búsqueda y notificaciones
 
 | Vista | Docente | Estudiante |
 |---|---|---|
-| Inicio | [Escritorio](inicio-docente-1440.png) · [Móvil](inicio-docente-390.png) | [Escritorio](inicio-estudiante-1440.png) · [Móvil](inicio-estudiante-390.png) |
-| Elegir aula antes de crear una actividad | [Diálogo](inicio-destino-docente-1440.png) | — |
-| Búsqueda global | [Resultados](busqueda-docente-1440.png) | — |
-| Notificaciones | [Centro](notificaciones-docente-1440.png) | [Centro y repasos](notificaciones-estudiante-1440.png) |
+| Inicio | [Escritorio](vigente-inicio-docente-1440.png) · [Móvil](vigente-inicio-docente-390.png) | [Escritorio](vigente-inicio-estudiante-1440.png) · [Móvil](vigente-inicio-estudiante-390.png) |
+| Menú abierto | [Móvil](vigente-menu-docente-390.png) | [Móvil](vigente-menu-estudiante-390.png) |
+| Búsqueda global | [Escritorio](vigente-busqueda-docente-1440.png) · [Móvil](vigente-busqueda-docente-390.png) | — |
+| Notificaciones | [Escritorio](vigente-notificaciones-docente-1440.png) · [Móvil](vigente-notificaciones-docente-390.png) | [Escritorio](vigente-notificaciones-estudiante-1440.png) · [Móvil](vigente-notificaciones-estudiante-390.png) |
 
 ## Mis aulas
 
 | Vista | Docente | Estudiante |
 |---|---|---|
-| Catálogo | [Escritorio](aulas-docente-1440.png) · [Móvil](aulas-docente-390.png) | [Escritorio](aulas-estudiante-1440.png) · [Móvil](aulas-estudiante-390.png) |
-| Plan | [Avance y tema](aula-plan-docente-1440.png) | [Consulta del plan](aula-plan-estudiante-1440.png) |
-| Muro | [Aviso docente](aula-wall-docente-1440.png) | [Lectura móvil](aula-wall-estudiante-390.png) |
-| Biblioteca | [Material publicado](aula-library-docente-1440.png) | [Vista móvil](aula-library-estudiante-390.png) · [Lectura](aula-material-estudiante-390.png) |
-| Actividades | [Publicadas y borradores](aula-activities-docente-1440.png) | [Pendientes](aula-activities-estudiante-390.png) · [Consigna](aula-consigna-estudiante-390.png) |
-| Progreso | [Vista de clase](aula-progress-docente-1440.png) | [Mi progreso](aula-progress-estudiante-390.png) |
-| Integrantes | [Alumnos y código](aula-members-docente-1440.png) · [Invitación múltiple](aula-invitaciones-docente-1440.png) | [Compañeros](aula-members-estudiante-390.png) |
-| Historial y ajustes | [Historial](aula-history-docente-1440.png) · [Configuración móvil](aula-settings-docente-390.png) | — |
+| Catálogo | [Escritorio](vigente-aulas-docente-1440.png) · [Móvil](vigente-aulas-docente-390.png) | [Escritorio](vigente-aulas-estudiante-1440.png) · [Móvil](vigente-aulas-estudiante-390.png) |
+| Plan | [Escritorio](vigente-plan-aula-docente-1440.png) · [Móvil](vigente-plan-aula-docente-390.png) | [Escritorio](vigente-plan-aula-estudiante-1440.png) · [Móvil](vigente-plan-aula-estudiante-390.png) |
 
 ### Creación e ingreso
 
-[Crear aula](crear-aula-390.png) · [Unirse por código](ingresar-aula-390.png) · [Crear carpeta de estudio](crear-carpeta-390.png). La [comparación de los cuatro pasos](../../verification/flows.md#crear-carpeta-con-la-presentación-de-crear-aula--2026-11-12) conserva las capturas de la entrega que introdujo el asistente compartido.
+[Crear aula](vigente-crear-aula-docente-390.png) · [Unirse por código](vigente-ingresar-aula-estudiante-390.png) · [Crear carpeta de estudio](vigente-crear-carpeta-estudiante-390.png)
 
 ## Foxy y Carpetas de estudio
 
-| Superficie | Capturas |
-|---|---|
-| Foxy AI docente | [Chat nuevo en escritorio](foxy-chat-docente-1440.png) · [Chat nuevo en móvil](foxy-chat-docente-390.png) · [Respuesta de prueba](foxy-respuesta-docente-1440.png) |
-| Herramientas docentes | [Herramientas](foxy-herramientas-docente-390.png) · [Imágenes y esquemas desde un chat nuevo](foxy-visuales-docente-390.png) |
-| Carpetas de estudio | [Colección de escritorio](carpetas-estudiante-1440.png) · [Colección móvil](carpetas-estudiante-390.png) |
-| Chat y herramientas de estudio | [Chat de escritorio](estudio-chat-estudiante-1440.png) · [Chat móvil](estudio-chat-estudiante-390.png) · [Herramientas](estudio-herramientas-estudiante-390.png) · [Preparar un examen](estudio-examen-estudiante-390.png) |
-| Materiales y Plan | [Materiales](estudio-materiales-estudiante-390.png) · [Plan y temas](estudio-plan-estudiante-390.png) · [Vista previa DOCX](estudio-docx-estudiante-390.png) · [Confirmar quita](estudio-confirmar-quitar-390.png) |
-
-La [verificación de Foxy y Estudio](../../verification/2026-11-12-foxy-study-e2e.md) cubre también creaciones, adjuntos, descargas y planificación de repasos. Cada ensayo conserva su candidato y entorno.
+| Vista | Escritorio | Móvil |
+|---|---|---|
+| Foxy AI docente | [Chat](vigente-foxy-docente-1440.png) | [Chat](vigente-foxy-docente-390.png) |
+| Mi estudio | [Colección](vigente-mi-estudio-estudiante-1440.png) | [Colección](vigente-mi-estudio-estudiante-390.png) |
+| Carpeta | [Chat](vigente-chat-estudio-estudiante-1440.png) | [Chat](vigente-chat-estudio-estudiante-390.png) |
 
 ## Agenda
 
-| Escritorio docente | Móvil estudiante |
-|---|---|
-| [Mes y detalle lateral](agenda-mes-docente-1440.png) · [Semana con horarios](agenda-semana-docente-1440.png) | [Eventos del día](agenda-detalle-estudiante-390.png) · [Crear para el día seleccionado](agenda-formulario-estudiante-390.png) |
+| Vista | Docente | Estudiante |
+|---|---|---|
+| Mes | [Escritorio](vigente-agenda-docente-1440.png) · [Móvil](vigente-agenda-docente-390.png) | [Escritorio](vigente-agenda-estudiante-1440.png) · [Móvil](vigente-agenda-estudiante-390.png) |
+
+## Cuota mensual de IA
+
+| Vista | Docente | Estudiante |
+|---|---|---|
+| Detalle | [Escritorio](vigente-cuota-ia-docente-1440.png) · [Móvil](vigente-cuota-ia-docente-390.png) | [Escritorio](vigente-cuota-ia-estudiante-1440.png) · [Móvil](vigente-cuota-ia-estudiante-390.png) |
+
+El detalle muestra USD 5 para docente y USD 3 para estudiante, con consumo y reservas en cero en ambas cuentas de prueba. Escape cerró el diálogo y devolvió el foco al botón en los cuatro recorridos. [Reglas y conciliación](../../engineering/ai/README.md)
 
 ## Evidencia de entregas anteriores
 
-Las capturas referenciadas por pruebas previas permanecen disponibles en los [recibos y la matriz de recorridos](../../verification/README.md). El catálogo identifica su procedencia. Para reproducir la interfaz vigente, usá las referencias por sección de esta galería.
+Los recibos de pruebas conservan sus propios candidatos, alcances y resultados. Las capturas de la galería anterior conservan sus rutas y hashes en Git. [Evidencia de flujos](../../verification/README.md) · [Catálogo anterior fijado a su revisión](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/catalog.json)

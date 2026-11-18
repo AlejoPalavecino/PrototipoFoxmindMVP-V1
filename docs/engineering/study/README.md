@@ -1,6 +1,8 @@
 # Estudio privado del estudiante
 
-Carpetas de estudio es una capacidad independiente de las aulas docentes, aprobada el 2026-11-08. La [especificación aprobada](../../product/study-folders-proposal.md) define reglas y UX; la [tarea](../../../odd/tasks/study-folders.md) y la [evidencia](../../verification/study-folders.json) distinguen implementación y comprobaciones.
+El [diagrama de estudio privado](../../diagramas/estudio.html) sigue las fuentes autorizadas, el trabajo en la carpeta y la confirmación del repaso en Agenda.
+
+Mi Estudio ofrece carpetas privadas para estudiantes verificados. El [diseño inicial](../../product/study-folders-proposal.md) y su [recibo](../../verification/study-folders.json) documentan el primer corte. La [especificación vigente](../../foxmind-v1-functional-spec.md) y esta guía incluyen las ampliaciones posteriores.
 
 ## Crear y estudiar
 
@@ -38,7 +40,7 @@ Practicar, Crear ejercicios y Preparar una evaluación permiten elegir temas, ca
 
 ## Experiencia de chat, herramientas y plan
 
-La presentación comparte con Foxy docente las tarjetas de herramientas y el seguimiento de mensajes. El envío pendiente se muestra de inmediato, bloquea duplicados y conserva el texto ante fallo. El chat acompaña el final sólo mientras se está leyendo allí; el indicador de mensajes nuevos permite volver explícitamente. La colección usa el mismo selector de estados que Aulas. El asistente comparte diálogo, pasos y portadas; distingue subida, análisis y guardado, bloquea navegación durante upload y resume el plan por unidades desplegables. No cambia comandos, persistencia, proveedores ni reglas de activación. [Evidencia del pulido UX](../../verification/foxy-study-ux-polish.json).
+La presentación comparte con Foxy docente las tarjetas de herramientas y el seguimiento de mensajes. El envío pendiente se muestra de inmediato, bloquea duplicados y conserva el texto ante fallo. El chat acompaña el final sólo mientras se está leyendo allí; el indicador de mensajes nuevos permite volver explícitamente. La colección usa el mismo selector de estados que Aulas. El asistente comparte diálogo, pasos y portadas; distingue subida, análisis y guardado, bloquea navegación durante upload y resume el plan por unidades desplegables. [Evidencia del pulido UX](../../verification/foxy-study-ux-polish.json).
 
 La bienvenida cede lugar al primer envío. Enter envía; Shift + Enter agrega una línea y la composición IME se conserva. Cambiar el alto del chat acompaña el final sólo si se lo estaba siguiendo. Las fuentes se abren desde un desplegable secundario, sin UUIDs de versión en el texto principal.
 
@@ -46,7 +48,7 @@ En móvil, herramientas/creaciones/conversaciones se mantienen en una fila y el 
 
 Agregar sesiones a Agenda, quitar un material y eliminar una carpeta abren el diálogo de confirmación de FoxMind. La acción se envía al confirmar. Cancelar y Escape dejan abierta la vista anterior y devuelven el foco al control que abrió el diálogo. Una solicitud en curso bloquea otro envío. [Comprobación en navegador](../../work-log/2026-11-12-root-study-confirmations.md).
 
-[Chat escritorio](../../design/current/ux-study-chat-desktop.png) · [móvil](../../design/current/ux-study-chat-mobile.png) · [herramientas](../../design/current/ux-study-tools-mobile.png) · [plan en espera](../../design/current/ux-plan-loading-mobile.png) · [revisión](../../design/current/ux-plan-review-mobile.png). Las dos últimas referencias usan respuestas sintéticas en componentes reales; no acreditan una nueva generación Gemini ni persistencia.
+[Galería de Foxy y Mi Estudio](../../design/current/README.md#foxy-y-carpetas-de-estudio).
 
 ## Materiales y autoridad
 
@@ -104,7 +106,7 @@ Gemini usa configuración backend autorizada. El preflight de Developer API cuen
 
 Si el cupo diario personal o global de solicitudes o gasto rechaza la reserva, Estudio devuelve HTTP 429 con `AI_BUDGET_EXCEEDED` o `AI_GLOBAL_DAILY_BUDGET_EXCEEDED`, respectivamente. Los avisos distinguen a quién corresponde el cupo e indican que se renueva a las 00:00 UTC. La cuota mensual de USD 3 por cuenta estudiante, compartida con todas sus herramientas de IA, devuelve HTTP 429 con `AI_MONTHLY_BUDGET_EXCEEDED`. El aviso detalla cuánto saldo queda y cuánto requiere la generación. El chat conserva el pedido y un nuevo intento usa otra identidad. Los límites de recursos de la carpeta conservan HTTP 409 con `QUOTA_EXCEEDED`.
 
-`GENERATE` con `kind: IMAGE` requiere una conversación de la carpeta activa y una descripción. Reserva ambos presupuestos antes del proveedor, con identidad derivada del dueño, la carpeta y la solicitud del recibo. El consumo conocido liquida por modalidad de salida, incluso si el archivo se descarta en la validación. Con uso desconocido, la reserva mensual sigue la política de conciliación. El resultado aprobado como PNG o JPEG pasa inspección y escáner y queda en `study_image_assets` en la misma transacción que la creación y el turno de respuesta. El límite operativo de imágenes por cuenta usa `STUDY_STORAGE_QUOTA_BYTES` cuando está configurado, o el tope privado de recursos visuales. `GET /:folderId/images/:creationId` sirve contenido privado con `no-store` y acepta `?mode=download` para la descarga directa. La baja lógica de la carpeta impide acceder a su imagen. [Prueba PostgreSQL y HTTP](../../../tests/study-image-database.test.mjs).
+`GENERATE` con `kind: IMAGE` requiere una conversación de la carpeta activa y una descripción. Reserva ambos presupuestos antes del proveedor, con identidad derivada del dueño, la carpeta y la solicitud del recibo. El consumo conocido liquida por modalidad de salida, incluso si el archivo se descarta en la validación. Con uso desconocido, la reserva mensual sigue la política de conciliación. El resultado aprobado como PNG o JPEG pasa inspección y escáner y queda en `study_image_assets` en la misma transacción que la creación y el turno de respuesta. El límite operativo de imágenes por cuenta usa `STUDY_STORAGE_QUOTA_BYTES` cuando está configurado, o el tope privado de recursos visuales. `GET /api/v1/study-folders/:folderId/images/:creationId` sirve contenido privado con `no-store` y acepta `?mode=download` para la descarga directa. La baja lógica de la carpeta impide acceder a su imagen. [Prueba PostgreSQL y HTTP](../../../tests/study-image-database.test.mjs).
 
 Fuentes: [servicio](../../../apps/api/src/modules/study/folders/application/service.ts), [motor](../../../src/core/domain/study/engine.ts), [archivos](../../../apps/api/src/bootstrap/study-file-integration.ts), [Agenda](../../../apps/api/src/bootstrap/study-agenda-integration.ts), [avisos](../../../apps/api/src/modules/study/reviews/infrastructure/runtime.ts), [UI](../../../apps/web/src/screens/study-screen.tsx). `npm run test:study` construye y ejecuta las suites admitidas; el recibo distingue proveedor sintético y real.
 

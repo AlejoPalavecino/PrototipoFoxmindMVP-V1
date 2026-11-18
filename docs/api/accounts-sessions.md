@@ -1,6 +1,6 @@
 # Contrato vigente de cuenta y sesión
 
-El [OpenAPI](accounts-sessions.openapi.json) define las doce operaciones, sus formas, errores, ejemplos y políticas de identidad. Se mantiene esta ruta porque las pruebas resuelven sus referencias locales. La descripción de verificación es la de la base actual, sin sumas de entregas anteriores.
+El [OpenAPI](accounts-sessions.openapi.json) define las doce operaciones, sus formas, errores, ejemplos y políticas de identidad. Se mantiene esta ruta porque las pruebas resuelven sus referencias locales. El contrato cubre cuenta y sesión. El saldo autenticado de IA tiene rutas propias. [Lectura de cuota](../engineering/ai/README.md#lectura-del-saldo).
 
 El navegador usa /api/v1; Nest conserva autenticación, Origin, CSRF, rate limits, sesión y autorización. Los detalles de expiración y formatos no se sustituyen por los ejemplos de UI.
 

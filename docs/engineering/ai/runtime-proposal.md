@@ -2,11 +2,11 @@
 
 Estado: diseño, SDK oficiales, identidad persistente y ejecución aprobados el 2026-11-16; implementación y verificación local completadas; código integrado y publicado en main (`e9d901d`). El usuario aprobó el diseño y confirmó los SDK oficiales. El estado verificable vive en [el tablero](../../../odd/tasks/ai-runtime.md). Este diseño no acredita funcionalidades aún no verificadas.
 
-La implementación local conecta extracción, actividades, análisis, corrección, Foxy textual y Estudio a los transportes oficiales mediante perfiles persistentes por trabajo. El [estado por capacidad](README.md#ejecución-con-sdk-oficiales) distingue la selección implementada de la activación real de Claude, que requiere configuración y pruebas reales autorizadas.
+La implementación publicada conecta extracción, actividades, análisis, corrección, Foxy textual y Estudio a los transportes oficiales mediante perfiles persistentes por trabajo. El [estado por capacidad](README.md#ejecución-con-sdk-oficiales) distingue la selección implementada de la activación real de Claude, que requiere configuración y pruebas reales autorizadas.
 
 ## Confirmado y pendiente
 
-El usuario confirmó reducir demoras y consumo, proteger datos y mejorar confiabilidad. Los proveedores de alcance son Google Gemini y Anthropic Claude. La configuración inicial usa los modelos de Gemini existentes; Claude se incorporará cuando se decida activarlo. El trabajo debe permanecer separado de los worktrees en curso.
+El usuario confirmó reducir demoras y consumo, proteger datos y mejorar confiabilidad. Los proveedores de alcance son Google Gemini y Anthropic Claude. La configuración inicial usa los modelos de Gemini existentes; Claude se incorporará cuando se decida activarlo.
 
 Resuelto: SDK oficiales, ejecución autorizada y snapshot persistente de perfiles con drenaje previo de trabajos antiguos. La configuración inicial conserva los modelos Gemini existentes en todos los perfiles; no se eligen modelos nuevos. Claude queda preparado, deshabilitado por defecto y sin credenciales reales configuradas por esta entrega. Este documento no autoriza proveedores pagos, acceso a datos retenidos, publicación ni despliegue.
 
@@ -93,7 +93,7 @@ La recomendación se ajusta al alcance confirmado: Gemini seguirá activo y Clau
 3. Integrar por funcionalidad conservando su suite, empezando por una tarea representativa antes de extender a las demás. Separar SQL del adaptador de Estudio.
 4. Añadir adaptador Claude deshabilitado y suite sintética de compatibilidad; comparar métricas y completar documentación canónica.
 
-La evidencia y el estado de cada unidad viven en el tablero. Los SDK oficiales y la persistencia ya tienen aprobación; cualquier nueva dependencia o cambio de alcance requiere su propia decisión. Streaming, selección de modelo en UI, búsqueda semántica y nuevos proveedores quedan fuera de esta propuesta.
+La evidencia y el estado de cada unidad viven en el tablero. Los SDK oficiales y la persistencia ya tienen aprobación; cualquier nueva dependencia o cambio de alcance requiere su propia decisión. La lectura progresiva de Foxy se incorporó en un corte posterior. [Reglas vigentes de Foxy](foxy.md#consultas-privadas).
 
 ## Ampliación aprobada: identidad persistente por trabajo
 

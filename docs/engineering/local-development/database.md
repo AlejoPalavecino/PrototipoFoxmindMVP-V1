@@ -1,6 +1,6 @@
 # Base local y migraciones
 
-PostgreSQL usa Prisma y migraciones SQL versionadas. [El mapa de datos](../data-model.md) explica 55 modelos; la fuente física es [schema.prisma](../../../prisma/schema.prisma) y las 46 migraciones del corte actual, no un inventario copiado aquí.
+PostgreSQL usa Prisma y migraciones SQL versionadas. La fuente física es [schema.prisma](../../../prisma/schema.prisma) y el SQL de [migraciones](../../../prisma/migrations/). El [mapa de datos](../data-model.md) explica entidades, relaciones y reglas de conservación.
 
 | Comando | Efecto |
 |---|---|

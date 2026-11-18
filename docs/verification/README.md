@@ -1,20 +1,24 @@
-# Evidencia y comprobaciones de FoxMind
+# Evidencia de FoxMind
 
-La implementación local de paridad del 15 de noviembre conserva su [informe y capturas](product-parity/README.md). La auditoría y galería anteriores que siguen abajo corresponden a otra base; no certifican el candidato actual.
+## Candidato integrado y pruebas recientes
 
-La auditoría del 12 de noviembre recorrió `main` (`398cc0b`) con la aplicación local compilada, cuentas de ambos roles y proveedores sintéticos. El registro detalla qué controles se usaron, qué resultados se observaron y qué quedó cubierto por pruebas anteriores. [Registro de auditoría](../work-log/2026-11-12-root-documentation-audit.md) · [Galería](../design/current/README.md) · [Metadatos y hashes](../design/current/catalog.json)
+| Qué se comprobó | Evidencia |
+| --- | --- |
+| Cuotas mensuales, concurrencia, saldo e imágenes privadas en Mi Estudio | [Verificación con proveedores sintéticos](../work-log/2026-11-18-root-monthly-ai-quota.md) y [tablero de aceptación](../../odd/tasks/monthly-ai-quota.md) |
+| Integración de frontend y backend, recorridos de Aulas y recuperaciones posteriores | [Integración de arquitectura](refactor-integration.json), [consolidación de main](main-consolidation.json) y [correcciones de Aulas](../work-log/2026-11-17-root-classroom-audit-fixes.md) |
+| Foxy y Mi Estudio, latencia, interacción y recuperación | [Mediciones con Gemini y suite integrada](../work-log/2026-11-17-root-cierre-main.md) y [auditoría funcional](../work-log/2026-11-17-root-foxy-study-audit-fixes.md) |
+| Exportaciones, recursos didácticos y práctica | [Verificación del arnés](../work-log/2026-11-17-root-cierre-arnes.md), [precisión gráfica y lectura de PDF](../work-log/2026-11-17-root-precision-y-lectura.md) y [comparación con Gemini](pedagogical-pilots.md) |
+| Piloto educativo con personas | [Guion preparado para coordinación](piloto-con-participantes.md), pendiente de ejecución |
 
-| Área | Evidencia |
-|---|---|
-| Cuenta, roles, Aulas, Actividades, entregas y calificación | [Matriz de recorridos](flows.md), [inventario de la base del 7 de noviembre](flows.json) y [regresión de Aulas](classrooms-ux-unification.json) |
-| Inicio y composición de Aulas | [Inicio docente](teacher-home-polish.json), [Inicio por rol](../work-log/2026-11-12-root-home-visual-audit.md) y [auditoría de Aulas](classrooms-visual-audit.json) |
-| Foxy y Carpetas de estudio | [Recorridos E2E](2026-11-12-foxy-study-e2e.md), [suite de Estudio](study-folders.json) y [pulido UX anterior](foxy-study-ux-polish.json) |
-| Agenda | [Detalle diario, navegación y formulario](agenda-ux.json) |
-| Arquitectura y transporte | [Migración y verificación por grupos](architecture-migration.json) |
-| Gemini real | [Ensayo de Foxy](foxy-gemini-real.json) y [arranque local](local-gemini-runtime.json) |
-| Reconstrucción documental anterior | [Comprobaciones](baseline-checks.json) y [retiro del 7 de noviembre](documentation-retirement.json) |
-| Retiro de maquetas y capturas reemplazadas | [Inventario del 12 de noviembre](documentation-audit-retirement.json) |
+La [galería de la aplicación](../design/current/README.md) identifica su candidato, roles y anchos. Una captura muestra la presentación y los estados visibles. Los ensayos de API, base de datos y recorrido autenticado acreditan los resultados que ejercitaron.
 
-Los recibos conservan candidato, entorno y fecha de su ensayo. Las capturas acreditan la presentación y los estados visibles. Permisos, persistencia y custodia se acreditan en las pruebas de API y base de datos que los ejercitaron. Esta auditoría utilizó IA sintética. Los ensayos anteriores con Gemini mantienen su propia evidencia.
+## Recibos históricos
 
-La cobertura se limita a los casos registrados. La validación visual en escritorio y móvil no constituye una evaluación WCAG completa, prueba de carga ni verificación de producción.
+- [Paridad del 15 y 16 de noviembre](product-parity/README.md). Incluye la evidencia de revisión contra UI Lab y los cortes que condujeron a la integración.
+- [Matriz de recorridos](flows.md) e [inventario de la base del 7 de noviembre](flows.json). Conservan su candidato original, fecha, entorno y límites por flujo.
+- [Auditoría del 12 de noviembre](../work-log/2026-11-12-root-documentation-audit.md), sobre `398cc0b` con ambos roles y proveedores sintéticos. [Galería histórica](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/README.md) · [Catálogo original y hashes](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/catalog.json).
+- [Migración de arquitectura](architecture-migration.json), [cohesión del frontend](frontend-cohesion.json) y [mapa de capacidades del backend](backend-capabilities-map.json). Recibos de cortes previos a la integración.
+- [Gemini real en Foxy](foxy-gemini-real.json) y [ensayo del entorno local persistente](local-gemini-runtime.json), ambos del 8 de noviembre.
+- [Retiro documental del 7 de noviembre](documentation-retirement.json) y [retiro del 12 de noviembre](documentation-audit-retirement.json).
+
+Las rutas registradas en recibos JSON se interpretan en el candidato del ensayo. Las galerías y los registros retirados se pueden consultar en el árbol del commit `2ed07b67`. [Evidencia original](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/tree/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/verification) · [Registros originales](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/tree/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log).

@@ -6,4 +6,4 @@ La [especificación](../foxmind-v1-functional-spec.md) mantiene reglas e invaria
 
 La [matriz de flujos comprobados](../verification/flows.md) y sus capturas permiten distinguir funcionalidad implementada, recorrido observado y límites. Esta base no agrega funciones por aparecer en una imagen o por compartir un proveedor IA.
 
-Carpetas de estudio: [especificación aprobada](study-folders-proposal.md), [guía de funcionamiento](../engineering/study/README.md), [tareas](../../odd/tasks/study-folders.md) y [evidencia](../verification/study-folders.json). El estado de verificación se mantiene en esos registros; publicación y despliegue son independientes.
+Para Mi Estudio, consultá la [guía de funcionamiento](../engineering/study/README.md) y el [alcance original aprobado](study-folders-proposal.md). El [arnés pedagógico](../../odd/tasks/pedagogical-harness.md) registra los recorridos de Foxy y Estudio. El [piloto con participantes](../verification/piloto-con-participantes.md) contiene el guion para medir aprendizaje y tiempo docente.

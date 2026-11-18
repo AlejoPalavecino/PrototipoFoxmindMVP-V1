@@ -8,6 +8,10 @@ Antes de una generación paga, PostgreSQL registra una reserva en microdólares 
 
 El corte contable comienza con las reservas de esta versión. Para activar en otra instalación, drenar primero las colas antiguas, aplicar las migraciones y arrancar todos los procesos con la misma versión. Conservar la historia diaria previa. La fecha de reserva determina el mes incluso si la respuesta llega después de la renovación.
 
+### Lectura del saldo
+
+`GET /api/v1/ai-quota` devuelve el saldo a demanda. `GET /api/v1/ai-quota/events` emite el mismo snapshot por SSE al conectar y cuando cambia la versión o el período. Ambas rutas requieren sesión con correo verificado y derivan la cuenta de esa sesión. El stream la revalida en consultas cortas cada 900 ms. El cliente conserva la consulta JSON como respaldo. [Contrato y unidades](../../../src/core/contracts/ai-quota.ts) · [Transporte](../../../apps/api/src/bootstrap/ai-quota-http.ts).
+
 ### Conciliar con un reporte de facturación
 
 Un operador con acceso de lectura autorizado puede ejecutar `node scripts/reconcile-ai-cost.mjs reporte.json` con `DATABASE_URL` del entorno que quiere auditar. El informe selecciona operaciones por instante de reserva en el intervalo UTC semiabierto indicado. Para una comparación válida, usar el mismo proyecto, proveedor, modelo, ventana temporal y base de precios del reporte. Registrar créditos, impuestos, operaciones previas al corte y diferencias de fecha por separado.
@@ -28,6 +32,8 @@ El proceso de API también registra una comprobación interna por día UTC mient
 
 Si el proveedor identifica el costo de **una operación concreta**, un operador autorizado puede aplicar ese comprobante con `node scripts/reconcile-ai-cost.mjs --apply-receipt recibo.json`. El archivo contiene `provider`, `model`, `reference` (identidad única de la línea), `namespace`, `jobId` y `actualMicrousd` (entero expresado como texto). Verificar la correspondencia externa antes de aplicarlo. Una factura agregada sirve sólo para la comparación. FoxMind comprueba proveedor y modelo contra la reserva, vincula el comprobante una sola vez y rechaza una referencia reutilizada con datos incompatibles. Un recibo vencido ajusta únicamente el gasto de plataforma. El acceso de escritura para esta operación pertenece al entorno administrativo.
 
+## Capacidades y evidencias
+
 | Necesidad | Guía vigente |
 |---|---|
 | Acompañar estudio privado, practicar y preparar exámenes | [Carpetas de estudio](../study/README.md) |
@@ -39,7 +45,7 @@ Si el proveedor identifica el costo de **una operación concreta**, un operador 
 
 Compartir proveedor o presupuesto no combina reglas de entrada, privacidad, cuotas ni publicación. Configuración y credenciales quedan en backend. Ninguna capacidad autoriza publicaciones automáticas o tratamiento más amplio de datos personales.
 
-La [matriz actual](../../verification/flows.md) registra recorridos con proveedores sintéticos. No hubo llamadas pagas/reales en esta comprobación. El análisis individual sólo se observó en su rama de error; la corrección IA no generó una sugerencia nueva en el ensayo.
+Las pruebas aisladas usan proveedores sintéticos. Los ensayos locales posteriores con Gemini real cubren recorridos puntuales de actividades, Foxy y Estudio. Cada recibo identifica el proveedor y el resultado del escenario. [Actividades](../../work-log/2026-11-17-contratos-actividad-gemini.md) · [Foxy y Estudio](../../work-log/2026-11-17-root-foxy-study-audit-fixes.md) · [Arnés pedagógico](../../work-log/2026-11-17-root-ego-pedagogia-real.md).
 
 Los adaptadores pertenecen al módulo que define su contrato: curriculum para extracción, activities para generación, grading para análisis/corrección, foxy para conversaciones y recursos, study para estudio privado. `platform/ai` conserva admisión, presupuesto y cliente técnico; `bootstrap` selecciona y conecta proveedores. Un proveedor compartido no convierte todas las capacidades IA en un único dominio.
 
@@ -102,7 +108,7 @@ Cuando el usuario detiene un turno de Foxy y la cancelación se confirma en la b
 
 En el navegador, `performance.getEntriesByType('measure')` permite observar las entradas `foxmind.ai.foxy.presentation.first_text`, `foxmind.ai.study.presentation.first_text`, `foxmind.ai.study.feedback.presentation.first_text` y sus equivalentes `final`. Miden desde el envío local hasta que React confirmó el contenido en la interfaz. Si sólo se entrega una respuesta completa, esa confirmación produce las dos entradas. Las mediciones quedan en la pestaña y usan un reloj independiente del servidor.
 
-Los ensayos de chat corto, PDF con historial y devolución concurrente usan datos y proveedores sintéticos. Sirven para comprobar la atribución de etapas; sus tiempos dependen del entorno y de la espera configurada en el escenario.
+Los ensayos sintéticos de chat corto, PDF con historial y devolución concurrente comprueban la atribución de etapas. Hay mediciones puntuales con Gemini real cuyos tiempos dependen del contexto y del entorno de cada recorrido. [Registro de latencia](../../work-log/2026-11-17-root-ai-latency.md) · [Cierre integrado](../../work-log/2026-11-17-root-cierre-main.md).
 
 En fixtures sintéticos de Foxy con diez pares, un contexto base excesivo se rechaza tras dos conteos. Cuando caben los últimos cuatro pares uniformes o los nueve más recientes y el primero es muy grande, la estimación baja los conteos de seis a tres. El proveedor confirma el sufijo seleccionado y su ticket evita otro conteo al generar. La relación entre bytes y tokens puede variar entre pares y modelos, de modo que pueden caber otros pares además del sufijo confirmado. La medición compara cantidad de conteos con un proveedor sintético.
 
@@ -120,4 +126,4 @@ La pausa entre conteo y generación se puede interrumpir y no mantiene vivo el p
 
 `getAiTextClient`, los nombres históricos de los constructores y algunas vistas `client`/`options.client` permanecen por aceptación y compatibilidad con SDK inyectados. `sdk-text-compat.ts` traduce y delega al mismo cliente neutral; esas vistas no tienen tickets, conteos ni temporizadores propios y no crean otro SDK. El flujo productivo usa `execution.count/generate`. Los fixtures SDK antiguos de Plan, Actividades y Foxy conservan su auto-conteo histórico dentro del mismo dueño neutral; los clientes productivos requieren un preflight explícito consumible una sola vez. Esta compatibilidad se puede retirar cuando dejen de existir sus consumidores y contratos de aceptación.
 
-Evidencia y límites del corte: [registro TASK-021](../../work-log/2026-11-16-worker-backend-neutral-ai.md). Las pruebas sintéticas comprueban control y serialización; no acreditan acceso a proveedores reales, calidad educativa ni ejecución sobre datos retenidos.
+Evidencia y límites del corte: [registro TASK-021](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-backend-neutral-ai.md). Las pruebas sintéticas comprueban control y serialización; no acreditan acceso a proveedores reales, calidad educativa ni ejecución sobre datos retenidos.

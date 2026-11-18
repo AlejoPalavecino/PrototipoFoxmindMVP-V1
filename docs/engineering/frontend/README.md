@@ -1,6 +1,6 @@
 # Frontend y composición visual
 
-Next Pages Router conserva las rutas y proxies `/api/v1`; el backend mantiene autorización y publicación. El frontend se organiza por dominio y caso de uso, con composición global separada. El [refactor aprobado](cohesion-refactor.md) se ejecuta en una rama propia; su [tablero](../../../odd/tasks/frontend-cohesion-refactor.md) distingue implementación y verificación. El [diseño UX/UI](../../design/README.md) conserva la experiencia vigente.
+Next Pages Router conserva las rutas y proxies `/api/v1`; el backend mantiene autorización y publicación. El frontend se organiza por dominio y caso de uso, con composición global separada. La organización por casos de uso está integrada en `main`. El [diseño UX/UI](../../design/README.md) conserva la experiencia vigente.
 
 El candidato de origen `codex/frontend-cohesion` conserva su [recibo](../../verification/frontend-cohesion.json) de 1.288 pruebas y recorridos propios. La [integración con backend](../../verification/refactor-integration.json) tiene evidencia nueva del conjunto y registra su entrega local; los resultados originales no se atribuyen al combinado.
 

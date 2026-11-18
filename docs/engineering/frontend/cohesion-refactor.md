@@ -1,6 +1,6 @@
 # Frontend por dominio y caso de uso
 
-Estado: diseño y ejecución aprobados por el usuario el 2026-11-16 en esta conversación. Candidato inicial: `dd6f4bc92b959cce0e2c68343291614270c4a17e`. Rama `codex/frontend-cohesion`, worktree independiente; backend en refactor paralelo.
+Diseño aprobado el 2026-11-16, ejecutado desde `dd6f4bc` en `codex/frontend-cohesion` e integrado después en `main`. [Distribución vigente](README.md) · [Evidencia de integración](../../verification/refactor-integration.json).
 
 ## Resultado y límites
 

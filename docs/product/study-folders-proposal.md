@@ -4,7 +4,7 @@ El estudiante organiza su estudio en carpetas propias con plan, materiales y un 
 
 ## Estado y alcance
 
-Especificación aprobada el 2026-11-08. La [guía de Estudio](../engineering/study/README.md) describe el comportamiento publicado en main y las ampliaciones posteriores. El [tablero](../../odd/tasks/study-folders.md) y el [recibo](../verification/study-folders.json) conservan la evidencia de la implementación inicial. [Publicación de Foxy y Estudio](../work-log/2026-11-12-root-foxy-study-publication.md)
+Diseño inicial aprobado el 2026-11-08. La [guía de Estudio](../engineering/study/README.md) describe el comportamiento publicado en main y las ampliaciones posteriores. El [tablero](../../odd/tasks/study-folders.md) y el [recibo](../verification/study-folders.json) conservan la evidencia de la implementación inicial. [Publicación de Foxy y Estudio](../work-log/2026-11-12-root-foxy-study-publication.md)
 
 | Confirmado | Resultado |
 |---|---|

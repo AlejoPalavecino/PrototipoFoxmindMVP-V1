@@ -24,7 +24,7 @@ El usuario amplió explícitamente el alcance a backend de códigos e invitacion
 
 La revisión independiente detectó y permitió corregir el proxy que rechazaba arrays, el recibo ausente, las cuotas compartidas del lote y variantes de recuperación. Root corrigió además el parseo/validación de destinatarios con el mismo validador del servidor y probó el caso 503 seguido de 404. La última regresión integrada detectó publicación habilitada durante el escaneo de Biblioteca: fue corregida conservando la prueba de aceptación.
 
-Registros de superficies: [contenidos](2026-11-11-content-ui.md), [actividades](2026-11-11-activities-ui.md), [corrección](2026-11-11-grading-ui.md), [códigos y lotes](2026-11-11-codes-batch.md). Root reconcilió sus resultados con la regresión integrada y las evidencias visuales.
+Registros de superficies: [contenidos](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-content-ui.md), [actividades](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-activities-ui.md), [corrección](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-grading-ui.md), [códigos y lotes](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-codes-batch.md). Root reconcilió sus resultados con la regresión integrada y las evidencias visuales.
 
 ## Evidencia
 
@@ -35,7 +35,7 @@ Registros de superficies: [contenidos](2026-11-11-content-ui.md), [actividades](
 - Backend con PostgreSQL 17 aislado: P5 39/39 y P7/P8 SQL/HTTP 45/45; inventario de migraciones 6/6. Revisión independiente P5 6/6, más ejercicio HTTP con sesiones sintéticas, CSRF, permisos negativos, 32 cuentas con socket compartido, límite por cuenta y repetición de lote archivado sin duplicar outbox.
 - `node scripts/run-complete-suite.mjs --check`: 538 pruebas, 23 rutas explícitas; inventario CI: 538 entradas y 53 exclusiones. Las pruebas nuevas tienen ruta asignada.
 - Ego Lite TaskSpace 10: maqueta completa y componentes reales con adaptadores sintéticos, docente/estudiante, escritorio y 375/390 px, teclado, foco y movimiento reducido. Se corrigieron espacios vacíos del catálogo móvil, selectores CSS heredados, controles solapados de IA, tipografía y vista previa de devolución.
-- [17 capturas catalogadas](../design/current/README.md), con origen, dimensiones y límites. [Recibo del candidato](../verification/classrooms-ux-unification.json) identifica 89 archivos de código/pruebas mediante SHA-256. Una captura acredita sólo la UI visible; permisos y persistencia tienen evidencia separada.
+- [17 capturas catalogadas](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/README.md), con origen, dimensiones y límites. [Recibo del candidato](../verification/classrooms-ux-unification.json) identifica 89 archivos de código/pruebas mediante SHA-256. Una captura acredita sólo la UI visible; permisos y persistencia tienen evidencia separada.
 - `git -c core.safecrlf=false diff --check`, validador TTP y `npm run docs:check`: PASS al cierre.
 
 ## Límites y continuidad

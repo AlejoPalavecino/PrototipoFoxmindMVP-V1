@@ -4,7 +4,7 @@
 
 El diseño se aprobó el 2026-11-11 sobre `3895f4d`. El usuario aprobó los recorridos unificados, las invitaciones múltiples y el código numérico de seis dígitos vigente hasta su regeneración. Después se implementaron ambos roles y se integraron a `main`.
 
-Este registro conserva criterios y decisiones de diseño. La guía de Aulas describe el contrato en uso y la galería muestra la aplicación compilada. [Aulas e ingreso](../engineering/classrooms/README.md) · [Galería](current/README.md#mis-aulas) · [Evidencia de integración](../verification/classrooms-ux-unification.json)
+Este registro conserva la dirección y los criterios aprobados para esa entrega, incluida su referencia visual original. La guía vigente recoge los refinamientos posteriores de tipografía, navegación y presentación. [Guía vigente](README.md#mis-aulas) · [Aulas e ingreso](../engineering/classrooms/README.md) · [Galería vigente](current/README.md#mis-aulas) · [Evidencia de integración](../verification/classrooms-ux-unification.json)
 
 ### Revisión de fluidez para el docente
 

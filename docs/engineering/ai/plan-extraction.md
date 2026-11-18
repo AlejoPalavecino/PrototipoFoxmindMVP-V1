@@ -1,6 +1,6 @@
 # Extraer un plan y revisar unidades
 
-En el asistente de aula, subir PDF/DOCX sólo carga y valida. El docente elige Analizar con IA en el segundo paso y continúa; el servicio crea un trabajo durable. En el tercero se muestran cola/proceso/error y la propuesta editable.
+En el asistente de aula podés subir PDF, DOC, DOCX, PPT o PPTX de hasta 20 MB. La carga valida el documento antes de habilitar la extracción. El docente elige Analizar con IA en el segundo paso y continúa; el servicio crea un trabajo durable. En el tercero se muestran cola/proceso/error y la propuesta editable.
 
 El docente revisa nombres/temas, agrega/quita y usa explícitamente las unidades revisadas. Si ya había unidades, el reemplazo requiere la confirmación aplicable. Aplicar no publica el aula. Puede continuar manualmente ante demora, indisponibilidad o error; una respuesta tardía no reemplaza sus cambios.
 
@@ -10,4 +10,4 @@ La capacidad backend vive en `curriculum/generation`. Su capa `application` deci
 
 `activities/generation` sigue el mismo límite: la aplicación valida el estado/revisión y construye la propuesta aplicada, y los adaptadores guardan el borrador, actualizan la revisión y registran el recibo dentro de la transacción recibida. Esta reorganización no cambia esquemas, rutas HTTP, cuotas, modelos configurados ni comportamiento de respuestas tardías.
 
-Fuentes: [Wizard](../../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx), [runtime](../../../apps/api/src/bootstrap/academic-curriculum-ai-runtime.ts), [esquema de salida](../../../src/core/domain/curriculum/plan-schema.ts). [Prueba actual](../../verification/flows.md): PDF aprobado, extracción sintética, revisión/aplicación y aula publicada. También se recorrió DOCX y modo manual; no se llamó a Gemini real.
+Fuentes: [Wizard](../../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx), [runtime](../../../apps/api/src/bootstrap/academic-curriculum-ai-runtime.ts), [esquema de salida](../../../src/core/domain/curriculum/plan-schema.ts). [Recorrido sintético](../../verification/flows.md): PDF aprobado, extracción, revisión y aula publicada, más recorridos DOCX y manual.

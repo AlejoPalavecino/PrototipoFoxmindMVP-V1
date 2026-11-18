@@ -23,7 +23,7 @@ Ampliación explícita posterior: incluir backend de códigos de seis dígitos e
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Catálogo, shell, creación, Plan, Muro, Biblioteca y miembros coherentes en docente/estudiante; filtros legibles, edición completa del plan, feedback/carga/error, teclado y responsive; contratos de servidor conservados.
-- **Evidence:** Componentes reales recorridos en Ego TaskSpace 10, desktop y 375/390 px; teclado, foco, carga, filtros y deshacer. Regresión integrada 157/157; corrección del bloqueo durante escaneo de Biblioteca incluida. Capturas catalogadas en docs/design/current/README.md; detalle en docs/work-log/2026-11-11-content-ui.md.
+- **Evidence:** Componentes reales recorridos en Ego TaskSpace 10, desktop y 375/390 px; teclado, foco, carga, filtros y deshacer. Regresión integrada 157/157; corrección del bloqueo durante escaneo de Biblioteca incluida. Capturas catalogadas en [la galería del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current/README.md); detalle en [registro del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-content-ui.md).
 - **Blocker:** none
 
 ### TASK-003 — Autoría y participación simples y coherentes
@@ -31,7 +31,7 @@ Ampliación explícita posterior: incluir backend de códigos de seis dígitos e
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Manual/IA comparten superficies y revisión; consignas claras; estudiante distingue borrador/archivo/recepción, conserva respuestas y confirma una vez; sin exposición de claves privadas.
-- **Evidence:** 35 pruebas focales delegadas y reconciliación integrada 157/157; autoría manual/IA, conservación de borrador, confirmación única y recepción TP/cuestionario recorridas con componentes reales y adaptador sintético. Desktop/móvil y teclado verificados. docs/work-log/2026-11-11-activities-ui.md y docs/verification/classrooms-ux-unification.json. E2E con servicios Docker completado en TASK-005.
+- **Evidence:** 35 pruebas focales delegadas y reconciliación integrada 157/157; autoría manual/IA, conservación de borrador, confirmación única y recepción TP/cuestionario recorridas con componentes reales y adaptador sintético. Desktop/móvil y teclado verificados. [registro del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-activities-ui.md) y docs/verification/classrooms-ux-unification.json. E2E con servicios Docker completado en TASK-005.
 - **Blocker:** none
 
 ### TASK-004 — Corrección y devolución comprensibles
@@ -39,7 +39,7 @@ Ampliación explícita posterior: incluir backend de códigos de seis dígitos e
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Respuesta/puntos, rúbrica, nota orientativa editable, sugerencia IA privada y publicación explícita preservadas; devolución legible y progreso propio con acciones por estado; compatibilidad con devoluciones existentes.
-- **Evidence:** 29 pruebas focales delegadas y regresión integrada 157/157; devolución estructurada compatible con comentarios existentes, bloqueo de publicación de cambios sin guardar y vista compartida docente/estudiante. Vista previa de publicación y progreso estudiantil inspeccionados en navegador. docs/work-log/2026-11-11-grading-ui.md y capturas catalogadas.
+- **Evidence:** 29 pruebas focales delegadas y regresión integrada 157/157; devolución estructurada compatible con comentarios existentes, bloqueo de publicación de cambios sin guardar y vista compartida docente/estudiante. Vista previa de publicación y progreso estudiantil inspeccionados en navegador. [registro del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-grading-ui.md) y capturas catalogadas.
 - **Blocker:** none
 
 ### TASK-005 — Frontend verificado y listo para revisión humana
@@ -57,7 +57,7 @@ Reapertura 2026-11-11: el usuario solicita levantar la aplicación completa desd
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Nuevos códigos de seis dígitos (ceros iniciales), permanentes hasta regeneración, compatibles con legacy y revocación; lote con resultados independientes/idempotencia y recuperación, invitaciones conservan vencimiento/espera/permisos. Pruebas negativas y concurrencia proporcionadas, sin datos retenidos.
-- **Evidence:** Ampliación explícita autorizada; 39/39 P5, 6/6 migraciones y revisión independiente SQL/HTTP con sesiones sintéticas y CSRF. Proxy de arrays/UUID, recuperación 503→404, idempotencia y límites por cuenta verificados; 6/6 pruebas UI del lote. docs/work-log/2026-11-11-codes-batch.md y docs/verification/classrooms-ux-unification.json. Sin vencimiento automático del código; legacy compatible hasta rotación. No se certifica monitoreo distribuido de enumeración ni carga productiva.
+- **Evidence:** Ampliación explícita autorizada; 39/39 P5, 6/6 migraciones y revisión independiente SQL/HTTP con sesiones sintéticas y CSRF. Proxy de arrays/UUID, recuperación 503→404, idempotencia y límites por cuenta verificados; 6/6 pruebas UI del lote. [registro del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-11-codes-batch.md) y docs/verification/classrooms-ux-unification.json. Sin vencimiento automático del código; legacy compatible hasta rotación. No se certifica monitoreo distribuido de enumeración ni carga productiva.
 - **Blocker:** none
 
 ### TASK-007 — Integración autorizada y main como única rama

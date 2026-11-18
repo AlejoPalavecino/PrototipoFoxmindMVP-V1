@@ -37,9 +37,9 @@ Guardar capturas de la app real con rol/viewport/flujo, candidato, datos sintét
 
 ## Retiro de material viejo
 
-La reconstrucción actual elimina guías, propuestas, aliases, registros y artefactos anteriores del árbol de trabajo. El recibo de retiro identifica rutas/hashes, sin guardar otra copia de su contenido. Git conserva historia; no reescribirlo.
+Al reemplazar una galería, actualizar su índice, catálogo y los ejemplos del README con imágenes de la misma revisión. Si una imagen citada sale del árbol, enlazar la ruta del commit que conserva los bytes evaluados. Registrar qué conjuntos se retiraron, la revisión de origen y la comprobación de referencias.
 
-En adelante integrar las reglas útiles de una tarea cerrada en su guía canónica y retirar material que dejó de representar el sistema. No crear un archivo histórico alternativo por defecto. Conservar sólo tareas activas, contratos vigentes y evidencia pertinente al candidato actual.
+Conservar decisiones referenciadas por tareas, contratos vigentes y recibos con evidencia única. Identificar la fecha y el candidato de cada recibo y presentar el estado actual en el roadmap.
 
 Licencias, recursos runtime y contratos ejecutables no son documentación obsoleta. OpenAPI y odd/tasks/grading-ai-issue-2.md conservan su ubicación por pruebas/CI y contenido vigente. Cambiar un marcador de cobertura requiere revisión explícita, no eliminación silenciosa.
 

@@ -35,7 +35,7 @@
 - **Depends on:** none
 - **Owner:** root
 - **Acceptance:** Comparar estructura, densidad, herramientas, diálogos y compositor de la app con las maquetas de ambos roles. Mantener controles legibles, alineados y sin superposición en escritorio y móvil.
-- **Evidence:** Comparación lado a lado de chat docente, herramientas y materiales. Se corrigieron el contraste del selector, la jerarquía de herramientas y el espacio del chat a 320 px. Once capturas inspeccionadas en docs/design/current.
+- **Evidence:** Comparación lado a lado de chat docente, herramientas y materiales. Se corrigieron el contraste del selector, la jerarquía de herramientas y el espacio del chat a 320 px. Once capturas inspeccionadas en [la galería del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/tree/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current).
 - **Blocker:** none
 
 ### TASK-004 — Comprobación integrada

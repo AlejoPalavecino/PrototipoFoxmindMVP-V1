@@ -2,7 +2,7 @@
 
 Empezá por [arquitectura](architecture.md) y [modelo de datos](data-model.md). Para trabajar, usá el [entorno local](local-development/README.md) y las [verificaciones](testing/README.md).
 
-La [reorganización del backend por capacidades](backend-capabilities-plan.md) tiene diseño y ejecución aprobados en una rama propia; el [tablero](../../odd/tasks/backend-capabilities.md) distingue las tareas verificadas del trabajo pendiente.
+Backend por capacidades y frontend por casos de uso están integrados en `main`. `npm run lint:boundaries` comprueba los límites de dependencia. [Arquitectura](architecture.md) · [Evidencia de integración](../verification/refactor-integration.json).
 
 | Dominio | Responsabilidad |
 |---|---|
@@ -16,6 +16,6 @@ La [reorganización del backend por capacidades](backend-capabilities-plan.md) t
 | [Inicio](home/README.md) | Lecturas por rol, pendientes, avisos y búsqueda |
 | [Agenda](agenda/README.md) | Eventos privados, calendario y contexto académico |
 | [Interfaz](frontend/README.md) | Composición de pantallas y sistema Brújula |
-| [IA](ai/README.md) | Cinco familias de asistencia con límites propios |
+| [IA](ai/README.md) | Seis familias textuales con perfiles por trabajo, visuales y cuota mensual compartida |
 
 La documentación se actualiza con el cambio según la [política](../documentation-policy.md). Las guías explican responsabilidades actuales; el código y las pruebas enlazados permiten verificar los detalles.

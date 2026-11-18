@@ -1,6 +1,6 @@
 # Migrar FoxMind por dominios y responsabilidades
 
-El usuario aprobó el 2026-11-10 la migración incremental a monolito modular con casos de uso, puertos/adaptadores y frontend por features, y autorizó su implementación por etapas. Este documento conserva diseño y aceptación; el [tablero](../../odd/tasks/architecture-migration.md) registra ejecución y evidencia. La [arquitectura vigente](architecture.md) describe lo efectivamente implementado.
+El usuario aprobó el 2026-11-10 la migración incremental a monolito modular con casos de uso, puertos/adaptadores y frontend por features, y autorizó su implementación por etapas. La migración se completó y publicó en `main`. Este documento conserva el diseño y la aceptación originales. El [tablero](../../odd/tasks/architecture-migration.md) registra ejecución y evidencia. La [arquitectura vigente](architecture.md) describe lo efectivamente implementado.
 
 ## Alcance y compatibilidad
 

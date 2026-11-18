@@ -28,9 +28,9 @@
 ## Implementación autorizada y atribución
 
 - Root: contrato/perfiles/ejecutor neutral, copia y validación de solicitudes, métricas seguras, regresiones de privacidad/concurrencia, inventario y documentación.
-- `official_transports`: Gemini/Anthropic oficiales y normalización de consumo. [Registro](2026-11-16-worker-official-transports.md).
-- `study_execution`: separar presupuesto/admisión de transporte de Estudio, preservar firma y overrides. [Registro](2026-11-16-worker-study-ai-execution.md).
-- `gemini_factories`: fábrica compartida y preflight Foxy acotado. [Registro](2026-11-16-worker-gemini-factories.md).
+- `official_transports`: Gemini/Anthropic oficiales y normalización de consumo. [Registro](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-official-transports.md).
+- `study_execution`: separar presupuesto/admisión de transporte de Estudio, preservar firma y overrides. [Registro](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-study-ai-execution.md).
+- `gemini_factories`: fábrica compartida y preflight Foxy acotado. [Registro](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-gemini-factories.md).
 - Delegación proporcional por superficies independientes y verificación separada debido a datos privados, concurrencia y presupuesto. No se afirma aislamiento de escritura efectivo: agentes comparten filesystem y root reconcilió el candidato.
 - Dependencia añadida con versión exacta: `@anthropic-ai/sdk@1.8.0`; `npm install --save-exact ... --ignore-scripts --no-audit --no-fund` terminó exitosamente. No se cambió el SDK Gemini ni configuración privada.
 

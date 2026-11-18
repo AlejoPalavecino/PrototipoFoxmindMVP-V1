@@ -26,6 +26,6 @@ Mi progreso muestra el cumplimiento propio, promedio publicado, devoluciones y E
 
 La orientación de Mi progreso prioriza una reentrega habilitada e indica la actividad por nombre. Si quedan entregas obligatorias y el aula admite cambios, identifica una que puede consultar. Cuando corresponde sólo consultar, sugiere usar una devolución publicada para elegir un ajuste que aplicar en la próxima actividad. El criterio se deriva de los registros que recibe el estudiante. El [análisis individual](../ai/student-analysis.md) es una vista orientativa para docentes.
 
-La verificación de paridad actual se registra en [el trabajo de Progreso](../../work-log/2026-11-16-classroom-progress-exact.md); las pruebas de componentes no sustituyen la comparación visual del coordinador.
+La verificación de paridad actual se registra en [el trabajo de Progreso](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-classroom-progress-exact.md); las pruebas de componentes no sustituyen la comparación visual del coordinador.
 
 Fuentes: [servicio](../../../apps/api/src/bootstrap/academic-grading-composition.ts), [esquema](../../../prisma/schema.prisma). [Flujos actuales](../../verification/flows.md).

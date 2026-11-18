@@ -20,7 +20,7 @@
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Auditar catálogo, Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos/Compañeros, Historial y Configuración según rol. Corregir defectos reproducibles de elementos compartidos, alineación, superposición y recortes sin cambiar reglas funcionales.
-- **Evidence:** Corregidos Plan, lupa de Biblioteca, tabla de Progreso y cuadrícula móvil de portadas. Matriz UI 56 vistas y catálogo 16 combinaciones; build final integrado 21 casos con aserciones de checks centrados, filtros iguales, búsqueda sin superposición, paridad de tarjetas y ausencia de overflow. Capturas en docs/design/current/aulas-audit-20261112-*.png.
+- **Evidence:** Corregidos Plan, lupa de Biblioteca, tabla de Progreso y cuadrícula móvil de portadas. Matriz UI 56 vistas y catálogo 16 combinaciones; build final integrado 21 casos con aserciones de checks centrados, filtros iguales, búsqueda sin superposición, paridad de tarjetas y ausencia de overflow. Capturas en [la galería del candidato](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/tree/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/design/current).
 - **Blocker:** none
 
 ### TASK-003 — Verificación y entrega recuperable

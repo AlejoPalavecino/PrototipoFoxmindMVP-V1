@@ -1,6 +1,6 @@
 # Diseño aprobado de Foxy y Estudio
 
-El diseño de ambos roles se aprobó el 12 de noviembre de 2026. Este registro conserva las decisiones de la aprobación. La [guía de experiencia](README.md#foxy-y-carpetas-de-estudio) describe el resultado implementado y la [galería](current/README.md#foxy-y-carpetas-de-estudio) muestra la aplicación.
+El diseño de ambos roles se aprobó el 12 de noviembre de 2026. Este registro conserva la decisión original y sirve de referencia para la tarea de diseño que la implementó. La guía vigente reúne las ampliaciones posteriores de herramientas y formatos. [Guía vigente](README.md#foxy-y-carpetas-de-estudio) · [Galería vigente](current/README.md#foxy-y-carpetas-de-estudio)
 
 - Chat legible con historial plegable, vista ampliable, avatar de la cuenta, herramientas con ejemplos y acceso directo a creaciones. La navegación conserva la identidad Brújula.
 - El docente elige General o aula, con búsqueda y confirmación. El historial se busca y filtra por contexto y permite renombrar. El recurso textual separa lectura, edición y Compartir. Compartir mantiene la revisión de Biblioteca o el traspaso a un borrador privado.

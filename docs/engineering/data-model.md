@@ -1,6 +1,6 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato de integración contiene 64 modelos Prisma y 63 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Al 18 de noviembre de 2026 hay 69 modelos Prisma y 68 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
 
 ## Entidades por dominio
 
@@ -102,6 +102,12 @@ Los pendientes legacy deben drenar con el ejecutor y configuración Gemini anter
 
 Estas declaraciones describen código y migración versionados. No acreditan aplicación sobre datos retenidos ni una verificación nueva de PostgreSQL en esta actualización documental.
 
+## Cuota mensual de IA e imágenes privadas
+
+`AiMonthlyReservation` identifica cada trabajo por espacio de nombres e ID y conserva dueño, herramienta, período, proveedor, modelo e importes de reserva y liquidación en microdólares. `AiMonthlyBudgetMovement` registra los movimientos con los que se reconstruyen los importes. `AiMonthlyProviderReceipt` impide aplicar dos veces la misma referencia de facturación del proveedor. `AiMonthlyIntegrityCheck` guarda el resultado del control interno diario. La vista `ai_monthly_operation_discrepancies` compara movimientos y reservas. El histórico diario sigue en `AiUsageDaily`. [Migración contable](../../prisma/migrations/202611180010_ai_monthly_budget/migration.sql) · [Control de integridad](../../prisma/migrations/202611180011_monthly_ai_integrity/migration.sql) · [Operación y conciliación](ai/README.md#cuota-mensual-por-cuenta).
+
+`StudyImageAsset` relaciona carpeta y creación con dueño, tipo y bytes aprobados. La lectura exige acceso vigente a esa carpeta y su creación. La referencia y la creación se guardan dentro de la misma transacción. [Migración](../../prisma/migrations/202611180004_study_image_assets/migration.sql) · [Reglas de Estudio](study/README.md#contratos-y-operación).
+
 ## Conservación y eliminación
 
 No hay una regla global de borrado en cascada para todo el producto. Las relaciones restrictivas, períodos, tombstones de comunicación, revisiones y auditorías preservan historia; los servicios definen qué puede eliminarse y cuándo limpiar bytes incompletos. Las políticas de [archivos](files/README.md), [participación](activities/participation.md), [calificaciones](grading/README.md) y [Foxy](ai/foxy.md) deben consultarse antes de diseñar una eliminación.
@@ -112,7 +118,7 @@ La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo n
 
 El candidato de Mis aulas del 2026-11-11 agrega `ClassroomInvitationBatch` mediante `202611110001_classroom_invitation_batches`: clave compuesta `(classroom_id, request_id)`, fecha y recibo cifrado. La referencia al aula es restrictiva. Conserva destinatarios y resultados para reconciliación/idempotencia; no incorpora una purga automática. La emisión de cada posición comparte transacción con Invitation y outbox. ClassroomCode conserva digest/envelope e historia global única: los códigos de seis dígitos revocados no se reasignan, por lo que el espacio finito requiere seguimiento de capacidad antes de una futura ampliación.
 
-El candidato combina ocho migraciones del refactor UX/UI y una del runtime IA. La tabla sigue el orden del inventario de directorios; no implica que bases ya migradas hayan aplicado las dos ramas en ese orden.
+Las migraciones siguientes incorporan cambios de UX, ejecución IA y cuota. El orden de directorios sirve para ubicar los cambios. Para una instalación existente, consultá su registro de migraciones y la guía de transición.
 
 | Migración | Cambio físico |
 |---|---|
@@ -125,6 +131,12 @@ El candidato combina ocho migraciones del refactor UX/UI y una del runtime IA. L
 | [20261116-001 · Perfiles de ejecución IA](../../prisma/migrations/202611160001_ai_execution_profiles/migration.sql) | Agrega la política y las instantáneas de ejecución textual, manteniendo NULL en trabajos históricos. Ver [instantánea de ejecución IA](#instantánea-de-ejecución-ia). |
 | [20261116-001 · Custodia de adjuntos Foxy](../../prisma/migrations/202611160001_foxy_attachment_links/migration.sql) | Agrega `foxy_chat_attachment_links` con claves compuestas de propietario y backfill de adjuntos docentes existentes. `cleanup_claimed_at` impide revivir objetos reclamados para limpieza. Las conversaciones comparten el objeto aprobado sin duplicar bytes. |
 | [20261116-002 · Edición de visuales Foxy](../../prisma/migrations/202611160002_foxy_visual_editorial/migration.sql) | Agrega la revisión, el título y el texto editorial sobre el activo listo. La publicación conserva una instantánea independiente del archivo generado y de futuras ediciones; las filas y recibos previos siguen siendo legibles. |
+
+| [20261118-001 · PDF etiquetado](../../prisma/migrations/202611180001_foxy_tagged_pdf/migration.sql) | Admite el renderizador PDF v2 y conserva los registros y archivos v1. |
+| [20261118-003 · Rechazos de cuota](../../prisma/migrations/202611180003_monthly_quota_rejections/migration.sql) | Admite el motivo de cuota mensual en los estados de trabajo que informan el rechazo. |
+| [20261118-004 · Imágenes privadas](../../prisma/migrations/202611180004_study_image_assets/migration.sql) | Guarda el activo aprobado con custodia de carpeta y creación. |
+| [20261118-010 · Contabilidad mensual](../../prisma/migrations/202611180010_ai_monthly_budget/migration.sql) | Agrega reservas, movimientos y comprobantes por operación. |
+| [20261118-011 · Integridad mensual](../../prisma/migrations/202611180011_monthly_ai_integrity/migration.sql) | Agrega la vista de diferencias y el registro de controles diarios. |
 
 Una base que ya aplicó estas migraciones puede contener estados, vínculos, archivos y avisos nuevos. Volver a ejecutar el binario anterior no constituye una reversión de esos datos. Cualquier reversión requiere evaluar su compatibilidad, planificar una migración propia y probarla sobre una copia aislada. [Registro de migraciones y pruebas aisladas](../work-log/2026-11-15-activity_backend_impl-product-parity.md).
 
