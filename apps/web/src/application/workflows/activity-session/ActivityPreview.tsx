@@ -31,6 +31,7 @@ export function ActivityPreview({ api, activity, teacher, room, effectiveDeadlin
     <aside className={`${styles.criteria} parity-reading-criteria`}>
       <h3><FoxmindIcon name="list-checks"/>Qué se va a valorar</h3>
       {activity.evaluationRubric?.length ? <EvaluationRubric criteria={activity.evaluationRubric} /> : <p>El docente compartió la consigna de la actividad.</p>}
+      <ActivityDeadline activity={activity} effectiveDeadlineAt={effectiveDeadlineAt}/>
       <p className="parity-participation-reassurance"><FoxmindIcon name={!teacher && room?.archived ? "lock" : "check"}/>{!teacher && room?.archived ? "Podés consultar la consigna y tus entregas anteriores." : "Podés guardar, revisar y entregar cuando esté listo."}</p>
     </aside>
     {teacher && activity.questions.length ? <section className={styles.questionPreview} aria-label="Preguntas de la actividad">
@@ -48,9 +49,16 @@ export function ActivityPreview({ api, activity, teacher, room, effectiveDeadlin
   </section>;
 }
 
+function ActivityDeadline({ activity, effectiveDeadlineAt }: { activity: ActivityDetail; effectiveDeadlineAt?: string | null }) {
+  const deadlineAt = effectiveDeadlineAt === undefined ? activity.deadlineAt : effectiveDeadlineAt;
+  const deadline = deadlineAt ? new Intl.DateTimeFormat('es-AR', {
+    timeZone: activity.zone, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).format(new Date(deadlineAt)).replaceAll('.', '') : 'Sin fecha límite';
+  return <div><h4>Fecha límite</h4><p>{deadline}</p><h4>Entregas tardías</h4><p>{activity.allowLate ? 'Se aceptan' : 'Plazo estricto'}</p></div>;
+}
+
 export function ActivityContext({api,activity,room,effectiveDeadlineAt}:{api:ClassroomClient;activity:ActivityDetail;room?:Detail;effectiveDeadlineAt?:string|null}){
- const deadlineAt=effectiveDeadlineAt===undefined?activity.deadlineAt:effectiveDeadlineAt;
- return <aside className={`brujula-activity-context ${styles.context}`}><h4>Fecha límite</h4><p>{deadlineAt?new Intl.DateTimeFormat('es-AR',{timeZone:activity.zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(deadlineAt)).replaceAll('.',''):'Sin fecha límite'}</p><ActivityCurriculum room={room} activity={activity} split/><h4>Entregas tardías</h4><p>{activity.allowLate?'Se aceptan':'Plazo estricto'}</p>
+ return <aside className={`brujula-activity-context ${styles.context}`}><ActivityDeadline activity={activity} effectiveDeadlineAt={effectiveDeadlineAt}/><ActivityCurriculum room={room} activity={activity} split/>
       {activity.materials.length?<><h4>Material de consulta</h4><ul>{activity.materials.map(m => <li key={m.id}><a href={api.fileUrl(m.fileId)} target="_blank" rel="noreferrer">{m.title}</a></li>)}</ul></>:null}
     </aside>;
 }

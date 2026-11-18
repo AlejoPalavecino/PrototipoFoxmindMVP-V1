@@ -211,17 +211,30 @@
  #foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings],[data-classroom-tab=history]) h3{font-size:20px}
 }
 
-/* A short viewport must still scroll scope and content controls above the
+/* A short viewport must still scroll content and review controls above the
    fixed compose actions and their live save status. */
 #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top){padding-bottom:160px}
-#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form :is(input,textarea,select,label,button){scroll-margin-block:24px 160px}
-html:has(#foxmind-product .br-authoring .parity-compose-top){scroll-padding-bottom:160px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form:not([data-authoring-step='0'])>:not(.p5-form-footer) :is(input,textarea,select,label,button){scroll-margin-block:24px 160px}
+html:has(#foxmind-product .br-authoring>form:not([data-authoring-step='0'])){scroll-padding-bottom:160px}
 #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{pointer-events:none}
-#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer button{scroll-margin-block:0}
 @media(max-height:680px){
  #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top){padding-bottom:175px}
- #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form :is(input,textarea,select,label,button){scroll-margin-block:18px 175px}
- html:has(#foxmind-product .br-authoring .parity-compose-top){scroll-padding-bottom:175px}
+ #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form:not([data-authoring-step='0'])>:not(.p5-form-footer) :is(input,textarea,select,label,button){scroll-margin-block:18px 175px}
+ html:has(#foxmind-product .br-authoring>form:not([data-authoring-step='0'])){scroll-padding-bottom:175px}
+}
+
+/* Keep scope controls clickable down to the bottom edge of the viewport. */
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(>form[data-authoring-step='0']) {
+  padding-bottom: 24px;
+}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(>form[data-authoring-step='0'])>.br-authoring-save-status {
+  position: static;
+  max-width: none;
+  margin-bottom: 12px;
+}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring>form[data-authoring-step='0']>.p5-form-footer {
+  position: static;
+  padding-inline: 0;
 }
 
 /* Published student feedback: scoped to the student's result, not the

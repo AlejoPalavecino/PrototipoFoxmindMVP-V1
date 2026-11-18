@@ -9,7 +9,10 @@ import { chromium, expect } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, digest } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, planPdf } from './p6-integration-helpers.mjs';
+import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
+import { observedUiAction, rateLimitSeconds, watchActionResponse } from './p8-current-ui-helpers.mjs';
 import { watchResponse, createJourneyObserver } from './helpers/browser-action-observer.mjs';
+import { runAdmittedAction } from './helpers/browser-admission-step.mjs';
 
 async function request(page, method, path, body, headers = {}) {
   let result = await api(page, method, path, body, headers, { stopOnCsrfFailure: true });
@@ -86,17 +89,27 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
         const before = await originalHash(activity);
         await openClassroom(teacher, runtime.origin, 'P7 history classroom'); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
         await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
+        await teacher.getByRole('button', { name: 'Ver entregas', exact: true }).click();
+        await teacher.getByRole('button', { name: 'Ver devolución · Intento 1', exact: true }).click();
         await teacher.getByRole('button', { name: 'Habilitar otro intento', exact: true }).click();
         await teacher.getByRole('button', { name: 'Confirmar nuevo intento', exact: true }).click();
-        await teacher.getByText('Reentrega pendiente', { exact: false }).waitFor();
+        await teacher.getByText('Reentrega pendiente', { exact: true }).waitFor();
         assert.equal(await originalHash(activity), before);
         await openClassroom(student, runtime.origin, 'P7 history classroom');
-        await student.getByRole('button', { name: 'Actividades', exact: true }).click();
+        await selectClassroomSection(student, 'activities', 'Actividades');
         await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
+        await student.getByRole('group', { name: 'Vista de la actividad', exact: true })
+          .getByRole('button', { name: /^Mis intentos/ }).click();
         await student.getByText('Reentrega pendiente: todavía no es una nueva entrega recibida.', { exact: true }).waitFor();
         await student.getByRole('button', { name: 'Consultar intento 1', exact: true }).click();
-        if (activity.type !== 'ASSIGNMENT') await student.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Original answer', { exact: false }).waitFor();
-        await student.getByRole('region', { name: 'Intento histórico confirmado' }).getByRole('button', { name: 'Volver a mis intentos', exact: true }).click();
+        const originalAttempt = student.getByRole('region', { name: 'Intento histórico confirmado' });
+        if (activity.type !== 'ASSIGNMENT') {
+          await originalAttempt.getByRole('button', { name: 'Ver respuestas y orientación por pregunta', exact: true }).click();
+          const answers = student.getByRole('dialog', { name: 'Respuestas y orientación por pregunta', exact: true });
+          await answers.getByText('Original answer', { exact: false }).waitFor();
+          await answers.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+        }
+        await originalAttempt.getByRole('button', { name: 'Volver a mis intentos', exact: true }).click();
         journey.setStage('student', activity.type, 'transfer');
         try {
         const sessionWatch = watchResponse(student, response => response.request().method() === 'GET' && new URL(response.url()).pathname === `/api/v1/classrooms/${room.id}/activities/${activity.id}/session`, 30000);
@@ -141,17 +154,54 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
             const body = response.request().postDataJSON();
             return body?.scope?.id === room.id && body?.purpose === 'attachment' && body?.targetId === continued.attempt.id;
           }, 30000);
-          const uploaded = watchResponse(student, response => /^\/api\/v1\/files\/[0-9a-f-]+\/content$/i.test(new URL(response.url()).pathname)
-            && response.request().method() === 'PUT', 30000);
+          let uploadConfirmed = false;
+          const isSessionRead = response => response.request().method() === 'GET'
+            && new URL(response.url()).pathname === `/api/v1/classrooms/${room.id}/activities/${activity.id}/session`;
+          const uploaded = watchResponse(student, response => {
+            const matches = /^\/api\/v1\/files\/[0-9a-f-]+\/content$/i.test(new URL(response.url()).pathname)
+              && response.request().method() === 'PUT';
+            if (matches && response.status() === 200) uploadConfirmed = true;
+            return matches;
+          }, 30000);
+          const afterUpload = watchResponse(student, response => uploadConfirmed && isSessionRead(response), 30000);
+          let refresh;
           try {
             await student.getByRole('button', { name: 'Subir archivo privado', exact: true }).click();
             const allocation = await allocate.value(); assert.equal(allocation.status(), 201);
             const file = await allocation.json(), content = await uploaded.value(); assert.equal(content.status(), 200);
             assert.equal(new URL(content.url()).pathname, `/api/v1/files/${file.id}/content`);
-          } finally { allocate.dispose(); uploaded.dispose(); }
+            refresh = await afterUpload.value();
+          } finally { allocate.dispose(); uploaded.dispose(); afterUpload.dispose(); }
+          if (refresh.status() === 429) {
+            const seconds = await rateLimitSeconds(refresh);
+            await student.getByRole('alert').filter({ hasText: /límite de intentos/i }).waitFor();
+            await delay(seconds * 1000);
+            refresh = await observedUiAction(student, () => student.getByRole('button', { name: 'Actualizar estado confirmado', exact: true }).click(), isSessionRead, 30000);
+          }
+          assert.equal(refresh.status(), 200, 'The browser must recover the confirmed attachment with a session read');
           await student.getByRole('button', { name: 'Quitar revised-work.pdf', exact: true }).waitFor();
           await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
-          await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click();
+          const confirmation = student.getByRole('region', { name: 'Confirmar entrega del trabajo práctico', exact: true });
+          const submit = confirmation.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true });
+          const mutationPath = `${attemptPath}/submit-practical`;
+          const isSubmission = request => request.method() === 'POST' && new URL(request.url()).pathname === mutationPath;
+          let submissions = 0;
+          const track = request => { if (isSubmission(request)) submissions++; };
+          student.on('request', track);
+          try {
+            const confirmed = await runAdmittedAction({
+              mutationPath,
+              observe: () => watchActionResponse(student, response => isSubmission(response.request()) ||
+                (response.request().method() === 'GET' && new URL(response.url()).pathname === '/api/v1/auth/csrf' && response.status() !== 200), 30000),
+              action: () => submit.click(),
+              wait: delay,
+              onLimited: async (_response, phase) => {
+                if (phase === 'csrf') assert.equal(submissions, 0);
+                await confirmation.getByRole('alert').filter({ hasText: /límite de intentos/i }).waitFor();
+              },
+            });
+            assert.equal(confirmed.request().postDataJSON().confirm, true);
+          } finally { student.off('request', track); }
         } else {
           const input = student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true });
           await expect(input).toBeEnabled({ timeout: 30000 });
@@ -227,7 +277,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
             throw error;
           } finally { for (const watch of watches) watch.dispose(); student.off('response', observe); student.off('request', observeRequest); }
         }
-        await student.getByText('Entregado · solo consulta', { exact: false }).waitFor();
+        await student.getByRole('region', { name: 'Comprobante de entrega', exact: true }).waitFor();
         assert.equal(await originalHash(activity), before);
         assert.equal((await runtime.db.query('SELECT effective_grade_id FROM student_activities WHERE id=$1', [activity.obligation])).rows[0].effective_grade_id, activity.grade);
         const history = await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/history`); assert.deepEqual(history.attempts.map(a => [a.number, a.status]), [[2, 'SUBMITTED'], [1, 'SUBMITTED']]);

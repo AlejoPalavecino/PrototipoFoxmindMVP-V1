@@ -55,6 +55,8 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   const detailHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { detailHeading.current?.focus(); }, [selected]);
   const candidates = data?.attempts.filter(attempt => filter !== 'unpublished' || (attempt.status === 'SUBMITTED' && attempt.gradePublished === false)) ?? [];
+  const pendingResubmissions = new Set(teacher ? data?.attempts
+    .filter(attempt => attempt.number > 1 && attempt.status === 'DRAFT').map(attempt => attempt.studentId) : []);
   const latestDeliveries = new Map<string, AttemptHistoryRow>();
   for (const attempt of candidates) {
     if (attempt.status !== 'SUBMITTED' || attempt.currentMember === false) continue;
@@ -103,6 +105,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
         <button type="button" aria-pressed={view === 'history'} onClick={() => setView('history')}><FoxmindIcon name={teacher ? 'users' : 'history'}/>
           {teacher ? 'Entregas' : 'Mis intentos'} {visibleAttempts.length ? <span>{visibleAttempts.length}</span> : null}</button>
       </div> : null}
+      {teacher && activityPreview && view === 'overview' ? actions : null}
       {activityPreview && (view === 'overview' || privateDraft) ? <ActivityPreview api={api} activity={activityPreview} teacher={teacher} room={room}
         effectiveDeadlineAt={effectiveDeadlineAt} instructionsLocked={instructionsLocked} /> : !activityPreview && data ? <p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p> : null}
       {privateDraft ? <div className="brujula-attempt-empty"><strong>Solo vos podés ver este borrador.</strong><p>Revisá la consigna antes de compartirla con el aula.</p>
@@ -117,7 +120,9 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
       <ul className={`p7-history-list ${styles.deliveryList}${teacher && !allAttempts ? ` ${styles.deliveryOverview}` : ''}`}>{visibleAttempts.map(attempt => <li key={attempt.id}>
         <div className={styles.deliveryIdentity}>
           <span><FoxmindIcon name={teacher ? 'profile' : 'file'}/></span>
-          <div><strong>{teacher ? `${attempt.lastName}, ${attempt.firstName}` : `Intento ${attempt.number}`}</strong>{teacher ? <small>Intento {attempt.number}</small> : null}</div>
+          <div><strong>{teacher ? `${attempt.lastName}, ${attempt.firstName}` : `Intento ${attempt.number}`}</strong>{teacher ? <small>Intento {attempt.number}</small> : null}
+            {teacher && !allAttempts && pendingResubmissions.has(attempt.studentId) ? <small>Reentrega pendiente</small> : null}
+          </div>
         </div>
         <span className={styles.state} data-tone={attempt.status !== 'SUBMITTED' ? undefined : teacher && reviewState(attempt) !== 'published' ? reviewState(attempt) ?? 'pending' : 'confirmed'}>{attempt.status === 'SUBMITTED'
           ? teacher ? reviewState(attempt) === 'published' ? 'Devolución publicada' : reviewState(attempt) === 'saved' ? 'Revisión privada guardada' : 'Por revisar' : attempt.gradePublished ? 'Con devolución' : 'Entregado' : attempt.number > 1 ? 'Reentrega pendiente' : 'Borrador'}</span>

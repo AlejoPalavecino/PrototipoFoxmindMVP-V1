@@ -34,5 +34,5 @@ export async function profileAction(page) {
     await mobileAccount.getByRole('button', { name: /^Mi cuenta/, exact: false }).click();
     return page.getByRole('dialog', { name: 'Mi cuenta', exact: true }).getByRole('link', { name: 'Mi perfil', exact: true });
   }
-  return drawer.getByRole('link', { name: 'Mi perfil', exact: true });
+  return drawer.getByRole('link', { name: /^Mi perfil(?: de .+)?$/ });
 }

@@ -150,6 +150,38 @@ test('typed practical retains text after lost acknowledgement and recovers CAS b
   assert.equal(mutations, 2); assert.ok(descendants(view.tree, node => node.type?.name === 'Dialog').length);
 });
 
+test('retrying a failed questionnaire save keeps the attempt open until Save and exit is selected', async t => {
+  const { QuestionnaireAttempt } = loadTsModule('apps/web/src/features/participation/questionnaire/QuestionnaireAttempt.tsx');
+  const saves = [];
+  let exits = 0;
+  const data = { canTransfer: true, activity: { type: 'QUESTIONNAIRE', title: 'Preguntas', zone: 'UTC',
+    questions: [{ id: 'question', type: 'DEVELOPMENT', prompt: 'Explicá', options: [] }] },
+    attempt: { id: attempt, number: 1, status: 'DRAFT', epoch: editor.epoch, revision: '0', answers: [] } };
+  const view = hookView(QuestionnaireAttempt, { data, editor, reading: {}, onClose: () => exits++, refresh: async () => {},
+    operations: { saveAnswer: async input => {
+      saves.push(input);
+      if (saves.length === 1) throw new Error('Service unavailable');
+      return { revision: '1', answer: { ...input, savedAt: '2026-11-16T00:00:00Z' } };
+    } } });
+  t.after(() => view.close()); await view.flush();
+  const click = async label => {
+    descendants(view.tree, node => node.type === 'button' && node.props.children === label)[0].props.onClick();
+    await view.flush();
+  };
+  const textarea = () => descendants(view.tree, node => node.type === 'textarea')[0];
+  textarea().props.onChange({ target: { value: 'Texto conservado' } }); await view.flush();
+  await click('Guardar y salir');
+  assert.equal(exits, 0, 'The failed save keeps the attempt open');
+  await click('Reintentar guardado');
+  assert.equal(exits, 0, 'Retry must confirm the draft without closing the attempt');
+  assert.equal(textarea().props.value, 'Texto conservado');
+  assert.equal(saves.length, 2);
+  assert.deepEqual(saves[1], saves[0]);
+  await click('Guardar y salir');
+  assert.equal(exits, 1);
+  assert.equal(saves.length, 2, 'Leaving a confirmed draft does not repeat the save');
+});
+
 test('missing or stale editor keeps both attempt interfaces read-only without requests', async t => {
   const api = loadTsModule(path);
   const { QuestionnaireAttempt } = loadTsModule('apps/web/src/features/participation/questionnaire/QuestionnaireAttempt.tsx');

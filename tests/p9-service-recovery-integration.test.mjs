@@ -38,7 +38,7 @@ test(`P9 first actual DB unsaved-answer and ${isolatedService} manual recovery`,
       await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
       await selectClassroomSection(page, 'activities', 'Actividades');
       await page.getByRole('article', { name: questionnaire.title, exact: true }).getByRole('button', { name: `Abrir ${questionnaire.title}`, exact: true }).click();
-      const start = await startBrowserAttempt(page, room.id, questionnaire.id, 12000, 'Responder actividad');
+      const start = await startBrowserAttempt(page, room.id, questionnaire.id, 12000, 'Empezar actividad');
       let pending; assert.equal(start.status(), 200);
       const started = await start.json(); assert.ok(started.editor);
       const answerPath = `/api/v1${rootOf(room)}/attempts/${started.attempt.id}/answer`;
@@ -55,11 +55,11 @@ test(`P9 first actual DB unsaved-answer and ${isolatedService} manual recovery`,
         await field.fill(text);
         const failed = await pending; evidence.csrfFailure = { status: failed.status(), code: (await failed.json()).error?.code };
         assert.equal(failed.status(), 503);
-        const status = page.getByRole('article', { name: 'Pregunta 1', exact: true }).getByRole('status');
+        const status = page.getByRole('region', { name: 'Respuestas y entrega', exact: true }).locator('footer').getByRole('status');
         await status.filter({ hasText: 'Error de guardado · cambios sin confirmar' }).waitFor({ timeout: 20000 });
         assert.equal(await field.inputValue(), text);
-        await page.getByText('Las respuestas siguen en pantalla; no se confirmó su guardado.', { exact: false }).waitFor();
-        assert.equal(await status.filter({ hasText: 'Guardado confirmado' }).count(), 0);
+        await page.getByText('Tus respuestas siguen en pantalla. Podés reintentar el guardado.', { exact: false }).waitFor();
+        assert.equal(await status.filter({ hasText: 'Borrador guardado' }).count(), 0);
         assert.equal(answerRequests.length, 0, 'Fresh CSRF failure must prevent answer POST, not queue a write');
         evidence.unsaved = { retained: true, answerPostCount: answerRequests.length, status: await status.textContent() };
         await page.screenshot({ path: join(scratch, 'database-unsaved-error.png'), fullPage: true }); await flush();
@@ -71,7 +71,7 @@ test(`P9 first actual DB unsaved-answer and ${isolatedService} manual recovery`,
       pending = page.waitForResponse(r => new URL(r.url()).pathname === answerPath && r.request().method() === 'POST', { timeout: 20000 });
       const retryAt = Date.now(); await page.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
       const saved = await pending; assert.equal(saved.status(), 200); const confirmation = await saved.json();
-      await page.getByRole('article', { name: 'Pregunta 1', exact: true }).getByRole('status').filter({ hasText: 'Guardado confirmado' }).waitFor();
+      await page.getByRole('status').filter({ hasText: 'Borrador guardado' }).waitFor();
       const persisted = await session(world, questionnaire);
       assert.equal(persisted.attempt.answers.find(a => a.questionId === started.activity.questions[0].id)?.text, text);
       assert.equal(persisted.attempt.revision, confirmation.revision);

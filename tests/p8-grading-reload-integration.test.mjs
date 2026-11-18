@@ -1,4 +1,4 @@
-import { openPracticalActivity, openTeacherActivity, selectClassroomSection } from './p8-current-ui-helpers.mjs';
+import { openPracticalActivity, openTeacherGrading, observedUiAction, selectClassroomSection } from './p8-current-ui-helpers.mjs';
 import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,25 +46,28 @@ test('P8 targeted TP private editor reload confirms actual 200 before restoring 
       await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
       const submitted = student.waitForResponse(r => r.url().endsWith('/submit-practical'));
       await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
-      await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
+      await student.getByRole('region', { name: 'Comprobante de entrega', exact: true })
+        .getByText('Entrega confirmada', { exact: true }).waitFor();
       const state = await ok(student, 'GET', `/classrooms/${room.id}/activities/${id}/session`), attemptId = state.attempt.id;
       await openClassroom(teacher, runtime.origin, roomName); await selectClassroomSection(teacher, 'activities', 'Actividades');
-      await openTeacherActivity(teacher, 'Targeted TP');
-      await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
-      const region = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
+      const region = await openTeacherGrading(teacher, 'Targeted TP');
       await region.getByLabel('Nota final', { exact: true }).fill('8,50');
+      await region.getByRole('button', { name: 'Devolución', exact: true }).click();
       await region.getByLabel('Devolución general opcional', { exact: true }).fill('Persisted targeted feedback');
       const saved = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
       await region.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await saved).status(), 200);
       await region.getByText('Corrección privada guardada. No se ha publicado.', { exact: true }).waitFor();
       const persistedHash = async () => digest(JSON.stringify((await runtime.db.query('SELECT to_jsonb(g) value FROM attempt_grades g WHERE attempt_id=$1', [attemptId])).rows));
       const before = await persistedHash();
+      await region.getByRole('button', { name: 'Rúbrica y nota', exact: true }).click();
       await region.getByLabel('Nota final', { exact: true }).fill('2,00');
+      await region.getByRole('button', { name: 'Devolución', exact: true }).click();
       await region.getByLabel('Devolución general opcional', { exact: true }).fill('Unsaved local feedback');
-      const reload = async () => {
-        const response = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'GET');
-        await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click(); return response;
-      };
+      const reload = () => observedUiAction(teacher, async () => {
+        await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
+        const discard = teacher.getByRole('dialog', { name: 'Tenés cambios sin guardar', exact: true });
+        await discard.getByRole('button', { name: 'Descartar cambios', exact: true }).click();
+      }, r => r.url().endsWith(`/${attemptId}/grading`) && r.request().method() === 'GET');
       let response = await reload();
       console.log(`P8 targeted visible reload first status=${response.status()} retry-after=${response.headers()['retry-after'] ?? 'absent'}`);
       if (response.status() === 429) {
@@ -77,6 +80,7 @@ test('P8 targeted TP private editor reload confirms actual 200 before restoring 
       assert.equal(await region.getByLabel('Devolución general opcional', { exact: true }).inputValue(), 'Persisted targeted feedback');
       assert.equal(await region.getByText('Tus cambios no se han confirmado.', { exact: false }).count(), 0);
       assert.equal(await persistedHash(), before);
+      await region.getByRole('button', { name: 'Rúbrica y nota', exact: true }).click();
       await region.getByText('Nota guardada: 8,50', { exact: true }).waitFor();
       await teacher.screenshot({ path: join(scratch, 'teacher-tp-reload-confirmed-200.png'), fullPage: true });
       assert.equal(await teacher.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

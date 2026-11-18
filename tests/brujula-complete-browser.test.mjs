@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
+import { runAdmittedAction } from './helpers/browser-admission-step.mjs';
+import { watchResponse } from './helpers/browser-action-observer.mjs';
 import { createHash } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { openClassroom } from './p6-integration-helpers.mjs';
@@ -220,9 +222,17 @@ test('Brújula completa real: aula manual obligatoria, autoría privada, criteri
       const wall = T.page.getByRole('dialog', { name: 'Una idea para tu grupo', exact: true });
       await wall.getByRole('textbox', { name: 'Título', exact: true }).fill('Título real del aviso');
       await wall.getByRole('textbox', { name: 'Tu mensaje', exact: true }).fill('Contenido del aviso para el grupo.');
-      const wallPublication = T.page.waitForResponse(response => new URL(response.url()).pathname === wallPath && response.request().method() === 'POST');
-      await wall.getByRole('button', { name: 'Publicar mensaje', exact: true }).click();
-      assert.equal((await wallPublication).status(), 200);
+      await runAdmittedAction({
+        mutationPath: wallPath,
+        observe: () => watchResponse(T.page, response => {
+          const path = new URL(response.url()).pathname;
+          return (path === wallPath && response.request().method() === 'POST')
+            || (path === '/api/v1/auth/csrf' && response.status() !== 200);
+        }, 12000),
+        action: () => wall.getByRole('button', { name: 'Publicar mensaje', exact: true }).click(),
+        wait: delay,
+        onLimited: () => wall.getByRole('alert').waitFor(),
+      });
       assert.ok((await ok(S.page, 'GET', `${root}/wall`)).posts.some(post => post.title === 'Título real del aviso' && post.body === 'Contenido del aviso para el grupo.'));
       const teacherReads = (await ok(T.page, 'GET', '/classrooms/notifications')).map(item => [item.id, item.readAt]);
       await S.page.goto(`${runtime.origin}/notificaciones`);

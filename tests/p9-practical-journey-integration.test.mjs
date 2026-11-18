@@ -5,7 +5,7 @@ import { openClassroom, planPdf } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
 import { openPracticalActivity, openTeacherActivity } from './p8-current-ui-helpers.mjs';
 import { withJourney, ok, request, createActivity, session, rootOf, rejectUnchanged, academicHash,
-  assertReadyFile, openOwnResult, selectClassroomSection } from './p9-journey-helpers-current.mjs';
+  assertReadyFile, openOwnResult, selectClassroomSection, openFirstDeliveryForGrading } from './p9-journey-helpers-current.mjs';
 
 test('P9 joined practical: real private validated attachment, explicit receipt, private 0-10 correction and durable publication', { timeout: 330000 }, async () => {
   await withJourney('practical', async world => {
@@ -43,10 +43,12 @@ test('P9 joined practical: real private validated attachment, explicit receipt, 
     await openClassroom(T.page, runtime.origin, 'P9 practical classroom');
     await T.page.getByRole('button', { name: 'Actividades', exact: true }).click();
     await openTeacherActivity(T.page, activity.title);
-    await T.page.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
+    await openFirstDeliveryForGrading(T.page);
     const grading = T.page.getByRole('region', { name: 'Corrección privada del intento', exact: true });
     await grading.getByLabel('Nota final', { exact: true }).fill('8,50');
+    await grading.getByRole('button', { name: 'Devolución', exact: true }).click();
     await grading.getByLabel('Devolución general opcional', { exact: true }).fill('Specific practical overall feedback');
+    await grading.getByRole('button', { name: 'Rúbrica y nota', exact: true }).click();
     response = T.page.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
     await grading.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click();
     const saved = await response; assert.equal(saved.status(), 200); assert.equal((await saved.json()).grade.finalGrade, '8.50');

@@ -62,7 +62,8 @@ export async function withP4Services(run, { persistent = false, databaseName = '
       await new Promise(resolve => server.close(resolve));
       return `127.0.0.1:${selected}:${internal}`;
     };
-    docker('network', 'create', '--label', `foxmind.p4.owner=${tag}`, prefix); network = true;
+    // Ask Docker to choose a small free subnet for these three disposable services.
+    docker('network', 'create', '--subnet', '0.0.0.0/28', '--label', `foxmind.p4.owner=${tag}`, prefix); network = true;
     const db = start('db', P4_IMAGES.database, ['--memory=512m', '--cpus=0.75', '--pids-limit=128',
       '--publish', await publish(5432), ...dataMount('db-data', '/var/lib/postgresql/data'), '--env', 'POSTGRES_PASSWORD', '--env', `POSTGRES_DB=${databaseName}`], []);
     const storage = start('s3', P4_IMAGES.storage, ['--memory=768m', '--cpus=1', '--pids-limit=128',

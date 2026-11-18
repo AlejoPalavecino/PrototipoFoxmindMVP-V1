@@ -61,11 +61,13 @@ test('both actual pre-start overviews remain safe read-only views until explicit
             await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
             assert.equal((await consulted).status(), 200);
             const dialog = student.getByRole('region', { name: 'Consulta de actividad', exact: true });
+            const overview = student.getByRole('region', { name: 'Mi historial de intentos', exact: true });
+            await dialog.waitFor();
+            await overview.getByText('3 preguntas', { exact: true }).waitFor();
             for (const question of activity.questions) {
               assert.equal(await dialog.getByText(question.prompt, { exact: true }).count(), 0);
               for (const option of question.options) assert.equal(await dialog.getByText(option.text, { exact: true }).count(), 0);
             }
-            await dialog.getByText('3 preguntas', { exact: true }).waitFor();
             assert.equal(await dialog.getByRole('textbox').count(), 0); assert.equal(await dialog.getByRole('radio').count(), 0); assert.equal(await dialog.getByRole('checkbox').count(), 0);
             assert.equal(await dialog.getByRole('button', { name: 'Revisar entrega', exact: true }).count(), 0);
             assert.equal(await dialog.locator('script').count(), 0); assert.equal(await student.evaluate(() => window.overviewExecuted === true), false);
@@ -76,14 +78,18 @@ test('both actual pre-start overviews remain safe read-only views until explicit
             await student.screenshot({ path: join(scratch, `${activity.type.toLowerCase()}-read-only-overview.png`), fullPage: true });
           } finally { student.off('request', observe); }
           const dialog = student.getByRole('region', { name: activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad', exact: true });
-          const response = await startBrowserAttempt(student, room.id, activity.id, 30000, 'Responder actividad'); assert.equal(response.status(), 200);
+          const response = await startBrowserAttempt(student, room.id, activity.id, 30000, 'Empezar actividad'); assert.equal(response.status(), 200);
           const state = await response.json(); assert.equal(state.attempt.status, 'DRAFT'); assert.equal(state.activity.locked, true); assert.deepEqual(state.attempt.answers, []);
           await dialog.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).waitFor();
-          assert.equal(await dialog.getByRole('article', { name: /^Pregunta [1-3]$/ }).count(), 3);
+          assert.equal(await student.getByRole('region', { name: 'Consulta de actividad', exact: true }).count(), 0);
+          const navigation = dialog.getByRole('navigation', { name: 'Preguntas', exact: true });
+          assert.equal(await navigation.getByRole('button').count(), 3);
           for (const [index, expected] of activity.questions.entries()) {
+            await navigation.getByRole('button', { name: `Pregunta ${index + 1}, sin responder`, exact: true }).click();
             const question = dialog.getByRole('article', { name: `Pregunta ${index + 1}`, exact: true });
-            await question.scrollIntoViewIfNeeded();
-            assert.equal(await question.getByRole('heading').textContent(), `${String(index + 1).padStart(2, '0')}${expected.prompt}`);
+            await question.waitFor();
+            assert.equal(await dialog.getByRole('article', { name: /^Pregunta [1-3]$/ }).count(), 1);
+            assert.equal(await question.getByRole('heading').textContent(), expected.prompt);
             const type = index === 0 ? 'textbox' : index === 1 ? 'radio' : 'checkbox';
             assert.equal(await question.getByRole(type).count(), index === 0 ? 1 : expected.options.length);
             await question.getByRole(type).first().focus();

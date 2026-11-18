@@ -10,6 +10,7 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, password } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, planPdf, rejectSame } from './p6-integration-helpers.mjs';
+import { observedUiAction, rateLimitSeconds } from './p8-current-ui-helpers.mjs';
 import { assertAttemptWrite } from '../.build/api/apps/api/src/modules/participation/attempts/infrastructure/attempt-access.js';
 
 // Observe CSRF/admission responses before deriving a mutation body or using any identifier.
@@ -90,7 +91,10 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
         await student.getByRole('button',{name:'Preparar entrega',exact:true}).click();
         const start=await response;assert.equal(start.status(),200);const data=await start.json();oldEditor=data.editor;attempt=data.attempt;
         assert.ok(oldEditor.token);assert.equal(oldEditor.epoch,attempt.epoch);await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).waitFor();assert.equal(await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).isEnabled(),true);
-        await student.getByRole('link',{name:'Descargar instructions.pdf',exact:true}).waitFor();
+        await student.getByRole('button',{name:'Materiales',exact:true}).click();
+        const materials=student.getByRole('dialog',{name:'Materiales de la actividad',exact:true});
+        await materials.getByRole('link',{name:'Descargar instructions.pdf',exact:true}).waitFor();
+        await materials.getByRole('button',{name:'Cerrar diálogo',exact:true}).click();
         assert.equal((await request(student,'GET',`/files/${fileId}/content`)).status,200);
         assert.equal((await session(device,assignment)).editor,undefined);
       });
@@ -114,11 +118,11 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
         assert.equal((await session(device,assignment)).editor,undefined);
         assert.equal(await device.evaluate(()=>[...Object.keys(localStorage),...Object.keys(sessionStorage)].some(key=>/attempt|editor/i.test(key))),false);
       });
-      await check('questionnaire starts only with Comenzar; teacher first expired authorization uses roster and future classroom deadline',async()=>{
+      await check('questionnaire starts only with Empezar actividad; teacher first expired authorization uses roster and future classroom deadline',async()=>{
         await student.getByRole('button',{name:'Volver a actividades',exact:true}).click();
         await student.getByRole('article',{name:'Explicit quiz start',exact:true}).getByRole('button',{name:'Abrir Explicit quiz start',exact:true}).click();
         assert.equal((await session(student,quiz)).attempt,null);
-        const response=await startBrowserAttempt(student,room.id,quiz,30000,'Responder actividad');assert.equal(response.status(),200);
+        const response=await startBrowserAttempt(student,room.id,quiz,30000,'Empezar actividad');assert.equal(response.status(),200);
         await student.getByText('Borrador · todavía sin entregar',{exact:false}).waitFor();
         const draftState=await session(student,quiz);assert.equal(draftState.attempt.status,'DRAFT');assert.notEqual(draftState.attempt.status,'SUBMITTED');
         await openClassroom(teacher,runtime.origin,'P7 participation classroom');await teacher.getByRole('button',{name:'Actividades',exact:true}).click();
@@ -146,7 +150,18 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
         await change({action:'deadline',id:absenceOpen,deadline:{local:'2020-01-01T12:00'},allowLate:false});
         await device.getByRole('button',{name:'Volver a actividades',exact:true}).click();
         await openClassroom(device,runtime.origin,'P7 participation classroom');
-        await device.getByRole('button',{name:'Actividades',exact:true}).click();
+        const showActivities=()=>observedUiAction(device,()=>device.getByRole('button',{name:'Actividades',exact:true}).click(),
+          response=>response.request().method()==='GET'&&new URL(response.url()).pathname===`/api/v1/classrooms/${room.id}/activities`,30000);
+        let listing=await showActivities();
+        if(listing.status()===429){
+          const seconds=await rateLimitSeconds(listing);
+          await device.getByRole('alert').filter({hasText:/límite de intentos/i}).waitFor();
+          await delay(seconds*1000);
+          await openClassroom(device,runtime.origin,'P7 participation classroom');
+          listing=await showActivities();
+        }
+        assert.equal(listing.status(),200,'The classroom must load the current activity list after reentry');
+        assert.ok((await listing.json()).activities.some(activity=>activity.id===absenceOpen),'The closed activity remains listed after reentry');
         await device.getByRole('article',{name:'Open in actual absence',exact:true}).getByRole('button',{name:'Abrir Open in actual absence',exact:true}).click();
         console.log('Closed participation consultation UI',await device.getByRole('region',{name:'Consulta de actividad',exact:true}).innerText());
         const openingResponses=[],consultationMutations=[];

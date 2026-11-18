@@ -164,8 +164,12 @@ test('P7 actual questionnaire/evaluation UI, confirmed drafts, editor transfer a
         assert.notEqual((await session()).attempt.answers.find(a => a.text !== null).text, 'Failure must stay on screen');
         await student.unroute('**/attempts/*/answer');
         const retried = answerResponse(student); await student.getByRole('button', { name: 'Reintentar guardado', exact: true }).click(); assert.equal((await retried).status(), 200);
-        await expect(input(student)).toHaveCount(0); // Successful current retry saves and exits the solver.
+        await saved(student);
+        await expect(input(student)).toBeEnabled();
+        await expect(input(student)).toHaveValue('Failure must stay on screen');
         assert.equal((await session()).attempt.answers.find(a => a.text !== null).text, 'Failure must stay on screen');
+        await student.getByRole('button', { name: 'Guardar y salir', exact: true }).click();
+        await expect(input(student)).toHaveCount(0);
         await runtime.restartApi(); assert.equal((await session()).attempt.answers.find(a => a.text !== null).text, 'Failure must stay on screen');
         let starts = 0;
         const observe = request => { if (request.method() === 'POST' && new URL(request.url()).pathname.endsWith('/start')) starts++; };

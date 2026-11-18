@@ -22,7 +22,7 @@ test('student summary remains visible, keyboard reachable and stable after a ros
       await page.waitForFunction(() => document.fonts.status === 'loaded');
       assert.equal(await page.evaluate(() => !!document.querySelector('[data-qa-fixture="true"]')), true, 'Synthetic fixture required');
       await page.evaluate(() => window.scrollTo(0, 500));
-      await selectClassroomSection(page, 'members', 'Alumnos');
+      await selectClassroomSection(page, 'members', 'Estudiantes');
       await page.locator('[data-open-summary]').first().waitFor();
       geometry = await page.evaluate(() => {
         const button = document.querySelector('[data-open-summary]'), r = button.getBoundingClientRect();
@@ -36,7 +36,7 @@ test('student summary remains visible, keyboard reachable and stable after a ros
         `Student summary covered after tab change: ${JSON.stringify(geometry)}`);
       const mobileSections = page.getByRole('combobox', { name: 'Sección del aula', exact: true });
       if (await mobileSections.isVisible()) await mobileSections.focus();
-      else await page.getByRole('navigation', { name: 'Secciones del aula', exact: true }).getByRole('button', { name: 'Alumnos', exact: true }).focus();
+      else await page.getByRole('navigation', { name: 'Secciones del aula', exact: true }).getByRole('button', { name: 'Estudiantes', exact: true }).focus();
       let focused = false;
       for (let i = 0; i < 30 && !focused; i++) {
         await page.keyboard.press('Tab');
@@ -69,11 +69,11 @@ test('student summary remains visible, keyboard reachable and stable after a ros
       await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'));
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       assert.equal(await page.evaluate(() => window.__summaryScrollCalls), 0,
-        'A roster refresh must not recenter the summary while already in Alumnos');
+        'A roster refresh must not recenter the summary while already in Estudiantes');
       const boundaryEvidence = [];
       for (const width of [800, 801, 1023, 1024]) {
         await page.setViewportSize({ width, height: 486 });
-        for (const [key, label] of [['plan', 'Plan'], ['members', 'Alumnos']]) {
+        for (const [key, label] of [['plan', 'Plan'], ['members', 'Estudiantes']]) {
           const mobile = page.getByRole('combobox', { name: 'Sección del aula', exact: true });
           if (await mobile.isVisible()) { await mobile.focus(); assert.equal(await mobile.evaluate(node => node === document.activeElement), true); await mobile.selectOption(key); }
           else {
@@ -100,7 +100,7 @@ test('student summary remains visible, keyboard reachable and stable after a ros
         const comparison = await page.evaluate(() => {
           const matches = [];
           const inspect = (rules, media = '') => { for (const rule of rules) {
-            if (rule.selectorText?.replace(/[\s"']/g, '') === '.fm3d-theme.fm-home-navigation[data-private=true]>.fm3d-shell-nav'
+            if (rule.selectorText?.replace(/["']/g, '').replace(/\s*>\s*/g, '>') === '.fm3d-theme .fm-home-navigation[data-private=true]>.fm3d-shell-nav'
               && /min-width:\s*801px/.test(media)) matches.push(rule);
             if (rule.cssRules) inspect(rule.cssRules, `${media} ${rule.conditionText ?? ''}`);
           } };

@@ -24,7 +24,7 @@ test('Brújula real screens: both roles, classroom sections, agenda, account, Fo
         await capture(page, `${role}-${route}`, [390,768,1280,1440]);
       }
       await openClassroom(page,runtime.origin,'P9 brujula-layout classroom');
-      const sections = [['plan','Plan'],['wall','Muro'],['library','Biblioteca'],['activities','Actividades'],['progress',role === 'teacher'?'Progreso':'Mi progreso'],['members',role === 'teacher'?'Alumnos':'Compañeros'],...(role === 'teacher'?[['history','Historial'],['settings','Configuración']]:[])];
+      const sections = [['plan','Plan'],['wall','Muro'],['library','Biblioteca'],['activities','Actividades'],['progress',role === 'teacher'?'Progreso':'Mi progreso'],['members',role === 'teacher'?'Estudiantes':'Compañeros'],...(role === 'teacher'?[['history','Historial'],['settings','Ajustes']]:[])];
       for (const [key,label] of sections) {
         await selectClassroomSection(page,key,label);
         await capture(page,`${role}-classroom-${key}`,[390,1440]);

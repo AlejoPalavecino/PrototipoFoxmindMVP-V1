@@ -11,7 +11,10 @@ test('Markdown renders headings, lists and emphasis while treating HTML and unsa
  const html=renderToStaticMarkup(React.createElement(FoxyMarkdown,{markdown:'## Tema\n\n- **Concepto**\n- *Ejemplo*\n\n<img src=x onerror=alert(1)>\n[mal](javascript:alert(1))'}));
  assert.match(html,/<h3>Tema<\/h3>/);assert.match(html,/<ul>/);assert.match(html,/<strong>Concepto<\/strong>/);assert.match(html,/<em>Ejemplo<\/em>/);assert.match(html,/&lt;img/);assert.doesNotMatch(html,/<a|<img/);
  assert.match(renderToStaticMarkup(React.createElement(FoxyMarkdown,{markdown:'## '})),/##/);
+ const note=renderToStaticMarkup(React.createElement(FoxyMarkdown,{markdown:'Primera idea\n---\nSegunda idea con `---`.'}));
+ assert.match(note,/<p>Primera idea<\/p><hr\s*\/?><p>Segunda idea con <code>---<\/code>/);
 });
+
 const conversation={id:'chat',title:'Mi clase',context:{kind:'GENERAL'},revision:'0'};
 const chatState={current:conversation,conversations:[conversation],nextConversationCursor:null,turns:[],activeTurn:null,nextAfterSequence:null,pending:null,busy:false,error:'El título cambió en otra sesión.',capabilities:{textGeneration:{enabled:true},diagramGeneration:{enabled:false}}};
 

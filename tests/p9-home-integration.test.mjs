@@ -221,11 +221,12 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       peer.on('response', response => { const value = readEvidence.get(response.request()); if (value) value.status = response.status(); });
       peer.on('requestfinished', request => pendingHomeReads.delete(request));
       peer.on('requestfailed', request => pendingHomeReads.delete(request));
-      const drainHomeReads = async () => {
+      const drainHomeReads = async path => {
+        const current = () => [...pendingHomeReads].filter(request => new URL(request.url()).pathname === path);
         const deadline = Date.now() + 30000;
-        while (pendingHomeReads.size && Date.now() < deadline) await delay(20);
-        assert.equal(pendingHomeReads.size, 0, `Observe current-document reads completing before offline within the existing30s UI wait: ${JSON.stringify({ documentGeneration,
-          pending: [...pendingHomeReads].map(request => ({ path: new URL(request.url()).pathname, ...readEvidence.get(request), failure: request.failure()?.errorText })) })}`);
+        while (current().length && Date.now() < deadline) await delay(20);
+        assert.equal(current().length, 0, `Observe the affected endpoint completing before transport changes: ${JSON.stringify({ path, documentGeneration,
+          pending: current().map(request => ({ ...readEvidence.get(request), failure: request.failure()?.errorText })) })}`);
       };
       let failed = false;
       const check = (name, operation) => t.test(name, { skip: failed ? 'Prior shared journey failed' : false }, async () => {
@@ -469,7 +470,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       await check('archive indicators and removal reflect current membership without restoring cached notification access', async () => {
         // Four real accounts share one IP budget. Do not compress their prior block
         // and the archive/re-admission block into the same real 60-second window.
-        await drainHomeReads();
+        await drainHomeReads('/api/v1/home');
         const pacingStarted = Date.now();
         console.log(`P9 fixture archive boundary: prior elapsed=${pacingStarted - admissionStarted}ms; waiting one real60_001ms admission window`);
         await delay(60_001);
@@ -525,7 +526,8 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       });
 
       await check('real offline failure conceals old cards and visible manual retry restores fresh successful lists', async () => {
-        await drainHomeReads();
+        await openHome(peer, runtime.origin, 'student');
+        await drainHomeReads('/api/v1/home');
         await peerContext.setOffline(true);
         await refreshHomeByFocus(peer);
         await peer.locator('.fm-home-global-error').getByRole('button', { name: 'Reintentar', exact: true }).waitFor();
@@ -545,7 +547,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         } finally { peer.off('request', captureNotification); }
         const { inbox, data } = await openNotifications(peer);
         assert.ok(data.items.some(item => item.classroomId === roomB.id && item.eventType === 'WALL_NOTICE'));
-        await drainHomeReads();
+        await drainHomeReads('/api/v1/classrooms/notifications/page');
         await peerContext.setOffline(true);
         await inbox.getByRole('group', { name: 'Estado de lectura', exact: true })
           .getByRole('button', { name: /^No leídas/ }).click();
@@ -571,7 +573,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         const backHome = waitRead(peer, '/api/v1/home');
         await (await navigationLink(peer, 'Inicio')).click();
         await settledHome(peer, await backHome, 'student');
-        await drainHomeReads();
+        await drainHomeReads('/api/v1/home');
         await assertHomeRecoveryOwners(peer);
 
       });

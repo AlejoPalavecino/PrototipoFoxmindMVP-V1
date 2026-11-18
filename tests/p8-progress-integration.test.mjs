@@ -196,6 +196,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         await assertUnitProgress(student, expectedOwn.plan);
         const delivered = expectedOwn.activities.find(activity => activity.id === activities[0]);
         assert.ok(delivered.firstSubmission); assert.equal(delivered.pendingResubmission, true);
+        await region(student).getByText(`Revisá los cambios para volver a entregar «${delivered.title}».`, { exact: true }).waitFor();
         assert.equal(await region(student).getByRole('region', { name: 'Estudiantes actuales' }).count(), 0);
         assert.equal(await region(student).getByRole('alert').count(), 0);
         assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

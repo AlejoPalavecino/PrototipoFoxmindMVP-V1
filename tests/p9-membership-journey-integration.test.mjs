@@ -78,9 +78,9 @@ test('P9 joined membership: peer/foreign roles, stale editor/session, removal/re
     assert.equal((await progress()).performance.average, '7.00');
     await openClassroom(T.page, runtime.origin, 'P9 membership classroom');
     await T.page.getByRole('button', { name: 'Progreso', exact: true }).click();
-    const aggregate = T.page.getByRole('region', { name: 'Rendimiento académico', exact: true });
-    await aggregate.getByRole('heading', { name: 'Rendimiento académico', exact: true }).waitFor();
-    assert.match(await aggregate.locator('strong').innerText(), /^7\s*\/\s*10$/, 'Current classroom average remains exactly seven of ten');
+    const aggregate = T.page.locator('.parity-progress-panel').filter({ has: T.page.getByRole('heading', { name: 'Resultados publicados', exact: true }) });
+    await aggregate.getByText('Promedio del grupo · 2 estudiantes con nota', { exact: true }).waitFor();
+    assert.match(await aggregate.locator('.parity-grade-summary b').innerText(), /^7\s*\/\s*10$/, 'Current classroom average remains exactly seven of ten');
     const cookie = (await device.context().cookies()).map(c => `${c.name}=${c.value}`).join('; ');
     assert.equal((await request(device, 'POST', '/auth/logout', {})).status, 204);
     const beforeRevoked = await academicHash(runtime.db);

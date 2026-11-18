@@ -285,7 +285,7 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
   }, { classrooms: true });
 });
 
-test('ARQ-07 restores an authorized activity link across reload and browser history', { timeout: 330000 }, async () => {
+test('ARQ-07 restores an authorized activity link across reload and browser history', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
     const { sessionTokenDigest } = await Promise.all([import("../.build/api/apps/api/src/modules/identity/domain/security/errors.js"),import("../.build/api/apps/api/src/modules/identity/domain/security/inputs.js"),import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/verifiers.js"),import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/configuration.js"),import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/passwords.js"),import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/sessions.js"),import("../.build/api/apps/api/src/modules/identity/accounts/presentation/session-cookies.js")]).then(([m0,m1,m2,m3,m4,m5,m6]) => Object.freeze({IdentitySecurityError: m0.IdentitySecurityError,validatePassword: m1.validatePassword,validateName: m1.validateName,validateBodyShape: m1.validateBodyShape,assertBodySize: m1.assertBodySize,generateVerifier: m2.generateVerifier,parseVerifier: m2.parseVerifier,accountTokenDigest: m2.accountTokenDigest,sessionTokenDigest: m2.sessionTokenDigest,readIdentityConfiguration: m3.readIdentityConfiguration,createPasswordService: m4.createPasswordService,IDENTITY_POLICY: m5.IDENTITY_POLICY,newSessionWindow: m5.newSessionWindow,sessionIsActive: m5.sessionIsActive,refreshSessionWindow: m5.refreshSessionWindow,sessionCookie: m6.sessionCookie,clearSessionCookie: m6.clearSessionCookie}));
     const teacher = randomUUID(), room = randomUUID(), unit = randomUUID(), topic = randomUUID(), token = randomBytes(32).toString('base64url');
@@ -336,6 +336,25 @@ test('ARQ-07 restores an authorized activity link across reload and browser hist
       await page.goBack(); await page.waitForURL(target); await preview.waitFor();
       await page.goForward(); await page.waitForURL(`${runtime.origin}/mis-aulas`); await preview.waitFor({ state: 'hidden' });
       assert.deepEqual(errors, []);
+      await t.test('short viewport leaves the topic clickable at the lower edge of the editor', async () => {
+        const viewport = { width: 1538, height: 646 };
+        await page.setViewportSize(viewport);
+        await openClassroom(page, runtime.origin, 'Aula enlace');
+        await selectClassroomSection(page, 'activities', 'Actividades');
+        const activities = page.getByRole('region', { name: 'Actividades del aula', exact: true });
+        await activities.locator(':scope > header').getByRole('button', { name: 'Crear actividad', exact: true }).click();
+        const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
+        const topic = editor.getByRole('checkbox', { name: 'Tema', exact: true });
+        await topic.evaluate((control, height) => {
+          const box = control.getBoundingClientRect();
+          window.scrollBy({ top: box.y + box.height / 2 - (height - 33), behavior: 'instant' });
+        }, viewport.height);
+        const box = await topic.boundingBox();
+        assert.ok(box);
+        assert.ok(box.y > viewport.height - 76 && box.y + box.height < viewport.height);
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+        assert.equal(await topic.isChecked(), true);
+      });
     } finally { await browser.close(); }
   }, { classrooms: true });
 });

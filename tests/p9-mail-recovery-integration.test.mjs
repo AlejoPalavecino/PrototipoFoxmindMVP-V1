@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { withJourney, rootOf, academicHash, capturedInvitation } from './p9-journey-helpers-current.mjs';
+import { withJourney, rootOf, academicHash, capturedInvitation, ok } from './p9-journey-helpers-current.mjs';
 import { openClassroom } from './p6-integration-helpers.mjs';
+import { observedUiAction } from './p8-current-ui-helpers.mjs';
 import { assertMailpitContinuity } from '../scripts/p9-runtime-controls.mjs';
 
 test('P9 first actual invitation SMTP failure and natural retry recovery', { timeout: 330000 }, async () => {
@@ -32,15 +33,17 @@ test('P9 first actual invitation SMTP failure and natural retry recovery', { tim
       const read = suffix => page.waitForResponse(response =>
         new URL(response.url()).pathname === `/api/v1${rootOf(room)}${suffix}` && response.request().method() === 'GET');
       const detailRead = read('');
+      void detailRead.catch(() => {});
       await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
       const detailResponse = await detailRead;
-      const memberRead = read('/members'), invitationRead = read('/invitations');
-      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
-      const memberResponse = await memberRead, invitationResponse = await invitationRead;
       const historyRead = read('/history');
+      void historyRead.catch(() => {});
       await page.getByRole('button', { name: 'Historial', exact: true }).click();
       const historyResponse = await historyRead;
-      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
+      const memberReads = Promise.all([read('/members'), read('/invitations')]);
+      void memberReads.catch(() => {});
+      await page.getByRole('button', { name: 'Estudiantes', exact: true }).click();
+      const [memberResponse, invitationResponse] = await memberReads;
       const responses = [detailResponse, memberResponse, historyResponse, invitationResponse];
       const bodies = await Promise.all(responses.map(async response => {
         assert.equal(response.status(), 200, 'Public classroom reentry must load actual admitted state');
@@ -61,20 +64,25 @@ test('P9 first actual invitation SMTP failure and natural retry recovery', { tim
       const membersBefore = (await runtime.db.query('SELECT count(*)::int n FROM membership_periods')).rows[0].n;
       assert.equal((await runtime.db.query('SELECT count(*)::int n FROM users WHERE email_normalized=$1', [recipient])).rows[0].n, 0);
       await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
-      const memberRead = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${rootOf(room)}/members` && response.request().method() === 'GET');
-      const invitationRead = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${rootOf(room)}/invitations` && response.request().method() === 'GET');
-      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
-      assert.equal((await memberRead).status(), 200); assert.equal((await invitationRead).status(), 200);
-      await page.getByRole('button', { name: 'Invitar alumnos', exact: true }).click();
-      await page.getByLabel('Correo electrónico', { exact: true }).fill(recipient);
+      const batchPath = `/api/v1${rootOf(room)}/invitations/batch`;
+      await page.getByRole('button', { name: 'Invitar estudiantes', exact: true }).click();
+      const batch = page.getByRole('dialog', { name: 'Invitar alumnos', exact: true });
+      await batch.getByLabel('Correos electrónicos', { exact: true }).fill(recipient);
       try {
         evidence.pausedAt = new Date().toISOString(); evidence.mailPaused = await runtime.pauseMail(); await flush();
         assertMailpitContinuity(evidence.mailBefore, evidence.mailPaused); assert.equal(evidence.mailPaused.paused, true);
-        const pending = page.waitForResponse(r => new URL(r.url()).pathname === `/api/v1${rootOf(room)}/invitations` && r.request().method() === 'POST');
-        await page.getByRole('button', { name: 'Enviar invitación', exact: true }).click();
-        const response = await pending; assert.equal(response.status(), 200); invitation = await response.json();
-        assert.equal(invitation.delivery, 'queued'); evidence.invitation = invitation;
-        await page.getByText('Invitación guardada para enviar. La inscripción requiere que la persona la acepte.', { exact: true }).waitFor();
+        const response = await observedUiAction(page, () => batch.getByRole('button', { name: 'Invitar a 1 persona', exact: true }).click(), r => {
+          const path = new URL(r.url()).pathname;
+          return r.request().method() === 'POST' && path.startsWith(`${batchPath}/`) && path.endsWith('/0');
+        });
+        assert.equal(response.status(), 200);
+        const receipt = await response.json();
+        assert.equal(receipt.status, 'created'); assert.equal(receipt.email, recipient);
+        await batch.getByRole('listitem').filter({ hasText: recipient }).getByText('Invitación en cola', { exact: true }).waitFor();
+        await batch.getByRole('button', { name: 'Cerrar', exact: true }).click();
+        invitation = (await ok(page, 'GET', `${rootOf(room)}/invitations`)).find(row => row.id === receipt.invitationId);
+        assert.ok(invitation?.generation, 'The queued invitation must exist with a generation in the real public listing');
+        evidence.invitation = { id: invitation.id, generation: invitation.generation, delivery: 'queued' };
         const failure = await awaitJob('failedPending', row => row.status === 'PENDING' && row.attempt_count >= 1 && row.last_error_code === 'P5_MAIL_UNAVAILABLE', 30000);
         assert.equal(failure.invitation_id, invitation.id); assert.equal(failure.generation, invitation.generation);
         assert.ok(new Date(failure.available_at) - new Date(failure.updated_at) >= 59000);

@@ -23,9 +23,10 @@ test('mobile notification opening and responsive reflow reveal the active classr
       })).status, 200);
       await student.goto(`${runtime.origin}/mis-aulas`);
       await visibleNavigation(student);
-      await student.getByRole('button', { name: /^Notificaciones/ }).click();
-      await student.getByRole('dialog', { name: 'Notificaciones', exact: true })
-        .getByRole('button', { name: 'Abrir conversación', exact: true }).click();
+      await student.locator('a[href="/notificaciones"]:visible').click();
+      const notice = student.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true })
+        .getByRole('article').filter({ has: student.getByRole('heading', { name: 'Nuevo aviso del docente', exact: true }) });
+      await notice.getByRole('button', { name: 'Ir al muro', exact: true }).click();
       await student.getByRole('region', { name: 'Muro del aula', exact: true }).waitFor();
       await student.getByText('A notice opened from a mobile notification', { exact: true }).waitFor();
       await mkdir('.test-artifacts/p6-integration', { recursive: true });

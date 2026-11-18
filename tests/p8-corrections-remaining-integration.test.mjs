@@ -1,5 +1,4 @@
-import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
-import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection, saveGradingWithReadRecovery, observeGradePublication } from './p8-current-ui-helpers.mjs';
+import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherGrading, openGradeNotification, selectClassroomSection, saveGradingWithReadRecovery, observeGradePublication, observedUiAction, rateLimitSeconds } from './p8-current-ui-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -24,36 +23,6 @@ async function request(page, method, path, body, headers) {
 async function ok(...args) { const response = await request(...args); assert.equal(response.status, 200, `${args[1]} ${args[2]}`); return response.body; }
 
 /** A rejected result is not success; only a real bounded Retry-After permits one visible reopen. */
-async function openCorrectedNotificationResult(page, attemptId) {
-  async function openFromCenter() {
-    await visibleNavigation(page);
-    await page.getByRole('button', { name: /^Notificaciones/ }).click();
-    const notification = page.locator('.p6-notifications li').filter({ hasText: 'Calificación corregida' }).first();
-    const opening = page.waitForResponse(response => /\/notifications\/[^/]+\/open$/.test(new URL(response.url()).pathname)
-      && response.request().method() === 'POST');
-    const result = page.waitForResponse(response => response.url().endsWith('/' + attemptId + '/result') && response.request().method() === 'GET');
-    await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
-    const [opened, own] = await Promise.all([opening, result]);
-    assert.equal(opened.status(), 200); const target = await opened.json();
-    assert.equal(target.kind, 'grade'); assert.equal(target.attemptId, attemptId);
-    return own;
-  }
-  let ownResponse = await openFromCenter();
-  if (ownResponse.status() === 429) {
-    const seconds = Number(ownResponse.headers()['retry-after']);
-    assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
-    const ownRegion = page.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
-    await ownRegion.getByRole('alert').waitFor();
-    assert.equal(await ownRegion.locator('.p8-final-grade').count(), 0);
-    console.log('P8 notification result actual GET ' + new URL(ownResponse.url()).pathname + ' status429 Retry-After=' + seconds + 's; one visible notification reopen');
-    await delay(seconds * 1000);
-    await page.getByRole('region', { name: 'Mi historial de intentos', exact: true })
-      .getByRole('button', { name: 'Volver a actividades', exact: true }).click();
-    ownResponse = await openFromCenter();
-  }
-  assert.equal(ownResponse.status(), 200);
-  return ownResponse;
-}
 
 
 test('P8 FIRST remaining Q/E correction, admitted clean reload, safe student notification and restart', { timeout: 330000 }, async t => {
@@ -115,33 +84,64 @@ test('P8 FIRST remaining Q/E correction, admitted clean reload, safe student not
           await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-practical'));
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
+          await student.getByRole('region', { name: 'Comprobante de entrega', exact: true })
+            .getByText('Entrega confirmada', { exact: true }).waitFor();
         } else {
           await open(); await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Original answer remains unchanged 😀');
           await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
+          await student.getByRole('region', { name: 'Comprobante de entrega', exact: true })
+            .getByText('Entrega confirmada', { exact: true }).waitFor();
         }
         activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
         const base = `/classrooms/${room.id}/attempts/${activity.attempt}`, path = `${base}/grade-corrections`;
         await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
-        await openTeacherActivity(teacher, activity.title);
-        await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
-        const grading = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
+        const grading = await openTeacherGrading(teacher, activity.title);
         await grading.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill('6');
+        await grading.getByRole('button', { name: 'Devolución', exact: true }).click();
         await grading.getByLabel('Devolución general opcional', { exact: true }).fill('Preserved overall feedback');
         const { response: observed, recovered } = await saveGradingWithReadRecovery(teacher, { roomId: room.id, roomName: name, activityTitle: activity.title, attemptId: activity.attempt },
           () => grading.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click());
         assert.equal(observed.status(), 200);
-        if (recovered) await grading.getByText('Nota guardada: 6,00', { exact: true }).waitFor();
-        else await grading.getByText('Corrección privada guardada. No se ha publicado.', { exact: true }).waitFor();
+        if (recovered) {
+          await grading.getByRole('button', { name: 'Rúbrica y nota', exact: true }).click();
+          await grading.getByText('Nota guardada: 6,00', { exact: true }).waitFor();
+        } else await grading.getByText('Corrección privada guardada. No se ha publicado.', { exact: true }).waitFor();
         await grading.getByRole('button', { name: 'Publicar calificación', exact: true }).click();
+        const beforePublish = responses.length;
         const { published, audit: auditResponse } = await observeGradePublication(teacher, `/api/v1${base}`,
           () => grading.getByRole('button', { name: 'Confirmar publicación', exact: true }).click());
         assert.equal(published.status(), 200);
-        assert.equal(auditResponse.status(), 200); const original = await auditResponse.json();
+        const afterPublish = await observedResponse(`/api/v1/classrooms/${room.id}/activities`, 'GET', beforePublish);
+        const publicationReads = [afterPublish, auditResponse];
+        const limitedReads = publicationReads.filter(response => response.status() === 429);
+        for (const response of publicationReads) assert.ok([200, 429].includes(response.status()));
+        let admittedAudit = auditResponse;
+        if (limitedReads.length) {
+          const seconds = Math.max(...await Promise.all(limitedReads.map(rateLimitSeconds)));
+          await grading.getByRole('alert').filter({ hasText: /límite de intentos/i }).first().waitFor();
+          console.log(`P8 post-publication reads honor Retry-After=${seconds}s before refreshing the grade`);
+          await delay(seconds * 1000);
+          if (auditResponse.status() === 429) {
+            await grading.getByRole('button', { name: 'Volver al historial', exact: true }).click();
+            admittedAudit = await observedUiAction(teacher,
+              () => teacher.getByRole('button', { name: 'Ver devolución · Intento 1', exact: true }).click(),
+              r => new URL(r.url()).pathname === `/api/v1${path}` && r.request().method() === 'GET');
+          } else {
+            const restored = await observedUiAction(teacher,
+              () => grading.getByRole('button', { name: 'Recargar corrección', exact: true }).click(),
+              r => r.url().endsWith(`/${activity.attempt}/grading`) && r.request().method() === 'GET');
+            assert.equal(restored.status(), 200);
+            assert.equal((await restored.json()).grade.id, (await published.json()).grade.id);
+          }
+          await grading.getByRole('alert').first().waitFor({ state: 'hidden' });
+        }
+        assert.equal(responses.slice(beforePublish).filter(row => row.path === `/api/v1${base}/publish-grade` && row.method === 'POST').length, 1);
+        assert.equal(admittedAudit.status(), 200);
+        const original = await admittedAudit.json();
+        assert.equal(original.grade.id, (await published.json()).grade.id);
         activity.publishedAt = original.grade.publishedAt;
         const correction = teacher.getByRole('region', { name: 'Rectificación de calificación publicada', exact: true });
         await correction.getByText('No hay rectificaciones registradas.', { exact: true }).waitFor();
@@ -208,8 +208,7 @@ test('P8 FIRST remaining Q/E correction, admitted clean reload, safe student not
         assert.equal(await teacher.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await teacher.screenshot({ path: join(scratch, `teacher-audit-${activity.type.toLowerCase()}.png`), fullPage: true });
         await teacher.setViewportSize({ width: 1280, height: 900 });
-        await openClassroom(student, runtime.origin, name);
-        const ownResponse = await openCorrectedNotificationResult(student, activity.attempt);
+        const ownResponse = await openGradeNotification(student, activity.attempt, 'Calificación corregida');
         assert.equal((await ownResponse.json()).attempt.id, activity.attempt);
         const own = student.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
         const gradeDisplay = own.locator('.p8-final-grade');

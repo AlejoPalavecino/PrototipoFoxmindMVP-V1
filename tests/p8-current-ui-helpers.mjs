@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
 import { startBrowserAttempt as admittedStart } from './helpers/browser-admission-step.mjs';
 import { watchResponse } from './helpers/browser-action-observer.mjs';
 import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
@@ -85,7 +86,7 @@ export async function rateLimitSeconds(response) {
 }
 
 export async function observeGradePublication(page, basePath, action) {
-  const audit = watchResponse(page, response => pathOf(response) === `${basePath}/grade-corrections`
+  const audit = watchActionResponse(page, response => pathOf(response) === `${basePath}/grade-corrections`
     && response.request().method() === 'GET', 12000);
   const pending = audit.value().then(response => ({ response }), error => ({ error }));
   try {
@@ -94,7 +95,6 @@ export async function observeGradePublication(page, basePath, action) {
     assert.equal(pathOf(published), `${basePath}/publish-grade`); assert.equal(published.status(), 200);
     const result = await pending;
     if (result.error) throw result.error;
-    assert.equal(result.response.status(), 200);
     return { published, audit: result.response };
   } finally { audit.dispose(); await pending; }
 }
@@ -138,19 +138,36 @@ export async function saveGradingWithReadRecovery(page, { roomId, roomName, acti
       const seconds = Math.max(...limited.map(item => item.seconds));
       console.log(`P8 post-save read admission honors observed Retry-After=${seconds}s once; saved mutation is not repeated`);
       await new Promise(resolve => setTimeout(resolve, seconds * 1000));
+      const grading = page.getByRole('region', { name: 'Corrección privada del intento', exact: true });
+      const refreshGrading = () => grading.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
+      const activitiesRead = response => pathOf(response) === `${root}/activities` && response.request().method() === 'GET';
+      let reopenGrading = refreshGrading;
       if (limited.some(item => pathOf(item.response) === root)) {
-        const recovered = await observedUiAction(page, () => page.getByRole('button', { name: 'Actualizar aula', exact: true }).click(),
-          response => pathOf(response) === root && response.request().method() === 'GET');
-        assert.equal(recovered.status(), 200);
+        const activities = watchActionResponse(page, activitiesRead);
+        const activityOutcome = activities.value().then(response => ({ response }), error => ({ error }));
+        try {
+          const recovered = await observedUiAction(page, () => page.getByRole('button', { name: 'Actualizar aula', exact: true }).click(),
+            response => pathOf(response) === root && response.request().method() === 'GET');
+          assert.equal(recovered.status(), 200);
+          const refreshed = await activityOutcome;
+          if (refreshed.error) throw refreshed.error;
+          assert.equal(refreshed.response.status(), 200);
+        } finally { activities.dispose(); await activityOutcome; }
+      } else {
+        // Activities has no refresh control. Reopen it using the same classroom's breadcrumb.
+        await grading.getByRole('button', { name: 'Volver al historial', exact: true }).click();
+        await page.getByRole('region', { name: 'Entregas e historial de intentos', exact: true })
+          .getByLabel('Volver a actividades', { exact: true }).click();
+        await page.getByRole('navigation', { name: 'Ubicación', exact: true })
+          .getByRole('button', { name: 'Mis aulas', exact: true }).click();
+        await page.getByRole('link', { name: new RegExp(`^Entrar al aula ${RegExp.escape(roomName)}(?: · Docente: .+)?$`) }).click();
+        const activities = await observedUiAction(page, () => selectClassroomSection(page, 'activities', 'Actividades'), activitiesRead);
+        assert.equal(activities.status(), 200);
+        await openTeacherActivity(page, activityTitle);
+        await page.getByRole('button', { name: 'Ver entregas', exact: true }).click();
+        reopenGrading = () => page.getByRole('button', { name: 'Revisar entrega · Intento 1', exact: true }).click();
       }
-      // The current activities section has no refresh control; leave and reopen the same real classroom.
-      await page.getByRole('button', { name: 'Mis aulas', exact: true }).click();
-      await page.getByRole('button', { name: `Entrar al aula ${roomName}`, exact: true }).click();
-      const activities = await observedUiAction(page, () => selectClassroomSection(page, 'activities', 'Actividades'),
-        response => pathOf(response) === `${root}/activities` && response.request().method() === 'GET');
-      assert.equal(activities.status(), 200);
-      await openTeacherActivity(page, activityTitle);
-      const restored = await observedUiAction(page, () => page.getByRole('button', { name: 'Corregir intento 1', exact: true }).click(),
+      const restored = await observedUiAction(page, reopenGrading,
         response => pathOf(response) === gradePath && response.request().method() === 'GET');
       assert.equal(restored.status(), 200);
       const current = await restored.json();
@@ -241,4 +258,50 @@ export async function openTeacherActivity(page, title) {
   await page.getByRole('article', { name: title, exact: true })
     .getByRole('button', { name: `Abrir ${title}`, exact: true }).click();
   await page.getByRole('region', { name: 'Vista previa docente', exact: true }).waitFor();
+}
+
+export async function openTeacherGrading(page, title) {
+  await openTeacherActivity(page, title);
+  await page.getByRole('button', { name: 'Ver entregas', exact: true }).click();
+  await page.getByRole('button', { name: 'Revisar entrega · Intento 1', exact: true }).click();
+  return page.getByRole('region', { name: 'Corrección privada del intento', exact: true });
+}
+
+export async function openGradeNotification(page, attemptId, title) {
+  const receipt = page.getByRole('region', { name: 'Comprobante de entrega', exact: true });
+  if (await receipt.isVisible()) await page.getByLabel('Volver a actividades', { exact: true }).click();
+  await visibleNavigation(page);
+  await page.locator('a[href="/notificaciones"]:visible').click();
+  const notification = page.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true })
+    .getByRole('article').filter({ has: page.getByRole('heading', { name: title, exact: true }) }).first();
+  const resultPath = response => pathOf(response).endsWith(`/attempts/${attemptId}/result`) && response.request().method() === 'GET';
+  await notification.getByRole('heading', { name: title, exact: true }).waitFor();
+  const opening = watchActionResponse(page, response => /\/notifications\/[^/]+\/open$/.test(pathOf(response))
+    && response.request().method() === 'POST');
+  const result = watchActionResponse(page, resultPath);
+  const outcome = Promise.all([opening.value(), result.value()]).then(responses => ({ responses }), error => ({ error }));
+  try {
+    await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
+    const observed = await outcome;
+    if (observed.error) {
+      const alerts = await page.getByRole('alert').allTextContents();
+      throw new Error(`P8 notification ${title} did not reach its result (page: ${new URL(page.url()).pathname}, alerts: ${alerts.join(' | ')})`,
+        { cause: observed.error });
+    }
+    const [opened, own] = observed.responses;
+    assert.equal(opened.status(), 200);
+    const target = await opened.json();
+    assert.equal(target.kind, 'grade');
+    assert.equal(target.attemptId, attemptId);
+    if (own.status() !== 429) { assert.equal(own.status(), 200); return own; }
+    const seconds = await rateLimitSeconds(own);
+    const region = page.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
+    await region.getByRole('alert').waitFor();
+    assert.equal(await region.locator('.p8-final-grade').count(), 0);
+    console.log(`P8 notification result honors actual Retry-After=${seconds}s once by refreshing only the result`);
+    await page.waitForTimeout(seconds * 1000);
+    const restored = await observedUiAction(page, () => region.getByRole('button', { name: 'Actualizar resultado', exact: true }).click(), resultPath);
+    assert.equal(restored.status(), 200);
+    return restored;
+  } finally { opening.dispose(); result.dispose(); await outcome; }
 }

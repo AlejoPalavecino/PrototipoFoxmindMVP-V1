@@ -70,6 +70,7 @@ export function QuestionnaireAttempt({ operations, reading, data, editor, refres
   const count = questions.filter(answered).length;
   const question = questions[index], reviewed = questions[reviewIndex];
   const entry = question ? draft.get(question.id!) : null;
+  const retryingSave = Boolean(draft.error);
   const submitted = attempt.status === 'SUBMITTED' || receipt !== null;
   const reviewAnswer = reviewed ? draft.get(reviewed.id!).value : null;
   const nav = (selected: number, select: (value: number) => void, label: string) => <nav className={styles.questionNav} aria-label={label}>
@@ -120,7 +121,10 @@ export function QuestionnaireAttempt({ operations, reading, data, editor, refres
         <FoxmindIcon name={draft.error ? 'warning' : 'check'}/>{draft.error ? states.error : draft.saving ? states.saving : draft.dirty ? states.pending : 'Borrador guardado'}
       </p>
       <div className={styles.workActions}>
-        <button type="button" disabled={busy} onClick={() => void run(async () => { await draft.flush(); onClose?.(); })}>{draft.error ? 'Reintentar guardado' : onClose ? 'Guardar y salir' : 'Guardar borrador'}</button>
+        <button type="button" disabled={busy} onClick={() => void run(async () => {
+          await draft.flush();
+          if (!retryingSave) onClose?.();
+        })}>{retryingSave ? 'Reintentar guardado' : onClose ? 'Guardar y salir' : 'Guardar borrador'}</button>
         {index > 0 ? <button type="button" disabled={busy} onClick={() => goTo(index - 1)}>Anterior</button> : null}
         {index < questions.length - 1 ? <button type="button" disabled={busy} onClick={() => goTo(index + 1)}>Siguiente</button> : null}
         <button type="button" className="primary" disabled={busy || !questions.length} onClick={() => void run(async () => {

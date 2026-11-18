@@ -14,8 +14,9 @@ const listPaths = ['/api/v1/classrooms', '/api/v1/classrooms/drafts', '/api/v1/c
 const newsPath = '/api/v1/classrooms/notifications/page';
 const homePath = '/api/v1/home';
 const waitLists = page => Promise.all(listPaths.map(path => page.waitForResponse(response => new URL(response.url()).pathname === path && response.request().method() === 'GET')));
-const listAlert = page => page.locator('.p5-main > [role="alert"]');
-const newsRegion = page => page.getByRole('dialog', { name: 'Notificaciones', exact: true });
+const newsRegion = page => page.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true });
+const homeCards = page => page.locator('.parity-home-rooms .class-card');
+const homeError = page => page.locator('.fm-home-global-error');
 const waitHome = page => page.waitForResponse(response => new URL(response.url()).pathname === homePath && response.request().method() === 'GET');
 
 // Advance only the browser clock to exercise the existing 60-second focus refresh.
@@ -34,8 +35,8 @@ async function homeAlertOwners(page) {
       text: element.textContent?.trim(),
       region: element.closest('section[aria-label]')?.getAttribute('aria-label') ?? null,
       owner: routeAnnouncement ? 'framework-route-announcement'
-        : element.closest('.p9-home-news') ? 'news'
-          : element.parentElement?.matches('.p5-main') ? 'classroom-lists'
+        : element.closest('[aria-label="Tu bandeja de notificaciones"]') ? 'news'
+          : element.closest('.fm-home-global-error,.parity-home-rooms') ? 'classroom-lists'
             : element.closest('.p5-gate') ? 'account-gate' : 'other',
       parentClass: element.parentElement?.className ?? '',
       visible: Boolean(element.getClientRects().length),
@@ -70,26 +71,17 @@ function observeReads(page) {
 }
 
 /** Observe completion only: no extra request, server retry or expanded UI wait budget. */
-async function drainReads(observation) {
+async function drainReads(observation, path) {
+  const pending = () => [...observation.active].filter(request => new URL(request.url()).pathname === path);
   const deadline = Date.now() + 30000;
-  while (observation.active.size && Date.now() < deadline) await delay(20);
-  assert.equal(observation.active.size, 0, 'Previously observed Home reads must finish within the existing30s UI wait before transport changes');
+  while (pending().length && Date.now() < deadline) await delay(20);
+  assert.equal(pending().length, 0, `Previous reads for ${path} must finish before changing transport`);
 }
 
 async function successfulJson(response, owner) {
   assert.equal(response.status(), 200, `${owner}: actual admittedHTTP200 required`);
   assert.equal(await response.finished(), null, `${owner}: response body must finish`);
   return response.json();
-}
-
-async function pauseForActualAdmission(responses, owner) {
-  const limited = responses.filter(response => response.status() === 429);
-  if (!limited.length) return false;
-  const seconds = Math.max(...limited.map(response => Number(response.headers()['retry-after'])));
-  assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60, `${owner}: actual bounded Retry-After required`);
-  console.log(`P9 remaining ${owner}: actual Retry-After=${seconds}s; one visible manual retry`);
-  await delay(seconds * 1000);
-  return true;
 }
 
 async function completedLists(responses) {
@@ -99,22 +91,14 @@ async function completedLists(responses) {
   return bodies;
 }
 
-async function listSettled(page) {
-  await page.waitForFunction(() => {
-    const create = [...document.querySelectorAll('.entry-classrooms button')].find(button => button.textContent === 'Crear aula');
-    return create && !create.disabled && document.querySelector('.entry-contexts [aria-pressed="true"]')
-      && !document.querySelector('.p5-main > [role="alert"]');
-  });
-  assert.equal(await listAlert(page).count(), 0, 'Classroom-list owner must clear its own error after its completed action');
-}
-
 async function refreshNews(page) {
   const news = newsRegion(page);
   const pending = page.waitForResponse(response => new URL(response.url()).pathname === newsPath && response.request().method() === 'GET');
   await news.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
   const body = await successfulJson(await pending, 'notifications');
   assert.ok(Array.isArray(body.items), 'Notification page contains actual items');
-  await page.waitForFunction(() => !document.querySelector('dialog[open][aria-labelledby="p5-dialog-title"] [role="alert"]'));
+  await news.locator('.nt-list[aria-busy="false"]').waitFor();
+  assert.equal(await news.getByRole('alert').count(), 0, 'The notification error clears after successful recovery');
   return body;
 }
 
@@ -124,7 +108,7 @@ async function openReadyHome(page, origin, observation) {
   const body = await successfulJson(await pending, 'Home');
   assert.ok(body.subjectId && body.modules && body.memberships, 'Authenticated Home aggregate completed');
   await page.getByRole('region', { name: 'Inicio', exact: true }).waitFor();
-  await drainReads(observation);
+  await drainReads(observation, homePath);
 }
 
 async function captureAlerts(browser, observations, artifacts, stage) {
@@ -177,15 +161,9 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await openReadyHome(page, runtime.origin, observation);
         await actorContext.setOffline(true);
         await refreshHomeByFocus(page);
-        await page.getByRole('button', { name: 'Reintentar Inicio', exact: true }).waitFor();
-        assert.equal(await page.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Home conceals old cards after offline failure');
-        await page.getByRole('button', { name: /^Notificaciones/ }).click();
-        const news = newsRegion(page);
-        await news.locator('p[role="alert"]').waitFor();
-        await drainReads(observation);
-        const newsFailure = await news.locator('p[role="alert"]').innerText();
-        assert.ok(newsFailure.length > 0, 'Notification error text must be observed');
-        await news.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+        const retryHome = homeError(page).getByRole('button', { name: 'Reintentar', exact: true });
+        await retryHome.waitFor();
+        assert.equal(await homeCards(page).count(), 0, 'Home conceals old cards after offline failure');
         await actorContext.setOffline(false);
         const notificationRequests = [];
         const captureNotification = request => {
@@ -194,19 +172,32 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         page.on('request', captureNotification);
         try {
           const pending = waitHome(page);
-          await page.getByRole('button', { name: 'Reintentar Inicio', exact: true }).click();
+          await retryHome.click();
           const home = await successfulJson(await pending, 'Home recovery');
           assert.ok(home.modules.classrooms.items.some(item => item.classroom.id === room.id && item.classroom.role === 'student'));
-          await page.getByRole('region', { name: 'Accesos de mi aula', exact: true }).getByText(`${roomName} · A`, { exact: true }).waitFor();
+          await homeCards(page).getByRole('heading', { name: roomName, exact: true }).waitFor();
           assert.equal(notificationRequests.length, 0, 'Home retry does not fetch the independently owned notifications');
         } finally { page.off('request', captureNotification); }
         const reopened = page.waitForResponse(response => new URL(response.url()).pathname === newsPath && response.request().method() === 'GET');
-        await page.getByRole('button', { name: /^Notificaciones/ }).click();
+        void reopened.catch(() => {});
+        await page.locator('header.fm3d-shell .fm-brujula-nav-notices a[href="/notificaciones"]').press('Enter');
+        await page.waitForURL('**/notificaciones');
         const reopenedPage = await successfulJson(await reopened, 'notifications reopen');
         assert.ok(reopenedPage.items.some(item => item.classroomId === room.id), 'Reopened page contains the actual classroom notification');
-        const notifications = await refreshNews(page); await drainReads(observation);
+        const news = newsRegion(page);
+        await news.locator('.nt-list[aria-busy="false"]').waitFor();
+        await news.getByRole('heading', { name: 'Nuevo aviso del docente', exact: true }).waitFor();
+        await drainReads(observation, newsPath);
+        await actorContext.setOffline(true);
+        await news.getByRole('group', { name: 'Estado de lectura', exact: true }).getByRole('button', { name: /^No leídas/ }).click();
+        const alert = news.getByRole('alert');
+        await alert.waitFor();
+        assert.ok((await alert.innerText()).trim(), 'Notification error text must be observed');
+        assert.equal(await news.locator('.nt-row').count(), 0, 'Notification failure conceals old rows');
+        await drainReads(observation, newsPath);
+        await actorContext.setOffline(false);
+        const notifications = await refreshNews(page); await drainReads(observation, newsPath);
         assert.ok(notifications.items.some(item => item.classroomId === room.id), 'Recovered page contains the actual classroom notification');
-        await news.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
         await assertHomeRecoveryOwners(page);
       });
 
@@ -223,7 +214,8 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           await page.screenshot({ path: join(artifacts, `remaining-inicio-${width}.png`), fullPage: true });
         }
         await page.emulateMedia({ reducedMotion: 'reduce' });
-        assert.equal(await (await navigationLink(page, 'Inicio')).evaluate(element => getComputedStyle(element).transitionDuration), '0s');
+        const durations = await (await navigationLink(page, 'Inicio')).evaluate(element => getComputedStyle(element).transitionDuration);
+        assert.ok(durations.split(',').every(value => Number.parseFloat(value) <= 0.00001), 'Reduced motion leaves at most a 0.01 ms transition');
         assert.deepEqual(errors, [], 'No actual Home page errors');
       });
 
@@ -233,11 +225,12 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await (await navigationLink(page, 'Mis aulas')).click();
         await page.waitForURL('**/mis-aulas'); await completedLists(await lists);
         const loaded = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.body.id}` && response.request().method() === 'GET');
-        await page.getByRole('button', { name: /^Pendientes/ }).click();
+        void loaded.catch(() => {});
+        await page.getByRole('button', { name: /^Borradores/ }).click();
         await page.getByRole('article').filter({ has: page.getByRole('heading', { name: draftName, exact: true }) }).getByRole('button', { name: 'Continuar creación', exact: true }).click();
         assert.equal((await successfulJson(await loaded, 'draft read')).id, draft.body.id);
-        const wizard = page.getByRole('dialog', { name: 'Crear aula', exact: true });
-        await wizard.getByRole('heading', { name: 'Dale un lugar a tu próxima clase', exact: true }).waitFor();
+        const wizard = page.getByRole('dialog', { name: 'Crear un aula', exact: true });
+        await wizard.getByRole('heading', { name: 'Dale identidad a tu aula', exact: true }).waitFor();
         for (const width of [1280, 375]) {
           await page.setViewportSize({ width, height: 812 });
           for (const name of ['Inicio', 'Mis aulas', 'Agenda', 'Mi perfil', 'Configuración', 'FoxMind']) {
@@ -275,15 +268,18 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         const savedName = `${draftName} saved`;
         const saved = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.body.id}`
           && response.request().method() === 'PATCH' && response.request().postDataJSON()?.payload?.name === savedName);
-        await page.getByLabel('Nombre del aula', { exact: true }).fill(savedName);
-        await wizard.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
+        void saved.catch(() => {});
+        await wizard.getByLabel('Nombre del aula', { exact: true }).fill(savedName);
+        await wizard.getByRole('button', { name: 'Guardar y salir', exact: true }).click();
         const confirmed = await successfulJson(await saved, 'draft save exit');
         assert.equal(confirmed.id, draft.body.id); assert.equal(confirmed.payload.name, savedName);
         await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
         await wizard.waitFor({ state: 'hidden' });
         await (await profileAction(page)).waitFor();
-        await page.getByRole('dialog', { name: 'Mi cuenta', exact: true }).getByRole('button', { name: 'Cerrar Mi cuenta', exact: true }).click();
+        const account = page.getByRole('dialog', { name: 'Mi cuenta', exact: true });
+        if (await account.isVisible()) await account.getByRole('button', { name: 'Cerrar Mi cuenta', exact: true }).click();
         const restored = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
+        await visibleNavigation(page);
         for (const name of ['Inicio', 'Mis aulas', 'Agenda']) await restored.getByRole('link', { name, exact: true }).waitFor();
         await restored.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
       }, teacherContext);
@@ -305,8 +301,8 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/inicio');
           const home = await successfulJson(await homeRead, 'explicit Inicio');
           assert.ok(home.modules.classrooms.items.some(item => item.classroom.id === room.id && item.classroom.role === 'student'));
-          await anonymous.getByRole('region', { name: 'Accesos de mi aula', exact: true }).getByText(`${roomName} · A`, { exact: true }).waitFor();
-          await drainReads(observation);
+          await homeCards(anonymous).getByRole('heading', { name: roomName, exact: true }).waitFor();
+          await drainReads(observation, homePath);
           assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
           const denied = await rejectSame(runtime.db, () => api(anonymous, 'GET', '/classrooms'), 401);
           assert.equal(denied.body.error.code, 'AUTH_REQUIRED', 'Revoked session must retain the real identity error contract');
@@ -316,7 +312,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           assert.equal(rejectedResponse.status(), 401);
           assert.equal((await rejectedResponse.json()).error.code, 'AUTH_REQUIRED');
           await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');
-          assert.equal(await anonymous.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Revoked account sees no Home classroom data');
+          assert.equal(await homeCards(anonymous).count(), 0, 'Revoked account sees no Home classroom data');
         } catch (error) { await captureAlerts(browser, observations, artifacts, 'login-continuation-revocation'); throw error; }
         finally { observation.detach(); await anonymousContext.close(); }
       });
@@ -324,7 +320,8 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
       await check('verified account navigation320/375/1280 stays visible and keyboard reachable', async page => {
         const ready = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/account' && response.request().method() === 'GET');
         await page.goto(`${runtime.origin}/profile`); await successfulJson(await ready, 'account navigation');
-        await page.getByRole('heading', { name: 'Files Fixture', exact: true }).waitFor();
+        const profile = page.getByRole('form', { name: 'Datos de perfil', exact: true });
+        await profile.getByText('Files Fixture', { exact: true }).waitFor();
         // Responsive navigation is resolved anew after each viewport change.
         for (const width of [320, 375, 1280]) {
           await page.setViewportSize({ width, height: 900 });

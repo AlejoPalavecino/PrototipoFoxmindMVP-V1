@@ -179,6 +179,7 @@ export function FoxyWorkspace({ visualTimeline, previewContext, onStartActivity,
   const conversationContents = <FoxyConversationPanel page={catalog?.conversations ?? {items:state.conversations,next:state.nextConversationCursor,loading:false,error:null}} query={catalog?.conversationQuery ?? {q:'',context:'ALL'}} classrooms={contextClassrooms} currentId={state.current?.id} disabled={!!starting || state.busy} onQuery={onConversationQuery} onSelect={openConversation} onMore={onMoreConversations ?? (()=>void controller.loadMoreConversations())} onRefresh={onRefreshCatalog} onNew={newConversation}
     onRename={item=>{saveDraft();void Promise.resolve(controller.select(item.id)).then(selected=>{if(selected){setNewChat(false);setRenameTitle(item.title);setRenameOpen(true);}});}} />;
   return <section className={`${styles.workspace} parity-foxy-workspace`} aria-label="Espacio Foxy AI">
+    <h1 className={styles.srOnly}>Foxy AI</h1>
     <FoxyChatLayout view={view} onView={setView} history={conversationContents}
       historyOpenKey={historyOpenKey} historyKey={draftMode ? undefined : state.current?.id} tools={toolContents} creations={creationContents} creationsCount={catalog?.creations.items.length ?? 0}
       context={<button type="button" className={`${styles.contextLaunch} parity-ai-contextLaunch`} aria-label="Cambiar contexto del chat" aria-haspopup="dialog"
