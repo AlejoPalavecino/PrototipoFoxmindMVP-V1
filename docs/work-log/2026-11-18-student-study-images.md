@@ -1,0 +1,17 @@
+# Imágenes privadas en Mi Estudio
+
+Implementación iniciada por `/root/student` y retomada por `/root/student_finish` el 2026-11-18. Checkout principal en `main`, base `d02f375c`.
+
+El alcance coordinado incorpora creación y consulta de imágenes privadas en carpetas de estudio activas, visibles desde el chat y Creaciones. Usa el recibo de generación de la carpeta y los controles compartidos de gasto. Se prueba con proveedor sintético.
+
+Herramientas inicia la imagen en una conversación, el chat conserva el turno y Creaciones permite filtrar, abrir y descargar el archivo. La creación persistida y el registro de bytes se guardan juntos después de inspección y escáner. La identidad presupuestaria se deriva de la cuenta, la carpeta y el identificador de la solicitud. La reserva precede al primer llamado del proveedor sintético, y se liquida por modalidad de salida cuando el proveedor informa el desglose. Los rechazos diarios personal y global y el mensual conservan códigos distintos. El mensual conserva el saldo y el costo requerido en el recibo privado.
+
+## Evidencia
+
+- `node --experimental-transform-types --test --test-concurrency=1 tests/study-image-database.test.mjs` pasó en PostgreSQL propio con todas las migraciones. Probó el proxy HTTP, PNG validado, repetición sin otro despacho, lectura y descarga, accesos cruzados rechazados y gasto mensual y diario. Permite leer en carpeta archivada y bloquea la lectura tras la baja lógica. El PNG inválido no se guarda y conserva el cobro confirmado. El rechazo mensual por un gasto previo de texto muestra importes, conserva el recibo y se distingue de ambos rechazos diarios, todos antes de contar tokens.
+- `node --experimental-transform-types --test tests/study-exact-generation-ui.test.mjs` pasó con el recorrido Herramientas, envío de descripción, Creaciones, filtro Imágenes, visor y descarga con una sola generación invocada.
+- `node_modules/.bin/prisma.cmd validate` y `node scripts/check-boundaries.mjs` pasaron. La primera corrida PostgreSQL requirió completar el plan sintético de la carpeta; la siguiente coincidió con la escritura de una migración paralela. La corrida posterior aplicó todas las migraciones y pasó el recorrido.
+- `node_modules/.bin/tsc.cmd --noEmit -p apps/api/tsconfig.json` y `node_modules/.bin/tsc.cmd --noEmit -p apps/web/tsconfig.json` salieron con código 0. El cliente mantiene el aviso de importes ante el HTTP 429 y al volver a consultar el recibo. Pasaron las pruebas focalizadas del cliente, modelo y componentes de Estudio, y el validador documental comprobó 1.142 enlaces sin errores.
+- Ego Lite recorrió una instancia Next propia con los componentes/CSS de producción y despacho sintético. En escritorio abrió la tarjeta del chat. En 390 × 844 abrió Creaciones, filtró Imágenes y descargó `imagen.png` (640 × 480). La primera captura de escritorio mostraba las acciones cortadas a 706 px de alto. Se ajustó el alto de la imagen y se repitió en 1536 × 706 y 390 × 844. En ambos tamaños imagen y acción de descarga quedaron dentro de la vista. Capturas locales `.test-artifacts/study-image-browser/desktop.png` y `.test-artifacts/study-image-browser/mobile.png`.
+
+El escáner del recorrido PostgreSQL y el proveedor de ambos entornos son puertos sintéticos. La inspección raster, las transacciones PostgreSQL, el proxy HTTP y la interacción del navegador fueron reales en sus respectivos recorridos. Quedan sin ensayar la generación real de Gemini y la calidad de sus ilustraciones. La revisión final integrada corresponde al orquestador.
