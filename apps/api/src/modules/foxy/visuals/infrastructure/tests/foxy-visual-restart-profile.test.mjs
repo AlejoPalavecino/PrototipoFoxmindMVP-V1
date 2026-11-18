@@ -48,7 +48,7 @@ test('queued image and diagram profiles survive a policy upgrade while changed p
     historical.push(await enqueue(previous, previousImage), await enqueue(previous, previousImage));
   } finally { await previous.onModuleDestroy(); }
   const profiles = {
-    IMAGE: { ...profileImage, profileVersion: 'foxy-gemini-image-v3' },
+    IMAGE: { ...profileImage, profileVersion: 'foxy-gemini-image-v4' },
     DIAGRAM: { ...profileDiagram, profileVersion: 'foxy-diagram-provider-v2' },
   };
   const restarted = createFoxyRuntime({ ...options, visualConfiguration: { ...config, profiles } });

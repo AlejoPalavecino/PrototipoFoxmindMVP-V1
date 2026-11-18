@@ -1,6 +1,7 @@
 import type { StartFoxyVisual } from '../../../../../../src/core/domain/foxy/visual.ts';
+export const exactOpeningImageProfileVersion = 'foxy-gemini-image-v4';
 export const visualProfileVersions = {
-  IMAGE: { current: 'foxy-gemini-image-v3', historical: ['foxy-gemini-image-v1', 'foxy-gemini-image-v2'] },
+  IMAGE: { current: exactOpeningImageProfileVersion, historical: ['foxy-gemini-image-v1', 'foxy-gemini-image-v2', 'foxy-gemini-image-v3'] },
   DIAGRAM: { current: 'foxy-diagram-provider-v2', historical: ['foxy-diagram-provider-v1'] },
 } as const;
 export function supportsVisualProfileVersion(kind: StartFoxyVisual['kind'], version: string): boolean {

@@ -1,5 +1,7 @@
 # Estado de FoxMind
 
+La comparación de dos aperturas ya admite cantidades exactas de flechas en un PNG privado. El [seguimiento de precisión y lectura de PDF](work-log/2026-11-17-root-precision-y-lectura.md) y el [piloto listo para coordinar](verification/piloto-con-participantes.md) continúan el cierre del arnés pedagógico.
+
 Foxy incorpora planes de clase, rúbricas y recursos visuales. Mi Estudio permite crear apuntes y esquemas, trabajar con devoluciones y volver desde Agenda a un repaso. El [tablero pedagógico](../odd/tasks/pedagogical-harness.md) y el [registro de verificación](work-log/2026-11-17-root-cierre-arnes.md) reúnen las pruebas de los recorridos, la compatibilidad de los archivos exportados y el guion para evaluar aprendizaje y tiempo docente con participantes.
 
 Foxy y Mi Estudio miden la latencia por etapa. Foxy reduce los conteos con historial, ajusta la extensión según la tarea y muestra texto progresivo en el chat docente general. El [tablero de latencia](../odd/tasks/ai-latency.md) y el [registro de integración](work-log/2026-11-17-root-cierre-main.md) reúnen las pruebas y las mediciones con Gemini.

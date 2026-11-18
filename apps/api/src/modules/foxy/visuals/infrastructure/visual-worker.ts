@@ -2,7 +2,9 @@ import { parseFoxyDiagram } from '../../../../../../../src/core/domain/foxy/visu
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { isDeepStrictEqual } from 'node:util';
 import { projectFoxyTextInput } from '../../domain/provider-input.ts';
-import { supportsPinnedVisualProfileVersion } from '../../domain/visual-profile.ts';
+import { exactOpeningImageProfileVersion, supportsPinnedVisualProfileVersion } from '../../domain/visual-profile.ts';
+import { parseExactOpeningImage } from '../../domain/exact-opening-image.ts';
+import { renderExactOpeningImage } from './exact-opening-image-renderer.ts';
 import { createVisualHeartbeat } from './visual-worker-heartbeat.ts';
 import type { FoxyVisualLease, VisualOptions, VisualScope, VisualUsage } from './visual-worker-types.ts';
 function errorCode(error: unknown, dispatched: boolean): string {
@@ -24,6 +26,9 @@ function compatibleProfile(job: VisualScope['job'], live: VisualScope['job']['pr
   return supportsPinnedVisualProfileVersion(job.kind, live.profileVersion, pinned)
     && isDeepStrictEqual(job.profile, { ...live, profileVersion: pinned });
 }
+function imagePayload(bytes: Uint8Array, description: string): Parameters<VisualOptions['custody']['receive']>[1] {
+  return { bytes, title: 'Imagen educativa', description, producerVersion: 'foxy-image-original-v1', diagram: null };
+}
 export function createFoxyVisualWorker(options: VisualOptions) {
   if (!Number.isSafeInteger(options.configuration.deadlineMs) || options.configuration.deadlineMs < 1 || options.configuration.deadlineMs > 180000) return fail('INVALID_INPUT');
   let stopped = false, initialized = false, active: Promise<boolean> | undefined, controller: AbortController | undefined;
@@ -33,7 +38,7 @@ export function createFoxyVisualWorker(options: VisualOptions) {
     const lease = await options.queue.claim(); if (!lease) return false;
     const aborter = new AbortController(); controller = aborter; const signal = aborter.signal;
     const deadline = setTimeout(() => aborter.abort(),options.configuration.deadlineMs);
-    let scope: VisualScope | undefined, dispatched = false, recovering = false, settled = false, usage: VisualUsage | null = null;
+    let scope: VisualScope | undefined, dispatched = false, renderingLocally = false, recovering = false, settled = false, usage: VisualUsage | null = null;
     let outcome: { state: 'READY' } | { state: 'FAILED'; errorCode: string; usage?: VisualUsage|null } | undefined;
     const heartbeat = createVisualHeartbeat(options.queue,lease,() => aborter.abort());
     try {
@@ -49,8 +54,13 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         const text = projectFoxyTextInput({ purpose: 'CHAT', message: scope.job.prompt, grounding, signal });
         const { purpose: _purpose, message: prompt, ...context } = text;
         const input = { ...context, prompt, aspectRatio: scope.job.aspectRatio, profileVersion: scope.job.profile.profileVersion };
-        const provider = options.providers[scope.job.kind], count = await provider.countTokens(input); signal.throwIfAborted();
-        if (!Number.isSafeInteger(count) || count < 1 || count > scope.job.profile.maxInputTokens) return fail('AI_INPUT_LIMIT');
+        const exactOpening = scope.job.kind === 'IMAGE' && input.profileVersion === exactOpeningImageProfileVersion
+          && input.mode === 'GENERAL' && !input.sources.length && !input.documents.length && !input.history.length && !input.warnings.length
+          ? parseExactOpeningImage(prompt) : null;
+        const provider = options.providers[scope.job.kind];
+        const count = exactOpening ? null : await provider.countTokens(input);
+        signal.throwIfAborted();
+        if (!exactOpening && (count === null || !Number.isSafeInteger(count) || count < 1 || count > scope.job.profile.maxInputTokens)) return fail('AI_INPUT_LIMIT');
         const capability = scope.capability;
         const reservation = await transact(options,async tx => {
           if (!await options.authority.revalidateGrounding(capability,signal,tx)) return fail('CONFLICT');
@@ -58,12 +68,16 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         });
         if (reservation === 'NOT_CURRENT') return true;
         if (reservation !== 'RESERVED') return fail(reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN');
-        dispatched = true; signal.throwIfAborted();
+        renderingLocally = exactOpening !== null;
+        dispatched = !renderingLocally; signal.throwIfAborted();
         let payload: Parameters<VisualOptions['custody']['receive']>[1];
-        if (scope.job.kind === 'IMAGE') {
+        if (exactOpening) {
+          const bytes = await renderExactOpeningImage(exactOpening, input.aspectRatio, signal);
+          payload = imagePayload(bytes, scope.job.prompt);
+        } else if (scope.job.kind === 'IMAGE') {
           const generated = await options.providers.IMAGE.generate(input); usage = generated.usage; signal.throwIfAborted();
           if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); settled = true; checkUsage(usage,scope.job.profile);
-          payload = { bytes: generated.bytes, title: 'Imagen educativa', description: scope.job.prompt, producerVersion: 'foxy-image-original-v1', diagram: null };
+          payload = imagePayload(generated.bytes, scope.job.prompt);
         } else {
           const generated = await options.providers.DIAGRAM.generate(input); usage = generated.usage; signal.throwIfAborted();
           if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); settled = true; checkUsage(usage,scope.job.profile);
@@ -73,7 +87,10 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         }
         await heartbeat.stop(); signal.throwIfAborted(); await options.custody.receive(scope.assetCapability,payload,signal); signal.throwIfAborted(); outcome = { state: 'READY' };
       }
-    } catch (error) { outcome = { state: 'FAILED', errorCode: recovering ? 'PROVIDER_OUTCOME_UNKNOWN' : errorCode(error,dispatched), ...(settled ? { usage } : {}) }; }
+    } catch (error) {
+      const code = renderingLocally && signal.aborted ? 'AI_TIMEOUT' : errorCode(error, dispatched);
+      outcome = { state: 'FAILED', errorCode: recovering ? 'PROVIDER_OUTCOME_UNKNOWN' : code, ...(settled ? { usage } : {}) };
+    }
     finally { await heartbeat.stop(); clearTimeout(deadline); if (scope) options.authority.close(scope); controller = undefined; }
     if (outcome) await options.completion.finish(lease,outcome); return true;
   }

@@ -2,12 +2,12 @@ import { quoteFoxyImageBudget } from './providers/foxy-image-budget.ts';
 import { reserveAiTextBudget, settleAiTextBudget, tokenCost } from '../../../../platform/ai/text-budget.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyVisualLease } from './visual-worker-types.ts';
+import { exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
 type Usage = { inputTokens: number | null; outputTokens: number | null };
 type Limits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
-type Profile = { kind: 'IMAGE' | 'DIAGRAM'; maxInputTokens: number; maxOutputTokens: number; inputUsdPerMillion: string; outputUsdPerMillion: string; textOutputUsdPerMillion?: string; imageOutputUsdPerMillion?: string };
-type Row = { id: string; owner_id: string; dispatch_count: number; reserved_microusd: bigint; profile: Profile };
+type Row = { id: string; owner_id: string; dispatch_count: number; reserved_microusd: bigint; profile: VisualProfile };
 const invalid = (): never => { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); };
-function configuration(profile: Profile, limits: Limits) {
+function configuration(profile: VisualProfile, limits: Limits) {
   const validRate = (v: unknown): v is string => typeof v === 'string' && /^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,6})?$/u.test(v) && Number(v) > 0;
   if (!limits || !Number.isFinite(limits.dailyBudgetUsd) || limits.dailyBudgetUsd <= 0 || !Number.isSafeInteger(limits.dailyActorRequests)
     || limits.dailyActorRequests < 1 || !Number.isSafeInteger(limits.dailyGlobalRequests) || limits.dailyGlobalRequests < 1
@@ -30,11 +30,18 @@ async function current(tx: SqlTransaction, lease: FoxyVisualLease, requireAccess
   return row ?? null;
 }
 export function createFoxyVisualBudget(options: { limits: Limits }) {
-  async function reserve(tx: SqlTransaction, lease: FoxyVisualLease, preflightTokens: number): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'> {
-    if (!Number.isSafeInteger(preflightTokens) || preflightTokens < 1) return invalid();
+  async function reserve(tx: SqlTransaction, lease: FoxyVisualLease, preflightTokens: number | null): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'> {
+    if (preflightTokens !== null && (!Number.isSafeInteger(preflightTokens) || preflightTokens < 1)) return invalid();
     await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)'); const row = await current(tx,lease,true);
     if (!row) return 'NOT_CURRENT'; if (row.dispatch_count) return 'ALREADY_DISPATCHED';
-    const config = configuration(row.profile,options.limits); if (preflightTokens > row.profile.maxInputTokens) return invalid();
+    const config = configuration(row.profile,options.limits);
+    if (preflightTokens === null) {
+      if (row.profile.kind !== 'IMAGE' || row.profile.profileVersion !== exactOpeningImageProfileVersion) return invalid();
+      // Local rendering still consumes a daily request slot and records a durable dispatch.
+      const quota = { ...config, maxOutputTokens: 0 };
+      return await reserveAiTextBudget(tx,row,0,quota,'foxy_visual_jobs') ? 'RESERVED' : 'NO_BUDGET';
+    }
+    if (preflightTokens > row.profile.maxInputTokens) return invalid();
     if (!await reserveAiTextBudget(tx,row,row.profile.maxInputTokens,config,'foxy_visual_jobs')) return 'NO_BUDGET';
     await tx.query('UPDATE foxy_visual_jobs SET preflight_tokens=$2,input_tokens=NULL WHERE id=$1::uuid',row.id,preflightTokens); return 'RESERVED';
   }
