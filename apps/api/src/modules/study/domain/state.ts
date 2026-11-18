@@ -60,16 +60,11 @@ export interface StudyPreferences {
 export const STUDY_GENERATION_PENDING_MS = 600000;
 export interface StudyGenerationIntent {
     requestId: string;
-    kind: StudyPreferences['lastTool'];
+    kind: StudyPreferences['lastTool'] | 'IMAGE';
     topicIds: string[];
     sourceIds?: string[];
     questionCount: number;
     difficulty: StudyPreferences['difficulty'];
-}
-export interface StudyGenerationView extends StudyGenerationIntent {
-    status: 'PENDING' | 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'INSUFFICIENT';
-    reason?: 'INTERRUPTED';
-    missingInformation?: string[];
 }
 export type StoredStudyPractice = {
     id: string; kind: string; title: string; version: number; status: string;

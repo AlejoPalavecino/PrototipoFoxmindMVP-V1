@@ -1,5 +1,5 @@
 import { imageUsage } from './foxy-image-response-usage.ts';
-type ImageResponse = { bytes: Uint8Array; declaredMimeType: 'image/png' | 'image/jpeg'; usage: { inputTokens: number; outputTokens: number } | null };
+type ImageResponse = { bytes: Uint8Array; declaredMimeType: 'image/png' | 'image/jpeg'; usage: ReturnType<typeof imageUsage> };
 type Reason = 'RESPONSE_SHAPE' | 'PROMPT_BLOCKED' | 'CANDIDATE_COUNT' | 'FINISH_REASON' | 'PART_SHAPE' | 'PART_FIELDS' | 'SIGNATURE_LIMIT' | 'DATA_VARIANT' | 'TEXT_LIMIT' | 'MIME' | 'BASE64' | 'BYTE_LIMIT' | 'RASTER_SIGNATURE' | 'MISSING_FINAL_IMAGE' | 'MULTIPLE_FINAL_IMAGES';
 function invalid(reason: Reason): never { const error = Object.assign(new Error('INVALID_AI_OUTPUT'), { code: 'INVALID_AI_OUTPUT' }); Object.defineProperty(error, 'diagnosticReason', { value: reason }); throw error; }
 function record(value: unknown): value is Record<string, unknown> { return !!value && typeof value === 'object' && !Array.isArray(value); }

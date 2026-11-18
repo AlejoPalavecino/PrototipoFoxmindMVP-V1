@@ -100,6 +100,7 @@ enum JobStatus {
 model User {
   chat_attachments ChatAttachment[]
   study_uploads StudyFolderUpload[]
+  study_images StudyImageAsset[]
   study_review_sessions StudyReviewSession[]
   study_ai_dispatches StudyAiDispatch[]
   study_folders StudyFolder[]
@@ -994,6 +995,70 @@ model AiUsageDaily {
   @@map("ai_usage_daily")
 }
 
+model AiMonthlyProviderReceipt {
+  provider        String
+  reference       String
+  namespace       String
+  job_id          String @db.Uuid
+  actual_microusd BigInt
+  applied_at      DateTime @default(dbgenerated("statement_timestamp()")) @db.Timestamptz(6)
+  reservation     AiMonthlyReservation @relation(fields: [namespace, job_id], references: [namespace, job_id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@id([provider, reference])
+  @@unique([namespace, job_id])
+  @@map("ai_monthly_provider_receipts")
+}
+
+model AiMonthlyIntegrityCheck {
+  day           DateTime @id @db.Date
+  checked_at    DateTime @default(dbgenerated("statement_timestamp()")) @db.Timestamptz(6)
+  discrepancies Int
+
+  @@map("ai_monthly_integrity_checks")
+}
+
+model AiMonthlyReservation {
+  provider_receipt AiMonthlyProviderReceipt?
+  namespace           String
+  job_id              String   @db.Uuid
+  owner_id            String   @db.Uuid
+  period_start        DateTime @db.Date
+  operational_day     DateTime @db.Date
+  capability          String
+  provider            String
+  model               String
+  pricing             Json
+  reserved_at         DateTime @db.Timestamptz(6)
+  expires_at          DateTime @db.Timestamptz(6)
+  reserved_microusd   BigInt
+  actor_microusd      BigInt   @default(0)
+  platform_microusd   BigInt   @default(0)
+  status              String
+  movements           AiMonthlyBudgetMovement[]
+
+  @@id([namespace, job_id])
+  @@unique([namespace, job_id, owner_id])
+  @@index([owner_id, period_start])
+  @@map("ai_monthly_reservations")
+}
+
+model AiMonthlyBudgetMovement {
+  id                       BigInt   @id @default(autoincrement())
+  namespace                String
+  job_id                   String   @db.Uuid
+  owner_id                 String   @db.Uuid
+  event                    String
+  occurred_at              DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  reserved_delta_microusd   BigInt
+  actor_delta_microusd      BigInt
+  platform_delta_microusd   BigInt
+  reservation              AiMonthlyReservation @relation(fields: [namespace, job_id, owner_id], references: [namespace, job_id, owner_id], onDelete: Restrict, map: "ai_monthly_budget_movements_reservation_fkey")
+
+  @@unique([namespace, job_id, event])
+  @@index([owner_id, id])
+  @@map("ai_monthly_budget_movements")
+}
+
 model ActivityTopic {
   activity_id String @db.Uuid
   topic_id String @db.Uuid
@@ -1463,6 +1528,7 @@ model FoxyChatAttachmentLink {
 model StudyFolder {
   chat_attachments ChatAttachment[]
   uploads StudyFolderUpload[]
+  images StudyImageAsset[]
   review_sessions StudyReviewSession[]
   id String @id @default(uuid()) @db.Uuid
   owner_id String @db.Uuid
@@ -1474,6 +1540,19 @@ model StudyFolder {
   owner User @relation(fields:[owner_id],references:[id],onDelete:Restrict,onUpdate:NoAction)
   @@index([owner_id,status,updated_at], map: "study_folders_owner_status_updated")
   @@map("study_folders")
+}
+
+model StudyImageAsset {
+  id String @id @db.Uuid
+  folder_id String @db.Uuid
+  owner_id String @db.Uuid
+  mime_type String
+  bytes Bytes
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  folder StudyFolder @relation(fields: [folder_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@index([owner_id, folder_id], map: "study_image_assets_by_owner")
+  @@map("study_image_assets")
 }
 
 

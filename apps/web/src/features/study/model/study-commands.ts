@@ -1,3 +1,4 @@
+import type { AiBudgetRejectionCode, AiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
 import type {
   StudyConversation,
   StudyCreation,
@@ -111,6 +112,8 @@ export interface StudyCommandData {
 export type StudyAction = keyof StudyCommandData;
 export interface StudyCommandResult {
   status?: string;
+  errorCode?: AiBudgetRejectionCode;
+  quota?: AiMonthlyQuotaRejection;
   message?: string;
   missing?: string[];
   conversation?: Pick<StudyConversation, 'id' | 'title' | 'turns'>;

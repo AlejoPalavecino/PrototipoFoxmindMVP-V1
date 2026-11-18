@@ -15,3 +15,11 @@ test('rate and cap parsing is strict, rejects unknown fields and preserves calle
   await assert.rejects(()=>quote(input(changes)));
  const value=input(),before=structuredClone(value);await quote(value);assert.deepEqual(value,before);
 });
+test('prices text and image output separately and leaves ambiguous mixed usage unconfirmed', async () => {
+ const { priceFoxyImageUsage } = await import('../foxy-image-budget.ts');
+ const usage = { inputTokens: 20, outputTokens: 1010, textOutputTokens: 10, imageOutputTokens: 1000 };
+ assert.equal(priceFoxyImageUsage(input(), usage), 30020n);
+ assert.equal(priceFoxyImageUsage(input(), { inputTokens: 20, outputTokens: 1010 }), null);
+ assert.equal(priceFoxyImageUsage(input(), { ...usage, textOutputTokens: 11 }), null);
+ assert.equal(priceFoxyImageUsage(input(), { inputTokens: 0, outputTokens: 0 }), 0n);
+});

@@ -43,7 +43,7 @@ export class FoxyClientError extends Error {
 const root = '/api/v1/foxy-ai';
 const safeCodes = new Set(['AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'FORBIDDEN', 'CSRF_INVALID', 'ORIGIN_NOT_ALLOWED',
   'RATE_LIMITED', 'INVALID_INPUT', 'NOT_FOUND', 'CONFLICT', 'FILE_NOT_READY', 'EMPTY_CONTENT', 'AI_INPUT_LIMIT',
-  'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED', 'QUOTA_EXCEEDED', 'RESPONSE_TOO_LARGE', 'REQUEST_TOO_LARGE', 'SERVICE_UNAVAILABLE']);
+  'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED', 'QUOTA_EXCEEDED', 'RESPONSE_TOO_LARGE', 'REQUEST_TOO_LARGE', 'SERVICE_UNAVAILABLE']);
 function encodedCursor(value: unknown): string {
   const bytes = new TextEncoder().encode(JSON.stringify(value));
   if (bytes.length > 3000) throw new FoxyClientError('INVALID_INPUT', 400);

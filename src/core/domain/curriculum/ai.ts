@@ -3,7 +3,8 @@ import type { CurriculumUnit, ExtractedCurriculum } from './plan.ts';
 
 export type ExtractionState = 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'STALE' | 'APPLIED';
 export type ExtractionError = 'FILE_NOT_READY' | 'AI_INPUT_LIMIT' | 'NO_STRUCTURE' | 'INVALID_AI_OUTPUT'
-  | 'AI_UNAVAILABLE' | 'AI_RATE_LIMITED' | 'AI_BUDGET_EXCEEDED' | 'AI_TIMEOUT' | 'PROVIDER_OUTCOME_UNKNOWN';
+  | 'AI_UNAVAILABLE' | 'AI_RATE_LIMITED' | 'AI_BUDGET_EXCEEDED' | 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED'
+  | 'AI_MONTHLY_BUDGET_EXCEEDED' | 'AI_TIMEOUT' | 'PROVIDER_OUTCOME_UNKNOWN';
 export interface StartExtraction { revision: string; planFileId: string }
 export interface RetryExtraction { revision: string; requestId: string }
 export interface ApplyExtraction extends RetryExtraction { units: CurriculumUnit[] }

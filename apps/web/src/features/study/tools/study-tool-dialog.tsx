@@ -39,9 +39,13 @@ export function StudyToolDialog({
   onSubmit: () => void;
   onClose: () => void;
 }) {
+  const image = kind === 'IMAGE';
+  const example = image
+    ? 'Dibujá una célula vegetal con sus partes principales, como una ilustración de libro escolar.'
+    : 'Ayudame a repasar las ideas principales con un ejemplo y una pregunta para comprobar si entendí.';
   return (
     <FoxyDialog
-      description="Contale a Foxy qué necesitás. Después podés revisar y editar."
+      description={image ? 'Describí la imagen. Podés verla y descargarla desde Creaciones.' : 'Contale a Foxy qué necesitás. Después podés revisar y editar.'}
       title={title}
       className="study-exact-tool-dialog"
       onClose={onClose}
@@ -57,33 +61,29 @@ export function StudyToolDialog({
           <FoxmindIcon name="book" />
           <div>
             <b>{folderName}</b>
-            <p>{sourceCount} materiales incluidos en esta conversación.</p>
+            <p>{image ? 'Foxy usa la descripción que escribís.' : `${sourceCount} materiales incluidos en esta conversación.`}</p>
           </div>
         </div>
         <label>
-          ¿Qué te gustaría preparar?
+          {image ? '¿Qué querés ilustrar?' : '¿Qué te gustaría preparar?'}
           <textarea
             autoFocus
             required
             maxLength={1500}
             value={brief}
             onChange={(event) => onBrief(event.target.value)}
-            placeholder="Por ejemplo: un apunte con una explicación sencilla y dos ejemplos cotidianos…"
+            placeholder={image ? example : 'Por ejemplo: un apunte con una explicación sencilla y dos ejemplos cotidianos…'}
           />
         </label>
         <button
           className="study-exact-example"
           type="button"
-          onClick={() =>
-            onBrief(
-              'Ayudame a repasar las ideas principales con un ejemplo y una pregunta para comprobar si entendí.',
-            )
-          }
+          onClick={() => onBrief(example)}
         >
           <FoxmindIcon name="spark" />
           Usar una idea para empezar
         </button>
-        {topics.length > 0 && (
+        {!image && topics.length > 0 && (
           <fieldset className="study-exact-choice-group">
             <legend>Temas que querés incluir</legend>
             <div>
@@ -130,7 +130,7 @@ export function StudyToolDialog({
           </button>
           <button type="submit" className="primary" disabled={disabled}>
             <FoxmindIcon name="spark" />
-            Preparar propuesta
+            {image ? 'Generar imagen' : 'Preparar propuesta'}
           </button>
         </footer>
       </form>

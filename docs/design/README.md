@@ -69,3 +69,6 @@ El candidato usa Nunito en el espacio privado, superficies claras, navegación c
 | Confirmaciones de Estudio | [StudyConfirmation](../../apps/web/src/features/study/ui/study-confirmation.tsx) |
 
 Los estados de carga y guardado indican la operación. Un vacío explica qué falta y ofrece la acción permitida. Los errores recuperables conservan los datos ingresados. Para verificar un cambio, comprobá foco, teclado, contraste, tamaño de controles, movimiento reducido y ajuste al ancho real. [Evidencia](../verification/README.md) · [Política documental](../documentation-policy.md)
+## Saldo mensual de IA
+
+La cabecera autenticada muestra el porcentaje disponible. En pantallas angostas conserva el porcentaje en el botón. Al abrirlo se presentan saldo disponible, consumo imputado, reservas en curso, desglose por herramienta y renovación en hora de Buenos Aires. El diálogo admite teclado y devuelve el foco al botón al cerrar. Durante la reconexión el estado indica que el saldo se está actualizando. [Reglas del saldo](../engineering/ai/README.md).

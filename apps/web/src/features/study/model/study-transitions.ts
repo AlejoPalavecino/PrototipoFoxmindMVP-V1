@@ -29,6 +29,7 @@ export function studyGenerationData(
   difficulty: string,
 ): Record<string, unknown> {
   if (studyGenerationIssue(kind, topicIds)) throw new StudyError('TOPICS_REQUIRED', 400);
+  if (kind === 'IMAGE') return { kind, message: message.trim(), topicIds: [], questionCount: 5, difficulty: 'MEDIUM' };
   return { kind, topicIds, questionCount, difficulty, ...(message.trim() ? { message } : {}) };
 }
 export function studyAnswerValue(

@@ -31,5 +31,5 @@ export function view(row: JobRow): ExtractionView {
   return { id: row.id, draftId: row.draft_id, planFileId: row.file_id, baseRevision: String(row.base_revision),
     state: row.state, proposal: row.state === 'READY' || row.state === 'APPLIED' ? row.proposal : null,
     error: row.error_code, retryable: row.state === 'FAILED' && ['AI_UNAVAILABLE', 'AI_RATE_LIMITED',
-      'AI_TIMEOUT', 'PROVIDER_OUTCOME_UNKNOWN', 'AI_BUDGET_EXCEEDED'].includes(row.error_code ?? '') };
+      'AI_TIMEOUT', 'PROVIDER_OUTCOME_UNKNOWN', 'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED'].includes(row.error_code ?? '') };
 }

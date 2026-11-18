@@ -1,3 +1,6 @@
+import { readAiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
+
+const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', currencyDisplay: 'code', maximumFractionDigits: 6 });
 const messages: Record<string, string> = {
   AI_INPUT_LIMIT:
     'El material supera el límite para una generación. Organizalo en carpetas más pequeñas o revisá el aula vinculada.',
@@ -13,8 +16,11 @@ const messages: Record<string, string> = {
   AI_BUSY: 'Foxy está ocupado con otra solicitud. Esperá un momento y volvé a intentar.',
   AI_TIMEOUT: 'Foxy alcanzó el tiempo máximo para responder. Podés volver a intentar.',
   AI_RATE_LIMITED: 'El proveedor de IA alcanzó una cuota de solicitudes. Esperá antes de volver a intentar.',
+  AI_MONTHLY_BUDGET_EXCEEDED: 'El saldo mensual de IA disponible no alcanza para esta generación. Revisá tu cuota en la cabecera.',
   AI_BUDGET_EXCEEDED:
-    'Se agotó el cupo diario de IA. Se renueva a las 00:00 UTC. Podés volver a intentar después.',
+    'Alcanzaste tu cupo diario de IA. Se renueva a las 00:00 UTC. Podés volver a intentar después.',
+  AI_GLOBAL_DAILY_BUDGET_EXCEEDED:
+    'FoxMind alcanzó su cupo diario de IA. Se renueva a las 00:00 UTC. Podés volver a intentar después.',
   AI_FAILED: 'Foxy no pudo terminar. Conservamos tus entradas; volvé a intentar.',
   PENDING:
     'La solicitud sigue en proceso. Esperá y actualizá la carpeta antes de volver a intentar.',
@@ -27,10 +33,11 @@ const messages: Record<string, string> = {
 export class StudyError extends Error {
   readonly code: string;
   readonly status: number;
-  constructor(code: string, status: number) {
+  constructor(code: string, status: number, detail?: unknown) {
+    const quota = code === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(detail) : undefined;
     super(
-      messages[code] ??
-        'No pudimos completar la acción. Conservamos lo que escribiste; volvé a intentar.',
+      quota ? `Te quedan ${usd.format(quota.availableMicrousd / 1_000_000)} de IA este mes. Para esta generación hacen falta ${usd.format(quota.requiredMicrousd / 1_000_000)}. Revisá tu cuota en la cabecera.`
+        : messages[code] ?? 'No pudimos completar la acción. Conservamos lo que escribiste; volvé a intentar.',
     );
     this.code = code;
     this.status = status;

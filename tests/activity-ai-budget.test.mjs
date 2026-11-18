@@ -14,7 +14,7 @@ function extractor(local, f, config, generate = async () => ({ json: { units: [{
 test('A3 generation preflight prevents expensive dispatch on token or monetary limits', { timeout: 120000 }, async t => {
   const { ActivityAiService, ActivityAiWorker } = await ai();
   await withAiDatabase(async local => {
-    for (const [patch, code] of [[{ maxInputTokens: 19 }, 'AI_INPUT_LIMIT'], [{ dailyBudgetUsd: 0.000001 }, 'AI_BUDGET_EXCEEDED']]) await t.test(code, async () => {
+    for (const [patch, code] of [[{ maxInputTokens: 19 }, 'AI_INPUT_LIMIT'], [{ dailyBudgetUsd: 0.000001 }, 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED']]) await t.test(code, async () => {
       const f = await fixture(local); f.options.configuration = { ...f.options.configuration, ...patch };
       const service = new ActivityAiService(f.options), { view } = await service.start(f.T, f.room, f.start);
       await new ActivityAiWorker(f.options).runOnce();
@@ -35,7 +35,8 @@ test('A3 extractor and generation consume one shared actor/global daily quota, i
     const service = new ActivityAiService(f.options), { view } = await service.start(f.T, f.room, f.start);
     await new ActivityAiWorker(f.options).runOnce();
     const denied = await new ActivityAiService(f.options).get(f.T, f.room, view.id);
-    assert.equal(denied.state, 'FAILED'); assert.equal(denied.error, 'AI_BUDGET_EXCEEDED');
+    assert.equal(denied.state, 'FAILED');
+    assert.equal(denied.error, quota === 'actor' ? 'AI_BUDGET_EXCEEDED' : 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED');
     assert.equal(f.calls.filter(x => x === 'generate').length, 0);
     const buckets = (await local.pool.query('SELECT DISTINCT capability FROM ai_usage_daily')).rows;
     assert.deepEqual(buckets, [{ capability: 'study-plan-v1' }]);

@@ -7,8 +7,10 @@ import type { SqlDatabase } from '../../../../../../../../src/core/contracts/sql
 import type { DiagnosticSink } from '../../../../../../../../src/core/contracts/diagnostics.ts';
 import type { GradingAiProposal } from '../../../../../../../../src/core/domain/grading/grading-ai.ts';
 import type { AiExecutionSettings } from '../../../../../../../../src/core/contracts/ai-execution.ts';
+import { isAiBudgetRejectionCode, type AiBudgetRejectionCode } from '../../../../../../../../src/core/contracts/ai-quota.ts';
 import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
-type GradingAiProcessState = 'READY' | 'FAILED' | 'STALE' | 'PROVIDER_OUTCOME_UNKNOWN';
+import { recordObservedCost } from '../../../../../platform/ai/observed-cost.ts';
+type GradingAiProcessState = 'READY' | 'FAILED' | 'STALE' | 'PROVIDER_OUTCOME_UNKNOWN' | AiBudgetRejectionCode;
 
 export type GradingAiConfiguration = Pick<ClassroomAiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
   | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>
@@ -93,17 +95,18 @@ export function createGradingAiSqlQueue(options: Options) {
     await transact(async tx => {
       await lockRoom(tx, job);
       const [locked] = await tx.query('SELECT id FROM grading_ai_jobs WHERE id=$1::uuid AND lease_nonce=$2::uuid AND state=\'RUNNING\' FOR UPDATE', job.id, job.leaseNonce);
-      if (!locked) return;
+      if (!locked) return recordObservedCost(tx, { namespace: 'grading_ai_jobs', jobId: job.id, ownerId: job.ownerId }, usage);
       let valid = await current(tx, job, false);
       if (valid && state === 'READY' && fence) {
         try { valid = await fence(tx); } catch { valid = false; }
       }
       await settle(tx, { id: job.id, owner_id: job.ownerId }, gradingConfigurationForJob(options.configuration, job.executionProfile) as ClassroomAiConfiguration, usage, 'grading_ai_jobs');
-      const status = !valid ? 'STALE' : state === 'PROVIDER_OUTCOME_UNKNOWN' || (state === 'READY' && !proposal) ? 'FAILED' : state;
+      const errorCode = state === 'PROVIDER_OUTCOME_UNKNOWN' || isAiBudgetRejectionCode(state) ? state : null;
+      const status = !valid ? 'STALE' : errorCode || (state === 'READY' && !proposal) ? 'FAILED' : state;
       await tx.query(`UPDATE grading_ai_jobs SET state=$3,error_code=$4,proposal=$5::jsonb,lease_nonce=NULL,lease_until=NULL,
         snapshot_hash=CASE WHEN $3='READY' THEN $6 ELSE NULL END, updated_at=clock_timestamp()
         WHERE id=$1::uuid AND lease_nonce=$2::uuid RETURNING id`, job.id, job.leaseNonce, status,
-      state === 'PROVIDER_OUTCOME_UNKNOWN' && valid ? state : null, status === 'READY' && proposal ? JSON.stringify(proposal) : null, snapshotHash ?? null);
+      valid ? errorCode : null, status === 'READY' && proposal ? JSON.stringify(proposal) : null, snapshotHash ?? null);
     });
   }
   async function recover(): Promise<void> {

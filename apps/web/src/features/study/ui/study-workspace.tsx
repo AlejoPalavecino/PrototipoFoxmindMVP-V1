@@ -13,6 +13,7 @@ import { useStudyChat } from '../conversations/use-study-chat.ts';
 import { useStudyConversations } from '../conversations/use-study-conversations.ts';
 import { useStudyCreations } from '../creations/use-study-creations.ts';
 import { StudyCreationEditor } from '../creations/study-creation-editor.tsx';
+import { StudyImagePreview } from '../creations/study-image-preview.tsx';
 import {
   FoxyChatLayout,
   type ChatIdentity,
@@ -272,6 +273,7 @@ export function StudyWorkspace({
         tools={
           <StudyToolsPanel
             disabled={busy || !active || generation.blocked}
+            imageGenerationAvailable={detail.imageGenerationAvailable}
             onChoose={(tool) => {
               Tab('chat');
               if (tool.kind === 'PLAN') {
@@ -497,7 +499,7 @@ export function StudyWorkspace({
               setToolError('Contá qué querés preparar para que Foxy tenga un punto de partida.');
               return;
             }
-            if (topics.length && !selected.length) {
+            if (kind !== 'IMAGE' && topics.length && !selected.length) {
               setToolError('Elegí al menos un tema de tu carpeta.');
               return;
             }
@@ -537,7 +539,10 @@ export function StudyWorkspace({
           }}
         />
       )}
-      {creation && (
+      {creation?.kind === 'IMAGE' && (
+        <StudyImagePreview folderId={f.id} creation={creation} onClose={() => Creation(undefined)} />
+      )}
+      {creation && creation.kind !== 'IMAGE' && (
         <StudyCreationEditor
           creation={creation}
           disabled={!active || busy}

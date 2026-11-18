@@ -73,6 +73,8 @@ test('Foxy reservation persists snapshot rates and output limit rather than curr
     if (sql.includes('SELECT t.*')) return [row];
     if (sql.includes('SELECT dispatch_count')) return [{ dispatch_count: 0 }];
     if (sql.includes('SELECT request_count')) return [{ request_count: 0, total: '0' }];
+    if (sql.includes('FROM period, users')) return [{ month: '2026-11-01', observed_at: new Date('2026-11-18T12:00:00Z'), budget: 5_000_000 }];
+    if (sql.includes('WITH reserved AS')) return [{ id: 1n }];
     return [];
   } };
   const budget = createFoxyTextBudget({ configuration: { maxOutputTokens: 1, inputUsdPerMillion: 1, outputUsdPerMillion: 1,
@@ -80,6 +82,10 @@ test('Foxy reservation persists snapshot rates and output limit rather than curr
   assert.equal(await budget.reserve(tx, {}, 70), 'RESERVED');
   assert.deepEqual(calls.find(call => call.sql.includes('SET input_usd_per_million')).args, ['synthetic', 4, 8]);
   assert.equal(calls.find(call => call.sql.includes('SET reserved_microusd=')).args[1], '920');
+  const reservation = calls.find(call => call.sql.includes('WITH reserved AS'));
+  assert.equal(reservation.args[5], pinned.provider);
+  assert.equal(reservation.args[6], pinned.model);
+  assert.deepEqual(JSON.parse(reservation.args[9]), { inputUsdPerMillion: 4, outputUsdPerMillion: 8, profileVersion: pinned.profileVersion });
 });
 
 test('Foxy claim lease uses persisted deadline', async () => {

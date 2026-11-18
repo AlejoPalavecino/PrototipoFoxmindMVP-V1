@@ -15,7 +15,8 @@ interface Options {
   record?: (event: AiTextMetric) => void; now?: () => number;
 }
 const preserved = new Set(['AI_UNAVAILABLE', 'AI_INPUT_LIMIT', 'AI_RATE_LIMITED', 'INVALID_AI_OUTPUT',
-  'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'SOURCE_UNAVAILABLE', 'CONFLICT', 'QUOTA_EXCEEDED', 'AI_BUDGET_EXCEEDED']);
+  'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'SOURCE_UNAVAILABLE', 'CONFLICT', 'QUOTA_EXCEEDED',
+  'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED']);
 const countValid = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 
 export async function executeAiText(options: Options): Promise<AiTextResult> {
@@ -82,6 +83,8 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
       return result;
     });
   } catch (error) {
-    throw Object.assign(executionFailure(normalize(error)), { dispatched, ...(usage ? { usage } : {}) });
+    const code = normalize(error);
+    const quota = code === 'AI_MONTHLY_BUDGET_EXCEEDED' && error instanceof Error && 'quota' in error ? error.quota : undefined;
+    throw Object.assign(executionFailure(code), { dispatched, ...(usage ? { usage } : {}), ...(quota ? { quota } : {}) });
   }
 }

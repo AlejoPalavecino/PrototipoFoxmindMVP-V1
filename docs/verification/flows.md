@@ -1,5 +1,7 @@
 # Recorridos verificados por flujo y rol
 
+La cuota mensual se comprobó con cuentas y proveedores sintéticos. PostgreSQL y Nest cubrieron aislamiento, dos conexiones docentes, cambios de reserva y liquidación y revocación de sesión. Ego Lite ejercitó el shell de ambos roles en escritorio y móvil con un servicio de saldo sintético. Para Mi Estudio, el proxy y PostgreSQL verificaron persistencia y permisos de la imagen; el navegador ejercitó creación, apertura y descarga con datos sintéticos. [Indicador](../work-log/2026-11-18-indicator-monthly-ai-quota.md) · [Imágenes](../work-log/2026-11-18-student-study-images.md).
+
 La matriz histórica siguiente acredita su candidato original. Los recorridos del rediseño vigente se documentan en el [informe de paridad](product-parity/README.md); no se heredan sus PASS.
 
 Foxy AI y Mi estudio, retoma del 2026-11-16: **PASS local focal**. Lector de esquema, edición y TXT, revisión de la copia preparada y dos publicaciones independientes con consentimiento; persistencia y acceso privado por HTTP/SQL aislados. Mi estudio: cuatro anchos, foco y borrador conservado, materia/paso/rename por HTTP. [Capturas, recibos y límites](product-parity/foxy-study-exact/README.md).

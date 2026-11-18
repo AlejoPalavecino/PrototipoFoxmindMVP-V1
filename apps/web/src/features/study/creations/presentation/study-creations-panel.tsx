@@ -45,6 +45,7 @@ export function StudyCreationsPanel({
           ['ALL', 'Todas'],
           ['NOTE', 'Apuntes'],
           ['OUTLINE', 'Esquemas'],
+          ['IMAGE', 'Imágenes'],
           ['QUIZ', 'Quizzes'],
           ['EXERCISE', 'Ejercicios'],
           ['MOCK_EXAM', 'Simulacros'],
@@ -63,12 +64,12 @@ export function StudyCreationsPanel({
             onClick={() => onCreation(item)}
           >
             <span className="study-exact-tool-icon sky">
-              <FoxmindIcon name={item.kind === 'OUTLINE' ? 'layers' : 'file'} />
+              <FoxmindIcon name={item.kind === 'IMAGE' ? 'spark' : item.kind === 'OUTLINE' ? 'layers' : 'file'} />
             </span>
             <span>
               <b>{item.title}</b>
               <small>
-                {item.kind === 'NOTE' ? 'Preparar un apunte' : 'Conectar ideas'} · Privada
+                {item.kind === 'IMAGE' ? 'Imagen' : item.kind === 'NOTE' ? 'Preparar un apunte' : 'Conectar ideas'} · Privada
               </small>
             </span>
             <FoxmindIcon name="chevron-right" />

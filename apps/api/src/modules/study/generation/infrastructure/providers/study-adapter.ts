@@ -4,11 +4,16 @@ import type { AiPart } from '../../../../../platform/ai/text-contract.ts';
 import { createGeminiTextTransport } from '../../../../../platform/ai/gemini-text-transport.ts';
 import { createAiChatTimings } from '../../../../../platform/ai/text-metrics.ts';
 import { createExecutionTransport } from '../../../../../platform/ai/profile-client.ts';
-import type { StudyProvider } from '../../../../../../../../src/core/domain/study/engine.ts';
-import { executeStudyAiText, type StudyFileDatabase } from './study-ai-execution.ts';
+import type { StudyAction, StudyProvider } from '../../../../../../../../src/core/domain/study/engine.ts';
+import { executeStudyAiText, type StudyFileDatabase, type StudyTextCapability } from './study-ai-execution.ts';
 import { studySchemaFor } from './study-response-schema.ts';
 
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
+
+const studyActionCapabilities = {
+  CHAT: 'study_chat', NOTE: 'study_note', OUTLINE: 'study_outline', PLAN: 'study_plan',
+  QUIZ: 'study_quiz', EXERCISE: 'study_exercise', MOCK_EXAM: 'study_mock_exam',
+} satisfies Record<StudyAction, StudyTextCapability>;
 
 /** Compatibility entry point; SQL admission and accounting belong to execution. */
 export function createGeminiStudyProvider(configuration: AiConfiguration, database: StudyFileDatabase,
@@ -26,15 +31,19 @@ export function createGeminiStudyProvider(configuration: AiConfiguration, databa
       parts.push(source.document.kind === 'pdf' ? { kind: 'pdf', bytes: source.document.bytes } : { kind: 'text', text: source.document.text });
     }
     try {
+      const flow = options?.flow ?? (options?.waitForAdmission ? 'feedback' : 'chat');
+      const action = input.context?.action;
+      const capability = flow !== 'feedback' && action && Object.hasOwn(studyActionCapabilities, action)
+        ? studyActionCapabilities[action] : `study_${flow}` as const;
       const result = await executeStudyAiText({ configuration, database, ownerId, requestId, authorize, transport,
-        timing: createAiChatTimings('study', options?.flow ?? (options?.waitForAdmission ? 'feedback' : 'chat')),
+        timing: createAiChatTimings('study', flow), capability,
         waitForAdmission: options?.waitForAdmission,
         ...(clientOverride ? {} : { transportForExecution: (pinned: AiConfiguration) => createExecutionTransport(pinned, 'study') }),
         request: { system, messages: [{ role: 'user', parts }], schema: studySchemaFor(input.context) } });
       return JSON.parse(result.text) as unknown;
     } catch (error) {
       const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
-      if (['AI_BUSY', 'AI_TIMEOUT', 'AI_RATE_LIMITED', 'AI_BUDGET_EXCEEDED', 'AI_INPUT_LIMIT', 'QUOTA_EXCEEDED', 'SOURCE_UNAVAILABLE', 'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'CONFLICT'].includes(code)) throw error;
+      if (['AI_BUSY', 'AI_TIMEOUT', 'AI_RATE_LIMITED', 'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED', 'AI_INPUT_LIMIT', 'QUOTA_EXCEEDED', 'SOURCE_UNAVAILABLE', 'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'CONFLICT'].includes(code)) throw error;
       fail('AI_UNAVAILABLE');
     }
   } };

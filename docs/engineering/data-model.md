@@ -14,6 +14,7 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 
 | Dominio | Modelos Prisma | Propiedad y relación principal |
 |---|---|---|
+| Contabilidad mensual IA | AiMonthlyReservation, AiMonthlyBudgetMovement, AiMonthlyProviderReceipt, AiMonthlyIntegrityCheck | Reserva por trabajo, cuenta y mes de origen con desglose de importes del usuario y de FoxMind. Los movimientos permiten reconstruir el saldo y los comprobantes externos quedan vinculados a una operación concreta. El historial de verificaciones conserva fecha y cantidad de discrepancias. |
 | Identidad | User, Session, AccountToken, AccountActionControl | Usuario con rol exclusivo; sesiones/tokens asociados y controles de acciones |
 | Agenda | AgendaEvent | Evento por cuenta, calendario local, zona, proyección temporal y configuración opcional de aviso |
 | Aulas e ingreso | ClassroomDraft, Classroom, ClassroomCode, Invitation, ClassroomInvitationBatch, Enrollment, MembershipPeriod | Borrador y aula separados, código vigente con historial, lote recuperable por solicitud, decisión de invitación con fecha y destinatario, inscripción estable e historial de pertenencia |

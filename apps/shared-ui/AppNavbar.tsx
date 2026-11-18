@@ -9,7 +9,7 @@ import type { BrujulaSearchClient } from '../../src/core/domain/classrooms/bruju
 export type { NavbarLink } from './navbar-types';
 export interface AppNavbarProps {
   logoHref: string; links: NavbarLink[]; displayName?: string; accountEmail?: string;
-  notifications?: ReactNode; accountActions?: ReactNode; onNavigate?: (href: string) => void;
+  notifications?: ReactNode; accountActions?: ReactNode; quotaIndicator?: ReactNode; onNavigate?: (href: string) => void;
   currentPath?: string; restricted?: boolean; homeNavigation?: boolean;
   classroomLinks?: NavbarLink[]; accountRole?: 'teacher'|'student';
   search?: BrujulaSearchClient;
@@ -68,6 +68,7 @@ export function AppNavbar(props: AppNavbarProps) {
     <a href={props.logoHref} className="fm3d-shell-brand" aria-label="FoxMind" onClick={event => follow(event, props.logoHref)}>{privateShell ? <span className="fm-brujula-brand"><img src="/foxmind/logo.webp" alt=""/><span>Fox<em>Mind</em></span></span> : <FoxmindBrand decorative />}</a>
     {privateShell ? <button type="button" className="fm-sidebar-collapse" aria-label={collapsed ? 'Expandir navegación' : 'Plegar navegación'} title={collapsed ? 'Expandir navegación' : 'Plegar navegación'} aria-expanded={!collapsed} onClick={toggleSidebar}><FoxmindIcon name={collapsed ? 'arrow-right' : 'arrow-left'}/></button> : null}
     {privateShell && !restricted ? <div className="fm-brujula-search-slot"><NavigationSearch links={props.links} follow={follow} shortcut={!open} search={props.search}/></div> : null}
+    {privateShell && !restricted ? props.quotaIndicator : null}
     <ShellLinks links={props.links} follow={follow} />
     {!restricted && !open && props.notifications ? <div className="fm-brujula-nav-notices fm3d-shell-notifications">{props.notifications}</div>:null}
     {!collapsed ? classroomShortcuts('fm-brujula-classroom-links') : null}

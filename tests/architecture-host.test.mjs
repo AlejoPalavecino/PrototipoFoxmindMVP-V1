@@ -103,6 +103,8 @@ test('S2 host mounts Study and attachment transports only with both files and cl
     const enabled = !!config.classrooms && !!config.files;
     assert.deepEqual(host.calls.filter(call => studyTransports.includes(call)), enabled ? studyTransports : []);
     const provider = host.registration().providers.find(item => item.provide === 'StudyRuntime');
+    const budget = host.registration().providers.find(item => item.provide === 'AiMonthlyBudgetRuntime');
+    assert.equal(budget?.inject.length, 1);
     assert.equal(!!provider, enabled);
     if (provider) assert.equal(provider.inject.length, 3);
     assert.ok(host.calls.includes('installIdentityTransport'));
@@ -124,11 +126,11 @@ test('S1/S2 root drains Study before infrastructure even on rejection and preser
     const root = new (host.root())({ shutdownMail() { events.push('mail'); } },
       { close() { events.push('files'); } }, { close() { events.push('classrooms'); } },
       worker('library'), worker('curriculum'), worker('activity'), worker('student'), worker('grading'), worker('foxy'),
-      { close() { events.push('study'); return pending; } });
+      { close() { events.push('study'); return pending; } }, () => { events.push('quota'); });
     const closing = root.onModuleDestroy();
     assert.deepEqual(events, ['study', 'foxy', 'library', 'curriculum', 'activity', 'student', 'grading']);
     release(failure);
     if (reject) await assert.rejects(closing, error => error === failure); else await closing;
-    assert.deepEqual(events.slice(-3), ['mail', 'files', 'classrooms']);
+    assert.deepEqual(events.slice(-4), ['quota', 'mail', 'files', 'classrooms']);
   }
 });

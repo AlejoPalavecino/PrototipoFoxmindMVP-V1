@@ -1,5 +1,33 @@
 # Asistencia IA: capacidades y límites
 
+## Cuota mensual por cuenta
+
+Cada cuenta estudiantil dispone de USD 3 y cada cuenta docente de USD 5 por mes calendario de Buenos Aires. El alta recibe la cuota completa. El saldo disponible es el límite menos el gasto imputado y las reservas vigentes. Consultar, descargar o editar una creación guardada cuesta cero de cuota IA. El desglose y las actualizaciones de la cabecera pertenecen al usuario autenticado. Los controles diarios existentes de solicitudes y presupuesto siguen protegiendo la operación compartida.
+
+Antes de una generación paga, PostgreSQL registra una reserva en microdólares en el período de la operación. Al liquidar se libera la reserva y se descuenta el costo conocido hasta el importe reservado. El excedente queda a cargo de FoxMind. Una respuesta sin medición suficiente deja el importe pendiente de confirmación. A las 24 horas vence la reserva y se registra la exposición estimada de la plataforma. Una confirmación posterior al vencimiento ajusta el costo de FoxMind y conserva el saldo ya devuelto al usuario.
+
+El corte contable comienza con las reservas de esta versión. Para activar en otra instalación, drenar primero las colas antiguas, aplicar las migraciones y arrancar todos los procesos con la misma versión. Conservar la historia diaria previa. La fecha de reserva determina el mes incluso si la respuesta llega después de la renovación.
+
+### Conciliar con un reporte de facturación
+
+Un operador con acceso de lectura autorizado puede ejecutar `node scripts/reconcile-ai-cost.mjs reporte.json` con `DATABASE_URL` del entorno que quiere auditar. El informe selecciona operaciones por instante de reserva en el intervalo UTC semiabierto indicado. Para una comparación válida, usar el mismo proyecto, proveedor, modelo, ventana temporal y base de precios del reporte. Registrar créditos, impuestos, operaciones previas al corte y diferencias de fecha por separado.
+
+```json
+{
+  "start": "2026-11-01T03:00:00Z",
+  "end": "2026-12-01T03:00:00Z",
+  "totals": [
+    { "provider": "gemini", "model": "modelo-del-reporte", "billedMicrousd": "42000" }
+  ]
+}
+```
+
+El comando reconstruye cada operación con sus movimientos y señala discrepancias por identificador. Compara lo facturado con los costos confirmados de usuarios y plataforma. Presenta por separado reservas abiertas y exposición estimada. Una línea ausente en la factura queda pendiente de comparación. Sale con código 0 al coincidir, 2 si hay diferencias y 1 si la ejecución falla. El informe se obtiene en una transacción de sólo lectura. El reporte puede contener identificadores privados de operación y debe permanecer en el entorno autorizado.
+
+El proceso de API también registra una comprobación interna por día UTC mientras está en marcha. El operador puede consultar `ai_monthly_integrity_checks` para ver la última ejecución y `ai_monthly_operation_discrepancies` para investigar las diferencias actuales. Estos controles comparan importes reconstruidos desde los movimientos con los importes de cada reserva.
+
+Si el proveedor identifica el costo de **una operación concreta**, un operador autorizado puede aplicar ese comprobante con `node scripts/reconcile-ai-cost.mjs --apply-receipt recibo.json`. El archivo contiene `provider`, `model`, `reference` (identidad única de la línea), `namespace`, `jobId` y `actualMicrousd` (entero expresado como texto). Verificar la correspondencia externa antes de aplicarlo. Una factura agregada sirve sólo para la comparación. FoxMind comprueba proveedor y modelo contra la reserva, vincula el comprobante una sola vez y rechaza una referencia reutilizada con datos incompatibles. Un recibo vencido ajusta únicamente el gasto de plataforma. El acceso de escritura para esta operación pertenece al entorno administrativo.
+
 | Necesidad | Guía vigente |
 |---|---|
 | Acompañar estudio privado, practicar y preparar exámenes | [Carpetas de estudio](../study/README.md) |

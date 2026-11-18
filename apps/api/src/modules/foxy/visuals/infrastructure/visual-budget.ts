@@ -1,9 +1,8 @@
-import { quoteFoxyImageBudget } from './providers/foxy-image-budget.ts';
+import { priceFoxyImageUsage, quoteFoxyImageBudget } from './providers/foxy-image-budget.ts';
 import { reserveAiTextBudget, settleAiTextBudget, tokenCost } from '../../../../platform/ai/text-budget.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
-import type { FoxyVisualLease } from './visual-worker-types.ts';
+import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
 import { exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
-type Usage = { inputTokens: number | null; outputTokens: number | null };
 type Limits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type Row = { id: string; owner_id: string; dispatch_count: number; reserved_microusd: bigint; profile: VisualProfile };
 const invalid = (): never => { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); };
@@ -42,17 +41,26 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
       return await reserveAiTextBudget(tx,row,0,quota,'foxy_visual_jobs') ? 'RESERVED' : 'NO_BUDGET';
     }
     if (preflightTokens > row.profile.maxInputTokens) return invalid();
-    if (!await reserveAiTextBudget(tx,row,row.profile.maxInputTokens,config,'foxy_visual_jobs')) return 'NO_BUDGET';
+    if (!await reserveAiTextBudget(tx,row,row.profile.maxInputTokens,config,'foxy_visual_jobs', {
+      capability: row.profile.kind === 'IMAGE' ? 'foxy_image' : 'foxy_diagram',
+      provider: 'gemini', model: row.profile.model,
+      pricing: { inputUsdPerMillion: config.inputUsdPerMillion, outputUsdPerMillion: config.outputUsdPerMillion,
+        profileVersion: row.profile.profileVersion,
+        ...(row.profile.kind === 'IMAGE' ? { textOutputUsdPerMillion: Number(row.profile.textOutputUsdPerMillion),
+          imageOutputUsdPerMillion: Number(row.profile.imageOutputUsdPerMillion) } : {}),
+      },
+    })) return 'NO_BUDGET';
     await tx.query('UPDATE foxy_visual_jobs SET preflight_tokens=$2,input_tokens=NULL WHERE id=$1::uuid',row.id,preflightTokens); return 'RESERVED';
   }
-  async function settleRow(tx: SqlTransaction, row: Row, usage?: Usage | null): Promise<boolean> {
+  async function settleRow(tx: SqlTransaction, row: Row, usage?: VisualUsage | null): Promise<boolean> {
     if (BigInt(row.reserved_microusd) === 0n) return false; const config = configuration(row.profile,options.limits);
     const safe = usage && Number.isSafeInteger(usage.inputTokens) && usage.inputTokens! >= 0
       && Number.isSafeInteger(usage.outputTokens) && usage.outputTokens! >= 0 ? usage : undefined;
-    await settleAiTextBudget(tx,row,config,safe,'foxy_visual_jobs');
+    const pricedUsage = row.profile.kind === 'IMAGE' ? priceFoxyImageUsage(row.profile, safe) : undefined;
+    await settleAiTextBudget(tx,row,config,safe,'foxy_visual_jobs',pricedUsage);
     if (safe) await tx.query('UPDATE foxy_visual_jobs SET input_tokens=$2 WHERE id=$1::uuid',row.id,safe.inputTokens); return true;
   }
-  async function settle(tx: SqlTransaction, lease: FoxyVisualLease, usage?: Usage | null): Promise<boolean> {
+  async function settle(tx: SqlTransaction, lease: FoxyVisualLease, usage?: VisualUsage | null): Promise<boolean> {
     await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)'); const row = await current(tx,lease,false); return row ? settleRow(tx,row,usage) : false;
   }
   async function settleExpired(tx: SqlTransaction, jobId: string): Promise<boolean> {

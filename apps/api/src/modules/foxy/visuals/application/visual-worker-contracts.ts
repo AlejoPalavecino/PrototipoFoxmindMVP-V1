@@ -4,7 +4,7 @@ import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql
 import type { FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../../../../src/core/domain/foxy/grounding.ts';
 import type { VisualProfile } from '../../domain/visual-profile.ts';
 export type FoxyVisualLease = { jobId: string; assetId: string; ownerId: string; conversationId: string; leaseNonce: string };
-export type VisualUsage = { inputTokens: number | null; outputTokens: number | null };
+export type VisualUsage = { inputTokens: number | null; outputTokens: number | null; textOutputTokens?: number; imageOutputTokens?: number };
 export type VisualInput = Omit<FoxyTextInput,'purpose'|'message'> & { prompt: string; aspectRatio: FoxyAspectRatio; profileVersion?: string };
 export type VisualScope = { capability: object; assetCapability: object; snapshot: FoxyGroundingSnapshot; documents: { descriptor: { classroomId: string; file: FoxyGroundingFile }; capability: object }[]; job: { id: string; assetId: string; kind: 'IMAGE'|'DIAGRAM'; prompt: string; aspectRatio: FoxyAspectRatio; profile: VisualProfile; dispatchCount: number } };
 export type VisualOptions = { database: { $transaction<T>(fn: (tx: { $queryRawUnsafe<T>(sql: string,...args: unknown[]): Promise<T> }) => Promise<T>, options?: { maxWait: number; timeout: number }): Promise<T> };

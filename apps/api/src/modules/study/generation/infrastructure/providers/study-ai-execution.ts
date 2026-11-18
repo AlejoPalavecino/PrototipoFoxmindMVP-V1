@@ -14,6 +14,7 @@ export interface StudyFileDatabase {
   $transaction<T>(operation: (tx: { $queryRawUnsafe<T = unknown>(sql: string, ...values: unknown[]): Promise<T> }) => Promise<T>,
     options?: { maxWait: number; timeout: number }): Promise<T>;
 }
+export type StudyTextCapability = `study_${'chat' | 'tool' | 'feedback' | 'note' | 'outline' | 'plan' | 'quiz' | 'exercise' | 'mock_exam'}`;
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 
 /** Domain-owned coordination: shared admission and existing SQL budget semantics. */
@@ -22,6 +23,7 @@ export async function executeStudyAiText(input: {
   authorize?: () => Promise<void>; transport?: AiTextTransport; request: AiTextRequest; record?: (event: AiTextMetric) => void;
   transportForExecution?: (configuration: AiConfiguration) => AiTextTransport;
   waitForAdmission?: boolean;
+  capability?: StudyTextCapability;
   timing?: AiChatTimings;
 }) {
   const { configuration, database, ownerId, requestId, authorize, transport, request } = input;
@@ -88,7 +90,9 @@ export async function executeStudyAiText(input: {
       async reserve(tokens) {
         await database.$transaction(async raw => {
           const tx = { query: <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values) };
-          if (!await reserveAiTextBudget(tx, { id, owner_id: ownerId }, tokens, effective, 'study_ai_dispatches')) fail('AI_BUDGET_EXCEEDED');
+          if (!await reserveAiTextBudget(tx, { id, owner_id: ownerId }, tokens, effective, 'study_ai_dispatches', {
+            capability: input.capability ?? (input.waitForAdmission ? 'study_feedback' : 'study_chat'),
+          })) fail('CONFLICT');
         }, { maxWait: 2000, timeout: 6000 });
       },
       onDispatch() { dispatched = true; },

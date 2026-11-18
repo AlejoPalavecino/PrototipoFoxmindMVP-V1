@@ -35,13 +35,15 @@ function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;u
  const folder=new RegExp(`^${root}/${uuid}$`,'i'),commands=new RegExp(`^${root}/${uuid}/commands$`,'i');
  const uploads=new RegExp(`^${root}/${uuid}/uploads$`,'i'),uploadId=new RegExp(`^${root}/${uuid}/uploads/${uuid}$`,'i');
  const file=new RegExp(`^${root}/${uuid}/uploads/${uuid}/file$`,'i');
+ const image=new RegExp(`^${root}/${uuid}/images/${uuid}$`,'i');
  const docxPreview=new RegExp(`^${root}/${uuid}/docx-preview/${uuid}$`,'i');
  const readReminder=new RegExp(`^${root}/reminders/${uuid}/read$`,'i');
- const binary=file.test(path),upload=uploadId.test(path)&&method==='PUT';
+ const imageRoute=image.test(path);
+ const binary=file.test(path)||imageRoute,upload=uploadId.test(path)&&method==='PUT';
  const allowed=path===root?['GET','POST']:folder.test(path)?['GET','PATCH']:commands.test(path)||uploads.test(path)||readReminder.test(path)?['POST']:uploadId.test(path)?['GET','PUT']:binary||docxPreview.test(path)||path===`${root}/reminders`?['GET']:[];
  if(!allowed.length)throw Object.assign(new Error(),{status:404});
  if(!allowed.includes(method))throw Object.assign(new Error(),{status:405});
- const keys=[...url.searchParams.keys()];if(new Set(keys).size!==keys.length||keys.some(key=>!binary||key!=='mode')||url.searchParams.has('mode')&&!['preview','download'].includes(url.searchParams.get('mode')!))throw new Error();
+ const keys=[...url.searchParams.keys()];if(imageRoute&&url.search&&url.search!=='?mode=download'||new Set(keys).size!==keys.length||keys.some(key=>!binary||key!=='mode')||url.searchParams.has('mode')&&!['preview','download'].includes(url.searchParams.get('mode')!))throw new Error();
  return{url,method,binary,upload};
 }
 function read(stream: IncomingMessage, limit: number): Promise<Buffer> {
@@ -136,7 +138,8 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
     const unavailable = () => { if (!settled) fail(response, 503, 'SERVICE_UNAVAILABLE'); finish(); };
     const timer = setTimeout(unavailable, selected.binary || selected.upload ? 65000 : 150000);
     request.once('aborted', finish); response.once('close', finish); upstream.once('error', unavailable);
-    upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary, false).then(finish, unavailable); });
+    const privateImage = selected.binary && selected.url.pathname.startsWith(`${root}/`) && selected.url.pathname.includes('/images/');
+    upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary, privateImage).then(finish, unavailable); });
     upstream.end(content);
   });
 }

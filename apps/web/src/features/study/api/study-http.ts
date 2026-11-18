@@ -6,6 +6,7 @@ import type {
   StudyCommandData,
 } from '../model/study-commands.ts';
 import { StudyError } from './study-error.ts';
+import { isAiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
 export function createStudyClient(fetcher: typeof fetch = fetch) {
   const requests = new Map<string, string>();
   async function call<T>(path = '', method = 'GET', body?: unknown): Promise<T> {
@@ -32,7 +33,7 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
       });
       const result = await response.json();
       if (!response.ok)
-        throw new StudyError(result?.error?.code ?? 'SERVICE_UNAVAILABLE', response.status);
+        throw new StudyError(result?.error?.code ?? 'SERVICE_UNAVAILABLE', response.status, result?.error?.quota);
       return result as T;
     } catch (e) {
       if (e instanceof StudyError) throw e;
@@ -78,7 +79,7 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
       ).catch((error: unknown) => {
         if (
           error instanceof StudyError &&
-          error.code === 'AI_BUDGET_EXCEEDED' &&
+          isAiBudgetRejectionCode(error.code) &&
           requests.get(key) === token
         )
           requests.delete(key);
@@ -87,7 +88,11 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
       const status = result.result?.status;
       if (status === 'PENDING') throw new StudyError('PENDING', 409);
       requests.delete(key);
-      if (status === 'FAILED') throw new StudyError('AI_FAILED', 503);
+      if (status === 'FAILED') {
+        const code = result.result?.errorCode;
+        if (isAiBudgetRejectionCode(code)) throw new StudyError(code, 429, result.result?.quota);
+        throw new StudyError('AI_FAILED', 503);
+      }
       if (status === 'INSUFFICIENT') throw new StudyError('SOURCES_INSUFFICIENT', 422);
       return result;
     },

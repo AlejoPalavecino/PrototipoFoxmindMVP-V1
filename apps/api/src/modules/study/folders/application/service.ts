@@ -1,4 +1,5 @@
 import { prepareStudyOperation, reserveStudyOperation, validatePreparedStudyOperation, executePreparedStudyOperation, applyPreparedStudyOperation } from '../../generation/public.ts';
+import { isAiBudgetRejectionCode, readAiMonthlyQuotaRejection } from '../../../../../../../src/core/contracts/ai-quota.ts';
 import { studyFail, studyId, studyObject, studyRevision, validateFolder, type FolderFields } from '../../../../../../../src/core/domain/study/folders.ts';
 import { CLASSROOM_COVER_KEYS } from '../../../../../../../src/core/domain/classrooms/cover.ts';
 import { STUDY_GENERATION_PENDING_MS, projectFolderSummary, projectFolder } from '../../domain/state.ts';
@@ -65,6 +66,7 @@ export function createStudyService(options: StudyApplicationPorts) {
                 studyFail('QUOTA_EXCEEDED');
             const candidate = structuredClone(r);
             const operation = await prepareStudyOperation(tx, candidate, p, contextPorts);
+            if (operation.mode === 'image' && !options.images?.generate) studyFail('AI_UNAVAILABLE');
             reserveStudyOperation(candidate, operation, options);
             // Commit the real generation request with its receipt before leaving the transaction.
             // Preparation and reservation cannot create a resource or an assistant result card.
@@ -79,7 +81,7 @@ export function createStudyService(options: StudyApplicationPorts) {
             }
             r.state.receipts[requestId] = { hash, result: { status: 'PENDING', requestId }, pendingAt: new Date().toISOString() };
             const saved = await save(tx, r);
-            return { revision: String(saved.revision), ownerId: owner, operation };
+            return { revision: String(saved.revision), ownerId: owner, folderId: saved.id, operation };
         }).catch(error => {
             prepareTiming(error ?? null);
             throw error;
@@ -92,13 +94,15 @@ export function createStudyService(options: StudyApplicationPorts) {
             const authorize = async () => run(request, true, async (tx, owner) => {
                 const row = await load(tx, owner, id, true);
                 if (String(row.revision) !== prepared.revision || row.status === 'ARCHIVED') studyFail('CONFLICT');
+                if (prepared.operation.mode === 'image' && (row.state.receipts[requestId]?.result as { status?: string })?.status !== 'PENDING')
+                    studyFail('CONFLICT');
                 await validatePreparedStudyOperation(tx, row, p, prepared.operation, contextPorts, options.digest);
             });
             await authorize();
             ready = true;
             prepareTiming();
             const generated = await executePreparedStudyOperation(prepared.operation, options,
-                { ownerId: prepared.ownerId, requestId, authorize });
+                { ownerId: prepared.ownerId, requestId, folderId: prepared.folderId, authorize });
             persisting = true;
             const persist = () => run(request, true, async (tx, owner) => {
                 const r = await load(tx, owner, id, true);
@@ -123,7 +127,11 @@ export function createStudyService(options: StudyApplicationPorts) {
                 const receipt = r.state.receipts[requestId];
                 if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
                 if (receipt?.hash === hash && (receipt.result as { status?: string })?.status === 'PENDING') {
-                    r.state.receipts[requestId] = { hash, result: { status: 'FAILED' } };
+                    const failure = error as { code?: unknown; quota?: unknown } | null;
+                    const code = failure?.code;
+                    const errorCode = isAiBudgetRejectionCode(code) ? code : undefined;
+                    const quota = errorCode === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(failure?.quota) : undefined;
+                    r.state.receipts[requestId] = { hash, result: { status: 'FAILED', ...(errorCode ? { errorCode } : {}), ...(quota ? { quota } : {}) } };
                     await save(tx, r);
                 } });
                 const cancelled = await (ready && !persisting && timing
@@ -159,7 +167,19 @@ export function createStudyService(options: StudyApplicationPorts) {
             return run(request, false, async (tx, owner) => {
                 const r = await load(tx, owner, id, false), sources = await options.sources(tx, r, options);
                 const attachments = await options.files?.chatSources?.(tx, owner, r.id);
-                return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources, attachments) };
+                return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources, attachments),
+                    ...(options.images?.generate ? { imageGenerationAvailable: true } : {}) };
+            });
+        },
+        async image(request: unknown, id: string, imageId: string) {
+            const key = studyId(imageId);
+            return run(request, false, async (tx, owner) => {
+                const row = await load(tx, owner, id, false);
+                if (!row.state.creations.some(item => item.id === key && item.kind === 'IMAGE'))
+                    studyFail('FORBIDDEN');
+                const raster = await options.images?.read(tx, owner, row.id, key);
+                if (!raster) studyFail('FORBIDDEN');
+                return raster;
             });
         },
         async previewDocx(request: unknown, id: string, sourceId: string) {

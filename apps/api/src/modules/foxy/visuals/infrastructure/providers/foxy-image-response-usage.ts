@@ -1,13 +1,13 @@
-type Usage = { inputTokens: number; outputTokens: number };
+type Usage = { inputTokens: number; outputTokens: number; textOutputTokens?: number; imageOutputTokens?: number };
 function number(value: unknown): value is number { return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0; }
-function details(value: unknown, maximum: number): boolean {
-  if (!Array.isArray(value) || value.length > 16) return false;
-  let sum = 0; const seen = new Set<string>();
+function details(value: unknown, maximum: number): Map<string, number> | null {
+  if (!Array.isArray(value) || value.length > 16) return null;
+  let sum = 0; const counts = new Map<string, number>();
   for (const item of value) {
-    if (!item || typeof item !== 'object' || !['TEXT','IMAGE'].includes(item.modality) || seen.has(item.modality) || !number(item.tokenCount)) return false;
-    seen.add(item.modality); sum += item.tokenCount; if (!Number.isSafeInteger(sum)) return false;
+    if (!item || typeof item !== 'object' || !['TEXT','IMAGE'].includes(item.modality) || counts.has(item.modality) || !number(item.tokenCount)) return null;
+    counts.set(item.modality, item.tokenCount); sum += item.tokenCount; if (!Number.isSafeInteger(sum)) return null;
   }
-  return sum === maximum;
+  return sum === maximum ? counts : null;
 }
 export function imageUsage(value: unknown): Usage | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -20,6 +20,14 @@ export function imageUsage(value: unknown): Usage | null {
   if (number(candidates) && number(thoughts) && candidates + thoughts !== output) return null;
   if (number(candidates) && candidates > output || number(thoughts) && thoughts > output) return null;
   if (v.promptTokensDetails !== undefined && !details(v.promptTokensDetails,prompt)) return null;
-  if (v.candidatesTokensDetails !== undefined && (!number(candidates) || !details(v.candidatesTokensDetails,candidates))) return null;
-  return { inputTokens: prompt, outputTokens: output };
+  const usage: Usage = { inputTokens: prompt, outputTokens: output };
+  if (v.candidatesTokensDetails !== undefined) {
+    const counts = number(candidates) ? details(v.candidatesTokensDetails,candidates) : null;
+    if (!counts) return null;
+    if (number(thoughts) || candidates === output) {
+      usage.textOutputTokens = (counts.get('TEXT') ?? 0) + (thoughts ?? 0);
+      usage.imageOutputTokens = counts.get('IMAGE') ?? 0;
+    }
+  }
+  return usage;
 }

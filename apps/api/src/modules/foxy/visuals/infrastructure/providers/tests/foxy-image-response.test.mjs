@@ -34,6 +34,10 @@ test('malformed promptFeedback is rejected rather than silently ignored',async()
 test('usage counts total output including thoughts once; unreliable usage remains null',async()=>{
  const valid={promptTokenCount:10,candidatesTokenCount:5,thoughtsTokenCount:2,totalTokenCount:17};
  assert.deepEqual((await parse(response([part()],{usageMetadata:valid}))).usage,{inputTokens:10,outputTokens:7});
+ const details=[{modality:'IMAGE',tokenCount:4},{modality:'TEXT',tokenCount:1}];
+ assert.deepEqual((await parse(response([part()],{usageMetadata:{...valid,candidatesTokensDetails:details}}))).usage,
+  {inputTokens:10,outputTokens:7,textOutputTokens:3,imageOutputTokens:4});
+ assert.equal((await parse(response([part()],{usageMetadata:{...valid,candidatesTokensDetails:details.slice(0,1)}}))).usage,null);
  for(const usageMetadata of [{promptTokenCount:10},{promptTokenCount:0,totalTokenCount:7},{promptTokenCount:10,totalTokenCount:10},
   {promptTokenCount:-1,totalTokenCount:4},{promptTokenCount:1,totalTokenCount:Number.MAX_SAFE_INTEGER+1},
   {...valid,candidatesTokenCount:99},{...valid,cachedContentTokenCount:1},{...valid,toolUsePromptTokenCount:1}])

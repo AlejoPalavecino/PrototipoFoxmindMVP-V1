@@ -178,7 +178,10 @@
 }
 @media(max-width:1000px){
  #foxmind-product.fm3d-theme:has(.parity-ai-chat) .p5-app .fm3d-shell.fm-navbar-private.fm-home-navigation[data-private=true]{height:0;min-height:0;width:100%;padding:0;margin:0;border:0;position:relative;overflow:visible}
- #foxmind-product.fm3d-theme:has(.parity-ai-chat) .fm-navbar-private>:not(dialog){display:none!important}
+ #foxmind-product.fm3d-theme:has(.parity-ai-chat) .fm-navbar-private>:not(dialog,.fm-ai-quota-slot){display:none!important}
+ #foxmind-product.fm3d-theme:has(.parity-ai-chat) .p5-app .fm3d-shell.fm-navbar-private.fm-home-navigation[data-private=true]:has(>.fm-ai-quota-slot){height:44px;min-height:44px;justify-content:flex-end}
+ #foxmind-product.fm3d-theme .p5-app:has(.fm-navbar-private>.fm-ai-quota-slot)>.p5-main:has(.parity-ai-chat){height:calc(100dvh - 44px)}
+ #foxmind-product.fm3d-theme .fm-navbar-private>.fm-ai-quota-slot{order:3;flex:0 0 auto}
 }
 /* Final reference shell rhythm (chat-expansion.css): 22 px inset, 20 px groups. */
 @media(min-width:1001px){

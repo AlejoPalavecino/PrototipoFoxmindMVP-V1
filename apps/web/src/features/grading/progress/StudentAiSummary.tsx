@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { StudentSummaryOperations, StudentSummary, StudentSummaryFinding } from '../model/grading-operations.ts';
 import { Notice } from '../../../../../shared-ui/feedback.tsx';
+import { isAiBudgetRejectionCode, type AiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
 
 type Finding = StudentSummaryFinding;
 type Summary = StudentSummary;
@@ -14,6 +15,11 @@ const messages: Record<Summary['state'], string> = {
   FAILED: 'No se pudo generar el análisis. Intentalo nuevamente más tarde.',
   DISABLED: 'El análisis con IA no está habilitado.',
 };
+const budgetMessages: Record<AiBudgetRejectionCode, string> = {
+  AI_MONTHLY_BUDGET_EXCEEDED: 'El saldo mensual de IA disponible no alcanza para este análisis. Revisá tu cuota en la cabecera.',
+  AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 'FoxMind alcanzó su límite diario general de IA. Volvé a consultar más tarde.',
+  AI_BUDGET_EXCEEDED: 'Alcanzaste tu límite diario de IA. Volvé a consultar más tarde.',
+};
 
 function Findings({ title, items, references }: { title: string; items: Finding[]; references: Map<string, string> }) {
   return <section><h4>{title}</h4>{items.length ? <ul>{items.map((item, index) =>
@@ -25,7 +31,7 @@ function Findings({ title, items, references }: { title: string; items: Finding[
 function Analysis({ data }: { data: Summary }) {
   const references = new Map((data.state === 'READY' ? data.evidenceReferences ?? [] : []).map(item => [item.ref, item.title]));
   return <>
-    <Notice>{messages[data.state]}</Notice>
+    <Notice>{data.state === 'FAILED' && isAiBudgetRejectionCode(data.error) ? budgetMessages[data.error] : messages[data.state]}</Notice>
     {data.generatedAt ? <p>Actualizado: {new Date(data.generatedAt).toLocaleString('es-AR')}</p> : null}
     {data.report && (data.state === 'READY' || data.state === 'STALE') ? <>
       <p>{data.report.overview}</p>

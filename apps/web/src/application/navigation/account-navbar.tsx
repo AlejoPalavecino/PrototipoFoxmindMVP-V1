@@ -8,6 +8,7 @@ import { createWebClassroomClient } from '../clients/classroom-client.ts';
 import type { AccountSession } from '../../features/identity/index.ts';
 import type { Classroom } from '../../../../../src/core/contracts/classrooms.ts';
 import { createBrujulaSearchClient } from '../../../../shared-ui/brujula-search-client.ts';
+import { AiQuotaIndicator } from './ai-quota-indicator.tsx';
 
 /** The page supplies its existing session and logout operation. */
 export function AccountNavbar({ session, view, signInHref = '/sign-in', registerHref = '/register', verifyHref = '/verify-email', accountActions, minimal = false, onNavigate }: {
@@ -44,6 +45,7 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
     {accountActions}
   </header>;
   return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
+    quotaIndicator={user && verified ? <AiQuotaIndicator key={user.id} subjectId={user.id} /> : undefined}
     search={verified ? search : undefined}
     avatarKey={user?.avatarKey} accountRole={user?.accountRole} classroomLinks={rooms?.subject===user?.id ? rooms?.items.filter(room=>!room.archived).map(room=>({href:`/mis-aulas?aula=${encodeURIComponent(room.id)}`,label:room.name,coverKey:room.coverKey})):undefined}
     displayName={user ? `${user.firstName} ${user.lastName}` : undefined} accountEmail={user?.email} currentPath={view ? `/${view}` : undefined}

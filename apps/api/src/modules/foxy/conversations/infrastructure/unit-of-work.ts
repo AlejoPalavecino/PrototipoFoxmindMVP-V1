@@ -5,7 +5,8 @@ export type { FoxyActor } from '../../application/ports.ts';
 type Authenticate = (tx: SqlTransaction, request: unknown, write: boolean) => Promise<string>;
 const publicCodes = new Set(['INVALID_INPUT', 'NOT_FOUND', 'FORBIDDEN', 'CONFLICT', 'SERVICE_UNAVAILABLE',
   'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'CSRF_INVALID', 'ORIGIN_NOT_ALLOWED', 'RATE_LIMITED',
-  'FILE_NOT_READY', 'QUOTA_EXCEEDED', 'AI_INPUT_LIMIT', 'EMPTY_CONTENT', 'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED']);
+  'FILE_NOT_READY', 'QUOTA_EXCEEDED', 'AI_INPUT_LIMIT', 'EMPTY_CONTENT', 'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED',
+  'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED']);
 type UserRow = { id: string; account_role: string; email_verified_at: Date | null };
 function forbidden(): never { throw Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }); }
 function identity(value: unknown): string {

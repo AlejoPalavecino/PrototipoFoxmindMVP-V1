@@ -7,6 +7,7 @@ export async function runGenerationCommand(tx: StudyQuery, r: FolderRow, p: Reco
         const c = s.creations.find(c => c.id === studyId(p.creationId));
         if (!c)
             studyFail('FORBIDDEN');
+        if (c.kind === 'IMAGE') studyFail('INVALID_INPUT');
         c.title = studyText(p.title);
         c.markdown = studyText(p.body, 80000);
         c.revision = Number(c.revision ?? 1) + 1;

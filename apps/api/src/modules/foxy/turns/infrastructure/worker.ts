@@ -1,3 +1,6 @@
+import { usageFromAiFailure } from '../../../../platform/ai/execution.ts';
+import { recordObservedCost } from '../../../../platform/ai/observed-cost.ts';
+import { lockAiAdmission } from '../../../../platform/ai/admission.ts';
 import type { FoxyTextInput, FoxyTextResponse } from '../../../../../../../src/core/domain/foxy/text.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
@@ -40,12 +43,13 @@ function code(error: unknown, reserved: boolean): string {
   const actual = String((error as { code?: unknown })?.code ?? '');
   if (actual === 'INVALID_AI_OUTPUT') return actual;
   if (reserved) return 'PROVIDER_OUTCOME_UNKNOWN';
-  if (['AI_TIMEOUT', 'AI_INPUT_LIMIT', 'AI_RATE_LIMITED', 'AI_UNAVAILABLE'].includes(actual)) return actual;
+  if (['AI_MONTHLY_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_BUDGET_EXCEEDED', 'AI_TIMEOUT', 'AI_INPUT_LIMIT', 'AI_RATE_LIMITED', 'AI_UNAVAILABLE'].includes(actual)) return actual;
   return 'AI_UNAVAILABLE';
 }
 async function reserve(options: Options, lease: FoxyTurnLease, prepared: Prepared, signal: AbortSignal) {
   return options.database.$transaction(async raw => {
     const tx: SqlTransaction = { query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) };
+    await lockAiAdmission(tx);
     await tx.query('SELECT id FROM users WHERE id=$1::uuid FOR SHARE', lease.ownerId);
     if (prepared.scope.snapshot.context.kind === 'CLASSROOM') await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR SHARE', prepared.scope.snapshot.context.classroomId);
     await tx.query('SELECT id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid FOR SHARE', lease.conversationId, lease.ownerId);
@@ -125,15 +129,21 @@ export function createFoxyTextWorker(options: Options) {
         }
       } catch (error) {
         outcome = { state: 'FAILED', errorCode: code(error, dispatched),
-          ...(reserved && !dispatched ? { usage: { inputTokens: 0, outputTokens: 0 } } : {}) };
+          usage: reserved && !dispatched ? { inputTokens: 0, outputTokens: 0 } : usageFromAiFailure(error) };
       }
       try {
         if (lease.queueMs !== undefined) timing.stage('queue', lease.queueMs);
+        let committed = false;
         if (!shutdownComplete && shouldFinish && outcome) {
-          await timing.measure('persist', () => options.completion.finish(lease, outcome),
+          committed = await timing.measure('persist', () => options.completion.finish(lease, outcome),
             committed => committed ? undefined : {
               code: options.previews?.wasCancelled(controller.signal) ? 'CANCELLED' : 'STALE',
             });
+        }
+        if (!committed && reserved && outcome?.usage) {
+          await options.database.$transaction(raw => recordObservedCost(
+            { query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) },
+            { namespace: 'foxy_turns', jobId: lease.turnId, ownerId: lease.ownerId }, outcome.usage), { maxWait: 2000, timeout: 6000 });
         }
       }
       finally { clearTimeout(deadline); controllers.delete(controller); if (prepared) options.authority.close(prepared.scope); }

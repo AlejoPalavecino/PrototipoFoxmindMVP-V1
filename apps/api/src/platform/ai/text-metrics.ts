@@ -12,7 +12,7 @@ const flows = new Set(['chat', 'tool', 'feedback']);
 const providers = new Set(['gemini', 'anthropic']);
 const codes = new Set(['COMPLETED', 'AI_UNAVAILABLE', 'AI_INPUT_LIMIT', 'AI_RATE_LIMITED', 'AI_TIMEOUT',
   'PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT', 'FORBIDDEN', 'AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED',
-  'SOURCE_UNAVAILABLE', 'CONFLICT', 'QUOTA_EXCEEDED', 'AI_BUDGET_EXCEEDED', 'AI_BUSY', 'CANCELLED', 'STALE']);
+  'SOURCE_UNAVAILABLE', 'CONFLICT', 'QUOTA_EXCEEDED', 'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED', 'AI_BUSY', 'CANCELLED', 'STALE']);
 export function createAiTextMetricSink(write: (line: string) => void,
   options: { maxEvents?: number; windowMs?: number; now?: () => number } = {}) {
   const now = options.now ?? Date.now;

@@ -1,6 +1,10 @@
 // Deliberate inventory: no helper discovery or opt-in/live-provider tests.
 export const suites = {
   study: [
+    'tests/monthly-ai-quota-database.test.mjs',
+    'tests/study-image-database.test.mjs',
+    'tests/ai-monthly-budget-database.test.mjs',
+    'tests/ai-quota-completion-race.test.mjs',
     'tests/study-source-concurrency-database.test.mjs',
     'tests/study-ui-audit-regressions.test.mjs',
     'apps/web/src/features/study/model/study-discovery.test.mjs',
@@ -18,6 +22,9 @@ export const suites = {
     'apps/api/src/modules/study/folders/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/ai-cost-reconciliation.test.mjs',
+    'tests/monthly-ai-quota-errors.test.mjs',
+    'tests/monthly-ai-quota-client.test.mjs',
     'apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-stream.test.mjs',
     'apps/api/src/platform/ai/text-client.test.mjs',
     'tests/backend-academic-runtime.test.mjs',
@@ -112,6 +119,7 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'tests/monthly-ai-quota-transport.test.mjs',
     'tests/agenda-client-http.test.mjs',
     'tests/proxy-rejection-lifecycle.test.mjs',
     'tests/ux-chat-polish.test.mjs',

@@ -113,8 +113,14 @@ export function createFoxyChatController(options: Options) {
       if ((error as { code?: string }).code === 'INVALID_INPUT') {
         update({ busy: false, pending: null, error: 'Revisá el mensaje antes de enviarlo.' }); return 'invalid' as const;
       }
+      if ((error as { code?: string }).code === 'AI_MONTHLY_BUDGET_EXCEEDED') {
+        update({ busy: false, pending: null, error: 'El saldo mensual de IA disponible no alcanza para esta generación. Revisá tu cuota en la cabecera.' }); return 'invalid' as const;
+      }
       if ((error as { code?: string }).code === 'AI_BUDGET_EXCEEDED') {
-        update({ busy: false, pending: null, error: 'Se agotó el cupo de IA. Podés volver a intentar cuando se renueve.' }); return 'invalid' as const;
+        update({ busy: false, pending: null, error: 'Alcanzaste tu límite diario de IA. Volvé a intentar cuando se renueve.' }); return 'invalid' as const;
+      }
+      if ((error as { code?: string }).code === 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED') {
+        update({ busy: false, pending: null, error: 'FoxMind alcanzó su límite diario general de IA. Volvé a intentar cuando se renueve.' }); return 'invalid' as const;
       }
       update({ busy: false, error: 'No pudimos confirmar el envío. Podés reintentar.' }); return 'uncertain' as const;
     }

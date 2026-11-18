@@ -7,6 +7,8 @@ import { reserve, settle } from './budget.ts';
 import { bounded, errorCode, prepare, proposal } from './execution.ts';
 import { validSource, requireGrant } from './worker-source.ts';
 import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
+import { usageFromAiFailure } from '../../../../../platform/ai/execution.ts';
+import { recordObservedCost } from '../../../../../platform/ai/observed-cost.ts';
 interface Outcome { proposal?: ActivityProposal; error?: JobRow['error_code']; missing?: string[];
   report?: ActivitySourceReport[]; usage?: { inputTokens: number | null; outputTokens: number | null } }
 export class ActivityAiWorker {
@@ -91,13 +93,17 @@ export class ActivityAiWorker {
       prepared = await prepare(options, row, grants, signal);
     }
     catch (error) { return { error: errorCode(error, false) }; }
-    if (!await this.dispatch(row, signal, prepared.count, options)) return { error: 'AI_BUDGET_EXCEEDED' };
+    try {
+      if (!await this.dispatch(row, signal, prepared.count, options)) return { error: 'AI_BUDGET_EXCEEDED' };
+    } catch (error) { return { error: errorCode(error, false) }; }
+    let usage: Outcome['usage'];
     try {
       const result = await bounded(() => options.provider.generateActivity(prepared.input), signal);
+      usage = result;
       const parsed = proposal(result.json, prepared.input);
       return { ...parsed, error: parsed.missing ? 'INSUFFICIENT_CONTENT' : null, usage: result,
         report: prepared.input.sources.map(s => ({ sourceId: s.sourceId, status: 'READ', pageCount: s.pageCount, warnings: s.warnings })) };
-    } catch (error) { return { error: errorCode(error, true) }; }
+    } catch (error) { return { error: errorCode(error, true), usage: usage ?? usageFromAiFailure(error) }; }
   }
   private dispatch(row: JobRow, signal: AbortSignal, count: number, options: ActivityAiOptions): Promise<boolean> {
     return transaction(options, async tx => {
@@ -111,7 +117,7 @@ export class ActivityAiWorker {
     return transaction(options, async tx => {
       const valid = await validSource(options, tx, row, signal.aborted ? new AbortController().signal : signal, this.sources.get(row.id));
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
-      if (!current) return;
+      if (!current) return recordObservedCost(tx, { namespace: 'activity_ai_generations', jobId: row.id, ownerId: row.owner_id }, outcome.usage);
       await this.finish(tx, row, !valid ? 'STALE' : outcome.error || current.expired ? 'FAILED' : 'READY',
         current.expired ? { ...outcome, error: current.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_TIMEOUT' } : outcome, options);
     });

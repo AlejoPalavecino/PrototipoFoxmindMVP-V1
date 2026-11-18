@@ -12,7 +12,7 @@ const config={enabled:{IMAGE:true,DIAGRAM:true},profiles:{IMAGE:profileImage,DIA
 const graph={schemaVersion:'foxy-diagram-v1',title:'Ciclo del agua',description:'Esquema sintético',direction:'TOP_DOWN',nodes:[{id:'agua',label:'Agua'},{id:'vapor',label:'Vapor'}],edges:[{from:'agua',to:'vapor',label:'evaporación'}]};
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const openingBrief='Para enseñar apertura, dibujá sobre fondo blanco dos círculos del mismo tamaño, uno con abertura pequeña y otro con abertura grande. Dos flechas frente al primero y seis frente al segundo. Una comparación sencilla y sin texto.';
-for(const [kind,classroom,local] of [['IMAGE',false,false],['DIAGRAM',true,false],['IMAGE',false,true]])test(`${kind} ${local?'local':'provider'} visual is scanned, persisted and served privately`,{timeout:120000},async()=>{
+for(const [kind,classroom,local] of [['IMAGE',false,null],['DIAGRAM',true,null],['IMAGE',false,'actor'],['IMAGE',false,'global']])test(`${kind} ${local?`local (${local} quota)`:'provider'} visual is scanned, persisted and served privately`,{timeout:120000},async()=>{
  const [{createFoxyRuntime},{FileService},{FileError}]=await Promise.all([import("../../../../../bootstrap/foxy-runtime.ts"),import("../../../../files/custody/infrastructure/service.ts"),import("../../../../files/domain/errors.ts")]);
  await withAiDatabase(async({pool,database})=>{
   const query=async(sql,...args)=>(await pool.query(sql,args)).rows,f=await homeFixture(query),owner={id:f.teacherActor},events=[],blobs=new Map(),pending=new Set();
@@ -24,7 +24,7 @@ for(const [kind,classroom,local] of [['IMAGE',false,false],['DIAGRAM',true,false
   const png=await sharp({create:{width:40,height:30,channels:3,background:'#42886c'}}).png().toBuffer(),provider=type=>({countTokens:async()=>{events.push(`${type}:count`);return 12;},generate:async()=>{events.push(`${type}:generate`);return type==='IMAGE'?{bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}}:{diagram:graph,usage:{inputTokens:12,outputTokens:20}};}});
   const options={database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage,configuration:null,provider:null,
    visualConfiguration:local?{...config,privateQuotaBytes:20971520n,profiles:{...config.profiles,IMAGE:{...profileImage,profileVersion:'foxy-gemini-image-v4'}}}:config,
-   visualProviders:{IMAGE:provider('IMAGE'),DIAGRAM:provider('DIAGRAM')},visualBudgetLimits:{dailyBudgetUsd:local?0.000001:1,dailyActorRequests:local?1:5,dailyGlobalRequests:10}};
+   visualProviders:{IMAGE:provider('IMAGE'),DIAGRAM:provider('DIAGRAM')},visualBudgetLimits:{dailyBudgetUsd:local?0.000001:1,dailyActorRequests:local==='actor'?1:5,dailyGlobalRequests:local==='global'?1:10}};
   const runtime=createFoxyRuntime(options);
   try{
    const activity=classroom?await f.activity('teach'):null;if(activity)await query("UPDATE activities SET instructions_text='Actividad sintética' WHERE id=$1",activity.id);
@@ -51,7 +51,7 @@ for(const [kind,classroom,local] of [['IMAGE',false,false],['DIAGRAM',true,false
     const next=await runtime.services.visuals.start(owner,nextChat.conversation.id,{...input,requestId:randomUUID()});
     assert.equal(await runtime.visualWorker.runOnce(),true);
     const exceeded=await runtime.services.visuals.get(owner,nextChat.conversation.id,next.job.id);
-    assert.equal(exceeded.state,'FAILED');assert.equal(exceeded.errorCode,'AI_BUDGET_EXCEEDED');
+    assert.equal(exceeded.state,'FAILED');assert.equal(exceeded.errorCode,local==='global'?'AI_GLOBAL_DAILY_BUDGET_EXCEEDED':'AI_BUDGET_EXCEEDED');
    }
    await runtime.onModuleDestroy();const restarted=createFoxyRuntime(options);
    try{const loaded=await restarted.services.visuals.get(owner,conversation.id,job.id);assert.equal(loaded.state,'READY');const again=await restarted.services.privateAssetReader.readFile(owner,loaded.assetId,'download',new AbortController().signal);assert.equal(sha(again.bytes),asset.digest);assert.equal(events.filter(x=>x===`${kind}:generate`).length,local?0:1);}

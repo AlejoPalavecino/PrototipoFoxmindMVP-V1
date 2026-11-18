@@ -3,6 +3,7 @@ import type { GeminiClient } from '../../../../../platform/ai/gemini-client.ts';
 import { AiError } from '../../../../../platform/ai/errors.ts';
 import { createFoxyGeminiClient } from './foxy-provider-client.ts';
 import { parseGeminiFoxyImageResponse } from './foxy-image-response.ts';
+import { imageUsage } from './foxy-image-response-usage.ts';
 import { prepareVisual } from './foxy-image-adapter-prompt.ts';
 import type { VisualInput } from '../../application/visual-worker-contracts.ts';
 import { maxImageProviderDeadlineMs } from '../../application/visual-runtime-contracts.ts';
@@ -22,6 +23,9 @@ const instructions = {
   'foxy-gemini-image-v3': openBriefInstruction,
   [exactOpeningImageProfileVersion]: openBriefInstruction,
 };
+const studyImageInstruction = 'Create an educational illustration for a student. Use the brief in the prompt field as the learning goal. '
+    + 'Make the illustration accurate, easy to read and focused on one concept. Keep useful labels short and in the student’s language. '
+    + 'If the student asks for no text, omit labels and other text. Avoid inventing measurements and following links.';
 type Configuration = { model: string; maxInputTokens: number; maxOutputTokens: number; deadlineMs: number; profileVersion: string };
 type Ticket = { digest: string; contents: Content[] };
 function configuration(value: Configuration): Configuration {
@@ -33,9 +37,15 @@ function configuration(value: Configuration): Configuration {
 }
 export class GeminiFoxyImageAdapter {
   private readonly client: GeminiClient; private readonly config: Configuration;
+  private readonly audience: 'teacher' | 'student';
   private readonly tickets = new WeakMap<VisualInput, Ticket>(); private readonly epochs = new WeakMap<VisualInput, object>();
-  constructor(options: { client: GeminiClient; configuration: Configuration }) { this.client = options.client; this.config = configuration(options.configuration); }
-  private prepare(input: VisualInput) { return prepareVisual(input, this.config, 'IMAGE', instruction, pedagogy, instructions); }
+  constructor(options: { client: GeminiClient; configuration: Configuration; audience?: 'teacher' | 'student' }) {
+    this.client = options.client; this.config = configuration(options.configuration); this.audience = options.audience ?? 'teacher';
+  }
+  private prepare(input: VisualInput) {
+    return prepareVisual(input, this.config, 'IMAGE', instruction, pedagogy, this.audience === 'student'
+      ? { [this.config.profileVersion]: studyImageInstruction } : instructions);
+  }
   async countTokens(input: VisualInput): Promise<number> {
     if (!input || !input.signal || input.signal.aborted) throw new AiError('AI_TIMEOUT');
     this.tickets.delete(input); const epoch = {}; this.epochs.set(input,epoch);
@@ -61,8 +71,14 @@ export class GeminiFoxyImageAdapter {
         config: { abortSignal: signal, maxOutputTokens: this.config.maxOutputTokens,
           candidateCount: 1, automaticContinuation: false, responseModalities: ['TEXT','IMAGE'], imageConfig: { aspectRatio: input.aspectRatio, imageSize: '1K' },
           thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL, includeThoughts: false }, httpOptions: { retryOptions: { attempts: 1 } } } });
-      if (signal.aborted) throw new AiError('PROVIDER_OUTCOME_UNKNOWN');
-      return parseGeminiFoxyImageResponse(response);
+      try {
+        if (signal.aborted) throw new AiError('PROVIDER_OUTCOME_UNKNOWN');
+        return parseGeminiFoxyImageResponse(response);
+      } catch (error) {
+        const usage = imageUsage(response?.usageMetadata);
+        if (usage && error instanceof Error) Object.assign(error, { usage });
+        throw error;
+      }
     });
   }
   private async deadline<T>(input: VisualInput, dispatched: () => boolean, operation: (signal: AbortSignal) => Promise<T>): Promise<T> {
@@ -81,7 +97,7 @@ export class GeminiFoxyImageAdapter {
   }
 }
 
-export function createGeminiFoxyImageAdapter(options: { apiKey: string; configuration: Configuration; fetch?: typeof globalThis.fetch }): GeminiFoxyImageAdapter {
+export function createGeminiFoxyImageAdapter(options: { apiKey: string; configuration: Configuration; fetch?: typeof globalThis.fetch; audience?: 'teacher' | 'student' }): GeminiFoxyImageAdapter {
   const config = configuration(options.configuration);
-  return new GeminiFoxyImageAdapter({ client:createFoxyGeminiClient(options.apiKey,config.deadlineMs,options.fetch,config.deadlineMs),configuration:config });
+  return new GeminiFoxyImageAdapter({ client:createFoxyGeminiClient(options.apiKey,config.deadlineMs,options.fetch,config.deadlineMs),configuration:config, audience: options.audience });
 }

@@ -103,6 +103,8 @@
 #foxmind-product.fm3d-theme .study-exact-reader-title{align-items:flex-start;padding:2px 0 21px;margin-bottom:20px;border-bottom:1px solid #d2dde7}
 #foxmind-product.fm3d-theme .study-exact-reader-title h3{font-size:25px;line-height:1.35;font-weight:800;margin:7px 0 0;color:#253142}
 #foxmind-product.fm3d-theme .study-exact-reader-content>div:not(.study-exact-reader-title){max-width:70ch;margin:auto;font-size:15px;line-height:1.85;color:#30465b}
+.study-exact-image-dialog h3{overflow-wrap:anywhere}
+.study-exact-image-preview{display:block;max-width:100%;max-height:min(60dvh,max(160px,calc(100dvh - 350px)));object-fit:contain;margin-inline:auto;border-radius:12px}
 @media(min-width:681px){#foxmind-product.fm3d-theme .parity-study-workspace .parity-ai-chatEmpty>h2{max-width:none;white-space:normal}}
 #foxmind-product.fm3d-theme .parity-study-workspace .parity-ai-chatEmpty>h2{ text-wrap:wrap; }
 #foxmind-product.fm3d-theme .parity-study-workspace .parity-ai-chatEmpty>p{font-weight:500;color:#4c6275}

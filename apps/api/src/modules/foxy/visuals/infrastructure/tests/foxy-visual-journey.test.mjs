@@ -55,15 +55,19 @@ test('shared budget marks one dispatch and settles unknown usage at full quote e
   [job]=await x.query('SELECT dispatch_count,reserved_microusd,usage_day FROM foxy_visual_jobs WHERE id=$1',lease.jobId);assert.equal(job.dispatch_count,1);assert.equal(BigInt(job.reserved_microusd),0n);assert.deepEqual(job.usage_day,originalDay);
   const ledger=await x.query("SELECT scope,reserved_microusd,consumed_microusd FROM ai_usage_daily WHERE capability='study-plan-v1' AND scope IN ('global',$1) ORDER BY scope",x.f.teacherActor);
   assert.equal(ledger.length,2);for(const row of ledger){assert.equal(BigInt(row.reserved_microusd),0n);assert.equal(BigInt(row.consumed_microusd),139264n);}
+  const [monthly] = await x.query('SELECT status,actor_microusd FROM ai_monthly_reservations WHERE job_id=$1', lease.jobId);
+  assert.deepEqual(monthly, { status: 'PENDING', actor_microusd: '0' });
  });
 });
 test('known provider usage exceeding profile caps is recorded without clipping to reservation', {timeout:120000},async()=>{
  const api=await modules(),[{createFoxyVisualQueue},{createFoxyVisualBudget}]=await Promise.all([import("../../../../../bootstrap/foxy-service-factories.ts"),import("../visual-budget.ts")]);
  await withAiDatabase(async({pool})=>{const x=await setup(pool,api);await x.service.start(x.owner,x.conversation.id,command());const budget=createFoxyVisualBudget({limits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}}),queue=createFoxyVisualQueue({database:x.database,configuration,budget}),lease=await queue.claim();
   const tx=fn=>x.database.$transaction(raw=>fn({query:(sql,...args)=>raw.$queryRawUnsafe(sql,...args)}));assert.equal(await tx(t=>budget.reserve(t,lease,12)),'RESERVED');
-  assert.equal(await tx(t=>budget.settle(t,lease,{inputTokens:70000,outputTokens:5000})),true);
+  assert.equal(await tx(t=>budget.settle(t,lease,{inputTokens:70000,outputTokens:5000,textOutputTokens:500,imageOutputTokens:4500})),true);
   const rows=await x.query("SELECT reserved_microusd,consumed_microusd FROM ai_usage_daily WHERE capability='study-plan-v1' AND scope IN ('global',$1)",x.f.teacherActor);
-  assert.equal(rows.length,2);for(const row of rows){assert.equal(BigInt(row.reserved_microusd),0n);assert.equal(BigInt(row.consumed_microusd),167500n);}
+  assert.equal(rows.length,2);for(const row of rows){assert.equal(BigInt(row.reserved_microusd),0n);assert.equal(BigInt(row.consumed_microusd),153250n);}
+  const [monthly] = await x.query('SELECT status,actor_microusd,platform_microusd FROM ai_monthly_reservations WHERE job_id=$1', lease.jobId);
+  assert.deepEqual(monthly, { status: 'SETTLED', actor_microusd: '139264', platform_microusd: '13986' });
  });
 });
 test('discarding linked asset before dispatch prevents budget reservation and dispatch marker', {timeout:120000},async()=>{

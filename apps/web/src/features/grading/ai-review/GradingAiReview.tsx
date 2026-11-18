@@ -3,7 +3,13 @@ import type { GradingAiReviewOperations } from '../model/grading-operations.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import styles from '../ui/grading.module.css';
 import { useGradingAiReview } from './use-grading-ai-review.ts';
+import { isAiBudgetRejectionCode, type AiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
 
+const budgetMessages: Record<AiBudgetRejectionCode, string> = {
+  AI_MONTHLY_BUDGET_EXCEEDED: 'El saldo mensual de IA no alcanza para esta sugerencia.',
+  AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 'FoxMind alcanzó su límite diario general de IA.',
+  AI_BUDGET_EXCEEDED: 'Alcanzaste tu límite diario de IA.',
+};
 
 export function GradingAiReview({ operations, roomId, attemptId, revision, dirty, onApplied, onBusyChange, disabled = false }: {
   operations: GradingAiReviewOperations; roomId: string; attemptId: string; revision: string; dirty: boolean;
@@ -13,13 +19,14 @@ export function GradingAiReview({ operations, roomId, attemptId, revision, dirty
 }) {
   const { job, proposal, loading, busy, error, setError, reviewing, setReviewing, expanded, setExpanded,
     confirm, setConfirm, load, setLoading, edit, run } = useGradingAiReview({ operations, revision, onApplied, onBusyChange, disabled });
+  const budgetError = isAiBudgetRejectionCode(job?.error) ? budgetMessages[job.error] : null;
   return <section aria-label="Sugerencia de corrección con IA" className={`p8-ai-review parity-grading-ai ${styles.assistant}`} aria-busy={loading || busy}>
     <button className="parity-grading-ai-toggle" type="button" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>Sugerencia de Foxy{proposal && job?.state === 'READY' ? ' · Disponible' : ''}</button><div hidden={!expanded}>
     <p>La sugerencia es privada. Revisala antes de usarla; aplicar no publica la calificación.</p>
     {error && !reviewing ? <Notice error>{error} La corrección manual sigue disponible.</Notice> : null}
     {loading ? <p role="status">Consultando sugerencia…</p> : null}
     {!loading && !error && !job ? <p>No hay una sugerencia para esta entrega.</p> : null}
-    {job && job.state !== 'READY' ? <p role="status">Estado: {job.state === 'QUEUED' ? 'Pendiente' : job.state === 'RUNNING' ? 'En preparación' : job.state === 'FAILED' ? 'No disponible. Podés seguir corrigiendo manualmente.' : job.state === 'STALE' ? 'Desactualizada' : job.state === 'APPLIED' ? 'Aplicada de forma privada' : 'Descartada'}</p> : null}
+    {job && job.state !== 'READY' ? <p role="status">Estado: {job.state === 'QUEUED' ? 'Pendiente' : job.state === 'RUNNING' ? 'En preparación' : job.state === 'FAILED' ? `${budgetError ?? 'No disponible.'} Podés seguir corrigiendo manualmente.` : job.state === 'STALE' ? 'Desactualizada' : job.state === 'APPLIED' ? 'Aplicada de forma privada' : 'Descartada'}</p> : null}
     {proposal && job?.state === 'READY' ? <>
       <button type="button" disabled={busy || disabled} aria-haspopup="dialog" onClick={() => setReviewing(true)}>Revisar sugerencia</button>
       {reviewing ? <Dialog title="Revisar sugerencia" className={styles.aiProposal} onClose={() => {

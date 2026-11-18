@@ -3,6 +3,7 @@ import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/
 import type { FoxyAnswer } from '../../../../../../../src/core/domain/foxy/resource.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
 import { checkClaimStatus } from './claim-authority-check.ts';
+import { lockAiAdmission } from '../../../../platform/ai/admission.ts';
 
 type Usage = { inputTokens: number | null; outputTokens: number | null };
 type Result = { state: 'READY'; answer: FoxyAnswer; referenceMap: unknown[]; sourceReport: unknown[]; usage?: Usage }
@@ -21,6 +22,7 @@ function validResult(input: Result): Result {
   return error();
 }
 async function acquire(tx: SqlTransaction, lease: FoxyTurnLease): Promise<Locked | null> {
+  await lockAiAdmission(tx);
   await tx.query('SELECT id FROM users WHERE id=$1::uuid FOR SHARE', lease.ownerId);
   const [scope] = await tx.query<{ classroom_id: string | null }>(
     'SELECT classroom_id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid', lease.conversationId, lease.ownerId);

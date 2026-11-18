@@ -1,3 +1,5 @@
+import type { AiBudgetRejectionCode, AiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
+
 export interface StudyTopic {
   id: string;
   title: string;
@@ -43,13 +45,15 @@ export interface StudySource {
 }
 export interface StudyGeneration {
   requestId: string;
-  kind: 'NOTE' | 'OUTLINE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
+  kind: 'NOTE' | 'OUTLINE' | 'IMAGE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
   topicIds: string[];
   sourceIds?: string[];
   questionCount: number;
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   status: 'PENDING' | 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'INSUFFICIENT';
   reason?: 'INTERRUPTED';
+  errorCode?: AiBudgetRejectionCode;
+  quota?: AiMonthlyQuotaRejection;
   missingInformation?: string[];
 }
 export interface StudyTurn {
@@ -128,6 +132,7 @@ export interface StudyExam {
 }
 export interface StudyDetail {
   folder: StudyFolder;
+  imageGenerationAvailable?: boolean;
   sources: StudySource[];
   conversations: StudyConversation[];
   creations: StudyCreation[];

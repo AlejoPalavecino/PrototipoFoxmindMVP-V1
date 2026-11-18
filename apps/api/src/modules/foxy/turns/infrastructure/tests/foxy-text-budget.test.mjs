@@ -7,11 +7,11 @@ import { homeFixture } from "../../../../../../../../tests/foxmind-3d-repository
 const hash = 'a'.repeat(64), metadata = { model: 'synthetic', promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' };
 const config = { maxConcurrency: 1, deadlineMs: 30000, maxJobAgeMs: 300000, dailyActorRequests: 5, dailyGlobalRequests: 20,
   maxOutputTokens: 100, inputUsdPerMillion: 2, outputUsdPerMillion: 3, dailyBudgetUsd: 1 };
-async function start(api, query, owner) {
+async function start(api, query, owner, purpose = 'CHAT') {
   const tx = { query }, conversations = api.createFoxyConversationRepository(), turns = api.createFoxyTurnRepository();
   const context = { kind: 'GENERAL' };
   const { conversation } = await conversations.create(tx, owner, { requestId: randomUUID(), title: 'Presupuesto', context }, hash);
-  const input = { requestId: randomUUID(), revision: '0', purpose: 'CHAT', text: 'Consulta', selection: { topicIds: [], sourceIds: [] } };
+  const input = { requestId: randomUUID(), revision: '0', purpose, text: 'Consulta', selection: { topicIds: [], sourceIds: [] } };
   await turns.enqueue(tx, owner, conversation.id, input, { context, curriculum: null, sources: [] }, hash, metadata);
   const database = { $transaction: fn => fn({ $queryRawUnsafe: query }) }, q = api.createFoxyTurnQueue({ database, configuration: config });
   const lease = await q.claim(); assert.ok(lease);
@@ -26,8 +26,8 @@ test('Foxy text reservations share ledger and survive fenced transactional settl
   const api = await Promise.all([import("../../../conversations/infrastructure/conversation-repository.ts"),import("../context-catalog.ts"),import("../assemble-grounding.ts"),import("../grounding-snapshot.ts"),import("../grounding-loader.ts"),import("../turn-repository.ts"),import("../turn-queue.ts"),import("../text-budget.ts"),import("../claim-authority.ts"),import("../durable-loader.ts"),import("../../../domain/provider-input.ts"),import("../turn-completion.ts"),import("../turn-claimed-reader.ts"),import("../turn-preparation.ts"),import("../worker.ts"),import("../../../conversations/infrastructure/unit-of-work.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../presentation/http.ts"),import("../../../citations/infrastructure/citation-mapping.ts"),import("../../../../../bootstrap/foxy-runtime.ts"),import("../../../../../bootstrap/foxy-host.ts"),import("../turn-recovery.ts"),import("../../../resources/infrastructure/resource-repository.ts"),import("../../../publications/infrastructure/publication-repository.ts"),import("../../../publications/infrastructure/publication-queue.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../publications/infrastructure/pdf-worker.ts"),import("../../../publications/infrastructure/publication-worker.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../publications/application/publication-service.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../../../bootstrap/foxy-service-factories.ts"),import("../../../publications/infrastructure/publication-cleanup.ts"),import("../../../publications/application/publication-management-service.ts"),import("../../../visuals/infrastructure/visual-configuration.ts"),import("../../../../../bootstrap/foxy-visual-host-providers.ts"),import("../../../private-assets/infrastructure/private-asset-read-repository.ts"),import("../../../private-assets/infrastructure/private-asset-reader.ts"),import("../../../private-assets/application/private-asset-read-service.ts"),import("../../../private-assets/infrastructure/private-asset-discard-repository.ts"),import("../../../private-assets/application/private-asset-discard-service.ts"),import("../../../resources/infrastructure/creation-repository.ts"),import("../../../resources/application/creation-service.ts")]).then(([m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,m31,m32,m33,m34,m35,m36,m37,m38,m39,m40,m41,m42,m43,m44]) => Object.freeze({createFoxyConversationRepository: m0.createFoxyConversationRepository,FoxyContextCatalogService: m1.FoxyContextCatalogService,assembleFoxyGrounding: m2.assembleFoxyGrounding,FoxyGroundingSnapshotService: m3.FoxyGroundingSnapshotService,FoxyGroundingLoader: m4.FoxyGroundingLoader,createFoxyTurnRepository: m5.createFoxyTurnRepository,createFoxyTurnQueue: m6.createFoxyTurnQueue,createFoxyTextBudget: m7.createFoxyTextBudget,createFoxyClaimAuthority: m8.createFoxyClaimAuthority,createFoxyDurableLoader: m9.createFoxyDurableLoader,projectFoxyTextInput: m10.projectFoxyTextInput,createFoxyTurnCompletion: m11.createFoxyTurnCompletion,createFoxyClaimedTurnReader: m12.createFoxyClaimedTurnReader,createFoxyTurnPreparation: m13.createFoxyTurnPreparation,createFoxyTextWorker: m14.createFoxyTextWorker,createFoxyUnitOfWork: m15.createFoxyUnitOfWork,createFoxyConversationService: m16.createFoxyConversationService,createFoxyTurnService: m16.createFoxyTurnService,createFoxyHandler: m17.createFoxyHandler,mapFoxyCitations: m18.mapFoxyCitations,createFoxyCitationService: m16.createFoxyCitationService,createFoxyRuntime: m19.createFoxyRuntime,FOXY_RUNTIME: m19.FOXY_RUNTIME,installFoxyTransport: m20.installFoxyTransport,createFoxyAuthentication: m20.createFoxyAuthentication,createFoxyTurnRecovery: m21.createFoxyTurnRecovery,createFoxyResourceRepository: m22.createFoxyResourceRepository,createFoxyResourceService: m16.createFoxyResourceService,createFoxyPublicationRepository: m23.createFoxyPublicationRepository,createFoxyPublicationQueue: m24.createFoxyPublicationQueue,createFoxyPublicationFileAllocator: m25.createFoxyPublicationFileAllocator,createFoxyPublicationAuthority: m26.createFoxyPublicationAuthority,createFoxyPublicationCompletion: m27.createFoxyPublicationCompletion,createFoxyPdfRenderer: m28.createFoxyPdfRenderer,createFoxyPublicationWorker: m29.createFoxyPublicationWorker,createFoxyPublicationConfirmationRepository: m30.createFoxyPublicationConfirmationRepository,createFoxyPublicationService: m31.createFoxyPublicationService,createFoxyPublicationFileReader: m32.createFoxyPublicationFileReader,createFoxyPublicationManagementRepository: m33.createFoxyPublicationManagementRepository,createFoxyPublicationCleanup: m34.createFoxyPublicationCleanup,createFoxyPublicationManagementService: m35.createFoxyPublicationManagementService,readFoxyVisualConfiguration: m36.readFoxyVisualConfiguration,selectFoxyVisualProviders: m37.selectFoxyVisualProviders,createFoxyPrivateAssetReadRepository: m38.createFoxyPrivateAssetReadRepository,createFoxyPrivateAssetReader: m39.createFoxyPrivateAssetReader,createFoxyPrivateAssetReadService: m40.createFoxyPrivateAssetReadService,createFoxyPrivateAssetDiscardRepository: m41.createFoxyPrivateAssetDiscardRepository,createFoxyPrivateAssetDiscardService: m42.createFoxyPrivateAssetDiscardService,createFoxyCreationRepository: m43.createFoxyCreationRepository,createFoxyCreationService: m44.createFoxyCreationService})); assert.equal(typeof api.createFoxyTextBudget, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
-    const check = (name, operation) => t.test(name, () => transaction(async ({ query }) => {
-      const f = await homeFixture(query), { lease, tx } = await start(api, query, f.teacherActor);
+    const check = (name, operation, purpose) => t.test(name, () => transaction(async ({ query }) => {
+      const f = await homeFixture(query), { lease, tx } = await start(api, query, f.teacherActor, purpose);
       await operation({ f, query, lease, tx });
     }));
 
@@ -40,6 +40,14 @@ test('Foxy text reservations share ledger and survive fenced transactional settl
       const [turn] = await query('SELECT dispatch_count,dispatch_started_at,reserved_microusd::text AS reserved FROM foxy_turns WHERE id=$1::uuid', lease.turnId);
       assert.equal(turn.dispatch_count, 1); assert.ok(turn.dispatch_started_at); assert.equal(turn.reserved, '500');
     });
+
+    for (const [purpose, capability] of [['CHAT', 'foxy_chat'], ['SUMMARY', 'foxy_summary'], ['RUBRIC', 'foxy_rubric']]) {
+      await check(`records ${purpose} as ${capability} in the monthly ledger`, async ({ query, lease, tx }) => {
+        const budget = api.createFoxyTextBudget({ configuration: config });
+        assert.equal(await budget.reserve(tx, lease, 100), 'RESERVED');
+        assert.deepEqual(await query('SELECT capability FROM ai_monthly_reservations WHERE namespace=$1 AND job_id=$2', 'foxy_turns', lease.turnId), [{ capability }]);
+      }, purpose);
+    }
 
     await check('lost or expired lease cannot reserve or settle', async ({ query, lease, tx }) => {
       const budget = api.createFoxyTextBudget({ configuration: config }), wrong = { ...lease, leaseNonce: randomUUID() };
@@ -56,7 +64,9 @@ test('Foxy text reservations share ledger and survive fenced transactional settl
       await query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count) VALUES((now() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1',$2)
         ON CONFLICT(day,scope,capability) DO UPDATE SET request_count=$2`, quotaScope, cap);
       const budget = api.createFoxyTextBudget({ configuration: config });
-      assert.equal(await budget.reserve(tx, lease, 100), 'NO_BUDGET');
+      await assert.rejects(budget.reserve(tx, lease, 100), {
+        code: scope === 'global' ? 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' : 'AI_BUDGET_EXCEEDED',
+      });
       const [turn] = await query('SELECT dispatch_count,reserved_microusd::text AS reserved FROM foxy_turns WHERE id=$1::uuid', lease.turnId);
       assert.equal(turn.dispatch_count, 0); assert.equal(turn.reserved, '0');
     });

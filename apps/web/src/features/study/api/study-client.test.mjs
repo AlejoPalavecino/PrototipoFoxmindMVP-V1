@@ -26,6 +26,21 @@ test('internal AI quota explains renewal and retry uses a fresh request identity
   assert.notEqual(requests[0].requestId, requests[1].requestId);
   assert.equal(requests[0].message, requests[1].message);
 });
+test('Study reports both monthly amounts from a rejection or a replayed receipt', async () => {
+  const quota = { availableMicrousd: 1000, requiredMicrousd: 3100, renewsAt: '2026-12-01T03:00:00.000Z' };
+  const code = 'AI_MONTHLY_BUDGET_EXCEEDED';
+  let calls = 0;
+  const client = createStudyClient(async url => {
+    if (url.endsWith('/csrf')) return Response.json({ csrfToken: 'synthetic' });
+    if (++calls === 1) return Response.json({ error: { code, quota } }, { status: 429 });
+    return Response.json({ result: { status: 'FAILED', errorCode: code, quota } });
+  });
+  for (let i = 0; i < 2; i++) {
+    await assert.rejects(client.command(id, '1', 'GENERATE', { kind: 'IMAGE', message: 'Una célula' }), {
+      code, status: 429, message: /Te quedan USD\s0,001 .*hacen falta USD\s0,0031/u,
+    });
+  }
+});
 test('proxy forwards JSON/CSRF and rejects paths, methods and unapproved queries',async()=>{let received;const upstream=createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{received={url:req.url,csrf:req.headers['x-csrf-token'],body};res.writeHead(200,{'Content-Type':'application/json'});res.end('{"ok":true}');});});await new Promise(resolve=>upstream.listen(0,'127.0.0.1',resolve));const target=`http://127.0.0.1:${upstream.address().port}`;const server=createServer((req,res)=>void proxyStudyRequest(req,res,target));await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base=`http://127.0.0.1:${server.address().port}`;try{const ok=await fetch(base+`/api/v1/study-folders/${id}/commands`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':'synthetic'},body:'{"action":"NEW_CONVERSATION"}'});assert.equal(ok.status,200);assert.equal(received.csrf,'synthetic');assert.equal((await fetch(base+'/api/v1/study-folders?secret=yes')).status,400);assert.equal((await fetch(base+'/api/v1/study-folders/unknown')).status,404);assert.equal((await fetch(base+`/api/v1/study-folders/${id}`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:'{}'})).status,405);}finally{server.closeAllConnections();upstream.closeAllConnections();await Promise.all([new Promise(r=>server.close(r)),new Promise(r=>upstream.close(r))]);}});
 test('collection summaries remain lightweight and detail is fetched separately',async()=>{const summary={id,name:'Biología',academicYear:2026,bannerKey:'biology',status:'DRAFT',revision:'3',linkedClassroomId:null,planFileId:null};const paths=[];const api=createStudyClient(async path=>{paths.push(path);return Response.json(path.endsWith(id)?{folder:{...summary,units:[{id,title:'Unidad',topics:[{id,title:'Tema'}]}],materials:[]},sources:[],conversations:[],creations:[],practices:[],exams:[],memory:{}}:{items:[summary],classrooms:[],covers:[]});});const collection=await api.list();assert.equal(Object.hasOwn(collection.items[0],'units'),false);assert.equal(Object.hasOwn(collection.items[0],'materials'),false);const detail=await api.get(collection.items[0].id);assert.equal(detail.folder.units[0].title,'Unidad');assert.deepEqual(paths,['/api/v1/study-folders',`/api/v1/study-folders/${id}`]);});
 import { authHref as classroomAuthHref, safeDestination as classroomDestination } from '../../../application/navigation/destinations.ts';

@@ -41,4 +41,8 @@ export const migrationInventory = Object.freeze([
   '202611160001_foxy_attachment_links',
   '202611160002_foxy_visual_editorial',
   '202611180001_foxy_tagged_pdf',
+  '202611180003_monthly_quota_rejections',
+  '202611180004_study_image_assets',
+  '202611180010_ai_monthly_budget',
+  '202611180011_monthly_ai_integrity',
 ]);

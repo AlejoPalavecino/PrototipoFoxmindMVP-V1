@@ -1,4 +1,5 @@
 import { lockAiAdmission } from '../../../../platform/ai/admission.ts';
+import { settleAiMonthlyBudget } from '../../../../platform/ai/monthly-budget.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 
 export type FoxyTurnReservation = { id: string; owner_id: string; dispatch_count: number; dispatch_started_at: Date | null;
@@ -20,6 +21,7 @@ export async function settleUnobservedFoxyTurn(tx: SqlTransaction, row: FoxyTurn
     consumed_microusd=consumed_microusd+$3::bigint WHERE day=$1::date AND scope IN ('global',$2)
     AND capability='study-plan-v1' RETURNING scope`, row.usage_day, row.owner_id, amount.toString());
   if (updated.length !== 2) invalid();
+  await settleAiMonthlyBudget(tx, { namespace: 'foxy_turns', jobId: row.id, ownerId: row.owner_id }, null);
 }
 export async function recoverFoxyExpired(tx: SqlTransaction): Promise<number> {
   await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');

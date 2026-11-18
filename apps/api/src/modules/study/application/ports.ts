@@ -28,4 +28,4 @@ export interface StudyApplicationPorts extends StudyCommandPorts {
  };
 }
 export type StudyAgendaPort = NonNullable<StudyOptions['agenda']>;
-export type StudyProviderPort = Pick<StudyOptions, 'generate' | 'feedback'>;
+export type StudyProviderPort = Pick<StudyOptions, 'generate' | 'feedback' | 'images'>;

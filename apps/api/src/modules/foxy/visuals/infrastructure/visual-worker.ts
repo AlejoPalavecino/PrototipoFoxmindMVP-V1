@@ -6,11 +6,13 @@ import { exactOpeningImageProfileVersion, supportsPinnedVisualProfileVersion } f
 import { parseExactOpeningImage } from '../../domain/exact-opening-image.ts';
 import { renderExactOpeningImage } from './exact-opening-image-renderer.ts';
 import { createVisualHeartbeat } from './visual-worker-heartbeat.ts';
+import { recordObservedCost } from '../../../../platform/ai/observed-cost.ts';
+import { priceFoxyImageUsage } from './providers/foxy-image-budget.ts';
 import type { FoxyVisualLease, VisualOptions, VisualScope, VisualUsage } from './visual-worker-types.ts';
 function errorCode(error: unknown, dispatched: boolean): string {
   const value = String((error as { code?: unknown })?.code ?? '');
   if (dispatched && value === 'PROVIDER_OUTCOME_UNKNOWN') return value;
-  return ['INVALID_AI_OUTPUT','AI_INPUT_LIMIT','AI_TIMEOUT','AI_RATE_LIMITED','AI_BUDGET_EXCEEDED','CONFLICT','SERVICE_UNAVAILABLE','PROVIDER_OUTCOME_UNKNOWN'].includes(value) ? value : (dispatched ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_UNAVAILABLE');
+  return ['INVALID_AI_OUTPUT','AI_INPUT_LIMIT','AI_TIMEOUT','AI_RATE_LIMITED','AI_BUDGET_EXCEEDED','AI_GLOBAL_DAILY_BUDGET_EXCEEDED','AI_MONTHLY_BUDGET_EXCEEDED','CONFLICT','SERVICE_UNAVAILABLE','PROVIDER_OUTCOME_UNKNOWN'].includes(value) ? value : (dispatched ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_UNAVAILABLE');
 }
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 async function transact<T>(options: VisualOptions, fn: (tx: SqlTransaction) => Promise<T>): Promise<T> {
@@ -38,7 +40,7 @@ export function createFoxyVisualWorker(options: VisualOptions) {
     const lease = await options.queue.claim(); if (!lease) return false;
     const aborter = new AbortController(); controller = aborter; const signal = aborter.signal;
     const deadline = setTimeout(() => aborter.abort(),options.configuration.deadlineMs);
-    let scope: VisualScope | undefined, dispatched = false, renderingLocally = false, recovering = false, settled = false, usage: VisualUsage | null = null;
+    let scope: VisualScope | undefined, reservedHere = false, dispatched = false, renderingLocally = false, recovering = false, usage: VisualUsage | null = null;
     let outcome: { state: 'READY' } | { state: 'FAILED'; errorCode: string; usage?: VisualUsage|null } | undefined;
     const heartbeat = createVisualHeartbeat(options.queue,lease,() => aborter.abort());
     try {
@@ -68,19 +70,22 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         });
         if (reservation === 'NOT_CURRENT') return true;
         if (reservation !== 'RESERVED') return fail(reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN');
+        reservedHere = true;
         renderingLocally = exactOpening !== null;
-        dispatched = !renderingLocally; signal.throwIfAborted();
+        signal.throwIfAborted();
         let payload: Parameters<VisualOptions['custody']['receive']>[1];
         if (exactOpening) {
           const bytes = await renderExactOpeningImage(exactOpening, input.aspectRatio, signal);
           payload = imagePayload(bytes, scope.job.prompt);
         } else if (scope.job.kind === 'IMAGE') {
+          dispatched = true;
           const generated = await options.providers.IMAGE.generate(input); usage = generated.usage; signal.throwIfAborted();
-          if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); settled = true; checkUsage(usage,scope.job.profile);
+          if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); checkUsage(usage,scope.job.profile);
           payload = imagePayload(generated.bytes, scope.job.prompt);
         } else {
+          dispatched = true;
           const generated = await options.providers.DIAGRAM.generate(input); usage = generated.usage; signal.throwIfAborted();
-          if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); settled = true; checkUsage(usage,scope.job.profile);
+          if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT'); checkUsage(usage,scope.job.profile);
           const diagram = parseFoxyDiagram(generated.diagram); if (!diagram.nodes.length) return fail('INVALID_AI_OUTPUT');
           const rendered = await options.renderer.render({ diagram, aspectRatio: scope.job.aspectRatio, signal }); signal.throwIfAborted();
           payload = { bytes: rendered.bytes, title: diagram.title, description: diagram.description, producerVersion: 'foxy-diagram-png-v1', diagram };
@@ -89,10 +94,18 @@ export function createFoxyVisualWorker(options: VisualOptions) {
       }
     } catch (error) {
       const code = renderingLocally && signal.aborted ? 'AI_TIMEOUT' : errorCode(error, dispatched);
-      outcome = { state: 'FAILED', errorCode: recovering ? 'PROVIDER_OUTCOME_UNKNOWN' : code, ...(settled ? { usage } : {}) };
+      outcome = { state: 'FAILED', errorCode: recovering ? 'PROVIDER_OUTCOME_UNKNOWN' : code,
+        usage: usage ?? (error as { usage?: VisualUsage } | null)?.usage ?? (dispatched ? undefined : { inputTokens: 0, outputTokens: 0 }) };
     }
     finally { await heartbeat.stop(); clearTimeout(deadline); if (scope) options.authority.close(scope); controller = undefined; }
-    if (outcome) await options.completion.finish(lease,outcome); return true;
+    if (outcome && !await options.completion.finish(lease,outcome) && reservedHere && scope) {
+      const measured = usage ?? (outcome.state === 'FAILED' ? outcome.usage : null);
+      const imageQuote = scope.job.kind === 'IMAGE' ? (pricing: { inputUsdPerMillion: number; textOutputUsdPerMillion?: number; imageOutputUsdPerMillion?: number }) =>
+        priceFoxyImageUsage({ inputUsdPerMillion: String(pricing.inputUsdPerMillion), textOutputUsdPerMillion: String(pricing.textOutputUsdPerMillion),
+          imageOutputUsdPerMillion: String(pricing.imageOutputUsdPerMillion) }, measured) : undefined;
+      await transact(options, tx => recordObservedCost(tx, { namespace: 'foxy_visual_jobs', jobId: lease.jobId, ownerId: lease.ownerId }, measured, imageQuote));
+    }
+    return true;
   }
   function runOnce(): Promise<boolean> { if (stopped) return Promise.resolve(false); if (!active) active = run().finally(() => { active = undefined; }); return active; }
   function poll(): void { if (!stopped) { timer = setTimeout(() => { void runOnce().catch(() => false).finally(poll); },30000); timer.unref?.(); } }

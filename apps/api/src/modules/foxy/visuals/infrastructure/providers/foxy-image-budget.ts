@@ -14,3 +14,20 @@ export function quoteFoxyImageBudget(value: Input): bigint {
   const input = rate(value.inputUsdPerMillion), text = rate(value.textOutputUsdPerMillion), image = rate(value.imageOutputUsdPerMillion);
   return amount(value.inputTokenCap, input) + amount(value.outputTokenCap, text > image ? text : image);
 }
+import type { VisualUsage } from '../../application/visual-worker-contracts.ts';
+
+
+type ImageRates = { inputUsdPerMillion: string; textOutputUsdPerMillion?: string; imageOutputUsdPerMillion?: string };
+
+export function priceFoxyImageUsage(prices: ImageRates, usage?: VisualUsage | null): bigint | null {
+  const tokens = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+  if (!tokens(usage?.inputTokens) || !tokens(usage?.outputTokens)) return null;
+  const input = amount(usage.inputTokens, rate(prices.inputUsdPerMillion));
+  if (usage.outputTokens === 0) return input;
+  const text = rate(prices.textOutputUsdPerMillion), image = rate(prices.imageOutputUsdPerMillion);
+  if (text === image) return input + amount(usage.outputTokens, text);
+  if (!tokens(usage.textOutputTokens) || !tokens(usage.imageOutputTokens)
+    || usage.textOutputTokens + usage.imageOutputTokens !== usage.outputTokens) return null;
+  const output = BigInt(usage.textOutputTokens) * text + BigInt(usage.imageOutputTokens) * image;
+  return input + (output + 999999n) / 1000000n;
+}

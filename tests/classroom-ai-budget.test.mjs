@@ -23,7 +23,7 @@ test('C3 input token limit and worst-case monetary reservation fail closed befor
   const { ClassroomAiService, ClassroomAiWorker } = await ai();
   await withAiDatabase(async ({ pool, database }) => {
     for (const [patch, expected] of [[{ maxInputTokens: 19 }, 'AI_INPUT_LIMIT'],
-      [{ dailyBudgetUsd: 0.000001 }, 'AI_BUDGET_EXCEEDED']]) {
+      [{ dailyBudgetUsd: 0.000001 }, 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED']]) {
       const f = await aiFixture(pool), p = ports(database, patch), service = new ClassroomAiService(p);
       const { view } = await service.start(f.request, f.draftId, f.start);
       await new ClassroomAiWorker(p).runOnce();
@@ -59,7 +59,7 @@ test('C3 global daily request reservation cannot be bypassed by concurrent actor
     await Promise.all([new ClassroomAiWorker(p).runOnce(), new ClassroomAiWorker(p).runOnce()]);
     const states = await Promise.all(fixtures.map((f, i) => new ClassroomAiService(p).get(f.request, f.draftId, jobs[i].view.id)));
     assert.equal(states.filter(x => x.state === 'READY').length, 1);
-    assert.equal(states.filter(x => x.state === 'FAILED' && x.error === 'AI_BUDGET_EXCEEDED').length, 1);
+    assert.equal(states.filter(x => x.state === 'FAILED' && x.error === 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED').length, 1);
     assert.equal(p.calls.filter(x => x === 'extract').length, 1);
   });
 });

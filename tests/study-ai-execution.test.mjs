@@ -11,7 +11,7 @@ const request = { system: 'synthetic', messages: [{ role: 'user', parts: [{ kind
 const result = { text: '{"synthetic":true}', finish: 'stop', usage: { inputTokens: 10, outputTokens: 8, reasoningTokens: 3, cachedInputTokens: null } };
 const fail = code => Object.assign(new Error(code), { code });
 
-function fixture({ stage, denied = false, busy = false, conflict = false, owned, authorize, config = configuration } = {}) {
+function fixture({ stage, denied = false, rejection, busy = false, conflict = false, owned, authorize, config = configuration } = {}) {
   const events = [], settlements = [], states = [], timings = [];
   const record = createAiTextMetricSink(line => timings.push(JSON.parse(line)));
   let admissionChecks = 0;
@@ -26,7 +26,11 @@ function fixture({ stage, denied = false, busy = false, conflict = false, owned,
     '../../../../../platform/ai/admission.ts': { activeAiOwnersSql: 'synthetic', async lockAiAdmission() {} },
     '../../../../../platform/ai/text-profiles.ts': { createDefaultTextProfile(effective, task) { assert.equal(effective, config); assert.equal(task, 'study'); return { id: 'study' }; } },
     '../../../../../platform/ai/text-budget.ts': {
-      async reserveAiTextBudget(_tx, _row, count, effective, table) { events.push('reserve'); assert.equal(count, 10); assert.equal(effective, config); assert.equal(table, 'study_ai_dispatches'); return !denied; },
+      async reserveAiTextBudget(_tx, _row, count, effective, table) {
+        events.push('reserve'); assert.equal(count, 10); assert.equal(effective, config); assert.equal(table, 'study_ai_dispatches');
+        if (rejection) throw fail(rejection);
+        return !denied;
+      },
       async settleAiTextBudget(_tx, _row, _config, usage, table) { assert.equal(table, 'study_ai_dispatches'); settlements.push(usage); },
     },
     '../../../../../platform/ai/text-execution.ts': { async executeAiText(options) {
@@ -87,8 +91,13 @@ test('Study execution settles usage attached to a rejected provider result', asy
 
 test('Study execution blocks quota before dispatch and preserves busy/idempotency guards', async () => {
   const quota = fixture({ denied: true });
-  await assert.rejects(quota.run(), { code: 'AI_BUDGET_EXCEEDED' });
+  await assert.rejects(quota.run(), { code: 'CONFLICT' });
   assert.ok(!quota.events.includes('generate'));
+  for (const code of ['AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED']) {
+    const blocked = fixture({ rejection: code });
+    await assert.rejects(blocked.run(), { code });
+    assert.ok(!blocked.events.includes('generate'));
+  }
   for (const [option, code] of [['busy', 'AI_BUSY'], ['conflict', 'CONFLICT']]) {
     const f = fixture({ [option]: true });
     await assert.rejects(f.run(), { code });
@@ -138,11 +147,11 @@ test('Study feedback never claims a slot if reauthorization runs past its deadli
 });
 
 test('Study feedback never retries admission after budget denial or unknown provider outcome', async () => {
-  for (const [options, code] of [[{ denied: true }, 'AI_BUDGET_EXCEEDED'], [{ stage: 'unknown' }, 'PROVIDER_OUTCOME_UNKNOWN']]) {
+  for (const [options, code] of [[{ rejection: 'AI_BUDGET_EXCEEDED' }, 'AI_BUDGET_EXCEEDED'], [{ stage: 'unknown' }, 'PROVIDER_OUTCOME_UNKNOWN']]) {
     const f = fixture(options);
     await assert.rejects(f.run(true), { code });
     assert.equal(f.admissionChecks, 1);
-    assert.equal(f.events.filter(event => event === 'generate').length, options.denied ? 0 : 1);
+    assert.equal(f.events.filter(event => event === 'generate').length, options.rejection ? 0 : 1);
     assert.deepEqual(f.states, ['FAILED']);
   }
 });
@@ -205,6 +214,22 @@ test('Study adapter preserves input guards before SQL/execution', async () => {
   await assert.rejects(f.provider.generate({ system: '', prompt: 'x'.repeat(300_001) }), { code: 'AI_INPUT_LIMIT' });
   await assert.rejects(f.provider.generate({ system: '', prompt: 'synthetic', documents: Array(7).fill({}) }), { code: 'AI_INPUT_LIMIT' });
   assert.equal(f.captured.execution, undefined);
+});
+
+test('Study adapter classifies tools by authorized action without inspecting the prompt', async () => {
+  const expected = { CHAT: 'study_chat', NOTE: 'study_note', OUTLINE: 'study_outline', PLAN: 'study_plan',
+    QUIZ: 'study_quiz', EXERCISE: 'study_exercise', MOCK_EXAM: 'study_mock_exam' };
+  const input = { system: 'Synthetic', prompt: JSON.stringify({ action: 'FORGED' }) };
+  const tool = adapterFixture(undefined, { flow: 'tool' });
+  for (const [action, capability] of Object.entries(expected)) {
+    await tool.provider.generate({ ...input, context: { action, topics: [], sources: [], questionCount: 3 } });
+    assert.equal(tool.captured.execution.capability, capability);
+  }
+  await tool.provider.generate({ ...input, context: { action: 'constructor', topics: [], sources: [], questionCount: 3 } });
+  assert.equal(tool.captured.execution.capability, 'study_tool');
+  const feedback = adapterFixture(undefined, { flow: 'feedback' });
+  await feedback.provider.generate({ ...input, context: { action: 'CHAT', topics: [], sources: [], questionCount: 3 } });
+  assert.equal(feedback.captured.execution.capability, 'study_feedback');
 });
 
 test('Study adapter requests an admission wait only for callers that opt in', async () => {

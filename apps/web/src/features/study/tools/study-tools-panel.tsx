@@ -1,9 +1,11 @@
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 export function StudyToolsPanel({
   disabled,
+  imageGenerationAvailable,
   onChoose,
 }: {
   disabled: boolean;
+  imageGenerationAvailable?: boolean;
   onChoose: (tool: { kind: string; title: string }) => void;
 }) {
   return (
@@ -29,6 +31,13 @@ export function StudyToolsPanel({
             title: 'Conectar ideas',
             hint: 'Un esquema para relacionar.',
             icon: 'layers',
+            color: 'mint',
+          },
+          {
+            kind: 'IMAGE',
+            title: 'Crear una imagen',
+            hint: 'Ilustrá un concepto para repasarlo.',
+            icon: 'spark',
             color: 'mint',
           },
           {
@@ -59,7 +68,7 @@ export function StudyToolsPanel({
             icon: 'calendar',
             color: 'peach',
           },
-        ].map((tool) => (
+        ].filter((tool) => tool.kind !== 'IMAGE' || imageGenerationAvailable).map((tool) => (
           <button key={tool.title} disabled={disabled} onClick={() => onChoose(tool)}>
             <span className={`study-exact-tool-icon ${tool.color}`}>
               {tool.icon === 'flag' ? (

@@ -1,4 +1,5 @@
 import { validateStudyCommand } from '../../domain/command-policy.ts';
+import { isAiBudgetRejectionCode, readAiMonthlyQuotaRejection } from '../../../../../../../src/core/contracts/ai-quota.ts';
 import type { StudyCommandPorts } from '../../application/ports.ts';
 import { studyFail, studyId, validateFolder } from '../../../../../../../src/core/domain/study/folders.ts';
 import { studyResourceMarkdown } from '../../../../../../../src/core/domain/study/resource-markdown.ts';
@@ -16,6 +17,10 @@ function generationView(intent: StudyGenerationIntent, state: StudyState): Study
     if (result?.status === 'PENDING' || result?.status === 'CANCELLED') return { ...intent, status: result.status };
     if (result?.status === 'INSUFFICIENT') return { ...intent, status: 'INSUFFICIENT', missingInformation: result.missingInformation as string[] };
     if (result?.creation || result?.practice) return { ...intent, status: 'COMPLETE' };
+    if (isAiBudgetRejectionCode(result?.errorCode)) {
+        const quota = result.errorCode === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(result.quota) : undefined;
+        return { ...intent, status: 'FAILED', errorCode: result.errorCode, ...(quota ? { quota } : {}) };
+    }
     return { ...intent, status: 'FAILED', ...(result?.reason === 'INTERRUPTED' ? { reason: 'INTERRUPTED' as const } : {}) };
 }
 export function publicState(state: StudyState, sources: StudySource[], attachments: StudySource[] = []) {

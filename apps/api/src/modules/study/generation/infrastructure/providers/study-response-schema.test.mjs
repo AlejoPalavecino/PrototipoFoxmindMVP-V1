@@ -21,6 +21,6 @@ test('engine supplies schema context independently from rendered prompt', async 
     dispatched = request;
     return { status: 'COMPLETE', title: 'Apunte', markdown: 'Contenido', sourceRefs: [{ id: 'file', version: 'v1' }], missingInformation: [] };
   } });
-  assert.deepEqual(dispatched.context, { topics: [{ id: 'topic' }], sources: [{ id: 'file', version: 'v1' }], questionCount: 4 });
+  assert.deepEqual(dispatched.context, { action: 'NOTE', topics: [{ id: 'topic' }], sources: [{ id: 'file', version: 'v1' }], questionCount: 4 });
   assert.deepEqual(studySchemaFor(dispatched.context), studySchemaFor({ ...dispatched, prompt: 'texto arbitrario' }.context));
 });

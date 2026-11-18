@@ -17,6 +17,7 @@ import { Notifications } from '../../../features/notifications/index.ts';
 import { createWebAgendaClient } from '../../clients/agenda-client.ts';
 import { Home } from '../../../features/home/index.ts';
 import { AppNavbar } from '../../../../../shared-ui/AppNavbar.tsx';
+import { AiQuotaIndicator } from '../../navigation/ai-quota-indicator.tsx';
 import { createBrujulaSearchClient } from '../../../../../shared-ui/brujula-search-client.ts';
 import { brujulaSearchDestination } from '../../../../../../src/core/domain/classrooms/brujula-search.ts';
 import { grantActivityResponse } from '../../../features/participation/index.ts';
@@ -195,6 +196,7 @@ export function ClassroomsApp({
     <div className={`p5-app fm3-classrooms ${surface.scope} ${experience.application}${draft ? ' entry-wizard-reference entry-classrooms-reference collection-workspace-page' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar avatarKey={avatarKey} logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} accountRole={accountRole} search={searchContent}
+        quotaIndicator={subjectId ? <AiQuotaIndicator key={subjectId} subjectId={subjectId} /> : undefined}
         classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
         links={[{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },

@@ -1,10 +1,12 @@
 import type { SqlTransaction } from '../../../../../src/core/contracts/sql.ts';
 import type { AiExecutionSettings, AiExecutionTask } from '../../../../../src/core/contracts/ai-execution.ts';
 import { parseExecutionSnapshot } from './execution-snapshot.ts';
+import { reserveAiMonthlyBudget, settleAiMonthlyBudget, type MonthlyBudgetJob, type MonthlyBudgetMetadata } from './monthly-budget.ts';
 
 type Transaction = SqlTransaction;
 type ClassroomAiConfiguration = AiExecutionSettings & { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
-  dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
+  model?: string } & DailyLimits;
+type DailyLimits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type BudgetJob = { id: string; owner_id: string };
 export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs' | 'study_ai_dispatches';
 const tasks: Partial<Record<BudgetTable, AiExecutionTask>> = { classroom_curriculum_extractions: 'curriculum', activity_ai_generations: 'activities',
@@ -15,7 +17,7 @@ function pinnedPrices(config: ClassroomAiConfiguration, table: BudgetTable, snap
   const saved = snapshot ?? config.legacyExecutionProfiles?.[task];
   if (saved === undefined || saved === null) return config;
   const profile = parseExecutionSnapshot(saved, task);
-  return { ...config, maxOutputTokens: profile.maxOutputTokens,
+  return { ...config, executionProfile: profile, maxOutputTokens: profile.maxOutputTokens,
     inputUsdPerMillion: profile.inputUsdPerMillion, outputUsdPerMillion: profile.outputUsdPerMillion };
 }
 
@@ -30,22 +32,40 @@ export function tokenCost(tokens: number, rate: number): bigint {
   const [numerator, denominator] = decimal(rate);
   return (BigInt(tokens) * numerator + denominator - 1n) / denominator;
 }
-export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count: number, config: ClassroomAiConfiguration, table: BudgetTable = 'classroom_curriculum_extractions'): Promise<boolean> {
-  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
-  const [existing] = await tx.query<{ dispatch_count: number; execution_profile?: unknown }>(`SELECT dispatch_count${tasks[table] ? ',execution_profile' : ''} FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
-  if (!existing || existing.dispatch_count > 0) return false;
-  config = pinnedPrices(config, table, existing.execution_profile);
-  const amount = tokenCost(count, config.inputUsdPerMillion) + tokenCost(config.maxOutputTokens, config.outputUsdPerMillion);
+async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigint, config: DailyLimits) {
   const [num, den] = decimal(config.dailyBudgetUsd), maximum = num * 1000000n / den;
-  for (const scope of ['global', row.owner_id]) {
+  for (const scope of ['global', ownerId]) {
     await tx.query(`INSERT INTO ai_usage_daily(day,scope,capability) VALUES((transaction_timestamp() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1')
       ON CONFLICT DO NOTHING RETURNING scope`, scope);
     const [usage] = await tx.query<{ request_count: number; total: string }>(`SELECT request_count,
       (reserved_microusd+consumed_microusd)::text AS total FROM ai_usage_daily
       WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope=$1 AND capability='study-plan-v1' FOR UPDATE`, scope);
     const cap = scope === 'global' ? config.dailyGlobalRequests : config.dailyActorRequests;
-    if (usage!.request_count >= cap || BigInt(usage!.total) + amount > maximum) return false;
+    if (usage!.request_count >= cap || BigInt(usage!.total) + amount > maximum) {
+      const code = scope === 'global' ? 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' : 'AI_BUDGET_EXCEEDED';
+      throw Object.assign(new Error(code), { code });
+    }
   }
+}
+
+export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count: number, config: ClassroomAiConfiguration,
+  table: BudgetTable = 'classroom_curriculum_extractions', metadata?: Partial<MonthlyBudgetMetadata>): Promise<boolean> {
+  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  const [existing] = await tx.query<{ dispatch_count: number; execution_profile?: unknown }>(`SELECT dispatch_count${tasks[table] ? ',execution_profile' : ''} FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
+  if (!existing || existing.dispatch_count > 0) return false;
+  config = pinnedPrices(config, table, existing.execution_profile);
+  const amount = tokenCost(count, config.inputUsdPerMillion) + tokenCost(config.maxOutputTokens, config.outputUsdPerMillion);
+  await requireDailyBudget(tx, row.owner_id, amount, config);
+  if (amount > 0n && !await reserveAiMonthlyBudget(tx, { namespace: table, jobId: row.id, ownerId: row.owner_id }, amount, {
+    capability: metadata?.capability ?? tasks[table] ?? table,
+    provider: metadata?.provider ?? config.executionProfile?.provider ?? 'gemini',
+    model: metadata?.model ?? config.executionProfile?.model ?? config.model ?? 'unknown',
+    pricing: metadata?.pricing ?? {
+      inputUsdPerMillion: config.inputUsdPerMillion,
+      outputUsdPerMillion: config.outputUsdPerMillion,
+      profileVersion: config.executionProfile?.profileVersion,
+    },
+  })) return false;
   await tx.query(`UPDATE ai_usage_daily SET request_count=request_count+1,reserved_microusd=reserved_microusd+$2::bigint
     WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`, row.owner_id, amount.toString());
   await tx.query(`UPDATE ${table} SET reserved_microusd=$2::bigint,
@@ -54,20 +74,59 @@ export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count
   return true;
 }
 export async function settleAiTextBudget(tx: Transaction, row: BudgetJob, config: ClassroomAiConfiguration,
-  usage?: { inputTokens: number | null; outputTokens: number | null }, table: BudgetTable = 'classroom_curriculum_extractions'): Promise<void> {
+  usage?: { inputTokens: number | null; outputTokens: number | null }, table: BudgetTable = 'classroom_curriculum_extractions',
+  pricedUsage?: bigint | null): Promise<void> {
   const [reservation] = await tx.query<{ amount: string; day: Date; execution_profile?: unknown }>(`SELECT reserved_microusd::text AS amount,
     ${tasks[table] ? 'execution_profile,' : ''}
     usage_day AS day FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
-  if (!reservation || BigInt(reservation.amount) === 0n) return;
-  config = pinnedPrices(config, table, reservation.execution_profile);
+  if (!reservation) return;
   const valid = (value: number | null | undefined): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
   const known = valid(usage?.inputTokens) && valid(usage?.outputTokens);
-  const actual = known ? tokenCost(usage!.inputTokens!, config.inputUsdPerMillion)
-    + tokenCost(usage!.outputTokens!, config.outputUsdPerMillion) : BigInt(reservation.amount);
+  if (!known && BigInt(reservation.amount) === 0n) return;
+  config = pinnedPrices(config, table, reservation.execution_profile);
+  const operationalCharge = pricedUsage ?? (known ? tokenCost(usage!.inputTokens!, config.inputUsdPerMillion)
+    + tokenCost(usage!.outputTokens!, config.outputUsdPerMillion) : BigInt(reservation.amount));
+  const actual = pricedUsage === undefined ? known ? operationalCharge : null : pricedUsage;
+  const job = { namespace: table, jobId: row.id, ownerId: row.owner_id };
+  if (BigInt(reservation.amount) === 0n) {
+    if (actual !== null) await settleAiMonthlyBudget(tx, job, actual);
+    return;
+  }
   await tx.query(`UPDATE ai_usage_daily SET reserved_microusd=reserved_microusd-$3::bigint,
     consumed_microusd=consumed_microusd+$4::bigint,input_tokens=input_tokens+$5::bigint,output_tokens=output_tokens+$6::bigint
     WHERE day=$1::date AND scope IN ('global',$2) AND capability='study-plan-v1' RETURNING scope`, reservation.day, row.owner_id,
-  reservation.amount, actual.toString(), known ? usage!.inputTokens : 0, known ? usage!.outputTokens : 0);
+  reservation.amount, operationalCharge.toString(), known ? usage!.inputTokens : 0, known ? usage!.outputTokens : 0);
   await tx.query(`UPDATE ${table} SET reserved_microusd=0,output_tokens=$2::bigint
     WHERE id=$1::uuid RETURNING id`, row.id, known ? usage!.outputTokens : null);
+  await settleAiMonthlyBudget(tx, job, actual);
+}
+
+/** Uses the same UTC operational quota for Study images, whose durable work lives in a domain receipt. */
+export async function reserveAiImageBudget(tx: Transaction, job: MonthlyBudgetJob, amount: bigint,
+  metadata: MonthlyBudgetMetadata, limits: DailyLimits): Promise<boolean> {
+  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  await requireDailyBudget(tx, job.ownerId, amount, limits);
+  if (!await reserveAiMonthlyBudget(tx, job, amount, metadata)) return false;
+  // Count the estimate immediately against the operational guard, even if the process dies before returning usage.
+  await tx.query(`UPDATE ai_usage_daily SET request_count=request_count+1,consumed_microusd=consumed_microusd+$2::bigint
+    WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`,
+  job.ownerId, amount.toString());
+  return true;
+}
+
+export async function settleAiImageBudget(tx: Transaction, job: MonthlyBudgetJob, actual: bigint | null): Promise<void> {
+  if (actual === null) {
+    await settleAiMonthlyBudget(tx, job, null);
+    return;
+  }
+  const [reservation] = await tx.query<{ day: string }>(`SELECT operational_day::text AS day
+    FROM ai_monthly_reservations WHERE namespace=$1 AND job_id=$2::uuid AND owner_id=$3::uuid`, job.namespace, job.jobId, job.ownerId);
+  if (!reservation) return;
+  await tx.query(`SELECT scope FROM ai_usage_daily WHERE day=$1::date AND scope IN ('global',$2)
+    AND capability='study-plan-v1' ORDER BY (scope='global') DESC FOR UPDATE`, reservation.day, job.ownerId);
+  const result = await settleAiMonthlyBudget(tx, job, actual);
+  if (!result) return;
+  await tx.query(`UPDATE ai_usage_daily SET consumed_microusd=consumed_microusd+$3::bigint
+    WHERE day=$1::date AND scope IN ('global',$2) AND capability='study-plan-v1' RETURNING scope`,
+  reservation.day, job.ownerId, (actual - result.quote).toString());
 }

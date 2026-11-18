@@ -10,10 +10,20 @@ const config = { maxOutputTokens: 100, inputUsdPerMillion: 0.1, outputUsdPerMill
 function fake({ dispatchCount = 0, usageCount = 0, amount = 0n } = {}) {
   const calls = [], day = new Date('2026-10-31T00:00:00.000Z');
   const job = { dispatchCount, amount, day, input: null, output: null };
+  let monthly;
   const usage = new Map([['global', { count: usageCount, reserved: 0n, consumed: 0n }]]);
   const tx = { query: async (sql, ...args) => {
     calls.push({ sql, args });
     if (/pg_advisory_xact_lock\(78123001\)/u.test(sql)) return [{}];
+    if (sql.includes('pg_advisory_xact_lock(78123003') || sql.includes('WITH expired AS')) return [];
+    if (sql.includes('FROM period, users')) return [{ month: '2026-10-01', observed_at: day, budget: 5_000_000 }];
+    if (sql.includes('GROUP BY capability')) return [];
+    if (sql.includes('WITH reserved AS')) {
+      monthly = { status: 'RESERVED', reserved_microusd: BigInt(args[8]), platform_microusd: 0n, reserved_at: day };
+      return [{ id: 1n }];
+    }
+    if (sql.includes('SELECT status,reserved_microusd,platform_microusd,reserved_at')) return monthly ? [monthly] : [];
+    if (sql.includes('WITH updated AS')) { monthly.status = args[3]; return [{ id: 2n }]; }
     if (/SELECT dispatch_count,execution_profile FROM /u.test(sql)) return [{ dispatch_count: job.dispatchCount, execution_profile: null }];
     if (/INSERT INTO ai_usage_daily/u.test(sql)) {
       if (!usage.has(args[0])) usage.set(args[0], { count: usageCount, reserved: 0n, consumed: 0n });
@@ -37,7 +47,7 @@ function fake({ dispatchCount = 0, usageCount = 0, amount = 0n } = {}) {
     if (/UPDATE \w+ SET reserved_microusd=0/u.test(sql)) { job.amount = 0n; job.output = args[1]; return [{}]; }
     throw new Error('Unexpected budget query');
   } };
-  return { tx, calls, job, usage };
+  return { tx, calls, job, usage, get monthly() { return monthly; } };
 }
 async function functions() {
   const m = await api();
@@ -72,6 +82,7 @@ test('reserve uses shared lock and ledger for default and all four existing tabl
       const entry = f.usage.get(scope); assert.equal(entry.count, 1); assert.equal(entry.reserved, 4n); assert.equal(entry.consumed, 0n);
     }
     assert.equal(f.job.dispatchCount, 1); assert.equal(f.job.amount, 4n); assert.equal(f.job.input, 11);
+    assert.equal(f.monthly.reserved_microusd, 4n);
   }
 });
 
@@ -80,10 +91,11 @@ test('duplicate dispatch or exhausted global or actor quota cannot reserve again
   const f = fake({ dispatchCount: 1 });
   assert.equal(await reserve(f.tx, row, 11, config), false);
   assert.equal(f.calls.some(c => c.sql.includes('ai_usage_daily')), false);
-  for (const quota of ['dailyGlobalRequests', 'dailyActorRequests']) {
+  for (const [quota, code] of [['dailyGlobalRequests', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED'], ['dailyActorRequests', 'AI_BUDGET_EXCEEDED']]) {
     const exhausted = fake(), limits = { ...config, [quota]: 0 };
-    assert.equal(await reserve(exhausted.tx, row, 11, limits), false);
+    await assert.rejects(reserve(exhausted.tx, row, 11, limits), { code });
     assert.equal(exhausted.job.dispatchCount, 0); assert.equal(exhausted.job.amount, 0n);
+    assert.equal(exhausted.monthly, undefined);
   }
 });
 
@@ -100,8 +112,12 @@ test('settle without usage consumes full reservation and repeated settle does no
       const entry = f.usage.get(scope); assert.equal(entry.reserved, 0n); assert.equal(entry.consumed, 4n);
     }
     assert.equal(f.job.amount, 0n); assert.equal(f.job.output, null);
+    assert.equal(f.monthly.status, 'PENDING');
     const writes = f.calls.filter(call => /^\s*UPDATE\b/u.test(call.sql)).length;
     await settle(f.tx, row, config, undefined, table);
     assert.equal(f.calls.filter(call => /^\s*UPDATE\b/u.test(call.sql)).length, writes);
+    await settle(f.tx, row, config, { inputTokens: 10, outputTokens: 5 }, table);
+    assert.equal(f.monthly.status, 'SETTLED');
+    for (const scope of ['global', row.owner_id]) assert.equal(f.usage.get(scope).consumed, 4n);
   }
 });

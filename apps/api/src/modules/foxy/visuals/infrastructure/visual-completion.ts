@@ -5,7 +5,7 @@ import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
 import { checkVisualClaim } from './visual-claim-check.ts';
 type Result = { state: 'READY' } | { state: 'FAILED'; errorCode: string; usage?: VisualUsage|null };
 type Budget = { settle(tx: SqlTransaction, lease: FoxyVisualLease, usage?: VisualUsage|null): Promise<boolean> };
-const allowed = new Set(['AI_UNAVAILABLE','AI_INPUT_LIMIT','AI_RATE_LIMITED','AI_TIMEOUT','PROVIDER_OUTCOME_UNKNOWN','INVALID_AI_OUTPUT','SERVICE_UNAVAILABLE','FORBIDDEN','INVALID_CONTENT','INFECTED','AI_BUDGET_EXCEEDED','CONFLICT']);
+const allowed = new Set(['AI_UNAVAILABLE','AI_INPUT_LIMIT','AI_RATE_LIMITED','AI_TIMEOUT','PROVIDER_OUTCOME_UNKNOWN','INVALID_AI_OUTPUT','SERVICE_UNAVAILABLE','FORBIDDEN','INVALID_CONTENT','INFECTED','AI_BUDGET_EXCEEDED','AI_GLOBAL_DAILY_BUDGET_EXCEEDED','AI_MONTHLY_BUDGET_EXCEEDED','CONFLICT']);
 export function createFoxyVisualCompletion(options: { grounding: VisualGroundingPort; database: SqlDatabase; budget: Budget; maxJobAgeMs?: number }) {
   return { async finish(lease: FoxyVisualLease, result: Result): Promise<boolean> {
     if (!result || (result.state !== 'READY' && (result.state !== 'FAILED' || !allowed.has(result.errorCode)))) throw Object.assign(new Error('INVALID_INPUT'),{ code: 'INVALID_INPUT' });

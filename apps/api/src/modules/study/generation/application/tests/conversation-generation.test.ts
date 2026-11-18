@@ -25,6 +25,7 @@ function fixture() {
   const source: StudySource = { id: sourceId, version: sourceId, fileId: sourceId, title: 'Fuente sintética', origin: 'OWN', available: true, text: 'Información autorizada' };
   let available = true, attachmentOnly = false, role = 'student', verified = true, generated = 0, provider: (input: StudyInput) => Promise<StudyResult> = async () => note();
   const inputs: StudyInput[] = [], ready = deferred<void>();
+  const imageInputs: unknown[] = [];
   const query = async (sql: string, ...values: unknown[]) => {
     if (sql.includes('FROM users')) return [{ account_role: role, email_verified_at: verified ? new Date() : null }];
     if (sql.includes('FROM study_folders')) return values[0] === row.id && values[1] === row.owner_id && row.status !== 'DELETED' ? [structuredClone(row)] : [];
@@ -41,6 +42,7 @@ function fixture() {
     catch (error) { row = before; throw error; }
   } };
   const authenticate = async (_tx: unknown, request: unknown) => (request as { owner?: string }).owner ?? owner;
+  const images = new Map<string, { ownerId: string; folderId: string; mimeType: 'image/png'; bytes: Uint8Array }>();
   const makeService = () => createStudyService({ uow: createStudentUnitOfWork({ database, authenticate }), folders: createFolderRepository(),
     newId: randomUUID, digest: value => createHash('sha256').update(value).digest('hex'),
     sources: async () => available && !attachmentOnly ? [structuredClone(source)] : [], linkedClassrooms: async () => [], verifyLink: async () => {}, importPlan: async () => null,
@@ -49,17 +51,49 @@ function fixture() {
       return available && attachmentOnly && (!chatId || chatId === conversationId) ? [{ ...source, conversationId }] : [];
     } },
     feedback: async input => { assert.deepEqual(input.sources.map(s => s.id), [sourceId]); return { orientative: true, status: 'COMPLETE', title: 'Devoluci�n', markdown: 'Devoluci�n sint�tica', sourceRefs: [{ id: sourceId, version: sourceId }], missingInformation: [] }; },
+    images: {
+      generate: async (input: { message: string }) => {
+        imageInputs.push(input);
+        return { mimeType: 'image/png', bytes: new Uint8Array([137, 80, 78, 71]) };
+      },
+      store: async (_tx: unknown, ownerId: string, folderId: string, id: string, raster: { mimeType: 'image/png'; bytes: Uint8Array }) => {
+        images.set(id, { ownerId, folderId, ...raster });
+      },
+      read: async (_tx: unknown, ownerId: string, folderId: string, id: string) => {
+        const image = images.get(id);
+        return image?.ownerId === ownerId && image.folderId === folderId ? image : undefined;
+      },
+    },
     generate: async (input, context) => {
       await context?.authorize?.(); generated++; inputs.push(structuredClone(input as StudyInput)); ready.resolve(); return provider(input as StudyInput);
     } });
   function note(): StudyResult { return { status: 'COMPLETE', title: 'Apunte real', markdown: 'Contenido del proveedor sintético.', sourceRefs: [{ id: sourceId, version: sourceId }], missingInformation: [] }; }
   const service = makeService();
-  return { service, makeService, ready, inputs, owner, conversationId, topicId, sourceId, note,
+  return { service, makeService, ready, inputs, imageInputs, owner, conversationId, topicId, sourceId, note,
     get row() { return row; }, get generated() { return generated; }, revoke() { available = false; }, attachOnly() { attachmentOnly = true; },
     actor(next: string, isVerified = true) { role = next; verified = isVerified; }, provider(next: typeof provider) { provider = next; },
     input(extra: Record<string, unknown> = {}) { return { action: 'GENERATE', revision: String(row.revision), requestId: randomUUID(),
       conversationId, kind: 'NOTE', message: 'Prepará un apunte con ejemplos.', topicIds: [topicId], ...extra }; } };
 }
+
+test('an image stays in its private folder and chat and replay keeps a single provider call', async () => {
+  const f = fixture(), input = f.input({ kind: 'IMAGE', message: 'Ilustrá las fases de la Luna.', topicIds: [] });
+  const complete = await f.service.command({}, f.row.id, input);
+  const detail = await f.makeService().get({}, f.row.id);
+  const creation = detail.creations[0]!;
+  assert.equal(creation.kind, 'IMAGE');
+  assert.equal(turns(detail)[0]!.generation!.status, 'COMPLETE');
+  assert.equal(turns(detail)[1]!.creationId, creation.id);
+  assert.deepEqual(f.imageInputs, [{ message: input.message }]);
+  assert.equal(f.generated, 0);
+  assert.deepEqual(await f.service.command({}, f.row.id, input), complete);
+  assert.equal(f.imageInputs.length, 1);
+  assert.ok(!JSON.stringify(detail).includes('mimeType') && !JSON.stringify(detail).includes('bytes'));
+  assert.deepEqual((await f.makeService().image({}, f.row.id, creation.id)).bytes, new Uint8Array([137, 80, 78, 71]));
+  await assert.rejects(f.service.image({ owner: randomUUID() }, f.row.id, creation.id), { code: 'FORBIDDEN' });
+  f.actor('teacher');
+  await assert.rejects(f.service.image({}, f.row.id, creation.id), { code: 'FORBIDDEN' });
+});
 function turns(detail: Awaited<ReturnType<ReturnType<typeof createStudyService>['get']>>, index = 0) {
   return detail.conversations[index]!.turns as unknown as Turn[];
 }

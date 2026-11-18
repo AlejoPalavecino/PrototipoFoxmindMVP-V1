@@ -123,7 +123,8 @@ test('shared AI quota denial preserves retry and later permits generation', { ti
     await run.runOnce();
     const rows = async () => (await f.pool.query('SELECT id,state,error_code,attempt_count,dispatch_count FROM student_ai_reports WHERE classroom_id=$1', [f.room])).rows;
     const [denied] = await rows();
-    assert.equal(denied.state, 'FAILED'); assert.equal(denied.error_code, 'AI_BUDGET_EXCEEDED');
+    assert.equal(denied.state, 'FAILED'); assert.equal(denied.error_code, 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED');
+    assert.equal((await f.classrooms.getStudentAiReport(f.T, f.room, f.student)).error, denied.error_code);
     assert.equal(denied.dispatch_count, 0); assert.equal(calls.filter(([kind]) => kind === 'generate').length, 0);
     await run.runOnce(); assert.deepEqual(await rows(), [denied]);
     // Advance only this disposable fixture beyond the retry interval and simulate a fresh daily quota.

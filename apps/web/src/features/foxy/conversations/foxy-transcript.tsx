@@ -15,7 +15,9 @@ import styles from '../workspace/foxy-workspace.module.css';
 
 function failureMessage(turn: FoxyTurn) {
   if (turn.state === 'STALE') return 'El contexto de esta consulta cambió. Revisá los temas y las fuentes antes de enviarla de nuevo.';
-  if (turn.errorCode === 'AI_BUDGET_EXCEEDED') return 'Se agotó el cupo de IA. Podés volver a intentar cuando se renueve.';
+  if (turn.errorCode === 'AI_MONTHLY_BUDGET_EXCEEDED') return 'El saldo mensual de IA disponible no alcanza para esta generación. Revisá tu cuota en la cabecera.';
+  if (turn.errorCode === 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED') return 'FoxMind alcanzó su límite diario general de IA. Volvé a intentar cuando se renueve.';
+  if (turn.errorCode === 'AI_BUDGET_EXCEEDED') return 'Alcanzaste tu límite diario de IA. Volvé a intentar cuando se renueve.';
   if (turn.errorCode === 'AI_INPUT_LIMIT') return 'El contexto supera el límite. Elegí menos temas o fuentes y volvé a enviar.';
   if (turn.errorCode === 'AI_RATE_LIMITED') return 'El proveedor de IA está recibiendo muchas solicitudes. Volvé a intentar en unos minutos.';
   return 'No se pudo completar esta respuesta. Podés revisar tu mensaje y hacer una nueva solicitud.';

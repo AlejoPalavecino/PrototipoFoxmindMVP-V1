@@ -49,5 +49,5 @@ export function view(row: JobRow) {
     unitIds: row.curriculum_snapshot.units?.map(unit => unit.id) ?? [row.unit_id], teacherBrief: row.input_payload.teacherBrief ?? null, createdAt: row.created_at,
     proposal: row.state === 'READY' || row.state === 'APPLIED' ? row.proposal : null, error: row.error_code,
     missingInformation: row.missing_information, sourceReport: row.source_report, appliedActivityId: row.applied_activity_id,
-    retryable: row.state === 'FAILED' && ['AI_UNAVAILABLE', 'AI_RATE_LIMITED', 'AI_TIMEOUT', 'AI_BUDGET_EXCEEDED'].includes(row.error_code ?? '') };
+    retryable: row.state === 'FAILED' && ['AI_UNAVAILABLE', 'AI_RATE_LIMITED', 'AI_TIMEOUT', 'AI_BUDGET_EXCEEDED', 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED', 'AI_MONTHLY_BUDGET_EXCEEDED'].includes(row.error_code ?? '') };
 }

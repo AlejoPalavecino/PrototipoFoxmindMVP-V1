@@ -30,6 +30,7 @@ import { createHomeService } from '../modules/home/dashboard/application/service
 import { createHomeUnitOfWork } from '../modules/home/dashboard/infrastructure/unit-of-work.ts';
 import type { HomeService } from '../modules/home/dashboard/application/service.ts';
 import { installHomeTransport } from './home-host.ts';
+import { installAiQuotaTransport } from './ai-quota-transport.ts';
 
 import { ActivityAiRuntime } from './academic-activity-ai-runtime.ts';
 import { StudentAiRuntime } from './academic-student-runtime.ts';
@@ -40,6 +41,7 @@ import { selectFoxyVisualProviders } from './foxy-visual-host-providers.ts';
 import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
 import { createGeminiFoxyTextAdapter } from '../modules/foxy/turns/infrastructure/providers/foxy-adapter.ts';
 import { initializeAiExecutionPolicy } from '../platform/ai/execution-policy.ts';
+import { startAiMonthlyBudgetRuntime } from '../platform/ai/monthly-budget-runtime.ts';
 import { createFoxyFileOperations } from './foxy-file-integration.ts';
 import { attachmentIntegration } from './attachment-integration.ts';
 import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './study-runtime.ts';
@@ -47,6 +49,8 @@ import { installStudyTransport } from './study-transport.ts';
 import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
 import { installStudyUploads } from '../modules/study/folders/presentation/uploads/http.ts';
 import { installStudyReminders } from '../modules/study/folders/presentation/reminders/http.ts';
+
+const AI_MONTHLY_BUDGET_RUNTIME = 'AiMonthlyBudgetRuntime';
 
 export interface ApplicationOptions extends StudyRuntimeOptions { readonly identity?: IdentityRuntimePorts; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
 
@@ -80,13 +84,14 @@ class AppModule implements OnModuleDestroy {
     @Optional() @Inject(StudentAiRuntime) private readonly studentAi?: StudentAiRuntime,
     @Optional() @Inject(GradingAiRuntime) private readonly gradingAi?: GradingAiRuntime,
     @Optional() @Inject(FOXY_RUNTIME) private readonly foxy?: ReturnType<typeof createFoxyRuntime>,
-    @Optional() @Inject(STUDY_RUNTIME) private readonly study?:ReturnType<typeof createStudyRuntime>) {}
+    @Optional() @Inject(STUDY_RUNTIME) private readonly study?:ReturnType<typeof createStudyRuntime>,
+    @Inject(AI_MONTHLY_BUDGET_RUNTIME) private readonly stopAiBudget?: ReturnType<typeof startAiMonthlyBudgetRuntime>) {}
   // Nest destroys the root module before imported modules. Drain worker/sender before Prisma teardown,
   // for both framework close and native shutdown hooks; relying on beforeApplicationShutdown is too late.
   async onModuleDestroy(): Promise<void> {
     // Explicit material deletion uses the shared storage port; drain it before file infrastructure closes.
     const deletion = await Promise.allSettled([this.study?.close(),this.foxy?.onModuleDestroy(), this.library?.onModuleDestroy(), this.ai?.onModuleDestroy(), this.activityAi?.onModuleDestroy(), this.studentAi?.onModuleDestroy(), this.gradingAi?.onModuleDestroy()]);
-    const outcomes = [...deletion, ...await Promise.allSettled([this.identity.shutdownMail(), this.files?.close(), this.classrooms?.close()])];
+    const outcomes = [...deletion, ...await Promise.allSettled([this.stopAiBudget?.(), this.identity.shutdownMail(), this.files?.close(), this.classrooms?.close()])];
     const failed = outcomes.find(outcome => outcome.status === 'rejected');
     if (failed?.status === 'rejected') throw failed.reason;
   }
@@ -103,7 +108,8 @@ class AppModule implements OnModuleDestroy {
         ...(configuration.classrooms && files && invitationSender
           ? [ClassroomsModule.integrated(database, identity, files, configuration.classrooms, invitationSender, configuration.ai, options.ai)] : [])],
       controllers: [HealthController],
-      providers: [...(configuration.classrooms && files ? [{provide:STUDY_RUNTIME,inject:[PrismaService,IdentityRuntime,FileService],
+      providers: [{ provide: AI_MONTHLY_BUDGET_RUNTIME, inject: [PrismaService], useFactory: startAiMonthlyBudgetRuntime },
+        ...(configuration.classrooms && files ? [{provide:STUDY_RUNTIME,inject:[PrismaService,IdentityRuntime,FileService],
         useFactory:(database:PrismaService,identity:IdentityRuntime,files:FileService)=>createStudyRuntime(database,identity,files,configuration,options)}, { provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, ACADEMIC_FOXY_ACCESS],
         useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: AcademicFoxyAccess) =>
           createFoxyRuntime({ database, fileOperations: createFoxyFileOperations(files), classrooms, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
@@ -135,6 +141,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     installIdentityTransport(app, identity);
     installAgendaTransport(app, identity, app.get(AgendaService));
     installHomeTransport(app, identity, app.get<HomeService>('HomeService'));
+    installAiQuotaTransport(app, identity, app.get(PrismaService));
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
     if (configuration.classrooms) installClassroomsTransport(app, identity, academicHttpServices(app.get<AcademicRuntime>(ACADEMIC_RUNTIME)),
       { ai: configuration.ai ? app.get(ClassroomAiRuntime).service : undefined,

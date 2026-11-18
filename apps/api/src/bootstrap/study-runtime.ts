@@ -16,10 +16,13 @@ import { executeStudy, generateDevelopmentFeedback } from '../../../../src/core/
 import type { StudyProvider } from '../../../../src/core/domain/study/engine.ts';
 import { createGeminiStudyProvider } from '../modules/study/generation/infrastructure/providers/study-adapter.ts';
 import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
+import { createStudyImages } from './study-images.ts';
+import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
 
 export const STUDY_RUNTIME = 'StudyRuntime';
 export interface StudyRuntimeOptions {
   readonly study?: { provider: StudyProvider };
+  readonly studyImageProvider?: VisualProviders['IMAGE'];
   readonly ai?: AiRuntimeOverride;
 }
 
@@ -44,7 +47,11 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     return createGeminiStudyProvider(configuration.ai, database, context.ownerId, context.requestId, context.authorize, undefined,
       { waitForAdmission: flow === 'feedback', flow });
   };
-  const service = createStudyService({ database, authenticate, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
+  const images = createStudyImages(database, files.scanner, configuration, {
+    enabled: options.ai !== undefined || options.study !== undefined || Object.hasOwn(options, 'studyImageProvider'),
+    provider: options.studyImageProvider,
+  });
+  const service = createStudyService({ database, authenticate, images, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
     generate: (input, context) => executeStudy(input, provider(context, input.action === 'CHAT' ? 'chat' : 'tool')),
     feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources,
       provider(context, 'feedback'), input.history) });

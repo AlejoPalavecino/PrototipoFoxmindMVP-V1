@@ -232,7 +232,7 @@ test('completion racing expiry recovery settles a dispatched reservation once', 
     const blocked = new Promise(resolve => { reached = resolve; });
     const gate = new Promise(resolve => { release = resolve; });
     const gated = { $transaction: fn => database.$transaction(raw => fn({ $queryRawUnsafe: async (sql, ...args) => {
-      if (/pg_advisory_xact_lock\(78123001\)/iu.test(sql)) { reached(); await gate; }
+      if (/pg_advisory_xact_lock\(78123002\)/iu.test(sql)) { reached(); await gate; }
       return raw.$queryRawUnsafe(sql, ...args);
     } })) };
     const completion = api.createFoxyTurnCompletion({ database: gated, budget: x.budget, configuration: { maxJobAgeMs: config.maxJobAgeMs } });

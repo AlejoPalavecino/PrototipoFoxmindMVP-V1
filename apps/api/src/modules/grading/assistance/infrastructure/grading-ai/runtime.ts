@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { Transaction } from '../../../../classrooms/public.ts';
 import type { SqlDatabase } from '../../../../../../../../src/core/contracts/sql.ts';
 import type { DiagnosticSink } from '../../../../../../../../src/core/contracts/diagnostics.ts';
+import { isAiBudgetRejectionCode } from '../../../../../../../../src/core/contracts/ai-quota.ts';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import { validateGradingAiProposal } from '../../../../../../../../src/core/domain/grading/grading-ai.ts';
 import { createGradingAiSqlQueue, type GradingAiLease, type GradingAiConfiguration } from './sql-queue.ts';
@@ -9,6 +10,7 @@ import { configurationForJob } from '../../../../../platform/ai/execution-snapsh
 import { gradingAiSnapshotFromSql } from './snapshot-sql.ts';
 import type { GradingAiEvidence } from './provider.ts';
 import { SerialJobScheduler } from './scheduler.ts';
+import { usageFromAiFailure } from '../../../../../platform/ai/execution.ts';
 
 type Config = GradingAiConfiguration & Pick<AiConfiguration, 'maxInputTokens'>;
 type ProviderInput = { evidence: GradingAiEvidence; signal: AbortSignal };
@@ -126,14 +128,19 @@ export class GradingAiRuntime {
         return !stale;
       });
       if (!reserved) { await this.queue.finish(job, stale ? 'STALE' : 'FAILED'); return true; }
-      if (signal.aborted) { await this.queue.finish(job, 'PROVIDER_OUTCOME_UNKNOWN'); return true; }
+      if (signal.aborted) { await this.queue.finish(job, 'FAILED', undefined, undefined, undefined, { inputTokens: 0, outputTokens: 0 }); return true; }
       let response: Awaited<ReturnType<GradingAiProvider['generateGradingAi']>>;
       try { response = await provider.generateGradingAi(input); }
-      catch { await this.queue.finish(job, 'PROVIDER_OUTCOME_UNKNOWN'); return true; }
+      catch (error) { await this.queue.finish(job, 'PROVIDER_OUTCOME_UNKNOWN', undefined, undefined, undefined, usageFromAiFailure(error)); return true; }
       usage = { inputTokens: response.inputTokens, outputTokens: response.outputTokens };
       const proposal = validateGradingAiProposal(response.json, snapshot.spec);
       await this.queue.finish(job, 'READY', proposal, async tx => (await gradingAiSnapshotFromSql(tx, job, {}, false, true)).fingerprint === loaded.fingerprint, loaded.fingerprint, usage);
-    } catch { this.diagnostic('grading-ai.scheduler', false, 0); await this.queue.finish(job, 'FAILED', undefined, undefined, undefined, usage); }
+    } catch (cause) {
+      this.diagnostic('grading-ai.scheduler', false, 0);
+      const code = (cause as { code?: unknown })?.code;
+      const state = isAiBudgetRejectionCode(code) ? code : 'FAILED';
+      await this.queue.finish(job, state, undefined, undefined, undefined, usage);
+    }
     return true;
   }
   private diagnostic(operation: 'grading-ai.scheduler' | 'grading-ai.recover' | 'grading-ai.claim', success: boolean, durationMs: number) {

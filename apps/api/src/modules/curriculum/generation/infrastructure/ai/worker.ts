@@ -8,6 +8,8 @@ import { reserve, settle } from './budget.ts';
 import { bounded, errorCode, prepare, proposal } from './execution.ts';
 import { businessSource, checkSource, requireGrant } from './worker-source.ts';
 import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
+import { usageFromAiFailure } from '../../../../../platform/ai/execution.ts';
+import { recordObservedCost } from '../../../../../platform/ai/observed-cost.ts';
 
 interface Outcome { proposal?: ExtractedCurriculum; error?: ExtractionError;
   usage?: { inputTokens: number | null; outputTokens: number | null } }
@@ -97,15 +99,19 @@ export class ClassroomAiWorker {
       prepared = await prepare(options, grant, signal);
     }
     catch (error) { return { error: errorCode(error, false) }; }
-    const admitted = await this.dispatch(row, grant, signal, prepared.count, options);
-    if (!admitted) return { error: 'AI_BUDGET_EXCEEDED' };
+    try {
+      const admitted = await this.dispatch(row, grant, signal, prepared.count, options);
+      if (!admitted) return { error: 'AI_BUDGET_EXCEEDED' };
+    } catch (error) { return { error: errorCode(error, false) }; }
+    let usage: Outcome['usage'];
     try {
       const result = await bounded(() => options.provider.extractStudyPlan(prepared.input), signal);
+      usage = result;
       const extracted = proposal(result.json);
       if (prepared.input.document.kind === 'text' && !extracted.warnings.includes('DOCX_IMAGES_OMITTED'))
         extracted.warnings.push('DOCX_IMAGES_OMITTED');
       return { proposal: extracted, usage: result };
-    } catch (error) { return { error: errorCode(error, true) }; }
+    } catch (error) { return { error: errorCode(error, true), usage: usage ?? usageFromAiFailure(error) }; }
   }
   private dispatch(row: JobRow, grant: PlanGrant, signal: AbortSignal, count: number, options: ClassroomAiOptions): Promise<boolean> {
     return transaction(options, async tx => {
@@ -120,7 +126,9 @@ export class ClassroomAiWorker {
     return transaction(options, async tx => {
       // Completion still validates custody after deadline; the grant is fenced by DB lease.
       const valid = await checkSource(tx, options, row, grant, signal.aborted ? new AbortController().signal : signal);
-      if (!await fenced(tx, row, this.options.configuration.maxJobAgeMs)) return;
+      if (!await fenced(tx, row, this.options.configuration.maxJobAgeMs)) {
+        return recordObservedCost(tx, { namespace: 'classroom_curriculum_extractions', jobId: row.id, ownerId: row.owner_id }, outcome.usage);
+      }
       await this.finish(tx, row, valid ? outcome.error ? 'FAILED' : 'READY' : 'STALE', outcome, options);
     });
   }

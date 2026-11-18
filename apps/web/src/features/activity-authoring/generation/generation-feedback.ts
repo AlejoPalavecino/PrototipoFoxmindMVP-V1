@@ -23,7 +23,9 @@ export const generationErrors: Record<string, string> = {
   INVALID_AI_OUTPUT: 'La respuesta no cumple el formato. Puedes solicitar una generación nueva.',
   AI_UNAVAILABLE: 'La generación con IA no está disponible. Puedes crear la actividad manualmente.',
   AI_RATE_LIMITED: 'Se alcanzó el límite de solicitudes. Espera antes de generar otra propuesta.',
-  AI_BUDGET_EXCEEDED: 'Se alcanzó el presupuesto de IA disponible.',
+  AI_MONTHLY_BUDGET_EXCEEDED: 'El saldo mensual de IA disponible no alcanza para esta generación. Revisá tu cuota en la cabecera.',
+  AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 'FoxMind alcanzó su límite diario general de IA. Volvé a intentar cuando se renueve.',
+  AI_BUDGET_EXCEEDED: 'Alcanzaste tu límite diario de IA. Volvé a intentar cuando se renueve.',
   AI_TIMEOUT: 'La generación superó el tiempo disponible.',
   PROVIDER_OUTCOME_UNKNOWN: 'No se pudo confirmar el resultado del proveedor. Puede haber consumo aunque no haya una propuesta.',
 };

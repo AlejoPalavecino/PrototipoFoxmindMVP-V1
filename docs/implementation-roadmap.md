@@ -1,5 +1,7 @@
 # Estado de FoxMind
 
+Cuota mensual de IA implementada en el candidato local. PostgreSQL registra USD 3 por estudiante y USD 5 por docente con reservas compartidas entre herramientas, conciliación y comprobantes de proveedor. La cabecera muestra el saldo y Mi Estudio incorpora imágenes privadas. [Aceptación y estado de verificación](../odd/tasks/monthly-ai-quota.md).
+
 La comparación de dos aperturas ya admite cantidades exactas de flechas en un PNG privado. El [seguimiento de precisión y lectura de PDF](work-log/2026-11-17-root-precision-y-lectura.md) y el [piloto listo para coordinar](verification/piloto-con-participantes.md) continúan el cierre del arnés pedagógico.
 
 Foxy incorpora planes de clase, rúbricas y recursos visuales. Mi Estudio permite crear apuntes y esquemas, trabajar con devoluciones y volver desde Agenda a un repaso. El [tablero pedagógico](../odd/tasks/pedagogical-harness.md) y el [registro de verificación](work-log/2026-11-17-root-cierre-arnes.md) reúnen las pruebas de los recorridos, la compatibilidad de los archivos exportados y el guion para evaluar aprendizaje y tiempo docente con participantes.
@@ -40,7 +42,7 @@ La implementación funcional previa tiene su [registro](work-log/2026-11-15-root
 - El [informe de paridad](verification/product-parity/README.md) distingue pruebas automatizadas, recorridos reales, capturas y límites. Las galerías del 12 de noviembre acreditan su candidato histórico, no este rediseño.
 - La [revisión de Agenda del 12 de noviembre](work-log/2026-11-12-root-agenda-publication.md) registró seis hallazgos visuales para su versión. Las conclusiones sobre el rediseño se limitan a la evidencia de sus propios recorridos.
 - La PR y la integración a `main` están autorizadas para este refactor, sujetas a la verificación del candidato combinado. La aplicación local del worktree de paridad usa Gemini real por pedido del usuario; los ensayos automatizados aislados conservan proveedores sintéticos. La integración no incluye despliegue ni actualización de datos retenidos.
-- Hosting, presupuesto, proveedores cloud, cuota productiva y piloto siguen pendientes de decisión. La conversión DOC/PPT requiere el adaptador aislado documentado; no sustituye un servicio externo en silencio.
+- Hosting, presupuesto global, proveedores cloud, cupo productivo de almacenamiento y piloto siguen pendientes de decisión. La cuota de IA por cuenta está definida en USD 3 para estudiantes y USD 5 para docentes. La conversión DOC/PPT requiere el adaptador aislado documentado.
 
 ## Arquitectura IA integrada — 2026-11-16
 

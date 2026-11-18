@@ -11,7 +11,7 @@ export interface GradingPublicationOperations {
   publish(revision: string, signal?: AbortSignal): Promise<GradingData>;
 }
 export interface GradingAiJob {
-  id: string; state: string; snapshotHash: string | null; proposal: GradingAiProposal | null;
+  id: string; state: string; snapshotHash: string | null; proposal: GradingAiProposal | null; error?: string | null;
 }
 export interface GradingAiDecision { requestId: string; revision: string }
 export interface GradingAiApplication extends GradingAiDecision { snapshotHash: string; proposal: GradingAiProposal }

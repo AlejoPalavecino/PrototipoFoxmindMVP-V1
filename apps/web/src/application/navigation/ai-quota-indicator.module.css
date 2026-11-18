@@ -1,0 +1,59 @@
+.trigger {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 .32rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: .35rem .55rem;
+  border: 1px solid #c6d4ce;
+  border-radius: 12px;
+  background: #f0f7f3;
+  color: #264e3d;
+  font-weight: 800;
+  font-size: .8rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.trigger:hover { background: #e3f1e8; }
+.trigger:focus-visible { outline: 2px solid #375a49; outline-offset: 2px; }
+.prefix, .separator, .available { color: #375a49; }
+.detail { display: grid; gap: 1rem; }
+.detail :is(p, h3, dl, dd) { margin: 0; }
+.detail [role="status"]:empty { display: none; }
+.detail [role="status"] { color: #52687b; }
+.summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.summary > div { padding: .75rem; border: 1px solid #d6e3dc; border-radius: 12px; background: #f5faf7; }
+.summary dt { margin-bottom: 3px; }
+.summary dd, .tools td { font-variant-numeric: tabular-nums; }
+.summary dd { font-weight: 700; }
+.renewal { color: #52687b; }
+.tools { width: 100%; border-collapse: collapse; }
+.tools :is(th, td) { border-bottom: 1px solid #d6e3dc; padding: 8px 3px; text-align: right; }
+.tools th:first-child { text-align: left; }
+.tools tbody th { font-weight: 650; overflow-wrap: anywhere; }
+.operations { display: block; color: #52687b; font-size: .7rem; white-space: nowrap; }
+.usageNote { font-size: .8rem; color: #52687b; }
+:global(#foxmind-product.fm3d-theme) .dialog { max-height: 88dvh; overflow-y: auto; }
+
+@media (min-width: 1001px) {
+  :global(.fm-navbar-private[data-collapsed=true]) .trigger { width: 100%; font-size: .7rem; flex-direction: column; }
+  :global(.fm-navbar-private[data-collapsed=true]) :is(.separator, .available) { display: none; }
+}
+@media (max-width: 520px) {
+  .available { display: none; }
+  .trigger { font-size: .75rem; }
+  .tools :is(th, td) { font-size: .75rem; }
+}
+@media (max-width: 360px) {
+  .trigger { font-size: .7rem; flex-direction: column; }
+  .separator { display: none; }
+}
+@media (max-width: 1000px) {
+  :global(#foxmind-product.fm3d-theme:has(.parity-ai-chat)) .trigger {
+    height: 44px;
+    padding-block: 0;
+  }
+}

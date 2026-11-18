@@ -136,7 +136,7 @@ Conversaciones admite título editable y búsqueda/filtro por contexto general o
 
 Foxy docente y el espacio de estudio comparten una barra compacta de contexto, historial, herramientas, creaciones, biblioteca y Nuevo chat. Abrir esos paneles conserva el borrador. En un aula propia, el docente puede usar el contexto completo o acotar temas y fuentes. El servidor guarda la revisión y el conjunto autorizado para cada generación. Si excede las cuotas, solicita una selección menor. El mensaje saliente se muestra de inmediato; la bienvenida se retira y el historial conserva la posición de lectura. El chat acompaña mensajes y cambios de tamaño sólo si se estaba al final; permite volver explícitamente a mensajes nuevos. La carga distingue envío, cola y procesamiento. Detener registra la cancelación por dueño y descarta las respuestas tardías. El estado respeta movimiento reducido. Error estudiantil conserva la entrada; envío docente incierto conserva la solicitud para reintento explícito sin duplicación. En Foxy docente, una consulta general sin adjuntos puede mostrar texto progresivo de Gemini mientras se procesa. La vista parcial es privada y transitoria: el turno definitivo se valida antes de guardarse y publicar un recurso sigue siendo una acción separada.
 
-Configuración, presupuesto, límites y claves permanecen en backend. [Guías](engineering/ai/README.md) y [contrato de corrección](../odd/tasks/grading-ai-issue-2.md). El ensayo de esta base usa proveedores sintéticos; no hereda prueba externa de historia retirada.
+El backend controla la cuota mensual por cuenta, de USD 3 para estudiantes y USD 5 para docentes. Ambos roles pueden generar imágenes y esquemas dentro de su espacio privado. La cabecera permite consultar el saldo propio, reservas vigentes, consumo por herramienta y fecha de renovación. El mes se renueva a medianoche de Buenos Aires. La cuenta conserva su saldo ante consumo incierto sin confirmar al vencer la reserva de 24 horas. Tarifas, claves y conciliación quedan en backend. [Guía de contabilidad y operación](engineering/ai/README.md) y [contrato de corrección](../odd/tasks/grading-ai-issue-2.md).
 
 ## 10. Agenda
 
@@ -176,6 +176,6 @@ Las propuestas de apunte, esquema, práctica y simulacro pueden quedar asociadas
 
 Quitar material, eliminar carpeta y agregar repasos a Agenda requieren confirmación en un diálogo de FoxMind. Cancelar o pulsar Escape conserva el estado anterior. Eliminar una carpeta cancela sus avisos futuros y conserva las sesiones ya incorporadas a Agenda. [Guía de Estudio](engineering/study/README.md)
 
-Hosting, proveedores cloud, presupuesto, cuota productiva y piloto real requieren decisión humana. Una guía o estado implementado no autoriza su ejecución sobre datos retenidos, credenciales o servicios pagos.
+El presupuesto global de la plataforma, el cupo de almacenamiento productivo, el hosting y el piloto real siguen pendientes de decisión. La cuota mensual de IA por cuenta se especifica en la sección de asistencia IA.
 
 La [matriz de flujos](verification/flows.md) explicita PASS, alcance limitado y no ensayado. No es una certificación de seguridad/rendimiento o cobertura exhaustiva de todas las combinaciones.

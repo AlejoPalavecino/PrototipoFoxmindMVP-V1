@@ -29,7 +29,8 @@ export function normalizeTextError(error: unknown): AiError {
  if (error instanceof AiError) return error;
  const value = error as { code?: unknown; status?: number; usage?: unknown; dispatched?: boolean };
  const codes = ['AI_UNAVAILABLE','AI_INPUT_LIMIT','AI_RATE_LIMITED','AI_TIMEOUT','PROVIDER_OUTCOME_UNKNOWN','INVALID_AI_OUTPUT',
-  'FORBIDDEN','AUTH_REQUIRED','EMAIL_VERIFICATION_REQUIRED','SOURCE_UNAVAILABLE','CONFLICT','QUOTA_EXCEEDED','AI_BUDGET_EXCEEDED'];
+  'FORBIDDEN','AUTH_REQUIRED','EMAIL_VERIFICATION_REQUIRED','SOURCE_UNAVAILABLE','CONFLICT','QUOTA_EXCEEDED',
+  'AI_BUDGET_EXCEEDED','AI_GLOBAL_DAILY_BUDGET_EXCEEDED','AI_MONTHLY_BUDGET_EXCEEDED'];
  const code = codes.includes(String(value?.code)) ? String(value.code) : value?.status === 429 ? 'AI_RATE_LIMITED' : 'AI_UNAVAILABLE';
  return Object.assign(new AiError(code as ConstructorParameters<typeof AiError>[0]),
   ...(value?.usage ? [{ usage: value.usage }] : []), ...(value?.dispatched !== undefined ? [{ dispatched: value.dispatched }] : []));

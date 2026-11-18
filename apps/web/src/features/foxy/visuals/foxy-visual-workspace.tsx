@@ -5,6 +5,7 @@ import styles from '../workspace/foxy-workspace.module.css';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { FoxyWait } from '../conversations/foxy-wait';
 import { ChatByline, type ChatIdentity } from '../../../../../shared-ui/FoxyChatLayout';
+import { isAiBudgetRejectionCode, type AiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
 type Props = { capabilities: Record<FoxyVisualKind, boolean>;
   topics?: {id:string;name:string}[]; initialTopicIds?:string[]; contextName?:string; materialCount?:number;
   kind: FoxyVisualKind; prompt: string; aspectRatio: FoxyAspectRatio; jobs: FoxyVisualJob[]; selectedId: string | null; busy: boolean; error: string | null; pending?: unknown;
@@ -47,6 +48,17 @@ export function FoxyVisualWorkspace(props: Props) {
 
 export type FoxyVisualTranscript = { jobs: FoxyVisualJob[]; pending?: { prompt: string } | null; error?: string | null; busy?: boolean;
   onStop: (id: string) => void; onRetry: () => void; onRefresh?: () => void; onOpen: (id: string) => void };
+
+const budgetMessages: Record<AiBudgetRejectionCode, string> = {
+  AI_MONTHLY_BUDGET_EXCEEDED: 'El saldo mensual de IA disponible no alcanza para esta generación. Revisá tu cuota en la cabecera.',
+  AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 'FoxMind alcanzó su límite diario general de IA. Volvé a intentar cuando se renueve.',
+  AI_BUDGET_EXCEEDED: 'Alcanzaste tu límite diario de IA. Volvé a intentar cuando se renueve.',
+};
+
+function terminalVisualMessage(job: FoxyVisualJob) {
+  if (job.state === 'CANCELLED') return 'Detuviste la propuesta. Podés preparar otra cuando quieras.';
+  return isAiBudgetRejectionCode(job.errorCode) ? budgetMessages[job.errorCode] : 'No pudimos completar esta propuesta. Podés volver a prepararla desde Herramientas.';
+}
 export function FoxyVisualTimeline({ jobs, pending, error, busy, onStop, onRetry, onRefresh, onOpen, identity }: FoxyVisualTranscript & { identity?: ChatIdentity }) {
   const request = (prompt: string) => <div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{prompt}</p></div>;
   return <div className="parity-foxy-visualTimeline">
@@ -54,7 +66,7 @@ export function FoxyVisualTimeline({ jobs, pending, error, busy, onStop, onRetry
     {jobs.map(job=><article key={job.id} className={`${styles.turn} parity-ai-turn`}>{job.prompt&&request(job.prompt)}
       {job.state==='QUEUED'||job.state==='RUNNING'?<FoxyWait generating queued={job.state==='QUEUED'} title={job.state==='QUEUED'?'Tu solicitud está en cola':job.kind==='IMAGE'?'Diseñando una imagen para explicarla':'Diseñando tu esquema'} onStop={()=>onStop(job.id)} disabled={busy}/>
       :job.state==='READY'?<div className="parity-foxy-visualReady"><img src="/brujula/foxy-logotipo-redondo.webp" width={36} height={36} alt=""/><div><b>Foxy</b><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p><button type="button" onClick={()=>onOpen(job.id)}><FoxmindIcon name="file"/>Abrir creación</button></div></div>
-      :<p role="status">{job.state==='CANCELLED'?'Detuviste la propuesta. Podés preparar otra cuando quieras.':job.errorCode==='AI_BUDGET_EXCEEDED'?'Se agotó el cupo de IA. Volvé a intentar cuando se renueve.':'No pudimos completar esta propuesta. Podés volver a prepararla desde Herramientas.'}</p>}</article>)}
+      :<p role="status">{terminalVisualMessage(job)}</p>}</article>)}
     {error&&<div role="alert"><p>{error}</p>{pending?<button type="button" disabled={busy} onClick={onRetry}>Reintentar solicitud</button>:onRefresh&&<button type="button" disabled={busy} onClick={onRefresh}>Volver a consultar</button>}</div>}
   </div>;
 }
