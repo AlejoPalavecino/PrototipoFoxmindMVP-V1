@@ -120,6 +120,8 @@ Tres medidas independientes: cumplimiento de entregas, rendimiento y avance de t
 
 Las familias son extracción de plan, generación de actividad, análisis individual, corrección asistida, Foxy docente y Estudio privado. Cada familia conserva sus reglas de privacidad, contexto y autorización.
 
+En los pilotos pedagógicos, el chat de Estudio ofrece explicación o ayuda gradual según el pedido. Las prácticas ejercitan aplicación y las devoluciones se apoyan en el intento entregado. En actividades, el borrador docente pide un desafío acorde al objetivo y al material, con criterios observables y revisión en el editor.
+
 Análisis individual: métricas anónimas, orientación docente; no corrección de respuestas ni diagnóstico/predicción personal. Corrección asistida: entrega/archivos autorizados y rúbrica opcional; minimizar datos no garantiza texto libre anónimo. Propuesta privada, docente usa/edita/descarta y publica por separado; motor objetivo permanece determinista.
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.

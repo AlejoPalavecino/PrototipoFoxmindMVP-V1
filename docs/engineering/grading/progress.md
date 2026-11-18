@@ -24,6 +24,8 @@ Ver recorrido abre un diálogo con entregas, promedio publicado y actividades de
 
 Mi progreso muestra el cumplimiento propio, promedio publicado, devoluciones y El camino de la clase. La acción Seguir con mis actividades abre Actividades; Ver devolución abre el intento que produjo la nota efectiva publicada mediante `publishedAttemptId`, incluso cuando existe una reentrega posterior sin publicar. Su identidad procede de la misma calificación publicada y autorizada que la nota; no del último intento privado. El progreso por unidad se consulta desde `units` y `topics`, independientemente de actividades retiradas o notas. Unidades sin temas indican ausencia de denominador y no presentan un porcentaje inventado. La proyección propia y la evidencia para análisis individual omiten el campo docente `review`, sin notas privadas ni datos de compañeros.
 
+La orientación de Mi progreso prioriza una reentrega habilitada e indica la actividad por nombre. Si quedan entregas obligatorias y el aula admite cambios, identifica una que puede consultar. Cuando corresponde sólo consultar, sugiere usar una devolución publicada para elegir un ajuste que aplicar en la próxima actividad. El criterio se deriva de los registros que recibe el estudiante. El [análisis individual](../ai/student-analysis.md) es una vista orientativa para docentes.
+
 La verificación de paridad actual se registra en [el trabajo de Progreso](../../work-log/2026-11-16-classroom-progress-exact.md); las pruebas de componentes no sustituyen la comparación visual del coordinador.
 
 Fuentes: [servicio](../../../apps/api/src/bootstrap/academic-grading-composition.ts), [esquema](../../../prisma/schema.prisma). [Flujos actuales](../../verification/flows.md).
