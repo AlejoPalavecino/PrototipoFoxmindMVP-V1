@@ -18,5 +18,8 @@ test('teacher sees the named activity alongside its evidence reference', async (
     await view.flush();
     const html = renderToStaticMarkup(view.tree);
     assert.match(html, /Experimento de luz/); assert.match(html, /A1/); assert.match(html, /Entrega puntual/);
+    assert.match(html, /Próximos pasos para acompañar/);
+    assert.match(html, /entregas, puntualidad y notas publicadas/);
+    assert.match(html, /Volver a consultar/);
   } finally { view.close(); }
 });

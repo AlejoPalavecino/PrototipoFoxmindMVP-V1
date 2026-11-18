@@ -1,6 +1,7 @@
 import { validateStudyCommand } from '../../domain/command-policy.ts';
 import type { StudyCommandPorts } from '../../application/ports.ts';
 import { studyFail, studyId, validateFolder } from '../../../../../../../src/core/domain/study/folders.ts';
+import { studyResourceMarkdown } from '../../../../../../../src/core/domain/study/resource-markdown.ts';
 import { STUDY_GENERATION_PENDING_MS } from '../../domain/state.ts';
 import type { FolderRow, StudyState, StudyQuery, StudySource, StudyGenerationIntent, StudyGenerationView } from '../../application/contracts.ts';
 import { refsAvailable, runSourcesCommand } from '../../sources/public.ts';
@@ -23,7 +24,11 @@ export function publicState(state: StudyState, sources: StudySource[], attachmen
         const turns = c.turns.map(({ attachmentIds: _, ...turn }) =>
             ({ ...turn, ...(turn.generation ? { generation: generationView(turn.generation as StudyGenerationIntent, state) } : {}), sourceUnavailable: !refsAvailable(turn, allowed) }));
         return { ...c, turns, sourceUnavailable: turns.some(turn => turn.sourceUnavailable) };
-    }), creations: state.creations.map(c => ({ ...c, sourceUnavailable: !refsAvailable(c, [...sources, ...attachments.filter(source => c.conversationId && source.conversationId === c.conversationId)]) })),
+    }), creations: state.creations.map(c => ({
+        ...c,
+        markdown: c.revision === 1 && typeof c.markdown === 'string' ? studyResourceMarkdown(c.markdown) : c.markdown,
+        sourceUnavailable: !refsAvailable(c, [...sources, ...attachments.filter(source => c.conversationId && source.conversationId === c.conversationId)]),
+    })),
     practices: state.practices.map(practiceView), exams: state.exams, memory: state.memory };
 }
 async function validatePlan(tx: StudyQuery, row: FolderRow, options: StudyCommandPorts) {

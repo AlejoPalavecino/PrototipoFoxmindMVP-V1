@@ -1,16 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {studyReviewAvailability} from '../apps/web/src/features/study/model/study-time.ts';
+import * as studyTime from '../apps/web/src/features/study/model/study-time.ts';
 import {planExam} from '../src/core/domain/study/engine.ts';
 import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
 import {descendants,hookView} from './agenda-ui-helpers.test.mjs';
+const {studyReviewAvailability}=studyTime;
 
 test('el repaso reparte disponibilidad antes del examen en la zona elegida',()=>{
- const actual=studyReviewAvailability({start:'2026-11-20',exam:'2026-11-26',count:3,time:'17:00',minutes:25,zone:'America/Argentina/Buenos_Aires'});
+ const actual=studyReviewAvailability({start:'2026-11-20',exam:'2026-11-26',count:3,time:'17:00',minutes:25,zone:'America/Argentina/Buenos_Aires',now:Date.parse('2026-11-18T15:00Z')});
  assert.deepEqual(actual,[{start:'2026-11-20T20:00:00.000Z',minutes:25},{start:'2026-11-22T20:00:00.000Z',minutes:25},{start:'2026-11-25T20:00:00.000Z',minutes:25}]);
 });
+
+test('el inicio sugerido respeta la hora local y un horario vencido indica los dos ajustes posibles',()=>{
+ const zone='America/Argentina/Buenos_Aires', now='2026-11-18T01:20:00Z';
+ assert.equal(studyTime.studyReviewStartDate('2026-11-17T19:59:00Z',zone,'17:00'),'2026-11-17');
+ assert.equal(studyTime.studyReviewStartDate(now,zone,'17:00'),'2026-11-18');
+ const options={start:'2026-11-17',exam:'2026-11-24',count:3,time:'17:00',minutes:25,zone,now:Date.parse(now)};
+ assert.throws(()=>studyReviewAvailability(options),/elegí una fecha de inicio futura o un horario posterior/i);
+ assert.equal(studyReviewAvailability({...options,start:'2026-11-18'})[0].start,'2026-11-18T20:00:00.000Z');
+ assert.equal(studyReviewAvailability({...options,time:'22:30'})[0].start,'2026-11-18T01:30:00.000Z');
+});
 test('rechaza sesiones que se pisan, fechas inválidas y horarios fuera del día',()=>{
- const valid={start:'2026-11-20',exam:'2026-11-26',count:3,time:'17:00',minutes:25,zone:'America/Argentina/Buenos_Aires'};
+ const valid={start:'2026-11-20',exam:'2026-11-26',count:3,time:'17:00',minutes:25,zone:'America/Argentina/Buenos_Aires',now:Date.parse('2026-11-18T15:00Z')};
  for(const change of [{exam:'2026-11-20'},{exam:'2026-11-21'},{start:'2026-02-30'},{count:1},{count:6},{time:'23:50'}])assert.throws(()=>studyReviewAvailability({...valid,...change}));
 });
 

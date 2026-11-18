@@ -4,6 +4,7 @@ import { getAiTextClient, countForExecution, createExecutionTransport } from '..
 import { AiError } from '../apps/api/src/platform/ai/errors.ts';
 import { createGeminiExtractionAdapter } from '../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts';
 import { createGeminiActivityGenerationAdapter } from '../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts';
+import { activitySystemInstruction, activitySystemInstructionV1, activitySystemInstructionV2 } from '../apps/api/src/modules/activities/generation/infrastructure/providers/activity-prompt.ts';
 import { createStudentAiProvider } from '../apps/api/src/modules/grading/student-analysis/infrastructure/student-ai/provider.ts';
 import { GeminiGradingAiProvider } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/provider.ts';
 import { createGeminiFoxyTextAdapter } from '../apps/api/src/modules/foxy/turns/infrastructure/providers/foxy-adapter.ts';
@@ -203,6 +204,26 @@ for (const provider of ['gemini', 'anthropic']) for (const task of Object.keys(v
     assert.equal(calls.length, 2);
     await assert.rejects(adapter[f.generate](f.input));
     assert.equal(calls.length, 2, 'no extra count or generation after consuming preflight');
+  });
+}
+
+for (const provider of ['gemini', 'anthropic']) {
+  test(`activities count and generate with the stored prompt identity over ${provider}`, async t => {
+    const config = configuration(provider);
+    Object.assign(config.executionProfile, { task: 'activities', responseVersion: 'activity-proposal-v1' });
+    const f = adapterFixture('activities', config), calls = network(t, provider, { text: JSON.stringify(f.json) });
+    for (const [version, instruction] of [
+      ['activity-proposal-v1', activitySystemInstructionV1],
+      ['activity-proposal-v2', activitySystemInstructionV2],
+      ['activity-proposal-v3', activitySystemInstruction],
+    ]) {
+      config.executionProfile.promptVersion = version;
+      const adapter = f.create(), input = { ...f.input };
+      assert.equal(await adapter[f.count](input), 40);
+      assert.deepEqual((await adapter[f.generate](input)).json, f.json);
+      for (const { body } of calls.slice(-2)) assert.ok(JSON.stringify(body).includes(JSON.stringify(instruction)), version);
+    }
+    assert.equal(calls.length, 6);
   });
 }
 

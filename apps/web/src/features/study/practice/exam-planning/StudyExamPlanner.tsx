@@ -8,7 +8,10 @@ import { useEffect, useState } from 'react';
 import type { StudyDetail } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../../shared-ui/feedback';
-import { studyInstant, studyLocalMinute, studyReviewAvailability } from '../../model/study-time';
+import { studyInstant, studyLocalMinute, studyReviewAvailability, studyReviewStartDate } from '../../model/study-time';
+import { studyReviewActivities } from '../../../../../../../src/core/domain/study/review.ts';
+
+const defaultReviewTime = '17:00';
 export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onClose, onPrepared, }: {
   detail: StudyDetail;
   examId?: string;
@@ -19,13 +22,15 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
   onPrepared?: (id: string) => void;
 }) {
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const [title, setTitle] = useState(''), [start, setStart] = useState(new Date().toLocaleDateString('en-CA')), [date, setDate] = useState(''), [time, setTime] = useState('17:00');
+  const [title, setTitle] = useState(''), [date, setDate] = useState(''), [time, setTime] = useState(defaultReviewTime);
+  const [start, setStart] = useState(() => studyReviewStartDate(new Date().toISOString(), zone, defaultReviewTime));
   const [count, setCount] = useState(3), [minutes, setMinutes] = useState(25), [topics, setTopics] = useState<string[]>([]), [error, setError] = useState('');
   const [createdId, setCreatedId] = useState(''), [dirty, setDirty] = useState(false), [selection, setSelection] = useState<string[]>([]), [agendaNotice, setAgendaNotice] = useState('');
   const exam = detail.exams.find((item) => item.id === (examId ?? createdId));
   const [sessions, setSessions] = useState<StudyDetail['exams'][number]['sessions']>([]), [editing, setEditing] = useState<StudyDetail['exams'][number]['sessions'][number]>();
   const [confirmation, setConfirmation] = useState(false), [saving, setSaving] = useState(false);
   const allTopics = detail.folder.units.flatMap((unit) => unit.topics);
+  const activities = studyReviewActivities(sessions, exam?.timeZone ?? zone);
   useEffect(() => onDirtyChange(dirty || saving), [dirty, saving, onDirtyChange]);
   useEffect(() => {
     if (exam) {
@@ -190,6 +195,7 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
       {renderStudyExamSessions({
         exam,
         sessions,
+        activities,
         selection,
         busy,
         saving,
@@ -216,6 +222,7 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
     </>)}
     {editing && exam && (renderStudyExamSessionEditor({
       editing,
+      suggestedActivity: activities.get(editing.id),
       timeZone: exam.timeZone,
       local,
       setEditing,
@@ -226,6 +233,7 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
     }))}
     {confirmation && exam && (renderStudyExamAgendaConfirmation({
       sessions,
+      activities,
       selection,
       saving,
       busy,

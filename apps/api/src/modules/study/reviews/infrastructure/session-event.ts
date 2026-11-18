@@ -13,6 +13,8 @@ export function studySessionEvent(exam:Record<string,unknown>,session:Record<str
     ||start.getUTCSeconds()||end.getUTCSeconds()||start.getUTCMilliseconds()||end.getUTCMilliseconds())return fail();
   const timeZone=String(session.timeZone??exam.timeZone),a=local(start,timeZone),b=local(end,timeZone);
   const title=String(session.title??exam.title??'Estudio');
-  return parseAgendaEvent({title:(/^repaso\s*:/iu.test(title)?title:`Repaso: ${title}`).slice(0,160),description:`Sesión privada de estudio para ${String(exam.title??'evaluación')}.`,category:'EVALUATION',
+  const context = `Sesión privada de estudio para ${String(exam.title??'evaluación')}.`;
+  const activity = typeof session.activity === 'string' ? session.activity.trim() : '';
+  return parseAgendaEvent({title:(/^repaso\s*:/iu.test(title)?title:`Repaso: ${title}`).slice(0,160),description:activity ? `${context}\n\n${activity}` : context,category:'EVALUATION',
     schedule:{kind:'TIMED',timeZone,startLocal:a.value,endLocal:b.value,startOffsetMinutes:a.offset,endOffsetMinutes:b.offset},repeat:{kind:'NONE'}});
 }

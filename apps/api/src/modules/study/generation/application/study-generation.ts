@@ -1,7 +1,7 @@
 import type { StudyCommandPorts } from '../../application/ports.ts';
 import type { FolderRow, StudyQuery, StudySource, StudyGenerationIntent, StudyState } from '../../application/contracts.ts';
 import { studyFail, studyId, studyObject, studyText } from '../../../../../../../src/core/domain/study/folders.ts';
-import { topicEvidence, type StudyInput, type StudyResult, type StudyAction, type PracticeResult, type SourceRef } from '../../../../../../../src/core/domain/study/engine.ts';
+import { topicEvidence, usesStudyPracticeEvidence, type StudyInput, type StudyResult, type StudyAction, type PracticeResult, type SourceRef } from '../../../../../../../src/core/domain/study/engine.ts';
 import { refsAvailable, conversationSources, selectTopics } from '../../sources/public.ts';
 import { practiceView } from '../../practices/public.ts';
 
@@ -82,7 +82,10 @@ export async function prepareStudyGeneration(tx: StudyQuery, r: FolderRow, p: Re
         if (typeof turn.role !== 'string' || typeof turn.text !== 'string' || !Array.isArray(turn.sourceRefs)) throw new Error('INVALID_STUDY_INPUT');
         const sourceRefs: SourceRef[] = turn.sourceRefs.map(ref => { const value = studyObject(ref); if (typeof value.id !== 'string' || typeof value.version !== 'string') throw new Error('INVALID_STUDY_INPUT'); return { id: value.id, version: value.version }; });
         return { ...turn, role: turn.role, text: turn.text, sourceRefs };
-    }), evidence: topicEvidence(selected, s.practices.filter(x => x.status === 'FINALIZED').map(x => x.result as PracticeResult)), questionCount, difficulty };
+    }), questionCount, difficulty };
+    if (usesStudyPracticeEvidence(kind)) {
+        input.evidence = topicEvidence(selected, s.practices.filter(x => x.status === 'FINALIZED').map(x => x.result as PracticeResult));
+    }
     return { mode: 'generate', action, kind, conversationId: conversation?.id, linkedGeneration, generationRequestId,
         generationIntent, sources, attachmentIds, input };
 }

@@ -36,7 +36,8 @@ async function main() {
       const providers={};
       for (const kind of ['IMAGE','DIAGRAM']) {
         const profile=config.foxyVisual?.configuration.profiles[kind]; if (!profile || !config.ai) throw new Error('Missing visual configuration');
-        const opts={apiKey:config.ai.apiKey,configuration:{model:profile.model,profileVersion:profile.profileVersion,maxInputTokens:profile.maxInputTokens,maxOutputTokens:profile.maxOutputTokens,deadlineMs:config.foxyVisual.providerDeadlineMs}};
+        const deadlineMs=kind==='IMAGE'?config.foxyVisual.imageProviderDeadlineMs:config.foxyVisual.providerDeadlineMs;
+        const opts={apiKey:config.ai.apiKey,configuration:{model:profile.model,profileVersion:profile.profileVersion,maxInputTokens:profile.maxInputTokens,maxOutputTokens:profile.maxOutputTokens,deadlineMs}};
         const png=synthetic && kind==='IMAGE'?await sharp({create:{width:40,height:30,channels:3,background:'#228866'}}).png().toBuffer():null;
         const graph={schemaVersion:'foxy-diagram-v1',title:'Ciclo del agua',description:'Esquema sintético',direction:'TOP_DOWN',nodes:[{id:'agua',label:'Agua'},{id:'vapor',label:'Vapor'}],edges:[{from:'agua',to:'vapor',label:'evaporación'}]};
         const adapter=synthetic?{countTokens:async()=>12,generate:async()=>kind==='IMAGE'?{bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}}:{diagram:graph,usage:{inputTokens:12,outputTokens:20}}}:kind==='IMAGE'?createGeminiFoxyImageAdapter(opts):createGeminiFoxyDiagramAdapter(opts);

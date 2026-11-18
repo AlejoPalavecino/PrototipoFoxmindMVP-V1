@@ -30,7 +30,9 @@ export function createRequestDocuments(files: StudyOptions['files']) {
                 Object.assign(source, content);
                 loaded.set(key, content);
             }
-            operation.input.sources = operation.sources.filter(source => source.text.trim() || source.document);
+            // Feedback history eligibility depends on the same readable sources that the provider receives.
+            if (operation.mode === 'feedback') operation.input = operation.buildInput();
+            else operation.input.sources = operation.sources.filter(source => source.text.trim() || source.document);
             pending.clear();
         },
     };

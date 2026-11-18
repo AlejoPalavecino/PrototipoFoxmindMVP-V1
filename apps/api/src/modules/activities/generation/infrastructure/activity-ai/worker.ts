@@ -53,7 +53,12 @@ export class ActivityAiWorker {
     for (const grant of grants) this.grants.set(grant, row);
     this.controllers.add(controller);
     let options = this.options, invalidProfile = false;
-    try { options = { ...this.options, configuration: configurationForJob(this.options.configuration, row.execution_profile, 'activities') }; }
+    try {
+      const configuration = configurationForJob(this.options.configuration, row.execution_profile, 'activities');
+      invalidProfile = configuration.executionProfile.promptVersion !== row.prompt_version
+        || configuration.executionProfile.responseVersion !== row.schema_version;
+      options = { ...this.options, configuration };
+    }
     catch { invalidProfile = true; }
     const timer = setTimeout(() => controller.abort(), options.configuration.deadlineMs);
     try {

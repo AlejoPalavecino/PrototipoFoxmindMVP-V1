@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID,createHash } from 'node:crypto';
-import { PDFDocument } from 'pdf-lib';
-import { withAgendaDatabase } from '../../../../../../../../tests/agenda-database-helpers.test.mjs';
+import { readFile } from 'node:fs/promises';
+import { PDFDocument, PDFName } from 'pdf-lib';
+import { createAgendaDatabaseFixture, withAgendaDatabase } from '../../../../../../../../tests/agenda-database-helpers.test.mjs';
 import { transactionDatabase } from '../../../../../../../../tests/classroom-ai-database.test.mjs';
 import { homeFixture } from '../../../../../../../../tests/foxmind-3d-repository-fixture.test.mjs';
 
 const hash='a'.repeat(64);
-async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true}={}){
+async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true,fileAccess,markdown='Contenido'}={}){
   const [{createDurableFoxyPublicationFiles},{createFoxyPublicationAuthority},{createFoxyPublicationQueue},{createFoxyPublicationRepository},
     {createFoxyResourceRepository},{createFoxyConversationRepository},{createFoxyTurnRepository},{FileService}]=await Promise.all([
     import('../../../../../bootstrap/files-foxy-publication-composition.ts'),import('../../../../../bootstrap/foxy-service-factories.ts'),import('../../../../foxy/publications/infrastructure/publication-queue.ts'),import('../../../../foxy/publications/infrastructure/publication-repository.ts'),
@@ -18,7 +19,7 @@ async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true}={})
   const {turn}=await turns.enqueue(tx,f.teacherActor,conversation.id,{requestId:randomUUID(),revision:'0',purpose:'SUMMARY',text:'Hola',selection:{topicIds:[],sourceIds:[]}},
     {context,curriculum:null,sources:[]},hash,{model:'synthetic',promptVersion:'foxy-chat-v2',schemaVersion:'foxy-answer-v1'});
   await query("UPDATE foxy_turns SET state='READY',answer=$2::jsonb,reference_map='[]'::jsonb,source_report='[]'::jsonb WHERE id=$1::uuid",turn.id,
-    JSON.stringify({schemaVersion:'foxy-answer-v1',title:'Recurso',markdown:'Contenido',references:[],warnings:[],missingInformation:[]}));
+    JSON.stringify({schemaVersion:'foxy-answer-v1',title:'Recurso',markdown,references:[],warnings:[],missingInformation:[]}));
   const {resource}=await resources.fromTurn(tx,f.teacherActor,conversation.id,turn.id);
   const {publication}=await createFoxyPublicationRepository().prepare(tx,f.teacherActor,resource.id,{requestId:randomUUID(),resourceRevision:resource.revision,
     classroomId:f.rooms.teach.id,title:'Material',unitId:null,topicId:null});
@@ -27,11 +28,79 @@ async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true}={})
   const storage={put:async(key,bytes)=>{calls.push('put');blobs.set(key,Buffer.from(bytes));await onPut?.({query,f,publication,controller});},
     get:async key=>{calls.push('get');return blobs.get(key);},remove:async key=>{calls.push('remove');blobs.delete(key);}};
   const scanner={scan:async()=>{calls.push('scan');await onScan?.({query,f,publication,controller});if(scanError)throw scanError;}};
-  const files=new FileService({database,access:{authenticate:async()=>{throw Error('no fake request');},authorize:async()=>{throw Error('no fake request');}},storage,scanner,draftQuotaBytes:1000000n});
+  const files=new FileService({database,access:fileAccess ?? {authenticate:async()=>{throw Error('no fake request');},authorize:async()=>{throw Error('no fake request');}},storage,scanner,draftQuotaBytes:1000000n});
   const bridge=createDurableFoxyPublicationFiles({files,authority}),pdf=await PDFDocument.create();pdf.addPage();const bytes=Buffer.from(await pdf.save());
   const artifact={digest:createHash('sha256').update(bytes).digest('hex'),sizeBytes:bytes.length,pageCount:1,rendererVersion:'foxy-text-pdf-v1'};
   return {query,f,database,files,storage,publication,lease,authority,scope,controller,bridge,artifact,bytes,calls,blobs};
 }
+
+test('migration preserves a receivable v1 PDF and the worker delivers new tagged PDFs through the private download', {timeout:120000},async()=>{
+  const migration = '202611180001_foxy_tagged_pdf';
+  const withDatabase = createAgendaDatabaseFixture({beforeMigration:migration});
+  await withDatabase(async({pool})=>{
+    const [{createFoxyPdfRenderer},{createFoxyPublicationWorker},{createFoxyPublicationQueue},
+      {createFoxyPublicationCompletion,createFoxyPublicationFileReader,createFoxyPublicationConfirmationRepository},
+      {createFoxyUnitOfWork},{createFileAccess},{createFoxyFileOperations},{FileStore}]
+      = await Promise.all([import('../../../../foxy/publications/infrastructure/pdf-worker.ts'),
+        import('../../../../foxy/publications/infrastructure/publication-worker.ts'),
+        import('../../../../foxy/publications/infrastructure/publication-queue.ts'),import('../../../../../bootstrap/foxy-service-factories.ts'),
+        import('../../../../foxy/conversations/infrastructure/unit-of-work.ts'),import('../access.ts'),
+        import('../../../../../bootstrap/foxy-file-integration.ts'),import('../store.ts')]);
+    const renderer=createFoxyPdfRenderer({timeoutMs:12000});
+    const authenticate=async(_tx,req)=>req.id;
+    const fileAccess=createFileAccess({authenticate,authorizeAttemptWrite:async()=>assert.fail('Unexpected action')});
+    const markdown='# Comparación\n\n- Plan A cobra $50 por viaje.\n- Plan B cobra $80 por viaje.';
+    const old=await fixture(pool,{markdown,fileAccess});
+    const signal=old.controller.signal;
+    const allocated=await renderer.render(old.scope.snapshot,signal,'foxy-pdf-v1');
+    const metadata={digest:allocated.digest,rendererVersion:allocated.rendererVersion,pageCount:allocated.pageCount,sizeBytes:allocated.bytes.length};
+    await old.bridge.ensureFile(old.scope.capability,metadata,signal);
+    old.authority.close(old.scope);
+    const original=(await old.query('SELECT file_id,artifact_digest,renderer_version FROM foxy_publications WHERE id=$1',old.publication.id))[0];
+
+    await pool.query(await readFile('prisma/migrations/'+migration+'/migration.sql','utf8'));
+    await old.query('UPDATE foxy_publications SET lease_nonce=NULL,lease_until=NULL WHERE id=$1',old.publication.id);
+    const fresh=await fixture(pool,{claim:false,markdown,fileAccess});
+    for(const [x,version] of [[old,'foxy-pdf-v1'],[fresh,'foxy-pdf-v2']]){
+      const worker=createFoxyPublicationWorker({queue:createFoxyPublicationQueue({database:x.database}),authority:x.authority,
+        files:x.bridge,renderer,completion:createFoxyPublicationCompletion({database:x.database})});
+      try{
+        assert.equal(await worker.runOnce(),true);
+        const [publication]=await x.query('SELECT state,file_id,artifact_digest,renderer_version,revision,error_code FROM foxy_publications WHERE id=$1',x.publication.id);
+        assert.equal(publication.state,'READY',version+' '+publication.error_code+' '+x.calls.join(','));
+        assert.equal(publication.renderer_version,version);
+        const fileReader=createFoxyPublicationFileReader({uow:createFoxyUnitOfWork({database:x.database,authenticate}),
+          files:{read:x.files.read.bind(x.files)}});
+        const owner={id:x.f.teacherActor};
+        const student={id:x.f.rooms.teach.student};
+        const preview=await fileReader.readFile(owner,x.publication.id,'preview');
+        const download=await fileReader.readFile(owner,x.publication.id,'download');
+        assert.deepEqual(download.bytes,preview.bytes);
+        assert.equal(download.headers['Content-Disposition'],'attachment');
+        assert.equal(preview.headers['Content-Type'],'application/pdf');
+        const document=await PDFDocument.load(download.bytes);
+        await assert.rejects(fileReader.readFile(student,x.publication.id,'download'),error=>error?.code==='FORBIDDEN');
+        await assert.rejects(x.files.read(student,publication.file_id),error=>error?.code==='FORBIDDEN');
+        if(version==='foxy-pdf-v1'){
+          assert.deepEqual(download.bytes,Buffer.from(allocated.bytes));
+          assert.deepEqual({file_id:publication.file_id,artifact_digest:publication.artifact_digest,renderer_version:publication.renderer_version},original);
+        } else {
+          assert.equal(document.getTitle(),'Recurso');
+          assert.ok(document.catalog.has(PDFName.of('StructTreeRoot')));
+          const [room]=await x.query('SELECT revision FROM classrooms WHERE id=$1',x.f.rooms.teach.id);
+          const store=new FileStore(x.database,fileAccess,1000000n);
+          const confirmations=createFoxyPublicationConfirmationRepository({library:{publish:createFoxyFileOperations({store}).publishMaterial}});
+          const input={requestId:randomUUID(),publicationRevision:String(publication.revision),classroomRevision:String(room.revision),confirm:true};
+          const receipt=await x.database.$transaction(raw=>confirmations.confirm({query:(sql,...args)=>raw.$queryRawUnsafe(sql,...args)},
+            owner,x.f.teacherActor,x.publication.id,input));
+          assert.ok(receipt.materialId);
+          const studentFile=await x.files.read(student,publication.file_id);
+          assert.deepEqual(Buffer.from(studentFile.bytes),download.bytes);
+        }
+      } finally { await worker.onModuleDestroy(); }
+    }
+  });
+});
 
 test('opaque scope allocates, scans and proves only its associated PDF through real FileService', {timeout:120000},async()=>{
   await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;

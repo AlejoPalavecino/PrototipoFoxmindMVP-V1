@@ -5,7 +5,7 @@ import { parseRetryFoxyPublication } from '../../../../../../../src/core/domain/
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { lockFoxyManagementScopes } from './publication-management-scopes.ts';
 import { decideFoxyPublicationManagement } from '../domain/management-policy.ts';
-import { FOXY_PDF_RENDERER_VERSION } from '../domain/pdf-renderer-version.ts';
+import { canReplayFoxyPdf } from '../domain/pdf-renderer-version.ts';
 import { validRasterSource, publicationFileFormat } from './publication-raster-check.ts';
 
 type Facts = Parameters<typeof decideFoxyPublicationManagement>[0];
@@ -30,7 +30,7 @@ async function fileFacts(tx: SqlTransaction, row: Row, room: string, actor: stri
     OR EXISTS(SELECT 1 FROM attempt_attachments WHERE file_id=$1::uuid) OR EXISTS(SELECT 1 FROM foxy_publications WHERE file_id=$1::uuid AND id<>$2::uuid)`, row.file_id, row.id);
   return { referenced: !!ref, file: { phase: file.phase, uploadStatus: file.status, reservationReleased: file.reservation_released,
     blobDeleted: file.blob_deleted, proofValid: file.proof_valid, leaseActive: file.lease_active,
-    rendererCompatible: row.source_kind === 'VISUAL' ? ['foxy-image-original-v1','foxy-diagram-png-v1'].includes(row.renderer_version ?? '') : row.renderer_version === FOXY_PDF_RENDERER_VERSION } };
+    rendererCompatible: row.source_kind === 'VISUAL' ? ['foxy-image-original-v1','foxy-diagram-png-v1'].includes(row.renderer_version ?? '') : canReplayFoxyPdf(row.renderer_version) } };
 }
 export async function retryFoxyPublication(tx: SqlTransaction, actorId: string, publicationId: string, input: unknown, assets: FoxyPrivateAssetReadRepositoryPort) {
   const actor = agendaId(actorId).toLowerCase(), id = agendaId(publicationId).toLowerCase(), parsed = parseRetryFoxyPublication(input);

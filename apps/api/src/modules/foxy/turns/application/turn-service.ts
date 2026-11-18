@@ -62,7 +62,7 @@ export function createFoxyTurnService(options: Options) {
         if (attachments?.length) snapshot.attachments = attachments;
         options.checkFileQuota?.(snapshot);
         return options.turns.enqueue(tx, actor.id, conversationId, message, snapshot, hash,
-          { model: options.configuration.model, promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' });
+          { model: options.configuration.model, schemaVersion: 'foxy-answer-v1' });
       });
       if (receipt.created) options.wakeWorker?.();
       return receipt;

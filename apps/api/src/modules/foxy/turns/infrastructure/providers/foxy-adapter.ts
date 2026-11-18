@@ -1,12 +1,12 @@
 import { getNeutralAiTextClient } from '../../../../../platform/ai/profile-client.ts';
-import { configurationForJob, snapshotForTask } from '../../../../../platform/ai/execution-snapshot.ts';
+import { configurationForJob, foxyPromptVersion, snapshotForTask } from '../../../../../platform/ai/execution-snapshot.ts';
 import type { FoxyTextInput } from '../../../../../../../../src/core/domain/foxy/text.ts';
 import type { GeminiClient } from '../../../../../platform/ai/gemini-client.ts';
 import type { AiTextClient } from '../../../../../platform/ai/text-client.ts';
 import { injectedTextClient, textClientCompatibilityView } from '../../../../../platform/ai/sdk-text-compat.ts';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import { AiError } from '../../../../../platform/ai/errors.ts';
-import { foxyMessages, foxyInstruction, foxyResponseSchema } from './foxy-prompt.ts';
+import { foxyMessages, foxyInstructionFor, foxyResponseSchema } from './foxy-prompt.ts';
 import { foxyResponse } from './foxy-response.ts';
 import { createFoxyStreamPreview } from './foxy-stream-preview.ts';
 type Configuration = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>
@@ -53,16 +53,19 @@ export function createGeminiFoxyTextAdapter(configuration: AiConfiguration): Gem
 export class GeminiFoxyTextAdapter {
  private readonly execution: AiTextClient;
  private readonly executionProvider: 'gemini' | 'anthropic';
+ private readonly promptVersion: string;
  private readonly options: { client: GeminiClient; configuration: Configuration };
  constructor(options: { client: GeminiClient | AiTextClient; configuration: Configuration }) {
   this.execution = injectedTextClient(options.client, options.configuration, 'foxy', true);
   this.executionProvider = options.configuration.executionProfile?.provider ?? 'gemini';
+  this.promptVersion = options.configuration.executionProfile?.promptVersion ?? foxyPromptVersion;
   this.options = { client: textClientCompatibilityView(this.execution, options.configuration, 'foxy'), configuration: options.configuration };
  }
  private call(input: FoxyTextInput, publish?: (markdown: string | undefined) => void) {
   const streaming = eligible(input) && this.executionProvider === 'gemini';
   return { key: input, signal: input.signal, request: () => {
-   validate(input); return { system: foxyInstruction, messages: foxyMessages(input), schema: streaming ? streamingSchema : foxyResponseSchema };
+   validate(input); return { system: foxyInstructionFor(input.purpose, this.promptVersion),
+    messages: foxyMessages(input), schema: streaming ? streamingSchema : foxyResponseSchema };
   }, ...(streaming && publish ? { preview: createFoxyStreamPreview(publish) } : {}) };
  }
  async countTokens(input: FoxyTextInput): Promise<number> { return this.execution.count(this.call(input)); }

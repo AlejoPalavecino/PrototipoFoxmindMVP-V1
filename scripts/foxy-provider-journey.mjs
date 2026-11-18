@@ -36,11 +36,11 @@ async function main() {
       IMAGE:{kind:'IMAGE',model:'gemini-3.1-flash-lite-image',profileVersion:'foxy-gemini-image-v1',maxInputTokens:65536,maxOutputTokens:4096,inputUsdPerMillion:'0.25',outputUsdPerMillion:'30',textOutputUsdPerMillion:'1.5',imageOutputUsdPerMillion:'30'},
       DIAGRAM:{kind:'DIAGRAM',model:'synthetic-text',profileVersion:'foxy-diagram-provider-v1',maxInputTokens:1000,maxOutputTokens:500,inputUsdPerMillion:'0.25',outputUsdPerMillion:'1.5'},
     } : null;
-    const host = synthetic ? {configuration:{enabled:{IMAGE:true,DIAGRAM:true},profiles,privateQuotaBytes:10485760n,maxConcurrency:1,maxJobAgeMs:300000,deadlineMs:30000},providerDeadlineMs:30000} : readFoxyVisualConfiguration(process.env, ai);
+    const host = synthetic ? {configuration:{enabled:{IMAGE:true,DIAGRAM:true},profiles,privateQuotaBytes:10485760n,maxConcurrency:1,maxJobAgeMs:300000,deadlineMs:30000},providerDeadlineMs:30000,imageProviderDeadlineMs:30000} : readFoxyVisualConfiguration(process.env, ai);
     if (!ai || !host?.configuration.profiles.IMAGE || !host.configuration.profiles.DIAGRAM) throw new Error('Visual configuration incomplete');
     const adapters = {};
     for (const kind of ['IMAGE','DIAGRAM']) {
-      const p = host.configuration.profiles[kind], config = { model:p.model, profileVersion:p.profileVersion,maxInputTokens:p.maxInputTokens,maxOutputTokens:p.maxOutputTokens,deadlineMs:host.providerDeadlineMs };
+      const p = host.configuration.profiles[kind], config = { model:p.model, profileVersion:p.profileVersion,maxInputTokens:p.maxInputTokens,maxOutputTokens:p.maxOutputTokens,deadlineMs:kind==='IMAGE'?host.imageProviderDeadlineMs:host.providerDeadlineMs };
       const png = synthetic && kind === 'IMAGE' ? await sharp({create:{width:40,height:30,channels:3,background:'#228866'}}).png().toBuffer() : null;
       const graph = {schemaVersion:'foxy-diagram-v1',title:'Ciclo del agua',description:'Esquema sintÃƒÆ’Ã‚Â©tico',direction:'TOP_DOWN',nodes:[{id:'agua',label:'Agua'},{id:'vapor',label:'Vapor'}],edges:[{from:'agua',to:'vapor',label:'evaporaciÃƒÆ’Ã‚Â³n'}]};
       const adapter = synthetic ? {countTokens:async()=>12,generate:async()=>kind === 'IMAGE' ? {bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}} : {diagram:graph,usage:{inputTokens:12,outputTokens:20}}} : kind === 'IMAGE' ? createGeminiFoxyImageAdapter({apiKey:ai.apiKey,configuration:config}) : createGeminiFoxyDiagramAdapter({apiKey:ai.apiKey,configuration:config});

@@ -78,14 +78,17 @@ export type StoredStudyPractice = {
     result?: PracticeResult; feedback?: Awaited<ReturnType<typeof generateDevelopmentFeedback>> | { status: 'PENDING' };
     finalizedAt?: string;
 };
-export type StudyFeedbackInput = { practice: StudyPractice; answers: StudyAnswers; sources: StudySource[] };
+export type StudyFeedbackInput = { practice: StudyPractice; answers: StudyAnswers; sources: StudySource[]; history?: StudyInput['history'] };
 export type StudyFeedbackResult = Awaited<ReturnType<typeof generateDevelopmentFeedback>>;
 /** Known fields of persisted v1 records; optional turn IDs preserve earlier valid history. */
 export type StoredStudyTurn = { id?: string; role: string; text?: string; sourceRefs?: SourceRef[];
     attachmentIds?: string[]; generation?: StudyGenerationIntent; generationRequestId?: string; creationId?: string; practiceId?: string };
 export type StoredStudyConversation = { id: string; title: string; turns: StoredStudyTurn[] };
 export type StoredStudyCreation = { id: string; kind: string; title: string; markdown: string; sourceRefs: SourceRef[]; revision: number; conversationId?: string };
-export type StudyReviewSession = ReturnType<typeof planExam>['sessions'][number] & { reminderMinutes?: number | null };
+export type StudyReviewSession = ReturnType<typeof planExam>['sessions'][number] & {
+    reminderMinutes?: number | null;
+    activity?: string;
+};
 export type StoredStudyExam = { id: string; title: string; examAt: string; timeZone: string; sessions: StudyReviewSession[]; warnings: string[]; conflicts?: StudyAgendaConflict[] };
 export interface StudyState {
     version: 1;

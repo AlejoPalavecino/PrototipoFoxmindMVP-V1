@@ -3,6 +3,18 @@ import type { StudyPractice } from '../../model/study-contracts.ts';
 
 import { FoxyMarkdown } from '../../../../../../shared-ui/markdown';
 import { studyPracticeFeedback } from '../../model/study-discovery';
+
+function formatModelFeedback(markdown: string): string {
+  // Older model output can contain a serialized break or a stray marker on a feedback label.
+  // Match structural breaks and labels outside code so examples can keep their literal notation.
+  return markdown.split(/(`+[^`]*`+)/u).map((part, index) => index % 2 ? part : part
+    .replace(/(?<!\\)(?:(?:\\r)?\\n){2,}[ \t]*/gu, '\n\n')
+    .replace(/(?<!\\)(?:\\r)?\\n[ \t]*(?=\**(?:aciertos?|mejoras?(?: prioritarias?)?|próximo paso):)/giu, '\n\n')
+    .replace(/(?<!\\)(?:\\r)?\\n[ \t]*(?=#{1,6} |[-+*] |\d+[.)] )/gu, '\n')
+    .replace(/^([ \t]*(?:aciertos?|mejoras?(?: prioritarias?)?|próximo paso):)\*(?=[ \t]|$)/gimu, '$1')
+  ).join('');
+}
+
 function formatResult(value: unknown): string {
   if (value == null)
     return 'La devolución todavía no está disponible.';
@@ -51,7 +63,7 @@ export function renderStudyPracticeFeedback({ practice, heading, hasDevelopmentA
     </h2>
     <p>Revisá el porqué de cada respuesta. La devolución es orientativa.</p>
     <FoxyMarkdown markdown={studyPracticeFeedback(practice.result, practice.questions, practice.feedback)} />
-    {hasDevelopmentAnswers && <FoxyMarkdown markdown={formatResult(practice.feedback)} />}
+    {hasDevelopmentAnswers && <FoxyMarkdown markdown={formatModelFeedback(formatResult(practice.feedback))} />}
     <ol>
       {practice.questions.map((q) => (<li key={q.id}>
         <div>

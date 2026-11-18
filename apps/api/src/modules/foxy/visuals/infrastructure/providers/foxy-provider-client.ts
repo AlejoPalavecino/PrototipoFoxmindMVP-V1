@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { createFoxyImageBoundedFetch } from './foxy-image-bounded-fetch.ts';
-export function createFoxyGeminiClient(apiKey: string, deadlineMs: number, fetcher: typeof fetch = globalThis.fetch) {
+export function createFoxyGeminiClient(apiKey: string, deadlineMs: number, fetcher: typeof fetch = globalThis.fetch, wireDeadlineMs?: number) {
   if (typeof apiKey !== 'string' || !apiKey || typeof fetcher !== 'function') throw Object.assign(new Error('AI_UNAVAILABLE'),{code:'AI_UNAVAILABLE'});
-  return new GoogleGenAI({ apiKey, vertexai:false, httpOptions:{ fetch:createFoxyImageBoundedFetch(fetcher), timeout:deadlineMs, retryOptions:{attempts:1} } });
+  return new GoogleGenAI({ apiKey, vertexai:false, httpOptions:{ fetch:createFoxyImageBoundedFetch(fetcher, wireDeadlineMs), timeout:deadlineMs, retryOptions:{attempts:1} } });
 }

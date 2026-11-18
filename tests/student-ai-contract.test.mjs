@@ -55,3 +55,46 @@ test('student AI report accepts only findings tied to known anonymous evidence r
     assert.throws(() => validateStudentAiReport(bad, evidence));
   }
 });
+
+test('student analysis uses pedagogical recommendations only under the new prompt, with anonymous evidence bound at count and generation', async () => {
+  const { GeminiStudentAiProvider } = await import('../apps/api/src/modules/grading/student-analysis/infrastructure/student-ai/provider.ts');
+  const { configurationForJob, defaultExecutionSnapshot } = await import('../apps/api/src/platform/ai/execution-snapshot.ts');
+  const { createStudentAiEvidence } = await domain();
+  const evidence = createStudentAiEvidence(progress());
+  const base = { model: 'test-model', maxInputTokens: 900, maxOutputTokens: 500, deadlineMs: 2000,
+    inputUsdPerMillion: 1, outputUsdPerMillion: 1 };
+  const active = defaultExecutionSnapshot(base, 'analysis');
+  assert.equal(active.promptVersion, 'student-report-v2');
+  assert.equal(active.responseVersion, 'student-report-v1');
+  const baseline = { ...active, promptVersion: 'student-report-v1' };
+  const legacyInstruction = 'Analiza únicamente los hechos educativos anónimos suministrados. '
+    + 'No infieras identidad, diagnósticos ni características personales. No inventes evidencia. '
+    + 'Cada hallazgo debe citar al menos una referencia de actividad existente. '
+    + 'Escribe en español sugerencias pedagógicas prudentes y menciona las limitaciones de los datos.';
+  for (const [saved, legacy] of [[active, false], [baseline, true], [null, true]]) {
+    const config = configurationForJob({ ...base, legacyExecutionProfiles: { analysis: baseline } }, saved, 'analysis');
+    const requests = [];
+    const adapter = new GeminiStudentAiProvider({
+      async count(call) { requests.push(call.request()); return 20; },
+      async generate(call) {
+        requests.push(call.request());
+        return { text: JSON.stringify(report()), usage: { inputTokens: 20, outputTokens: 20 } };
+      },
+    }, config);
+    const input = { evidence, signal: new AbortController().signal };
+    await adapter.countStudentAiTokens(input);
+    await adapter.generateStudentAi(input);
+    assert.equal(requests.length, 2);
+    assert.deepEqual(requests[0], requests[1]);
+    assert.deepEqual(JSON.parse(requests[1].messages[0].parts[0].text), evidence);
+    const instruction = requests[1].system;
+    if (legacy) assert.equal(instruction, legacyInstruction);
+    else {
+      assert.match(instruction, /una acción docente concreta/);
+      assert.match(instruction, /cómo comprobarla/);
+      assert.match(instruction, /una nota ausente no es cero/);
+      assert.match(instruction, /la puntualidad no demuestra dominio/);
+      assert.match(instruction, /no contiene respuestas ni criterios/);
+    }
+  }
+});

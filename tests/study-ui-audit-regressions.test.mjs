@@ -187,7 +187,7 @@ test('apuntes ofrecen DOCX y TXT a partir de la misma versión guardada', async 
   const { StudyCreationEditor } = componentWithPorts(study + 'creations/study-creation-editor.tsx', {
     '../../../../../shared-ui/text-document': {
       downloadTextDocument: (...args) => downloads.push(['docx', ...args]),
-      downloadPlainText: (...args) => downloads.push(['txt', ...args]),
+      downloadMarkdownText: (...args) => downloads.push(['txt', ...args]),
     },
   });
   const view = hookView(StudyCreationEditor, {

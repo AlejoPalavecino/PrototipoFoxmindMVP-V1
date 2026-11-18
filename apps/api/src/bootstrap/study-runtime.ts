@@ -46,7 +46,8 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
   };
   const service = createStudyService({ database, authenticate, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
     generate: (input, context) => executeStudy(input, provider(context, input.action === 'CHAT' ? 'chat' : 'tool')),
-    feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources, provider(context, 'feedback')) });
+    feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources,
+      provider(context, 'feedback'), input.history) });
   const reminders = createStudyReminderRuntime({ database, authenticate });
   const admit = async (request: IncomingMessage, response: ServerResponse) => {
     void response;

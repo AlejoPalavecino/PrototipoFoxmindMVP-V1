@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { FoxyMarkdown } from '../../../../../shared-ui/markdown';
-import { downloadPlainText, downloadTextDocument } from '../../../../../shared-ui/text-document';
+import { downloadMarkdownText, downloadTextDocument } from '../../../../../shared-ui/text-document';
 import type { StudyCreation } from '../model/study-contracts.ts';
 export function StudyCreationEditor({
   creation,
@@ -96,7 +96,7 @@ export function StudyCreationEditor({
               <FoxmindIcon name="edit" />
               Editar
             </button>
-            <button onClick={() => downloadPlainText(creation.title, savedBody)}>
+            <button onClick={() => downloadMarkdownText(creation.title, savedBody)}>
               <FoxmindIcon name="download" />
               Descargar TXT
             </button>

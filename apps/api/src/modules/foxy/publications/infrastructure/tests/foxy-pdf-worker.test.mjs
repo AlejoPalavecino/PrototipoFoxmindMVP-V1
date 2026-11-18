@@ -30,7 +30,7 @@ for(const cause of ['abort','timeout','crash','invalid'])test(`${cause} waits fo
 });
 
 test('real long render yields to event loop and rejects oversized page count', {timeout:30000},async()=>{
-  const renderer=await create(),signal=new AbortController().signal;let tick=false;
+  const renderer=await create({timeoutMs:12000}),signal=new AbortController().signal;let tick=false;
   const work=renderer.render({title:'Largo',markdown:Array.from({length:4000},(_,i)=>`Línea ${i}`).join('\n')},signal);
   setImmediate(()=>{tick=true;});const result=await work;assert.equal(tick,true);assert.ok(result.pageCount<=100);
   await assert.rejects(renderer.render({title:'Demasiado',markdown:Array.from({length:5100},()=> 'x').join('\n')},signal),error=>error?.code==='AI_INPUT_LIMIT');

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createActivityGenerationPorts } from '../infrastructure/activity-ai/service-repository.ts';
 
-// Frozen SQL from the pre-migration service; no providers or real database are used.
+// SQL contract for the repositories; no providers or real database are used.
 const cases=[
   {
     "name": "listJobs",
@@ -18,7 +18,7 @@ const cases=[
   },
   {
     "name": "insert",
-    "sql": "INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,\n      request_hash,input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,generation,predecessor_id,execution_profile)\n      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::\"ActivityType\",$6::bigint,$7,$8::jsonb,$9::jsonb,$10::jsonb,$11,$11,\n        COALESCE((SELECT active_profiles->'activities'->>'model' FROM ai_execution_policy WHERE singleton),$12),$13,$14::uuid,\n        (SELECT active_profiles->'activities' FROM ai_execution_policy WHERE singleton)) RETURNING *",
+    "sql": "INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,\n      request_hash,input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,generation,predecessor_id,execution_profile)\n      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::\"ActivityType\",$6::bigint,$7,$8::jsonb,$9::jsonb,$10::jsonb,$11,\n        COALESCE((SELECT active_profiles->'activities'->>'promptVersion' FROM ai_execution_policy WHERE singleton),$15),\n        COALESCE((SELECT active_profiles->'activities'->>'model' FROM ai_execution_policy WHERE singleton),$12),$13,$14::uuid,\n        (SELECT active_profiles->'activities' FROM ai_execution_policy WHERE singleton)) RETURNING *",
     "input": {
       "id": "id",
       "ownerId": "ownerId",
@@ -49,7 +49,8 @@ const cases=[
       "version",
       "model",
       0,
-      null
+      null,
+      "activity-proposal-v3"
     ]
   }
 ];

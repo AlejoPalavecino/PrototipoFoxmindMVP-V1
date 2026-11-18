@@ -40,6 +40,11 @@ test('A2 full request token preflight and structured output are grounded without
   assert.ok(controlText.length <= activitySystemInstruction.length + JSON.stringify(activityGenerationResponseSchemaV1).length + 512);
   assert.equal(calls[0][1].config.systemInstruction, undefined);
   const params = calls[1][1];
+  assert.match(params.config.systemInstruction, /observable student work/i);
+  assert.match(params.config.systemInstruction, /teacher's terminology/i);
+  assert.match(params.config.systemInstruction, /plausible distractors/i);
+  assert.match(params.config.systemInstruction, /answer positions/i);
+  assert.match(params.config.systemInstruction, /voseo/i);
   assert.equal(params.config.responseMimeType, 'application/json'); assert.equal(params.config.responseJsonSchema.type, 'object');
   assert.equal(params.config.tools?.length ?? 0, 0); assert.equal(params.config.automaticContinuation, false);
   assert.equal(params.config.cachedContent, undefined); assert.equal(params.config.maxOutputTokens, 16384);
@@ -109,6 +114,24 @@ test('A2 context-only generation presents teacher content as a citable source, n
   assert.deepEqual(source, { sourceId: 'teacher-context', page: null, content: request.context });
   assert.equal(records[0].context, undefined, 'Teacher evidence is separated from requested counts and objective');
   assert.deepEqual(calls[0][1].contents.at(-1), calls[1][1].contents.at(-1), 'Preflight includes the exact citable content');
+});
+
+test('A2 every item must assess the comparison requested by the teacher, even when answers use selection', async () => {
+  const { adapter, calls } = await fixture();
+  const request = { ...input(), objective: 'Comparar dos fotografías e inferir cómo cambia la exposición.',
+    teacherBrief: 'Mantené iguales el tiempo y la iluminación, y pediles comparar dos aperturas.',
+    context: 'Al aumentar la apertura, entra más luz durante el mismo tiempo.' };
+  await adapter.generateActivity(request);
+
+  const generated = calls[1][1];
+  const controls = JSON.parse(generated.contents[0].parts[0].text);
+  assert.equal(controls.objective, request.objective);
+  assert.equal(controls.teacherBrief, request.teacherBrief);
+  const system = generated.config.systemInstruction;
+  assert.match(system, /each prompt and question individually/i);
+  assert.match(system, /selection questions too/i);
+  assert.match(system, /answer.*recalling a definition alone.*rewrite/i);
+  assert.match(system, /recall.*when explicitly requested/i);
 });
 
 test('A2 a private teacher idea supports teacher-context citations without additional context', async () => {

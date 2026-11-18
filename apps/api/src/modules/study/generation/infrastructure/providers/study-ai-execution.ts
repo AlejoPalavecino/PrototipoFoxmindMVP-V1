@@ -5,7 +5,7 @@ import type { AiTextRequest, AiTextTransport, AiTextUsage } from '../../../../..
 import { executeAiText, type AiTextMetric } from '../../../../../platform/ai/text-execution.ts';
 import { bounded } from '../../../../../platform/ai/execution.ts';
 import { createDefaultTextProfile, textProfileForSnapshot } from '../../../../../platform/ai/text-profiles.ts';
-import { configurationForJob } from '../../../../../platform/ai/execution-snapshot.ts';
+import { configurationForJob, studyPromptVersion } from '../../../../../platform/ai/execution-snapshot.ts';
 import { reserveAiTextBudget, settleAiTextBudget } from '../../../../../platform/ai/text-budget.ts';
 import { lockAiAdmission, activeAiOwnersSql } from '../../../../../platform/ai/admission.ts';
 import { createAiChatTimings, type AiChatTimings } from '../../../../../platform/ai/text-metrics.ts';
@@ -68,6 +68,8 @@ export async function executeStudyAiText(input: {
     // Keep classical injected fixtures working; all real SQL rows expose this column.
     if (snapshot !== undefined || input.transportForExecution || configuration.executionProfiles || configuration.legacyExecutionProfiles)
       effective = configurationForJob(configuration, snapshot, 'study');
+    // A study request is prepared in this process and cannot execute a different stored prompt.
+    if (effective.executionProfile && effective.executionProfile.promptVersion !== studyPromptVersion) fail('AI_UNAVAILABLE');
     const profile = effective.executionProfile ? textProfileForSnapshot(effective.executionProfile) : createDefaultTextProfile(effective, 'study');
     const remaining = Math.floor(effective.deadlineMs - (performance.now() - started));
     if (remaining <= 0) fail('AI_TIMEOUT');
@@ -86,7 +88,7 @@ export async function executeStudyAiText(input: {
       async reserve(tokens) {
         await database.$transaction(async raw => {
           const tx = { query: <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values) };
-          if (!await reserveAiTextBudget(tx, { id, owner_id: ownerId }, tokens, effective, 'study_ai_dispatches')) fail('QUOTA_EXCEEDED');
+          if (!await reserveAiTextBudget(tx, { id, owner_id: ownerId }, tokens, effective, 'study_ai_dispatches')) fail('AI_BUDGET_EXCEEDED');
         }, { maxWait: 2000, timeout: 6000 });
       },
       onDispatch() { dispatched = true; },

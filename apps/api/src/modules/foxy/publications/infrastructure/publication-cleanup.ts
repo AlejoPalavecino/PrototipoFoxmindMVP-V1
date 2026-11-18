@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
+import { ACCEPTED_FOXY_PDF_VERSIONS } from '../domain/pdf-renderer-version.ts';
 
 type Candidate = { id: string; classroom_id: string; file_id: string };
 type Claim = Candidate & { nonce: string; storage_key: string };
@@ -24,7 +25,7 @@ export function createFoxyPublicationCleanup(options: { database: SqlDatabase; s
       (f.blob_deleted_at IS NOT NULL) blob_deleted FROM files f JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
       JOIN foxy_publications p ON p.id=$2::uuid WHERE f.id=$1::uuid AND f.classroom_id=p.classroom_id AND f.classroom_draft_id IS NULL
       AND f.uploaded_by_id=p.owner_id AND f.size_bytes=p.artifact_size_bytes AND p.artifact_digest ~ '^[a-f0-9]{64}$'
-      AND ((p.source_kind='TEXT' AND f.extension='pdf' AND p.artifact_page_count>0 AND p.renderer_version IN ('foxy-text-pdf-v1','foxy-pdf-v1') AND p.artifact_mime_type='application/pdf')
+      AND ((p.source_kind='TEXT' AND f.extension='pdf' AND p.artifact_page_count>0 AND p.renderer_version=ANY($3::text[]) AND p.artifact_mime_type='application/pdf')
         OR (p.source_kind='VISUAL' AND p.artifact_page_count IS NULL AND p.artifact_mime_type IN ('image/png','image/jpeg')
           AND f.extension=CASE WHEN p.artifact_mime_type='image/png' THEN 'png' ELSE 'jpg' END
           AND p.artifact_size_bytes BETWEEN 1 AND 10485760 AND p.artifact_width BETWEEN 1 AND 4096 AND p.artifact_height BETWEEN 1 AND 4096
@@ -35,7 +36,7 @@ export function createFoxyPublicationCleanup(options: { database: SqlDatabase; s
           AND p.snapshot_visual->>'height'=p.artifact_height::text AND p.snapshot_visual->>'producerVersion'=p.renderer_version))
       AND (c.digest IS NULL OR c.digest=p.artifact_digest) AND (c.validated_digest IS NULL OR c.validated_digest=p.artifact_digest)
       AND (c.scanned_digest IS NULL OR c.scanned_digest=p.artifact_digest)
-      AND c.purpose='material' AND c.target_id IS NULL FOR UPDATE OF f,u,c`, candidate.file_id, candidate.id);
+      AND c.purpose='material' AND c.target_id IS NULL FOR UPDATE OF f,u,c`, candidate.file_id, candidate.id, [...ACCEPTED_FOXY_PDF_VERSIONS]);
     return file ?? null;
   }
   async function claim(): Promise<Claim | 'conflict' | null> {

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { classroomHomeHref } from '../../navigation/destinations';
-import { downloadPlainText, downloadTextDocument } from '../../../../../shared-ui/text-document';
+import { downloadMarkdownText, downloadTextDocument } from '../../../../../shared-ui/text-document';
 import { formatFoxyModelMarkdown } from '../../../features/foxy/index.ts';
 import { FoxyMarkdown } from '../../../../../shared-ui/markdown';
 import { openDialog } from '../../../../../shared-ui/dialog-focus';
@@ -188,7 +188,7 @@ export function FoxyResourceWorkspace(props: Props) {
       {discardEdit?<><button type="button" onClick={()=>setDiscardEdit(false)}>Seguir editando</button><button type="button" className="parity-foxy-danger" onClick={()=>{actions.resource.updateDraft({title:resource.resource!.title,markdown:resource.resource!.markdown});setDiscardEdit(false);setEditingOpen(false);}}>Descartar</button></>:showEditor?<><button type="button" disabled={mutationLocked||resource.busy} onClick={cancelEdit}>Cancelar</button>{resource.pending?<button type="button" disabled={mutationLocked} onClick={()=>void actions.resource.retry()}>Reintentar guardado</button>:<button type="button" className="p5-primary" disabled={!resource.dirty||resource.busy||mutationLocked||invalidTitle||invalidText} onClick={()=>{void Promise.resolve(actions.resource.save()).then(result=>{if(result==='saved')setEditingOpen(false);});}}>Guardar cambios</button>}</>:sharingOpen?<button type="button" onClick={()=>setSharingOpen(false)}><FoxmindIcon name="arrow-left"/>Volver a la creación</button>:<>
         <button type="button" onClick={()=>actions.resource.close()}>Cerrar</button>
         <button type="button" onClick={()=>{setEditingOpen(true);setSharingOpen(false);}}><FoxmindIcon name="edit"/>Editar</button>
-        <button type="button" onClick={()=>downloadPlainText(resource.resource!.title,markdown)}><FoxmindIcon name="download"/>Descargar TXT</button>
+        <button type="button" onClick={()=>downloadMarkdownText(resource.resource!.title,markdown)}><FoxmindIcon name="download"/>Descargar TXT</button>
         <button type="button" onClick={()=>downloadTextDocument(resource.resource!.title,markdown)}><FoxmindIcon name="download"/>Descargar Word</button>
         {download&&<a className="p5-action" href={download}>Descargar PDF</a>}
         {props.handoffRuntime&&props.handoffState&&<button type="button" onClick={()=>{props.handoffRuntime!.activityHandoff.reset();setHandoffOpen(true);setSharingOpen(true);}}>

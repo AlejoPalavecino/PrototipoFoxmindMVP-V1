@@ -13,6 +13,20 @@ function fixture({existing=null,status='RECEIVABLE'}={}){
 }
 async function create(f){const {createFoxyPublicationWorker}=await import("../publication-worker.ts");return createFoxyPublicationWorker(f.options);}
 test('ready existing file resumes with proof and finish without render or upload',async()=>{const f=fixture({existing:child,status:'READY'}),w=await create(f);assert.equal(await w.runOnce(),true);assert.deepEqual(f.calls,['claim','open','existingFile','inspect','proof','finish:READY','close']);await w.onModuleDestroy();});
+test('a replay that diverges from the immutable PDF descriptor stops before upload',async()=>{
+ const descriptor={digest:'b'.repeat(64),sizeBytes:3,pageCount:1,rendererVersion:'foxy-pdf-v1'};
+ const f=fixture({existing:{...child,descriptor}});
+ f.options.renderer.render=async(_input,_signal,version)=>{
+  assert.equal(version,descriptor.rendererVersion);
+  return {...artifact,rendererVersion:version};
+ };
+ const w=await create(f);
+ try{
+  assert.equal(await w.runOnce(),true);
+  assert.ok(f.calls.includes('finish:FAILED'));
+  assert.ok(!f.calls.includes('receive'));
+ }finally{await w.onModuleDestroy();}
+});
 for(const existing of [null,child])test(`fresh or receivable file is rendered and uploaded (${existing?'resume':'new'})`,async()=>{const f=fixture({existing}),w=await create(f);assert.equal(await w.runOnce(),true);assert.ok(f.calls.indexOf('render')>f.calls.indexOf('existingFile'));assert.ok(f.calls.indexOf('receive')>f.calls.indexOf('render'));assert.ok(f.calls.indexOf('proof')>f.calls.indexOf('receive'));assert.ok(f.calls.includes('finish:READY'));assert.equal(f.calls.at(-1),'close');await w.onModuleDestroy();});
 test('busy file and upload conflict defer without marking failed or uploading twice',async()=>{for(const mode of ['busy','conflict']){const f=fixture({existing:child,status:mode==='busy'?'BUSY':'RECEIVABLE'});if(mode==='conflict')f.options.files.receive=async()=>{f.calls.push('receive');throw Object.assign(Error('busy'),{code:'UPLOAD_CONFLICT'});};const w=await create(f);await w.runOnce();assert.ok(!f.calls.some(x=>x.startsWith('finish:FAILED')));assert.ok(f.calls.filter(x=>x==='receive').length<=1);assert.ok(!f.calls.includes('finish:READY'));await w.onModuleDestroy();}});
 test('simultaneous runs share one claim and shutdown waits for receive without late side effects',async()=>{const f=fixture(),entered=deferred(),gate=deferred();f.options.files.receive=async()=>{f.calls.push('receive');entered.resolve();await gate.promise;};const w=await create(f),a=w.runOnce(),b=w.runOnce();await entered.promise;assert.equal(f.calls.filter(x=>x==='claim').length,1);let stopped=false;const closing=w.onModuleDestroy().then(()=>{stopped=true;});await Promise.resolve();assert.equal(stopped,false);gate.resolve();await Promise.all([a,b,closing]);const count=f.calls.length;assert.equal(await w.runOnce(),false);assert.equal(f.calls.length,count);});

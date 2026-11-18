@@ -3,8 +3,9 @@ import type { StudyExam } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import { Dialog, Notice } from '../../../../../../shared-ui/feedback';
 type Session = StudyExam['sessions'][number];
-export function renderStudyExamAgendaConfirmation({ sessions, selection, saving, busy, error, longDate, local, setConfirmation, onConfirm }: {
+export function renderStudyExamAgendaConfirmation({ sessions, activities, selection, saving, busy, error, longDate, local, setConfirmation, onConfirm }: {
   sessions: Session[];
+  activities: ReadonlyMap<string, string>;
   selection: string[];
   saving: boolean;
   busy: boolean;
@@ -36,6 +37,7 @@ export function renderStudyExamAgendaConfirmation({ sessions, selection, saving,
               {longDate(session.startAt)} · {local(session.startAt).slice(11)}–
               {local(session.endAt).slice(11)}
             </small>
+            <p className="study-exact-review-activity">{activities.get(session.id)}</p>
           </div>
         </div>))}
     </div>

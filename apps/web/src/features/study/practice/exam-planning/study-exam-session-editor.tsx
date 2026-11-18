@@ -4,8 +4,11 @@ import type { StudyExam } from '../../model/study-contracts.ts';
 import { Dialog } from '../../../../../../shared-ui/feedback';
 type Session = StudyExam['sessions'][number];
 import { studyInstant } from '../../model/study-time';
-export function renderStudyExamSessionEditor({ editing, timeZone, local, setEditing, setSessions, setDirty, setError }: {
+import { studyReviewActivityLimit } from '../../../../../../../src/core/domain/study/review.ts';
+
+export function renderStudyExamSessionEditor({ editing, suggestedActivity, timeZone, local, setEditing, setSessions, setDirty, setError }: {
   editing: Session;
+  suggestedActivity?: string;
   timeZone: string;
   local: (instant: string) => string;
   setEditing: (session: Session | undefined) => void;
@@ -35,6 +38,11 @@ export function renderStudyExamSessionEditor({ editing, timeZone, local, setEdit
             title: event.target.value
 
           })} />
+      </label>
+      <label>
+        Qué vas a practicar
+        <textarea rows={3} maxLength={studyReviewActivityLimit} value={editing.activity ?? suggestedActivity ?? ''}
+          onChange={(event) => setEditing({ ...editing, activity: event.target.value })} />
       </label>
       <div className="study-exact-form-pair">
         <label>

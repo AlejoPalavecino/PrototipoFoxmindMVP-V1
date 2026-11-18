@@ -3,9 +3,10 @@ import type { StudyDetail, StudyExam } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../../shared-ui/feedback';
 type Session = StudyExam['sessions'][number];
-export function renderStudyExamSessions({ exam, sessions, selection, busy, saving, setSelection, setEditing, longDate, local, allTopics }: {
+export function renderStudyExamSessions({ exam, sessions, activities, selection, busy, saving, setSelection, setEditing, longDate, local, allTopics }: {
   exam: StudyExam;
   sessions: Session[];
+  activities: ReadonlyMap<string, string>;
   selection: string[];
   busy: boolean;
   saving: boolean;
@@ -44,6 +45,7 @@ export function renderStudyExamSessions({ exam, sessions, selection, busy, savin
             .map((topic) => topic.title)
             .join(' · ')}
         </p>
+        <p className="study-exact-review-activity">{activities.get(session.id)}</p>
         {exam.conflicts
           ?.filter((conflict) => conflict.sessionId === session.id)
           .map((conflict) => (<Notice key={conflict.occurrenceId}>
@@ -61,19 +63,6 @@ export function renderStudyExamSessions({ exam, sessions, selection, busy, savin
         </footer>
       </section>))}
     </div>
-    <aside>
-      <span className="study-exact-tool-icon mint">
-        <FoxmindIcon name="spark" />
-      </span>
-      <h3>Un poco, con intención</h3>
-      <p>
-        Alterná lectura y práctica. Al terminar, explicá una idea sin mirar el material.
-      </p>
-      <p>
-        Si algo cuesta, reservá ese tema para la próxima sesión. No hace falta resolver todo
-        de una vez.
-      </p>
-    </aside>
   </div>);
 
 }

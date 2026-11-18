@@ -6,6 +6,33 @@ const sources = [{ id: 's1', version: 'v1', title: 'Biología', text: 'Las célu
 const topics = [{ id: 't1', title: 'Célula' }];
 const refs = [{ id: 's1', version: 'v1' }];
 const practice = { title: 'Quiz', questions: [{ id: 'q1', topicId: 't1', type: 'MULTIPLE' as const, scoringRule:'PARTIAL' as const,prompt: 'Elegí', options: [{id:'a',text:'A'},{id:'b',text:'B'},{id:'c',text:'C'}], correctOptionIds:['a','b'], explanation:'Porque', sourceRefs:refs }] };
+test('cada operación recibe la estrategia educativa correspondiente en el pedido al proveedor', async () => {
+  const requests = new Map<string, string>();
+  const provider = { async generate({ system, prompt }: { system: string; prompt: string }) {
+    const context = JSON.parse(prompt);
+    requests.set(context.developmentFeedback ? 'FEEDBACK' : context.action, system);
+    return { status: 'COMPLETE', title: 'Célula', markdown: 'Texto', sourceRefs: refs, missingInformation: [], practice };
+  } };
+  for (const action of ['CHAT', 'EXERCISE', 'QUIZ', 'MOCK_EXAM', 'NOTE'] as const) {
+    await executeStudy({ action, message: 'Relacioná membrana y célula', topics, sources, questionCount: 1 }, provider);
+  }
+  const development = { ...practice, questions: [{ ...practice.questions[0], type: 'DEVELOPMENT' as const,
+    options: [], correctOptionIds: [] }] };
+  await generateDevelopmentFeedback(development, { q1: 'La membrana rodea la célula.' }, sources, provider);
+  assert.match(requests.get('CHAT')!, /pista gradual/i);
+  assert.match(requests.get('CHAT')!, /límite de la analogía/i);
+  for (const action of ['EXERCISE', 'QUIZ', 'MOCK_EXAM']) {
+    assert.match(requests.get(action)!, /aplicar lo aprendido/i);
+  }
+  assert.match(requests.get('MOCK_EXAM')!, /resolución autónoma/i);
+  assert.match(requests.get('FEEDBACK')!, /paso concreto de la respuesta/i);
+  assert.match(requests.get('NOTE')!, /relación central/);
+  assert.match(requests.get('NOTE')!, /excepciones/);
+  assert.doesNotMatch(requests.get('CHAT')!, /apunte editable/);
+  for (const action of ['FEEDBACK', 'NOTE', 'MOCK_EXAM']) {
+    assert.doesNotMatch(requests.get(action)!, /pista gradual/i);
+  }
+});
 test('Foxy estudiante pide brevedad en consultas puntuales, permite ampliarlas y conserva creaciones completas', async () => {
   const history = [{ role: 'assistant', text: 'La membrana delimita la célula.', sourceRefs: refs }];
   const message = 'Ampliá lo anterior con un ejemplo';
@@ -28,6 +55,24 @@ test('Foxy estudiante pide brevedad en consultas puntuales, permite ampliarlas y
   }
 });
 
+test('el esquema explica vínculos y el resumen conserva la distinción entre fuente e inferencia', async () => {
+  const requests = new Map<string, string>();
+  const provider = { async generate({ system, prompt }: { system: string; prompt: string }) {
+    requests.set(JSON.parse(prompt).action, system);
+    return { status: 'COMPLETE', title: 'Célula', markdown: 'La membrana delimita la célula.',
+      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }] };
+  } };
+  for (const action of ['NOTE', 'OUTLINE', 'PLAN'] as const) {
+    await executeStudy({ action, message: 'Organizá el material', topics, sources }, provider);
+  }
+  assert.match(requests.get('OUTLINE')!, /nombrá el vínculo con un verbo/i);
+  assert.match(requests.get('OUTLINE')!, /orden del programa.*dependencia/i);
+  assert.match(requests.get('NOTE')!, /separá los hechos de las interpretaciones/i);
+  assert.match(requests.get('NOTE')!, /unidades y condiciones/i);
+  assert.match(requests.get('PLAN')!, /jerarquía y el orden del programa/i);
+  assert.match(requests.get('PLAN')!, /sin inferir unidades.*fechas de repaso/i);
+});
+
 test('devolución orientativa breve prioriza mejoras concretas y trata las respuestas como datos', async () => {
   const development = { ...practice, questions: [{ ...practice.questions[0], type: 'DEVELOPMENT' as const,
     options: [], correctOptionIds: [] }] };
@@ -39,6 +84,24 @@ test('devolución orientativa breve prioriza mejoras concretas y trata las respu
     assert.equal(JSON.parse(prompt).developmentFeedback[0].answer, answer);
     return { status: 'COMPLETE', title: 'Devolución', markdown: 'Revisá la función de la membrana.', sourceRefs: refs, missingInformation: [] };
   } });
+});
+
+test('la devolución pide variar el razonamiento y usa ejemplos autorizados sólo para evitar repeticiones', async () => {
+  const development = { ...practice, questions: [{ ...practice.questions[0], type: 'DEVELOPMENT' as const,
+    options: [], correctOptionIds: [] }] };
+  const history = [
+    { role: 'assistant', text: 'Ejemplo trabajado de 4 cm a escala 1:50.', sourceRefs: refs },
+    { role: 'assistant', text: 'Ejemplo de la fuente retirada.', sourceRefs: [{ ...refs[0], version: 'v0' }] },
+  ];
+  await generateDevelopmentFeedback(development, { q1: 'Multipliqué primero por la escala.' }, sources, {
+    async generate({ system, prompt }) {
+      assert.match(system, /cambiá la incógnita, la condición o la representación/i);
+      assert.match(system, /historial.*sólo para evitar repetir/i);
+      assert.match(system, /texto sencillo.*sin asteriscos/i);
+      assert.deepEqual(JSON.parse(prompt).history, [history[0]]);
+      return { status: 'COMPLETE', title: 'Devolución', markdown: 'Deducí cuánto mide en el plano.', sourceRefs: refs, missingInformation: [] };
+    },
+  }, history);
 });
 
 test('sin fuentes no llama proveedor y devuelve insuficiencia', async () => {
@@ -119,6 +182,30 @@ test('adaptación entra al prompt sólo con evidencia validada de los temas actu
   await executeStudy({action:'CHAT',message:'Ayudame',topics,sources,evidence:[{topicId:'t1',attemptedQuestions:4,errors:3}]},provider);
   assert.deepEqual(JSON.parse(prompt).evidence,[{topicId:'t1',attemptedQuestions:4,errors:3,evidence:'AVAILABLE'}]);
   await assert.rejects(()=>executeStudy({action:'CHAT',message:'Ayudame',topics,sources,evidence:[{topicId:'other',attemptedQuestions:4,errors:3}]},provider));
+});
+
+test('materiales de estudio excluyen evidencia de prácticas y el chat sólo la menciona si se pregunta por desempeño', async () => {
+  const evidence = [{ topicId: 't1', attemptedQuestions: 0, errors: 0 }];
+  const requests = new Map<string, { system: string; context: Record<string, unknown> }>();
+  const provider = { async generate({ system, prompt }: { system: string; prompt: string }) {
+    const context = JSON.parse(prompt);
+    requests.set(context.action, { system, context });
+    return { status: 'COMPLETE', title: 'Célula', markdown: 'La membrana delimita la célula.',
+      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }], practice };
+  } };
+  for (const action of ['NOTE', 'OUTLINE', 'PLAN', 'CHAT', 'EXERCISE'] as const) {
+    await executeStudy({ action, message: 'Organizá lo esencial de la membrana', topics, sources, evidence, questionCount: 1 }, provider);
+  }
+  for (const action of ['NOTE', 'OUTLINE', 'PLAN']) {
+    const { system, context } = requests.get(action)!;
+    assert.equal(Object.hasOwn(context, 'evidence'), false);
+    assert.equal(Object.hasOwn(context, 'adaptationInstruction'), false);
+    if (action !== 'PLAN') assert.match(system, /dirigite al estudiante/i);
+  }
+  assert.match(requests.get('OUTLINE')!.system, /una frase por vínculo/i);
+  assert.match(String(requests.get('CHAT')!.context.adaptationInstruction), /sólo si.*pregunta.*propio desempeño/i);
+  assert.match(String(requests.get('EXERCISE')!.context.adaptationInstruction), /sin mencionar.*historial/i);
+  assert.deepEqual(requests.get('EXERCISE')!.context.evidence, [{ ...evidence[0], evidence: 'INSUFFICIENT' }]);
 });
 test('múltiple requiere dos correctas; entradas malformadas/revocadas no llegan al proveedor',async()=>{
   const invalidPractice={...practice,questions:practice.questions.map(q=>({...q,correctOptionIds:['a']}))};
@@ -202,4 +289,11 @@ test('evidencia no inventa dominio; calendario respeta disponibilidad y examen',
   const plan=planExam({examAt:'2026-11-15T13:00:00Z',timeZone:'America/Argentina/Buenos_Aires',now:'2026-11-08T13:00:00Z',topics,availability:[{start:'2026-11-10T13:00:00Z',minutes:30}],minutesPerTopic:60});
   assert.equal(plan.sessions[0].minutes,30);
   assert.ok(plan.warnings.includes('INSUFFICIENT_TIME'));
+});
+test('normaliza separadores serializados del recurso generado sin cambiar ejemplos de código ni notación', async () => {
+  const markdown = '# Luz\\n\\n## Relación\\n* **Apertura**: cambia la luz.\\n* Notación: `a\\n\\nb` y \\nu.';
+  const result = await executeStudy({action:'OUTLINE', message:'Relacioná las ideas', topics, sources}, {generate:async()=>({
+    status:'COMPLETE',title:'Relaciones',markdown,sourceRefs:refs,missingInformation:[],
+  })});
+  assert.equal(result.markdown, '# Luz\n\n## Relación\n* **Apertura**: cambia la luz.\n* Notación: `a\\n\\nb` y \\nu.');
 });

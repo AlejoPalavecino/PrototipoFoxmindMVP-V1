@@ -1,4 +1,4 @@
-import { FOXY_PDF_RENDERER_VERSION } from '../domain/pdf-renderer-version.ts';
+import { FOXY_PDF_RENDERER_VERSION, canReplayFoxyPdf, type FoxyPdfRendererVersion } from '../domain/pdf-renderer-version.ts';
 import { createHash } from 'node:crypto';
 import { Worker } from 'node:worker_threads';
 
@@ -12,20 +12,22 @@ function createWorker(): WorkerPort {
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 } });
   worker.stdout.resume(); worker.stderr.resume(); return worker;
 }
-function resultOf(value: unknown): Result {
+function resultOf(value: unknown, expectedVersion: FoxyPdfRendererVersion): Result {
   if (!value || typeof value !== 'object') throw failure();
   const result = value as Result;
   if (!(result.bytes instanceof Uint8Array) || result.bytes.byteLength < 1 || result.bytes.byteLength > 10 * 1024 * 1024
     || typeof result.digest !== 'string' || !/^[a-f0-9]{64}$/u.test(result.digest)
     || !Number.isSafeInteger(result.pageCount) || result.pageCount < 1 || result.pageCount > 100
-    || result.rendererVersion !== FOXY_PDF_RENDERER_VERSION) throw failure();
+    || result.rendererVersion !== expectedVersion) throw failure();
   const bytes = Uint8Array.from(result.bytes);
   if (createHash('sha256').update(bytes).digest('hex') !== result.digest) throw failure();
   return { bytes, digest: result.digest, pageCount: result.pageCount, rendererVersion: result.rendererVersion };
 }
 export function createFoxyPdfRenderer(options: Options = {}) {
-  return { async render(input: { title: string; markdown: string }, signal: AbortSignal): Promise<Result> {
+  return { async render(input: { title: string; markdown: string }, signal: AbortSignal,
+    rendererVersion: FoxyPdfRendererVersion = FOXY_PDF_RENDERER_VERSION): Promise<Result> {
     signal.throwIfAborted();
+    if (!canReplayFoxyPdf(rendererVersion)) throw failure('INVALID_INPUT');
     const snapshot = { title: input?.title, markdown: input?.markdown };
     if (typeof snapshot.title !== 'string' || typeof snapshot.markdown !== 'string' || !snapshot.title.trim()
       || !snapshot.markdown.trim() || snapshot.title.length > 200 || snapshot.markdown.length > 50000
@@ -41,13 +43,13 @@ export function createFoxyPdfRenderer(options: Options = {}) {
         worker.once('message', value => {
           try {
             if (!value || value.ok !== true) throw failure(value?.code === 'AI_INPUT_LIMIT' ? 'AI_INPUT_LIMIT' : 'SERVICE_UNAVAILABLE');
-            resolve(resultOf(value.result));
+            resolve(resultOf(value.result, rendererVersion));
           } catch (error) { reject(error); }
         });
         worker.once('error', () => reject(failure()));
         worker.once('exit', () => reject(failure()));
         if (signal.aborted) { abort(); return; }
-        worker.postMessage(snapshot);
+        worker.postMessage({ ...snapshot, rendererVersion });
       });
     } finally {
       if (timer) clearTimeout(timer); if (abort) signal.removeEventListener('abort', abort);

@@ -2,6 +2,7 @@ import { parseFoxyDiagram } from '../../../../../../../src/core/domain/foxy/visu
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { isDeepStrictEqual } from 'node:util';
 import { projectFoxyTextInput } from '../../domain/provider-input.ts';
+import { supportsPinnedVisualProfileVersion } from '../../domain/visual-profile.ts';
 import { createVisualHeartbeat } from './visual-worker-heartbeat.ts';
 import type { FoxyVisualLease, VisualOptions, VisualScope, VisualUsage } from './visual-worker-types.ts';
 function errorCode(error: unknown, dispatched: boolean): string {
@@ -16,6 +17,12 @@ async function transact<T>(options: VisualOptions, fn: (tx: SqlTransaction) => P
 function checkUsage(usage: VisualUsage | null, profile: VisualScope['job']['profile']): void {
   if (usage && ((usage.inputTokens !== null && usage.inputTokens > profile.maxInputTokens)
     || (usage.outputTokens !== null && usage.outputTokens > profile.maxOutputTokens))) fail('INVALID_AI_OUTPUT');
+}
+function compatibleProfile(job: VisualScope['job'], live: VisualScope['job']['profile'] | null): boolean {
+  if (!live) return false;
+  const pinned = job.profile.profileVersion;
+  return supportsPinnedVisualProfileVersion(job.kind, live.profileVersion, pinned)
+    && isDeepStrictEqual(job.profile, { ...live, profileVersion: pinned });
 }
 export function createFoxyVisualWorker(options: VisualOptions) {
   if (!Number.isSafeInteger(options.configuration.deadlineMs) || options.configuration.deadlineMs < 1 || options.configuration.deadlineMs > 180000) return fail('INVALID_INPUT');
@@ -37,11 +44,11 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         await heartbeat.stop(); signal.throwIfAborted();
         await options.custody.recover(scope.assetCapability,signal); signal.throwIfAborted(); outcome = { state: 'READY' };
       } else {
-        if (!options.configuration.enabled[scope.job.kind] || !isDeepStrictEqual(scope.job.profile,options.configuration.profiles?.[scope.job.kind])) return fail('AI_UNAVAILABLE');
+        if (!options.configuration.enabled[scope.job.kind] || !compatibleProfile(scope.job, options.configuration.profiles[scope.job.kind])) return fail('AI_UNAVAILABLE');
         const grounding = await options.loader.load(scope,signal); signal.throwIfAborted();
         const text = projectFoxyTextInput({ purpose: 'CHAT', message: scope.job.prompt, grounding, signal });
         const { purpose: _purpose, message: prompt, ...context } = text;
-        const input = { ...context, prompt, aspectRatio: scope.job.aspectRatio };
+        const input = { ...context, prompt, aspectRatio: scope.job.aspectRatio, profileVersion: scope.job.profile.profileVersion };
         const provider = options.providers[scope.job.kind], count = await provider.countTokens(input); signal.throwIfAborted();
         if (!Number.isSafeInteger(count) || count < 1 || count > scope.job.profile.maxInputTokens) return fail('AI_INPUT_LIMIT');
         const capability = scope.capability;

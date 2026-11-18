@@ -171,3 +171,44 @@ test('reordering indistinguishable activities invalidates the prior reference ma
     assert.deepEqual(reordered.evidenceReferences ?? [], []);
   }));
 });
+
+test('report retry keeps a stored V1 profile and fresh evidence uses the active V2 profile', { timeout: 120000 }, async () => {
+  const { StudentAiWorker } = await worker();
+  const { configuredExecutionProfiles } = await import('../apps/api/src/platform/ai/execution-snapshot.ts');
+  await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
+    await local.pool.query("SET LOCAL application_name = 'foxmind-api-ai-execution-v1'");
+    const f = await fixture(local), { options } = setup(f);
+    const active = configuredExecutionProfiles(configuration);
+    const legacy = { ...active, analysis: { ...active.analysis, promptVersion: 'student-report-v1' } };
+    await f.pool.query('INSERT INTO ai_execution_policy(singleton,baseline_profiles,active_profiles) VALUES(true,$1,$1)', [JSON.stringify(legacy)]);
+    await submitted(f);
+    const attempts = [];
+    let preflightUnavailable = true;
+    options.providerForExecution = ({ executionProfile }) => ({
+      async countStudentAiTokens() {
+        attempts.push(['count', executionProfile.promptVersion]);
+        if (preflightUnavailable) throw new Error('synthetic preflight unavailable');
+        return 20;
+      },
+      async generateStudentAi() {
+        attempts.push(['generate', executionProfile.promptVersion]);
+        return { json: report, inputTokens: 20, outputTokens: 20 };
+      },
+    });
+    const worker = new StudentAiWorker(options);
+    await worker.runOnce();
+    await f.pool.query('UPDATE ai_execution_policy SET active_profiles=$1 WHERE singleton', [JSON.stringify(active)]);
+    await f.pool.query("UPDATE student_ai_reports SET updated_at=clock_timestamp()-interval '2 minutes' WHERE classroom_id=$1", [f.room]);
+    preflightUnavailable = false;
+    await worker.runOnce();
+    assert.equal((await f.classrooms.getStudentAiReport(f.T, f.room, f.student)).state, 'READY');
+    await submitted(f);
+    await worker.runOnce();
+    assert.equal((await f.classrooms.getStudentAiReport(f.T, f.room, f.student)).state, 'READY');
+    assert.deepEqual(attempts, [
+      ['count', 'student-report-v1'],
+      ['count', 'student-report-v1'], ['generate', 'student-report-v1'],
+      ['count', 'student-report-v2'], ['generate', 'student-report-v2'],
+    ]);
+  }));
+});

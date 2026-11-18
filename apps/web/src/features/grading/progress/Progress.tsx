@@ -24,8 +24,15 @@ const progressType = {
 
 function StudentOverview({ data, onOpen, onShowActivities, onOpenResult }: { data: Exclude<ProgressData, { scope: 'classroom' }>; onOpen?: (id: string) => void; onShowActivities?: () => void; onOpenResult?: (activityId: string, attemptId: string) => void }) {
   const percentage = data.completion.percentage === null ? null : Math.round(bounded(data.completion.percentage));
-  const next = data.activities.find(item => item.expected && (!item.firstSubmission || item.pendingResubmission)) ?? data.activities[0];
   const published = data.activities.filter(item => item.grade !== null);
+  const resubmission = data.archived ? undefined : data.activities.find(item => item.expected && item.pendingResubmission);
+  const pending = data.archived || resubmission ? undefined : data.activities.find(item => item.expected && !item.firstSubmission);
+  const next = resubmission ?? pending;
+  const feedback = next ? undefined : published.find(item => item.publishedAttemptId);
+  const guidance = resubmission ? `Revisá los cambios para volver a entregar «${resubmission.title}».`
+    : pending ? `Consultá cómo entregar «${pending.title}».`
+    : feedback ? `Revisá la devolución publicada de «${feedback.title}» y elegí qué podés aplicar en la próxima actividad.`
+    : null;
   return <>
     <div className="parity-own-progress">
       <section className="parity-progress-panel parity-own-summary">
@@ -33,7 +40,14 @@ function StudentOverview({ data, onOpen, onShowActivities, onOpenResult }: { dat
           <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" className="parity-ring-track"/>{percentage !== null && percentage > 0 ? <circle cx="60" cy="60" r="50" className="parity-ring-fill" strokeDasharray={`${percentage * Math.PI} ${100 * Math.PI}`}/> : null}</svg>
           <div><b>{percentage === null ? '—' : `${percentage}%`}</b><small>{data.completion.delivered ?? 0} de {data.completion.expected ?? 0}</small></div>
         </div>
-        <div><h3>Tu trabajo va tomando forma</h3><p>{data.completion.delivered ?? 0} de {data.completion.expected ?? 0} actividades con entrega confirmada.</p>{onShowActivities || (onOpen && next) ? <button onClick={() => onShowActivities ? onShowActivities() : next && onOpen?.(next.id)}><FoxmindIcon name="arrow-right"/>Seguir con mis actividades</button> : null}</div>
+        <div>
+          <h3>Tu trabajo va tomando forma</h3>
+          <p>{data.completion.delivered ?? 0} de {data.completion.expected ?? 0} actividades con entrega confirmada.</p>
+          {guidance ? <p>{guidance}</p> : null}
+          {onShowActivities || (onOpen && next) ? <button onClick={() => onShowActivities ? onShowActivities() : next && onOpen?.(next.id)}>
+            <FoxmindIcon name="arrow-right"/>Seguir con mis actividades
+          </button> : null}
+        </div>
       </section>
       <section className="parity-progress-panel parity-own-grade"><FoxmindIcon name="chat"/><p>Tu promedio publicado</p><b>{decimal(data.performance.average)}<small> / 10</small></b><span>{data.performance.graded ? `${data.performance.graded} ${data.performance.graded === 1 ? 'calificación compartida' : 'calificaciones compartidas'} por tu docente` : 'Todavía no hay notas publicadas'}</span></section>
     </div>

@@ -1,8 +1,12 @@
-import { createTextDocument } from '../../src/core/domain/documents/text-document.ts';
+import { createResourceDocument } from '../../src/core/domain/documents/text-document.ts';
+import { resourcePlainText } from '../../src/core/domain/documents/resource-markdown.ts';
 export { createTextDocument } from '../../src/core/domain/documents/text-document.ts';
 export function downloadTextDocument(title: string, content: string): void {
-  const bytes=createTextDocument(title,content);
+  const bytes=createResourceDocument(title,content);
   download(new Blob([bytes as BlobPart],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),title,'docx');
+}
+export function downloadMarkdownText(title: string, markdown: string): void {
+  downloadPlainText(title, resourcePlainText(markdown));
 }
 export function downloadPlainText(title: string, content: string): void {
   download(new Blob([content],{type:'text/plain;charset=utf-8'}),title,'txt');

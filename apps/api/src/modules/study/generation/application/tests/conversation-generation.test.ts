@@ -253,3 +253,13 @@ test('a cancelled generation at 198 turns leaves 199 and CHAT rejects its two-tu
     revision: String(f.row.revision), requestId: randomUUID() }), { code: 'QUOTA_EXCEEDED' });
   assert.equal(f.generated, calls); assert.deepEqual(f.row, snapshot);
 });
+test('historical generated paragraphs are readable and a student revision keeps its exact text', async () => {
+  const f = fixture();
+  const stored = {id:randomUUID(), title:'Relaciones', kind:'OUTLINE', revision:1,
+    markdown:'Idea\\n\\n## Vínculo', sourceRefs:[{id:f.sourceId,version:f.sourceId}]};
+  f.row.state.creations.push(stored);
+  assert.equal((await f.service.get({},f.row.id)).creations[0]!.markdown, 'Idea\n\n## Vínculo');
+  assert.equal(stored.markdown, 'Idea\\n\\n## Vínculo');
+  stored.revision=2;
+  assert.equal((await f.service.get({},f.row.id)).creations[0]!.markdown, stored.markdown);
+});

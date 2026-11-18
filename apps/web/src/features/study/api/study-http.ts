@@ -75,7 +75,15 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
         `/${encodeURIComponent(id)}/commands`,
         'POST',
         { ...data, revision, requestId: token, action },
-      );
+      ).catch((error: unknown) => {
+        if (
+          error instanceof StudyError &&
+          error.code === 'AI_BUDGET_EXCEEDED' &&
+          requests.get(key) === token
+        )
+          requests.delete(key);
+        throw error;
+      });
       const status = result.result?.status;
       if (status === 'PENDING') throw new StudyError('PENDING', 409);
       requests.delete(key);

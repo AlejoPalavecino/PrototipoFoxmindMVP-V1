@@ -7,10 +7,32 @@ const sources = new WeakMap<object, object>();
 export function executionConfigurationSource<T extends object>(configuration: T): T {
   return (sources.get(configuration) ?? configuration) as T;
 }
+export const legacyActivityPromptVersion = 'activity-proposal-v1';
+export const previousActivityPromptVersion = 'activity-proposal-v2';
+export const activityPromptVersion = 'activity-proposal-v3';
+export const studyPromptVersion = 'study-v5';
+export const studentAnalysisPromptVersion = 'student-report-v2';
+const legacyFoxyPromptVersion = 'foxy-chat-v2';
+export const previousFoxyPromptVersion = 'foxy-chat-v3';
+export const priorFoxyPromptVersion = 'foxy-chat-v4';
+export const previousTeachingFoxyPromptVersion = 'foxy-chat-v5';
+export const foxyPromptVersion = 'foxy-chat-v6';
+const foxyHistoricalPromptVersions: readonly string[] = [legacyFoxyPromptVersion, previousFoxyPromptVersion, priorFoxyPromptVersion, previousTeachingFoxyPromptVersion];
+
+export function supportsFoxyPromptVersion(promptVersion: string): boolean {
+  return promptVersion === foxyPromptVersion || foxyHistoricalPromptVersions.includes(promptVersion);
+}
+
 const versions: Record<AiExecutionTask, [string, string]> = {
-  curriculum: ['study-plan-v1', 'study-plan-v1'], activities: ['activity-proposal-v1', 'activity-proposal-v1'],
-  analysis: ['student-report-v1', 'student-report-v1'], grading: ['grading-proposal-v1', 'grading-proposal-v1'],
-  foxy: ['foxy-chat-v2', 'foxy-answer-v1'], study: ['study-v1', 'study-v1'],
+  curriculum: ['study-plan-v1', 'study-plan-v1'], activities: [activityPromptVersion, 'activity-proposal-v1'],
+  analysis: [studentAnalysisPromptVersion, 'student-report-v1'], grading: ['grading-proposal-v1', 'grading-proposal-v1'],
+  foxy: [foxyPromptVersion, 'foxy-answer-v1'], study: [studyPromptVersion, 'study-v1'],
+};
+const historicalPrompts: Partial<Record<AiExecutionTask, readonly string[]>> = {
+  analysis: ['student-report-v1'],
+  activities: [legacyActivityPromptVersion, previousActivityPromptVersion],
+  study: ['study-v1', 'study-v2', 'study-v3', 'study-v4'],
+  foxy: foxyHistoricalPromptVersions,
 };
 const keys = ['format', 'task', 'provider', 'model', 'profileId', 'profileVersion', 'promptVersion', 'responseVersion',
   'maxInputTokens', 'maxOutputTokens', 'deadlineMs', 'maxDocumentBytes', 'inputUsdPerMillion', 'outputUsdPerMillion'];
@@ -22,7 +44,9 @@ export function parseExecutionSnapshot(input: unknown, task: AiExecutionTask): A
     || typeof value.model !== 'string' || !/^[a-zA-Z0-9._/-]{1,150}$/u.test(value.model)
     || typeof value.profileId !== 'string' || !/^[a-z][a-z0-9-]{0,63}$/u.test(value.profileId)
     || typeof value.profileVersion !== 'string' || !/^[a-zA-Z0-9._-]{1,40}$/u.test(value.profileVersion)
-    || value.promptVersion !== versions[task][0] || value.responseVersion !== versions[task][1]
+    || typeof value.promptVersion !== 'string'
+    || (value.promptVersion !== versions[task][0] && !historicalPrompts[task]?.includes(value.promptVersion))
+    || value.responseVersion !== versions[task][1]
     || [value.maxInputTokens, value.maxOutputTokens, value.deadlineMs, value.maxDocumentBytes]
       .some(number => !Number.isSafeInteger(number) || number <= 0)
     || value.deadlineMs > 2_147_483_647 || value.maxDocumentBytes > (task === 'grading' ? 400_000_000 : 20_000_000)

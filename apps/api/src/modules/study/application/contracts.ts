@@ -1,5 +1,5 @@
-import type { StudyInput, StudyResult, StudyPractice, StudyAnswers, generateDevelopmentFeedback } from '../../../../../../src/core/domain/study/engine.ts';
-import type { StudySource, StudyReviewWindow, StudyAgendaConflict } from '../domain/state.ts';
+import type { StudyInput, StudyResult } from '../../../../../../src/core/domain/study/engine.ts';
+import type { StudyFeedbackInput, StudyFeedbackResult, StudySource, StudyReviewWindow, StudyAgendaConflict } from '../domain/state.ts';
 export { STUDY_GENERATION_PENDING_MS, projectFolder, projectFolderSummary } from '../domain/state.ts';
 export type { StudySource, StudyMaterial, StudyPlanOrigin, StudyFolder, StudyFolderSummary, StudySummaryRow, StudyPreferences, StudyGenerationIntent, StudyGenerationView, StoredStudyPractice, StudyFeedbackInput, StudyFeedbackResult, StudyState, StudyReviewWindow, StudyAgendaConflict, FolderRow } from '../domain/state.ts';
 export interface StudyQuery {
@@ -35,15 +35,11 @@ export interface StudyOptions {
         requestId: string;
         authorize?: () => Promise<void>;
     }) => Promise<StudyResult>;
-    feedback?: (input: {
-        practice: StudyPractice;
-        answers: StudyAnswers;
-        sources: StudySource[];
-    }, context?: {
+    feedback?: (input: StudyFeedbackInput, context?: {
         ownerId: string;
         requestId: string;
         authorize?: () => Promise<void>;
-    }) => Promise<Awaited<ReturnType<typeof generateDevelopmentFeedback>>>;
+    }) => Promise<StudyFeedbackResult>;
 }
 export interface StudyDocumentRead {
     version: string;

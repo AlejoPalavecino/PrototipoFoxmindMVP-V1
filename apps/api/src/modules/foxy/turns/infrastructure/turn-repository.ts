@@ -6,8 +6,9 @@ import { parseSendFoxyMessage } from '../../../../../../../src/core/domain/foxy/
 import { type FoxyContext, type SendFoxyMessage } from '../../../../../../../src/core/domain/foxy/foxy-ai.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyGroundingSnapshot } from '../../../../../../../src/core/domain/foxy/grounding.ts';
+import { foxyPromptVersion } from '../../../../platform/ai/execution-snapshot.ts';
 
-type Metadata = { model: string; promptVersion: string; schemaVersion: string };
+type Metadata = { model: string; promptVersion?: string; schemaVersion: string };
 type ConversationRow = { id: string; revision: bigint; context_kind: 'GENERAL' | 'CLASSROOM'; classroom_id: string | null };
 type TurnRow = { id: string; sequence: number; state: string; input_hash: string; conversation_revision: bigint; conversation_id: string };
 type Page = { afterSequence: number; limit: number };
@@ -72,7 +73,8 @@ async function lock(tx: SqlTransaction, owner: string, conversationId: string): 
 }
 function validateMeta(hash: string, metadata: Metadata): void {
   if (typeof hash !== 'string' || !/^[a-f0-9]{64}$/u.test(hash) || !metadata
-    || [metadata.model, metadata.promptVersion, metadata.schemaVersion].some(v => typeof v !== 'string' || !v.trim() || v.length > 200)) fail('INVALID_INPUT');
+    || [metadata.model, metadata.promptVersion === undefined ? foxyPromptVersion : metadata.promptVersion, metadata.schemaVersion]
+      .some(v => typeof v !== 'string' || !v.trim() || v.length > 200)) fail('INVALID_INPUT');
 }
 async function find(tx: SqlTransaction, owner: string, requestId: string): Promise<TurnRow | undefined> {
   const [row] = await tx.query<TurnRow>('SELECT * FROM foxy_turns WHERE owner_id=$1::uuid AND request_id=$2::uuid', owner, requestId);
@@ -105,11 +107,14 @@ export function createFoxyTurnRepository() {
       const [next] = await tx.query<{ sequence: number }>('SELECT COALESCE(MAX(sequence),0)+1 AS sequence FROM foxy_turns WHERE conversation_id=$1::uuid', conversationId);
       if (!next) return fail('CONFLICT');
       const revision = String(BigInt(row.revision) + 1n), turnId = randomUUID();
-      const [turn] = await tx.query<TurnRow>(`INSERT INTO foxy_turns(id,owner_id,conversation_id,request_id,input_hash,sequence,purpose,message_text,snapshot,metadata,conversation_revision,execution_profile)
+      const [turn] = await tx.query<TurnRow>(`WITH policy AS (SELECT active_profiles->'foxy' AS profile FROM ai_execution_policy WHERE singleton)
+        INSERT INTO foxy_turns(id,owner_id,conversation_id,request_id,input_hash,sequence,purpose,message_text,snapshot,metadata,conversation_revision,execution_profile)
         VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,$6,$7,$8,$9::jsonb,
-          jsonb_set($10::jsonb,'{model}',COALESCE((SELECT active_profiles->'foxy'->'model' FROM ai_execution_policy WHERE singleton),$10::jsonb->'model')),
-          $11::bigint,(SELECT active_profiles->'foxy' FROM ai_execution_policy WHERE singleton)) RETURNING *`,
-        turnId, owner, conversationId, request.requestId, hash, next.sequence, request.purpose, request.text, JSON.stringify(snapshot), JSON.stringify(metadata), revision);
+          jsonb_set($10::jsonb,'{model}',COALESCE((SELECT profile->'model' FROM policy),$10::jsonb->'model'))
+          || COALESCE((SELECT jsonb_build_object('promptVersion',profile->'promptVersion') FROM policy WHERE profile IS NOT NULL),'{}'::jsonb),
+          $11::bigint,(SELECT profile FROM policy)) RETURNING *`,
+        turnId, owner, conversationId, request.requestId, hash, next.sequence, request.purpose, request.text, JSON.stringify(snapshot),
+        JSON.stringify({ ...metadata, promptVersion: metadata.promptVersion ?? foxyPromptVersion }), revision);
       await tx.query('UPDATE foxy_conversations SET revision=$3::bigint,updated_at=clock_timestamp() WHERE owner_id=$1::uuid AND id=$2::uuid', owner, conversationId, revision);
       if (!turn) return fail('CONFLICT');
       return { created: true, turn: view(turn), conversationRevision: revision };

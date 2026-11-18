@@ -80,3 +80,35 @@ test('same reviewed resource produces identical PDF bytes and digest after clock
     assert.equal(String(doc.getAuthor() ?? '').includes('usuario sintético'),false);
   }finally{t.mock.timers.reset();}
 });
+
+test('new reviewed PDFs preserve reading order, semantic headings and readable notation', async () => {
+  const markdown = String.raw`### Costo total
+
+- El plan A cuesta **$300 + 50 \times v$**.
+- El plan B cobra $80 por viaje.
+
+##### Para repasar
+
+Compará ambos costos.`;
+  const result = await render({title:'Planes de viaje',markdown});
+  const {document,text} = await inspect(result.bytes);
+  assert.equal(result.rendererVersion,'foxy-pdf-v2');
+  assert.equal(document.getTitle(),'Planes de viaje');
+  assert.match(text,/Planes de viaje Costo total .*300 \+ 50 × v.*cobra \$80.*Para repasar Compará/u);
+  assert.doesNotMatch(text,/\*\*|# Costo|\\times/);
+  const root = document.catalog.lookup(PDFName.of('StructTreeRoot'));
+  assert.ok(root);
+  const [documentRef] = root.lookup(PDFName.of('K'), PDFArray).asArray();
+  const structure = document.context.lookup(documentRef).lookup(PDFName.of('K'), PDFArray).asArray();
+  const roles = structure.map(ref => document.context.lookup(ref).get(PDFName.of('S')).toString());
+  assert.deepEqual(roles,['/Title','/H1','/L','/H2','/P']);
+  assert.equal(document.catalog.get(PDFName.of('Lang')).decodeText(),'es');
+});
+
+test('an allocated foxy-pdf-v1 resource still reproduces its original bytes', async () => {
+  const fn = await renderer();
+  const input = {title:'Guía de revisión',markdown:'# Costo total\n\nUn viaje adicional suma 50 pesos.\n- Plan A'};
+  const result = await fn(input, new AbortController().signal,'foxy-pdf-v1');
+  assert.equal(result.rendererVersion,'foxy-pdf-v1');
+  assert.equal(result.digest,'85aa3980145f0849240e32b3d880203e42f455b3500e857edc381e9632832fa0');
+});

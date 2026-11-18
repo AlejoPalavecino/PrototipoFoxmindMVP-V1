@@ -1,4 +1,6 @@
 import { authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {loadTsModule} from './helpers/load-ts-module.mjs';import {hookView,descendants} from './agenda-ui-helpers.test.mjs';
 const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(' '):text(n?.props?.children??'');
@@ -92,6 +94,56 @@ test('written resources produce a real Unicode DOCX with escaped content and no 
  const yauzl=await import('yauzl');const bytes=createTextDocument('Biología á 🦊','Una célula\n<script>literal & texto</script>');
  const entries=await new Promise((resolve,reject)=>yauzl.fromBuffer(Buffer.from(bytes),{lazyEntries:true},(error,zip)=>{if(error)return reject(error);const found={};zip.on('error',reject);zip.on('entry',entry=>zip.openReadStream(entry,(error,stream)=>{if(error)return reject(error);const chunks=[];stream.on('data',chunk=>chunks.push(chunk));stream.on('end',()=>{found[entry.fileName]=Buffer.concat(chunks).toString('utf8');zip.readEntry();});stream.on('error',reject);}));zip.on('end',()=>resolve(found));zip.readEntry();}));
  assert.equal(Object.keys(entries).length,3);assert.match(entries['word/document.xml'],/Biología á 🦊/);assert.match(entries['word/document.xml'],/&lt;script&gt;literal &amp; texto&lt;\/script&gt;/);assert.throws(()=>createTextDocument('Título','x'.repeat(100001)));assert.throws(()=>createTextDocument('Título','invalid\u0000'));
+});
+
+test('reading and exporting saved notes preserves their structure and displays the same simple math', async () => {
+ const {FoxyMarkdown}=loadTsModule('apps/shared-ui/markdown.tsx');
+ const {downloadTextDocument,downloadMarkdownText}=loadTsModule('apps/shared-ui/text-document.ts');
+ const content=String.raw`# Costo total
+
+El plan A cuesta **$300 + 50 \times v$** y el B cobra $80 por viaje.
+
+1. Compará los dos planes.
+2. Calculá cuántos viajes los igualan.
+
+${'`$x$`'} y $\unsupported{q}$ quedan legibles.
+
+<script>texto literal</script>`;
+ const html=renderToStaticMarkup(React.createElement(FoxyMarkdown,{markdown:content}));
+ assert.match(html,/<strong>300 \+ 50 × v<\/strong> y el B cobra \$80/);
+ assert.match(html,/<code>\$x\$<\/code>/);
+ assert.match(html,/<ol>/);
+ assert.doesNotMatch(html,/<script>/);
+
+ const blobs=[];
+ const previousDocument=globalThis.document;
+ const createObjectURL=URL.createObjectURL;
+ const revokeObjectURL=URL.revokeObjectURL;
+ try {
+  globalThis.document={body:{append(){}},createElement:()=>({click(){},remove(){}})};
+  URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:foxmind-synthetic';};
+  URL.revokeObjectURL=()=>{};
+  downloadTextDocument('Planes de viaje',content);
+  downloadMarkdownText('Planes de viaje',content);
+ } finally {
+  globalThis.document=previousDocument;
+  URL.createObjectURL=createObjectURL;
+  URL.revokeObjectURL=revokeObjectURL;
+ }
+ const bytes=Buffer.from(await blobs[0].arrayBuffer());
+ const plain=await blobs[1].text();
+ assert.match(plain,/1\. Compará los dos planes\./);
+ assert.match(plain,/300 \+ 50 × v y el B cobra \$80/);
+ assert.doesNotMatch(plain,/\*\*|# Costo/);
+ const word=bytes.toString('utf8');
+ assert.match(word,/<w:pStyle w:val="Title"\/>/);
+ assert.match(word,/<w:pStyle w:val="Heading1"\/>/);
+ assert.match(word,/<w:numPr>/);
+ assert.match(word,/<w:b\/>/);
+ assert.match(word,/<w:t xml:space="preserve">300 \+ 50 × v<\/w:t>/);
+ assert.match(word,/word\/styles\.xml/);
+ assert.match(word,/word\/numbering\.xml/);
+ assert.match(word,/&lt;script&gt;texto literal&lt;\/script&gt;/);
 });
 
 test('manual flow exposes scope, content and deadline before a read-only review',async()=>{

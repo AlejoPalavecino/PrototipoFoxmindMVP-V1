@@ -53,6 +53,18 @@ test('incompatible model, prompt or stored answer schema fails before counting a
   }
 });
 
+test('preparation admits current teacher notes alongside pinned prior turns', async () => {
+  for (const promptVersion of ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4', 'foxy-chat-v5', 'foxy-chat-v6']) {
+    const payload = { purpose: 'STUDY_MATERIAL', message: 'Prepará un apunte sobre la exposición.',
+      metadata: { model: configuration.model, promptVersion, schemaVersion: 'foxy-answer-v1' } };
+    const f = fixture({ payload }), signal = new AbortController().signal;
+    const result = await (await preparation(f)).prepare(lease, signal);
+    assert.equal(result.input.purpose, 'STUDY_MATERIAL');
+    assert.equal(result.input.message, payload.message);
+    assert.equal(f.calls.filter(([kind]) => kind === 'count').length, 1);
+  }
+});
+
 test('unavailable lease or stale grounding fails without provider count and closes any opened scope', async () => {
   for (const setting of [{ openError: Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }) },
     { loadError: Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }) },

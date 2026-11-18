@@ -26,13 +26,13 @@ async function consume(response: Response, signal: AbortSignal): Promise<Respons
   } catch (error) { void reader.cancel().catch(() => {}); throw error; }
   finally { if (abort) signal.removeEventListener('abort',abort); reader.releaseLock(); }
 }
-export function createFoxyImageBoundedFetch(baseFetch: Fetch): Fetch {
+export function createFoxyImageBoundedFetch(baseFetch: Fetch, deadlineMs = 15_000): Fetch {
   return async (input, init) => {
     const external = init?.signal ?? (input instanceof Request ? input.signal : undefined), controller = new AbortController();
     if (external?.aborted) throw unavailable();
     const abort = () => controller.abort(); external?.addEventListener('abort',abort,{ once: true });
     if (external?.aborted) controller.abort();
-    const timer = setTimeout(abort,15000);
+    const timer = setTimeout(abort,deadlineMs);
     try {
       if (controller.signal.aborted) throw unavailable();
       const pending = baseFetch(input,{ ...init, signal: controller.signal, redirect: 'error' });

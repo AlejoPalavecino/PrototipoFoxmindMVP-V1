@@ -5,6 +5,8 @@ import { strictObject } from '../../../../../../../../src/core/domain/curriculum
 import { type FoxyTextInput, type FoxyTextResponse } from '../../../../../../../../src/core/domain/foxy/text.ts';
 import { AiError } from '../../../../../platform/ai/errors.ts';
 
+import { resourceMarkdown } from '../../../../../../../../src/core/domain/documents/provider-markdown.ts';
+
 function text(value: unknown, max: number, empty = false): string {
   if (typeof value !== 'string' || (!empty && !value.trim()) || [...value].length > max
     || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(value)) throw new Error();
@@ -31,7 +33,10 @@ function reference(value: unknown, input: FoxyTextInput): FoxyTextResponse['refe
 function parse(value: unknown, input: FoxyTextInput): FoxyTextResponse {
   const v = strictObject(value, ['schemaVersion', 'status', 'title', 'markdown', 'references', 'warnings', 'missingInformation']);
   if (v.schemaVersion !== 'foxy-text-response-v1' || (v.status !== 'READY' && v.status !== 'INSUFFICIENT_CONTENT')) throw new Error();
-  const title = text(v.title, 200), markdown = text(v.markdown, 50000, v.status === 'INSUFFICIENT_CONTENT');
+  const title = text(v.title, 200);
+  const raw = text(v.markdown, 50000, v.status === 'INSUFFICIENT_CONTENT');
+  const markdown = input.purpose === 'CHAT' ? raw : resourceMarkdown(raw);
+  if (v.status === 'READY' && !markdown.trim()) throw new Error();
   const references = list(v.references, 100, item => reference(item, input));
   const warnings = list(v.warnings, 10, item => text(item, 500)), missingInformation = list(v.missingInformation, 10, item => text(item, 500));
   if (v.status === 'READY' ? missingInformation.length !== 0 : markdown !== '' || references.length !== 0 || !missingInformation.length) throw new Error();

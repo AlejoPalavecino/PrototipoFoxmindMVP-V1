@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 
 const api = () => Promise.all([import("../../../../../../platform/ai/errors.ts"),import("../../../../../study/generation/infrastructure/providers/study-adapter.ts"),import("../../../../../activities/generation/infrastructure/providers/activity-adapter.ts"),import("../../../../../../platform/ai/configuration.ts"),import("../../../../../curriculum/generation/infrastructure/providers/gemini-adapter.ts"),import("../../../../../../platform/ai/text-budget.ts"),import("../../../../visuals/infrastructure/providers/foxy-image-budget.ts"),import("../foxy-adapter.ts"),import("../../../../visuals/infrastructure/providers/foxy-image-adapter.ts"),import("../../../../visuals/infrastructure/providers/foxy-diagram-adapter.ts")]).then(([m0,m1,m2,m3,m4,m5,m6,m7,m8,m9]) => Object.freeze({AiError: m0.AiError,createGeminiStudyProvider: m1.createGeminiStudyProvider,GeminiActivityGenerationAdapter: m2.GeminiActivityGenerationAdapter,createGeminiActivityGenerationAdapter: m2.createGeminiActivityGenerationAdapter,readAiConfiguration: m3.readAiConfiguration,GeminiExtractionAdapter: m4.GeminiExtractionAdapter,createGeminiExtractionAdapter: m4.createGeminiExtractionAdapter,reserveAiTextBudget: m5.reserveAiTextBudget,settleAiTextBudget: m5.settleAiTextBudget,tokenCost: m5.tokenCost,quoteFoxyImageBudget: m6.quoteFoxyImageBudget,GeminiFoxyTextAdapter: m7.GeminiFoxyTextAdapter,createGeminiFoxyTextAdapter: m7.createGeminiFoxyTextAdapter,GeminiFoxyImageAdapter: m8.GeminiFoxyImageAdapter,createGeminiFoxyImageAdapter: m8.createGeminiFoxyImageAdapter,GeminiFoxyDiagramAdapter: m9.GeminiFoxyDiagramAdapter,createGeminiFoxyDiagramAdapter: m9.createGeminiFoxyDiagramAdapter}));
 const config = { model: 'gemini-synthetic', maxInputTokens: 100_000, maxOutputTokens: 4096, deadlineMs: 60 };
@@ -14,13 +15,15 @@ const answer = (changes = {}) => ({ schemaVersion: 'foxy-text-response-v1', stat
   references: [{ sourceKey: 's1', documentKey: 'd1', page: 1 }], warnings: [], missingInformation: [], ...changes });
 const success = json => ({ text: JSON.stringify(json), candidates: [{ finishReason: 'STOP' }],
   usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 30, thoughtsTokenCount: 5 } });
-async function fixture({ count = { totalTokens: 20 }, response = success(answer()), countError, generationError, deadlineMs = 60 } = {}) {
+async function fixture({ count = { totalTokens: 20 }, response = success(answer()), countError, generationError, deadlineMs = 60, promptVersion } = {}) {
   const { GeminiFoxyTextAdapter } = await api(); assert.equal(typeof GeminiFoxyTextAdapter, 'function');
   const calls = [], client = { models: {
     countTokens: async params => { calls.push(['count', params]); if (countError) throw countError; return typeof count === 'function' ? count(params) : count; },
     generateContent: async params => { calls.push(['generate', params]); if (generationError) throw generationError; return typeof response === 'function' ? response(params) : response; }
   } };
-  return { adapter: new GeminiFoxyTextAdapter({ client, configuration: { ...config, deadlineMs } }), calls };
+  const executionProfile = promptVersion ? { provider: 'gemini', task: 'foxy', ...config, deadlineMs, promptVersion,
+    profileId: 'foxy-default', profileVersion: '1', maxDocumentBytes: 20_000_000 } : undefined;
+  return { adapter: new GeminiFoxyTextAdapter({ client, configuration: { ...config, deadlineMs, executionProfile } }), calls };
 }
 
 test('SDK request counts controls and sends selected PDF/DOCX as structured, bounded content', async () => {
@@ -41,6 +44,51 @@ test('SDK request counts controls and sends selected PDF/DOCX as structured, bou
 });
 test('explicit RUBRIC purpose reaches the real adapter transport through token counting and generation',async()=>{
   const f=await fixture();await f.adapter.generate(input({purpose:'RUBRIC'}));assert.deepEqual(f.calls.map(([kind])=>kind),['count','generate']);
+});
+
+test('new teaching resources receive distinct pedagogical instructions in count and generation', async () => {
+  const rules = {
+    CHAT: /when asked for a summary.*central idea.*essential relationships.*conditions and exceptions/i,
+    SUMMARY: /central idea.*essential relationships.*conditions and exceptions/,
+    LESSON_PLAN: /observable learning objective.*prior knowledge.*formative check/,
+    RUBRIC: /observable evidence.*criteria.*performance levels/,
+  };
+  for (const [purpose, expected] of Object.entries(rules)) {
+    const value = input({ purpose });
+    const f = await fixture({ promptVersion: 'foxy-chat-v5' });
+    await f.adapter.countTokens(value);
+    await f.adapter.generate(value);
+    const [count, generated] = f.calls.map(([, parameters]) => parameters);
+    assert.match(generated.config.systemInstruction, expected);
+    assert.ok(count.contents[0].parts[0].text.includes(generated.config.systemInstruction));
+    assert.deepEqual(count.contents.slice(1), generated.contents);
+    assert.equal(JSON.parse(generated.contents[0].parts[0].text).message, value.message);
+  }
+});
+
+test('V6 rubrics use exportable headings and evidence lists by default and preserve explicit format requests', async () => {
+  const message = 'Prepará una rúbrica para comparar dos fotos. Usá una tabla.';
+  const value = input({ purpose: 'RUBRIC', message });
+  const current = await fixture({ promptVersion: 'foxy-chat-v6' });
+  await current.adapter.countTokens(value);
+  await current.adapter.generate(value);
+  const [count, generation] = current.calls.map(([, request]) => request);
+  const instruction = generation.config.systemInstruction;
+  assert.match(instruction, /Unless the teacher explicitly requests another format/);
+  assert.match(instruction, /heading for each criterion.*weight.*bullet list.*level.*evidence/);
+  assert.match(instruction, /Avoid Markdown tables and block quotes by default/);
+  assert.ok(count.contents[0].parts[0].text.includes(instruction));
+  assert.deepEqual(count.contents.slice(1), generation.contents);
+  assert.equal(JSON.parse(generation.contents[0].parts[0].text).message, message);
+  const previous = await fixture({ promptVersion: 'foxy-chat-v5' });
+  await previous.adapter.generate(value);
+  const historical = previous.calls.at(-1)[1].config.systemInstruction;
+  assert.equal(createHash('sha256').update(historical).digest('hex'), '962c2aab5e16b7085ff7bc5d0edcd76072195ffae7848868afa892c8861d8b55');
+  assert.ok(instruction.startsWith(historical));
+  const { foxyInstructionFor } = await import('../foxy-prompt.ts');
+  for (const purpose of ['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN']) {
+    assert.equal(foxyInstructionFor(purpose, 'foxy-chat-v6'), foxyInstructionFor(purpose, 'foxy-chat-v5'), purpose);
+  }
 });
 
 test('provider instructions explain the mutually exclusive response status fields', async () => {
@@ -67,6 +115,67 @@ test('Foxy asks for brief answers to small requests and preserves depth for crea
   assert.equal(generated.config.maxOutputTokens, config.maxOutputTokens);
   const countedControls = f.calls[0][1].contents.slice(0, -generated.contents.length).flatMap(c => c.parts ?? []);
   assert.ok(countedControls.some(part => part.text?.includes(systemInstruction)));
+});
+
+test('new teacher notes bind pedagogical controls at preflight without changing the brief or adding data', async () => {
+  const f = await fixture({ promptVersion: 'foxy-chat-v3' });
+  const message = 'Prepará un apunte para 2.º año. Usá «la luz que llega» y el ejemplo de la ventana.';
+  const value = input({ purpose: 'STUDY_MATERIAL', message });
+  assert.equal(await f.adapter.countTokens(value), 20);
+  await f.adapter.generate(value);
+  assert.deepEqual(f.calls.map(([kind]) => kind), ['count', 'generate']);
+  const [count, generated] = f.calls.map(([, parameters]) => parameters);
+  const instruction = generated.config.systemInstruction;
+  assert.match(instruction, /central relationship/);
+  assert.match(instruction, /teacher.s vocabulary, voice and accurate examples/);
+  assert.match(instruction, /label invented examples as illustrative/);
+  assert.match(instruction, /private brief/);
+  assert.match(instruction, /selected sources/);
+  assert.match(instruction, /INSUFFICIENT_CONTENT/);
+  assert.ok(count.contents[0].parts[0].text.includes(instruction));
+  const context = JSON.parse(generated.contents[0].parts[0].text);
+  assert.equal(context.message, message);
+  assert.equal(context.purpose, 'STUDY_MATERIAL');
+  assert.deepEqual(context.sources, value.sources);
+  assert.deepEqual(generated.contents, count.contents.slice(1));
+});
+
+test('earlier teacher notes and all other purposes retain their original instruction', async () => {
+  const { foxyInstruction } = await import('../foxy-prompt.ts');
+  for (const purpose of ['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN', 'RUBRIC']) {
+    for (const promptVersion of purpose === 'STUDY_MATERIAL' ? ['foxy-chat-v2'] : ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4']) {
+      const f = await fixture({ promptVersion });
+      await f.adapter.generate(input({ purpose }));
+      assert.equal(f.calls.at(-1)[1].config.systemInstruction, foxyInstruction);
+    }
+  }
+});
+
+test('teacher notes v4 require grounded attribution and retain exact prior instructions', async () => {
+  const message = 'En clase usamos el mate como ejemplo. Conservá «la luz que llega».';
+  const instructionByVersion = new Map();
+  for (const promptVersion of ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4', 'foxy-chat-v5']) {
+    const f = await fixture({ promptVersion });
+    const value = input({ purpose: 'STUDY_MATERIAL', message });
+    await f.adapter.countTokens(value);
+    await f.adapter.generate(value);
+    const [count, generated] = f.calls.map(([, parameters]) => parameters);
+    const instruction = generated.config.systemInstruction;
+    assert.ok(count.contents[0].parts[0].text.includes(instruction));
+    assert.equal(JSON.parse(generated.contents[0].parts[0].text).message, message);
+    instructionByVersion.set(promptVersion, instruction);
+  }
+  const digest = version => createHash('sha256').update(instructionByVersion.get(version)).digest('hex');
+  assert.equal(digest('foxy-chat-v2'), '442f46ea038ccacf032726c3b1f569f4745925681d9bd87119411a3787dbaa2f');
+  assert.equal(digest('foxy-chat-v3'), '1361958120693cf9113a90e062be18e1876034198ea89a2f739a338c945bc267');
+  assert.equal(digest('foxy-chat-v4'), '7ecc22a7d5dc828e945b9aaa97f755b752ec07831e1fc061090175300ac497ee');
+  assert.ok(instructionByVersion.get('foxy-chat-v5').startsWith(instructionByVersion.get('foxy-chat-v4')));
+  assert.match(instructionByVersion.get('foxy-chat-v5'), /when asked for a summary.*central idea.*essential relationships.*conditions and exceptions/i);
+  const prior = instructionByVersion.get('foxy-chat-v3'), current = instructionByVersion.get('foxy-chat-v4');
+  assert.ok(current.startsWith(prior));
+  assert.match(current.slice(prior.length), /shared experiences, attributable labels, facts or quotations/);
+  assert.match(current.slice(prior.length), /use neutral wording/);
+  assert.match(current.slice(prior.length), /in class.*in the workshop/);
 });
 
 test('modes are explicit, sources untrusted and no private ids or mapping are sent', async () => {
@@ -149,3 +258,10 @@ for (const [field, mutate] of [['text', value => { value.message = 'Otra consult
     assert.deepEqual(f.calls.map(([kind]) => kind), ['count']);
   });
 }
+
+test('lesson plans render provider paragraph and list breaks while preserving code examples', async () => {
+  const markdown = String.raw`Inicio\n\n**Desarrollo**\n- Resolver\n- Mostrar ` + '`' + String.raw`a\n\nb` + '`';
+  const { adapter } = await fixture({ response: success(answer({ markdown })) });
+  const result = await adapter.generate(input({ purpose: 'LESSON_PLAN' }));
+  assert.equal(result.json.markdown, 'Inicio\n\n**Desarrollo**\n- Resolver\n- Mostrar `a\\n\\nb`');
+});

@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
-import { fixture } from './activity-ai-fixture.test.mjs';
+import { configuration as defaultConfiguration, fixture } from './activity-ai-fixture.test.mjs';
 import { ActivityAiService } from '../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.js';
 import { ActivityAiWorker } from '../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.js';
+import { configuredExecutionProfiles } from '../.build/api/apps/api/src/platform/ai/execution-snapshot.js';
+import { initializeAiExecutionPolicy } from '../.build/api/apps/api/src/platform/ai/execution-policy.js';
 
 test('generation expands a whole unit into its ordered snapshot and keeps the idea private on publish', { timeout: 120000 }, () =>
   withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
@@ -78,6 +80,42 @@ test('an already queued job without the idea continues to generate and replays i
     assert.equal(replay.view.id, view.id);
     await new ActivityAiWorker(f.options).runOnce();
     assert.equal((await ai.get(f.T, f.room, view.id)).state, 'READY');
+  })));
+
+test('activating pedagogical prompts preserves historical policy and queued activities in PostgreSQL', { timeout: 120000 }, () =>
+  withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
+    await local.pool.query("SET LOCAL application_name='foxmind-api-ai-execution-v1'");
+    const f = await fixture(local, { configuration: { ...defaultConfiguration } });
+    const configuration = f.options.configuration, ai = new ActivityAiService(f.options);
+    const legacy = configuredExecutionProfiles(configuration);
+    legacy.activities = { ...legacy.activities, promptVersion: 'activity-proposal-v1' };
+    legacy.study = { ...legacy.study, promptVersion: 'study-v1' };
+    await local.pool.query('INSERT INTO ai_execution_policy(baseline_profiles,active_profiles) VALUES($1::jsonb,$1::jsonb)', [JSON.stringify(legacy)]);
+    const { view: prior } = await ai.start(f.T, f.room, f.start);
+    const active = configuredExecutionProfiles(configuration);
+    await initializeAiExecutionPolicy(local.database, { ...configuration, executionProfiles: {
+      ...active, activities: { ...active.activities, promptVersion: 'activity-proposal-v2' },
+    } });
+    const { view: localV2 } = await ai.start(f.T, f.room, { ...f.start, requestId: randomUUID() });
+    await initializeAiExecutionPolicy(local.database, configuration);
+    assert.deepEqual(configuration.legacyExecutionProfiles, legacy);
+    const { view: current } = await ai.start(f.T, f.room, { ...f.start, requestId: randomUUID() });
+    const activityVersions = [[prior, 'activity-proposal-v1'], [localV2, 'activity-proposal-v2'], [current, 'activity-proposal-v3']];
+    for (const [view, version] of activityVersions) {
+      const { rows: [row] } = await local.pool.query('SELECT prompt_version,schema_version,execution_profile FROM activity_ai_generations WHERE id=$1', [view.id]);
+      assert.equal(row.prompt_version, version);
+      assert.equal(row.execution_profile.promptVersion, version);
+      assert.equal(row.schema_version, 'activity-proposal-v1');
+      assert.equal(row.execution_profile.responseVersion, row.schema_version);
+    }
+    const selected = [];
+    f.options.providerForExecution = pinned => { selected.push(pinned.executionProfile.promptVersion); return f.options.provider; };
+    const worker = new ActivityAiWorker(f.options);
+    for (const [view] of activityVersions) {
+      assert.equal(await worker.runOnce(), true);
+      assert.equal((await ai.get(f.T, f.room, view.id)).state, 'READY');
+    }
+    assert.deepEqual(selected, activityVersions.map(([, version]) => version));
   })));
 
 test('the first student attempt serializes with an interunit content save', { timeout: 120000 }, () =>

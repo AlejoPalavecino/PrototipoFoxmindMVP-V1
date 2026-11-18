@@ -14,7 +14,7 @@ async function body(request: IncomingMessage) { let bytes = 0; const chunks: Buf
 catch {
     studyFail('INVALID_INPUT');
 } }
-const statuses: Record<string, number> = { AUTH_REQUIRED: 401, EMAIL_VERIFICATION_REQUIRED: 403, FORBIDDEN: 403, CSRF_INVALID: 403, ORIGIN_NOT_ALLOWED: 403, RATE_LIMITED: 429, INVALID_INPUT: 400, AI_INPUT_LIMIT:400, PAYLOAD_TOO_LARGE: 413, CONFLICT: 409, FILE_NOT_READY: 409, QUOTA_EXCEEDED: 409, EMPTY_ANSWERS: 409, SOURCE_UNAVAILABLE: 409, PREVIEW_UNAVAILABLE: 422, AI_BUSY: 503, AI_TIMEOUT: 504, AI_RATE_LIMITED: 429, AI_UNAVAILABLE: 503, SERVICE_UNAVAILABLE: 503 };
+const statuses: Record<string, number> = { AUTH_REQUIRED: 401, EMAIL_VERIFICATION_REQUIRED: 403, FORBIDDEN: 403, CSRF_INVALID: 403, ORIGIN_NOT_ALLOWED: 403, RATE_LIMITED: 429, INVALID_INPUT: 400, AI_INPUT_LIMIT:400, PAYLOAD_TOO_LARGE: 413, CONFLICT: 409, FILE_NOT_READY: 409, QUOTA_EXCEEDED: 409, EMPTY_ANSWERS: 409, SOURCE_UNAVAILABLE: 409, PREVIEW_UNAVAILABLE: 422, AI_BUSY: 503, AI_TIMEOUT: 504, AI_RATE_LIMITED: 429, AI_BUDGET_EXCEEDED: 429, AI_UNAVAILABLE: 503, SERVICE_UNAVAILABLE: 503 };
 function json(res: ServerResponse, status: number, value: unknown) { if (res.destroyed || res.writableEnded)
     return; res.statusCode = status; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.end(JSON.stringify(value)); }
 export function createStudyHandler(service: StudyService, admit: (r: IncomingMessage, w: boolean, res: ServerResponse) => Promise<void>) { let active = 0; return (request: IncomingMessage, response: ServerResponse, next: () => void) => { let url: URL; try {

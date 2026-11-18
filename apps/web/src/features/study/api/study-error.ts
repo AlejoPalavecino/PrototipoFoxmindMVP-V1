@@ -13,6 +13,8 @@ const messages: Record<string, string> = {
   AI_BUSY: 'Foxy está ocupado con otra solicitud. Esperá un momento y volvé a intentar.',
   AI_TIMEOUT: 'Foxy alcanzó el tiempo máximo para responder. Podés volver a intentar.',
   AI_RATE_LIMITED: 'El proveedor de IA alcanzó una cuota de solicitudes. Esperá antes de volver a intentar.',
+  AI_BUDGET_EXCEEDED:
+    'Se agotó el cupo diario de IA. Se renueva a las 00:00 UTC. Podés volver a intentar después.',
   AI_FAILED: 'Foxy no pudo terminar. Conservamos tus entradas; volvé a intentar.',
   PENDING:
     'La solicitud sigue en proceso. Esperá y actualizá la carpeta antes de volver a intentar.',

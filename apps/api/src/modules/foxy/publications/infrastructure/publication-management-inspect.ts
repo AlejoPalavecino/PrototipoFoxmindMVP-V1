@@ -3,7 +3,7 @@ import { agendaId } from '../../../../../../../src/core/domain/agenda/values.ts'
 import { type FoxyPublicationManagement } from '../../../../../../../src/core/domain/foxy/resource.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { decideFoxyPublicationManagement } from '../domain/management-policy.ts';
-import { FOXY_PDF_RENDERER_VERSION } from '../domain/pdf-renderer-version.ts';
+import { REPLAYABLE_FOXY_PDF_VERSIONS } from '../domain/pdf-renderer-version.ts';
 import { validRasterSource, publicationFileFormat } from './publication-raster-check.ts';
 
 type Facts = Parameters<typeof decideFoxyPublicationManagement>[0];
@@ -29,7 +29,7 @@ export async function inspectFoxyPublicationManagement(tx: SqlTransaction, owner
       AND c.purpose='material' AND c.target_id IS NULL AND ((p.source_kind='TEXT' AND f.extension='pdf') OR (p.source_kind='VISUAL' AND f.extension=CASE WHEN p.artifact_mime_type='image/png' THEN 'png' ELSE 'jpg' END)) AND f.size_bytes=p.artifact_size_bytes
       THEN c.phase ELSE 'deleted' END phase,u.status::text status,COALESCE(u.reservation_released_at IS NOT NULL,true) reservation_released,
     COALESCE(f.blob_deleted_at IS NOT NULL,true) blob_deleted,COALESCE(c.lease_until>clock_timestamp(),false) lease_active,
-    COALESCE((p.source_kind='TEXT' AND p.renderer_version=$3) OR (p.source_kind='VISUAL' AND p.renderer_version IN ('foxy-image-original-v1','foxy-diagram-png-v1')),false) renderer_compatible,
+    COALESCE((p.source_kind='TEXT' AND p.renderer_version=ANY($3::text[])) OR (p.source_kind='VISUAL' AND p.renderer_version IN ('foxy-image-original-v1','foxy-diagram-png-v1')),false) renderer_compatible,
     COALESCE(f.classroom_id=p.classroom_id AND f.classroom_draft_id IS NULL AND f.uploaded_by_id=p.owner_id
       AND c.purpose='material' AND c.target_id IS NULL AND c.phase='ready' AND f.validation_status='APPROVED' AND f.scan_status='CLEAN'
       AND f.validated_at IS NOT NULL AND f.scanned_at IS NOT NULL AND u.completed_at IS NOT NULL AND ${publicationFileFormat} AND f.size_bytes=p.artifact_size_bytes AND c.digest=p.artifact_digest
@@ -40,7 +40,7 @@ export async function inspectFoxyPublicationManagement(tx: SqlTransaction, owner
     JOIN foxy_conversations c0 ON c0.id=COALESCE(r.conversation_id,v.conversation_id) AND c0.owner_id=p.owner_id AND c0.deleted_at IS NULL
     LEFT JOIN files f ON f.id=p.file_id LEFT JOIN uploads u ON u.file_id=f.id LEFT JOIN file_custodies c ON c.file_id=f.id
     WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND (c0.context_kind='GENERAL' OR EXISTS
-      (SELECT 1 FROM classrooms origin WHERE origin.id=c0.classroom_id AND origin.teacher_id=p.owner_id))`, id, actor, FOXY_PDF_RENDERER_VERSION);
+      (SELECT 1 FROM classrooms origin WHERE origin.id=c0.classroom_id AND origin.teacher_id=p.owner_id))`, id, actor, [...REPLAYABLE_FOXY_PDF_VERSIONS]);
   if (!r) throw Object.assign(new Error('NOT_FOUND'), { code: 'NOT_FOUND' });
   if (r.source_kind === 'VISUAL') r.source_current = !!r.source_asset_id && await validRasterSource(tx,actor,r.source_asset_id,r.snapshot_visual, assets);
   if (r.file_id && !r.binding_valid) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });

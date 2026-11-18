@@ -31,12 +31,12 @@ function Analysis({ data }: { data: Summary }) {
       <p>{data.report.overview}</p>
       <Findings title="Fortalezas" items={data.report.strengths} references={references} />
       <Findings title="Necesidades de apoyo" items={data.report.supportNeeds} references={references} />
-      <Findings title="Recomendaciones" items={data.report.recommendations} references={references} />
+      <Findings title="Próximos pasos para acompañar" items={data.report.recommendations} references={references} />
       <section><h4>Límites del análisis</h4>{data.report.limitations.length ?
         <ul>{data.report.limitations.map((limit, index) => <li key={index}>{limit}</li>)}</ul> :
         <p>Sin límites adicionales registrados.</p>}</section>
     </> : null}
-    <p><small>Este análisis es orientativo y debe revisarse junto con la evidencia y el criterio docente.</small></p>
+    <p><small>El análisis orienta con datos de entregas, puntualidad y notas publicadas. Revisá el trabajo del estudiante antes de decidir cómo acompañarlo.</small></p>
   </>;
 }
 
@@ -60,6 +60,6 @@ export function StudentAiSummary({ operations, classroomId, studentId }: {
     {loading ? <Notice>Cargando análisis…</Notice> : null}
     {error ? <Notice error>No se pudo cargar el análisis. <button type="button" onClick={() => setRefresh(value => value + 1)}>Reintentar</button></Notice> : null}
     {data ? <Analysis data={data} /> : null}
-    <button type="button" disabled={loading} onClick={() => setRefresh(value => value + 1)}>Actualizar análisis</button>
+    <button type="button" disabled={loading} onClick={() => setRefresh(value => value + 1)}>Volver a consultar</button>
   </section>;
 }

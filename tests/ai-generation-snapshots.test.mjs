@@ -1,5 +1,7 @@
 import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { defaultExecutionSnapshot, parseExecutionSnapshot } from '../apps/api/src/platform/ai/execution-snapshot.ts';
+import { executeStudyAiText } from '../apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
 
 const paths = {
   curriculum: '../apps/api/src/modules/curriculum/generation/infrastructure/ai/',
@@ -39,6 +41,8 @@ const snapshot = task => ({ format: 'ai-execution-v1', task, provider: 'anthropi
 function fixture(task, executionProfile = snapshot(task)) {
   const state = { calls: [], row: { id: 'job', owner_id: 'owner', draft_id: 'draft', file_id: 'file', source_digest: 'digest',
     lease_nonce: 'lease', dispatch_count: 0, source_snapshot: [], execution_profile: executionProfile,
+    schema_version: snapshot(task).responseVersion,
+    prompt_version: executionProfile?.promptVersion ?? (task === 'activities' ? 'activity-proposal-v3' : 'study-plan-v1'),
     input_payload: { objective: 'Comparar', context: 'Contexto', counts: {} },
     curriculum_snapshot: { unit: {}, topics: [] }, type: 'ASSIGNMENT' } };
   states[task] = state;
@@ -97,6 +101,7 @@ for (const task of Object.keys(paths)) {
 
   test(`${task}: legacy job uses baseline profile and injected overrides remain usable`, async () => {
     const { state, options, worker } = fixture(task, null);
+    state.row.prompt_version = snapshot(task).promptVersion;
     options.configuration.legacyExecutionProfiles = { [task]: { ...snapshot(task), provider: 'gemini', model: 'legacy-baseline' } };
     await worker.runOnce();
     assert.equal(state.calls.find(([kind]) => kind === 'factory')[1].model, 'legacy-baseline');
@@ -107,7 +112,60 @@ for (const task of Object.keys(paths)) {
   });
 }
 
-test('both INSERTs snapshot active policy and model without adding or reordering parameters', async () => {
+test('new profiles use pedagogical prompt identities and preserve historical response versions', () => {
+  for (const [task, priorPrompt, currentPrompt, responseVersion] of [
+    ['activities', 'activity-proposal-v1', 'activity-proposal-v3', 'activity-proposal-v1'],
+    ['study', 'study-v1', 'study-v5', 'study-v1'],
+    ['study', 'study-v2', 'study-v5', 'study-v1'],
+    ['study', 'study-v3', 'study-v5', 'study-v1'],
+    ['study', 'study-v4', 'study-v5', 'study-v1'],
+  ]) {
+    const active = defaultExecutionSnapshot(base(), task);
+    assert.equal(active.promptVersion, currentPrompt);
+    assert.equal(active.responseVersion, responseVersion);
+    assert.equal(parseExecutionSnapshot({ ...active, promptVersion: priorPrompt }, task).promptVersion, priorPrompt);
+    assert.throws(() => parseExecutionSnapshot({ ...active, responseVersion: currentPrompt }, task), { code: 'AI_UNAVAILABLE' });
+  }
+});
+
+test('activity worker preserves a locally queued job with the V2 prompt after V3 becomes active', async () => {
+  const stored = { ...snapshot('activities'), promptVersion: 'activity-proposal-v2' };
+  const { state, worker } = fixture('activities', stored);
+  await worker.runOnce();
+  assert.deepEqual(state.calls.find(([kind]) => kind === 'count')[1].executionProfile, stored);
+  assert.deepEqual(state.calls.find(([kind]) => kind === 'generate')[1].executionProfile, stored);
+});
+
+test('activity worker closes contradictory historical prompt metadata before selecting the provider', async () => {
+  const { state, worker } = fixture('activities');
+  state.row.prompt_version = 'activity-proposal-v2';
+  await worker.runOnce();
+  assert.equal(state.calls.some(([kind]) => ['factory', 'count', 'generate'].includes(kind)), false);
+  const finish = state.calls.find(([kind, sql]) => kind === 'sql' && sql.includes("SET state=$3"));
+  assert.equal(finish[2][2], 'FAILED');
+  assert.equal(finish[2][4], 'AI_UNAVAILABLE');
+});
+
+test('study closes an admitted dispatch pinned to the old prompt before transport or budget', async () => {
+  const configuration = base(), states = [];
+  let providerSelections = 0;
+  const database = { $transaction: async operation => operation({ async $queryRawUnsafe(sql, ...args) {
+    if (sql.includes('AS running')) return [{ running: 0n }];
+    if (sql.includes('AS owned')) return [{ owned: false }];
+    if (sql.startsWith('INSERT INTO study_ai_dispatches'))
+      return [{ execution_profile: { ...defaultExecutionSnapshot(configuration, 'study'), promptVersion: 'study-v1' } }];
+    if (sql.startsWith('UPDATE study_ai_dispatches')) states.push(args[1]);
+    return [];
+  } }) };
+  await assert.rejects(executeStudyAiText({ configuration, database, ownerId: 'owner', requestId: 'request',
+    request: { system: 'Current prompt', messages: [{ role: 'user', parts: [{ kind: 'text', text: 'Synthetic' }] }] },
+    transportForExecution() { providerSelections++; throw new Error('unexpected provider selection'); },
+  }), { code: 'AI_UNAVAILABLE' });
+  assert.equal(providerSelections, 0);
+  assert.deepEqual(states, ['FAILED']);
+});
+
+test('both INSERTs snapshot active policy and activities persist the active prompt version', async () => {
   for (const task of Object.keys(paths)) {
     const { options } = fixture(task), calls = [];
     const tx = { query: async (sql, ...args) => { calls.push([sql, args]); return [{}]; } };
@@ -120,13 +178,24 @@ test('both INSERTs snapshot active policy and model without adding or reordering
     assert.ok(sql.includes(`active_profiles->'${task}'`));
     assert.ok(sql.includes(`active_profiles->'${task}'->>'model'`));
     assert.match(sql, /COALESCE/);
-    assert.equal(args.length, task === 'curriculum' ? 10 : 14);
+    assert.equal(args.length, task === 'curriculum' ? 10 : 15);
     assert.equal(args[task === 'curriculum' ? 7 : 11], options.configuration.model);
     if (task === 'activities') {
+      assert.ok(sql.includes("active_profiles->'activities'->>'promptVersion'"));
+      assert.equal(args[14], 'activity-proposal-v3');
       assert.equal(args[3], activityScope.unit.id);
       assert.deepEqual(JSON.parse(args[8]), activityScope);
     }
   }
+});
+
+test('Foxy admits current teaching resources and keeps the four prior text prompt versions', () => {
+  const current = defaultExecutionSnapshot(base(), 'foxy');
+  assert.equal(current.promptVersion, 'foxy-chat-v6');
+  for (const promptVersion of ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4', 'foxy-chat-v5', 'foxy-chat-v6']) {
+    assert.deepEqual(parseExecutionSnapshot({ ...current, promptVersion }, 'foxy'), { ...current, promptVersion });
+  }
+  assert.throws(() => parseExecutionSnapshot({ ...current, promptVersion: 'foxy-chat-v999' }, 'foxy'), { code: 'AI_UNAVAILABLE' });
 });
 
 test('real queue claims pin lease deadline and preserve operational concurrency', async () => {

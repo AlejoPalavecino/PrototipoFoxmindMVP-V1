@@ -27,7 +27,7 @@ export interface FoxyRasterPublicationArtifact {
   kind: 'RASTER'; digest: string; sizeBytes: number; mimeType: 'image/png' | 'image/jpeg'; extension: 'png' | 'jpg';
   width: number; height: number; producerVersion: 'foxy-diagram-png-v1' | 'foxy-image-original-v1';
 }
-export type FoxyPublicationArtifact = { digest: string; sizeBytes: number; pageCount: number; rendererVersion: 'foxy-text-pdf-v1' | 'foxy-pdf-v1' } | FoxyRasterPublicationArtifact;
+export type FoxyPublicationArtifact = { digest: string; sizeBytes: number; pageCount: number; rendererVersion: 'foxy-text-pdf-v1' | 'foxy-pdf-v1' | 'foxy-pdf-v2' } | FoxyRasterPublicationArtifact;
 export interface FoxyPublicationInspection {
   editorialSnapshot?: { title: string; description: string | null; revision: string | null };
   publication: FoxyAnyPublicationSummary; classroomRevision: string; classroomArchived: boolean;

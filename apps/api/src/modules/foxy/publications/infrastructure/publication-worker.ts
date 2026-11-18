@@ -3,6 +3,7 @@ import type { createFoxyPublicationAuthority } from './publication-authority.ts'
 import type { FoxyPublicationFiles, FoxyPublicationRasterSource } from '../../../files/public.ts';
 import type { createFoxyPublicationCompletion } from './publication-completion.ts';
 import type { renderFoxyTextPdf } from './resource-pdf.ts';
+import { isFoxyPdfVersion, canReplayFoxyPdf } from '../domain/pdf-renderer-version.ts';
 
 type Authority = ReturnType<typeof createFoxyPublicationAuthority>;
 type Options = { queue: { claim(): Promise<FoxyPublicationLease | null>; renew(lease: FoxyPublicationLease): Promise<boolean>;
@@ -36,8 +37,14 @@ export function createFoxyPublicationWorker(options: Options) {
           if (!options.rasterSource) throw Object.assign(new Error('FILE_NOT_READY'), { code:'FILE_NOT_READY' });
           const image = await options.rasterSource.read(scope.capability,signal); bytes=image.bytes; descriptor=image.artifact;
         } else {
-          const pdf = await options.renderer.render(scope.snapshot as {title:string;markdown:string},signal);
-          if (pdf.rendererVersion !== 'foxy-text-pdf-v1' && pdf.rendererVersion !== 'foxy-pdf-v1') throw Object.assign(new Error('FILE_NOT_READY'), {code:'FILE_NOT_READY'});
+          const existing = file?.descriptor;
+          const version = existing && !('kind' in existing) ? existing.rendererVersion : null;
+          if (version !== null && !canReplayFoxyPdf(version)) throw Object.assign(new Error('FILE_NOT_READY'), {code:'FILE_NOT_READY'});
+          const pdf = await options.renderer.render(scope.snapshot as {title:string;markdown:string},signal,version ?? undefined);
+          if (!isFoxyPdfVersion(pdf.rendererVersion)
+            || (existing && !('kind' in existing) && (pdf.rendererVersion !== existing.rendererVersion
+              || pdf.digest !== existing.digest || pdf.bytes.byteLength !== existing.sizeBytes || pdf.pageCount !== existing.pageCount)))
+            throw Object.assign(new Error('FILE_NOT_READY'), {code:'FILE_NOT_READY'});
           bytes=pdf.bytes; descriptor={digest:pdf.digest,sizeBytes:pdf.bytes.byteLength,pageCount:pdf.pageCount,rendererVersion:pdf.rendererVersion};
         }
         signal.throwIfAborted();

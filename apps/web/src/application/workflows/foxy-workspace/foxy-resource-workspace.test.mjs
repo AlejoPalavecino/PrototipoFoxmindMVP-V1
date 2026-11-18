@@ -137,3 +137,34 @@ test('legacy model markdown line breaks are restored without changing already fo
  const edited='Foto\n\nTexto literal de código: \\n';
  assert.equal(formatFoxyModelMarkdown(edited),edited);
 });
+
+test('teacher and student reader actions download the same saved Word and TXT bytes', async () => {
+ const markdown='# Escalas\n\n- Calculá **$4 \\times 50$ cm**.';
+ const teacher=fixture({resource:{...resource,dirty:false,resource:{...resource.resource,title:'Escalas',markdown}}}).view;
+ const {StudyCreationEditor}=componentWithPorts('apps/web/src/features/study/creations/study-creation-editor.tsx',{});
+ const student=hookView(StudyCreationEditor,{creation:{id:rid,kind:'NOTE',title:'Escalas',markdown}});
+ const blobs=[];
+ const previousDocument=globalThis.document;
+ const {createObjectURL, revokeObjectURL}=URL;
+ try{
+  await Promise.all([teacher.flush(),student.flush()]);
+  globalThis.document={createElement:()=>({click(){},remove(){}}),body:{append(){}}};
+  URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:foxmind-synthetic';};
+  URL.revokeObjectURL=()=>{};
+  for(const view of [teacher,student]){
+   for(const name of ['Descargar Word','Descargar TXT']){
+    const [button]=descendants(view.tree,node=>node.type==='button'&&renderToStaticMarkup(node).includes(name));
+    assert.ok(button,name);
+    button.props.onClick();
+   }
+  }
+ }finally{
+  globalThis.document=previousDocument;
+  URL.createObjectURL=createObjectURL;
+  URL.revokeObjectURL=revokeObjectURL;
+  student.close();teacher.close();
+ }
+ assert.deepEqual(await blobs[0].arrayBuffer(),await blobs[2].arrayBuffer());
+ assert.equal(await blobs[1].text(),'Escalas\n\n- Calculá 4 × 50 cm.');
+ assert.equal(await blobs[1].text(),await blobs[3].text());
+});

@@ -1,4 +1,5 @@
-import { FOXY_PDF_RENDERER_VERSION } from '../domain/pdf-renderer-version.ts';
+import { FOXY_PDF_RENDERER_VERSION, canReplayFoxyPdf, type FoxyPdfRendererVersion } from '../domain/pdf-renderer-version.ts';
+import { drawTaggedResource } from './resource-pdf-tagged.ts';
 import { createHash } from 'node:crypto';
 import { PDFDocument, PDFName, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 
@@ -19,7 +20,7 @@ function validate(input: { title: string; markdown: string }, signal: AbortSigna
   }
 }
 
-function wrapLine(text: string, font: PDFFont): string[] {
+export function wrapPdfLine(text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] {
   if (!text) return [''];
   const lines: string[] = [];
   let remaining = text;
@@ -29,8 +30,8 @@ function wrapLine(text: string, font: PDFFont): string[] {
     let width = 0;
     while (end < remaining.length) {
       const char = remaining[end]!;
-      const next = width + font.widthOfTextAtSize(char, FONT_SIZE);
-      if (next > PAGE_WIDTH - MARGIN * 2 && end > 0) break;
+      const next = width + font.widthOfTextAtSize(char, fontSize);
+      if (next > maxWidth && end > 0) break;
       width = next;
       if (char === ' ') lastSpace = end;
       end++;
@@ -47,7 +48,7 @@ function drawLines(document: PDFDocument, font: PDFFont, input: string, signal: 
   let y = 0;
   for (const paragraph of input.split(/\r\n|\r|\n/u)) {
     signal.throwIfAborted();
-    for (const line of wrapLine(paragraph, font)) {
+    for (const line of wrapPdfLine(paragraph, font, FONT_SIZE, PAGE_WIDTH - MARGIN * 2)) {
       if (!page || y < MARGIN) {
         if (document.getPageCount() >= MAX_PAGES) throw Object.assign(new Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
         page = document.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
@@ -59,24 +60,32 @@ function drawLines(document: PDFDocument, font: PDFFont, input: string, signal: 
   }
 }
 
-export async function renderFoxyTextPdf(input: { title: string; markdown: string }, signal: AbortSignal): Promise<{
+export async function renderFoxyTextPdf(input: { title: string; markdown: string }, signal: AbortSignal,
+  rendererVersion: FoxyPdfRendererVersion = FOXY_PDF_RENDERER_VERSION): Promise<{
   bytes: Uint8Array; digest: string; pageCount: number; rendererVersion: string;
 }> {
   const snapshot = { title: input?.title, markdown: input?.markdown };
   validate(snapshot, signal);
+  if (!canReplayFoxyPdf(rendererVersion)) throw new Error('Invalid PDF renderer version');
   const document = await PDFDocument.create();
   const metadataDate = new Date('2000-01-01T00:00:00.000Z');
   document.setCreationDate(metadataDate);
   document.setModificationDate(metadataDate);
   signal.throwIfAborted();
   const font = await document.embedFont(StandardFonts.Helvetica);
-  const content = `${snapshot.title}\n\n${snapshot.markdown}`;
-  font.encodeText(content.replace(/[\r\n]/gu, ''));
-  drawLines(document, font, content, signal);
+  if (rendererVersion === 'foxy-pdf-v1') {
+    const content = `${snapshot.title}\n\n${snapshot.markdown}`;
+    font.encodeText(content.replace(/[\r\n]/gu, ''));
+    drawLines(document, font, content, signal);
+  } else {
+    await drawTaggedResource(document, font, snapshot, signal, {
+      margin: MARGIN, pageWidth: PAGE_WIDTH, pageHeight: PAGE_HEIGHT, maxPages: MAX_PAGES, wrapLine: wrapPdfLine,
+    });
+  }
   signal.throwIfAborted();
   for (const page of document.getPages()) page.node.delete(PDFName.of('Annots'));
   const bytes = await document.save();
   signal.throwIfAborted();
   if (bytes.length > MAX_PDF_BYTES) throw new Error('PDF resource exceeds size limit');
-  return { bytes, digest: createHash('sha256').update(bytes).digest('hex'), pageCount: document.getPageCount(), rendererVersion: FOXY_PDF_RENDERER_VERSION };
+  return { bytes, digest: createHash('sha256').update(bytes).digest('hex'), pageCount: document.getPageCount(), rendererVersion };
 }

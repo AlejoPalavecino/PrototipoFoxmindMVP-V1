@@ -81,12 +81,16 @@ test('PostgreSQL: uploads privados, custodia y recordatorios idempotentes de Age
   ({folder}=await service.command(request,folder.id,{revision:folder.revision,requestId:randomUUID(),action:'CONFIRM_FOLDER'}));
   const transaction=async operation=>database.$transaction(raw=>operation({query:(sql,...v)=>raw.$queryRawUnsafe(sql,...v)}));
   const start=new Date(Math.ceil((Date.now()+10*60000)/60000)*60000).toISOString(),end=new Date(Date.parse(start)+30*60000).toISOString(),exam={id:randomUUID(),title:'Biología',examAt:new Date(Date.parse(end)+86400000).toISOString(),timeZone:'America/Argentina/Buenos_Aires'};
-  const session={id:randomUUID(),title:'Célula',topicIds:[topicId],startAt:start,endAt:end,minutes:30,timeZone:exam.timeZone,reminderMinutes:15};
+  const session={id:randomUUID(),title:'Célula',topicIds:[topicId],startAt:start,endAt:end,minutes:30,timeZone:exam.timeZone,reminderMinutes:15,
+    activity:'Explicá con un ejemplo qué deja pasar la membrana.'};
   const agenda=createStudyAgendaIntegration();
   const first=await transaction(tx=>agenda.confirm(tx,owner,folder.id,exam,[session],randomUUID()));
   const again=await transaction(tx=>agenda.confirm(tx,owner,folder.id,exam,[session],randomUUID()));
   assert.equal(first.events[0].eventId,again.events[0].eventId);
+  assert.equal(first.events[0].revision,again.events[0].revision);
   assert.equal((await pool.query('SELECT count(*)::int AS count FROM agenda_events WHERE owner_id=$1',[owner])).rows[0].count,1);
+  const { rows: [event] } = await pool.query('SELECT description FROM agenda_events WHERE id=$1 AND owner_id=$2', [first.events[0].eventId, owner]);
+  assert.match(event.description,/Explicá con un ejemplo qué deja pasar la membrana\./);
   const reminders=createStudyReminderRuntime({database,authenticate});
   try{
    await reminders.tick();const list=await reminders.list(request);assert.equal(list.items.length,1);assert.equal(list.unreadCount,1);

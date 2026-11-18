@@ -5,3 +5,10 @@ test('repasos conservan instante en zona local y no crean evento fuera de examen
  assert.equal(event.schedule.startLocal,'2026-11-15T15:00');assert.equal(event.schedule.startOffsetMinutes,-180);
  assert.throws(()=>studySessionEvent({title:'Examen',examAt:'2026-11-10T12:00:00Z'},{title:'Repaso',startAt:'2026-11-15T18:00:00Z',endAt:'2026-11-15T18:30:00Z',timeZone:'UTC'}));
 });
+
+test('Agenda keeps the edited review activity in the description and supports older sessions', () => {
+ const exam={title:'Escalas',examAt:'2099-11-20T12:00:00Z',timeZone:'UTC'};
+ const session={title:'Planos',startAt:'2099-11-15T18:00:00Z',endAt:'2099-11-15T18:30:00Z'};
+ assert.match(studySessionEvent(exam,{...session,activity:'Explicá la escala con el apunte cerrado.'}).description,/Explicá la escala con el apunte cerrado\./);
+ assert.equal(studySessionEvent(exam,session).description,'Sesión privada de estudio para Escalas.');
+});

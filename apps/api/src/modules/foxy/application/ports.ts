@@ -43,7 +43,7 @@ export type FoxyCreation = {
 };
 type Metadata = {
     model: string;
-    promptVersion: string;
+    promptVersion?: string;
     schemaVersion: string;
 };
 type Page = {

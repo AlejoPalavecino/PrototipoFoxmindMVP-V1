@@ -115,3 +115,31 @@ test('student feedback opens the published attempt behind the displayed zero, ne
     assert.deepEqual(calls, [['result', 'Trabajo', 'published-first']]);
   } finally { view.close(); }
 });
+
+test('own progress names an actionable resubmission before an ordinary outstanding assignment', async () => {
+  const pending = { ...activity('Guía de práctica', undefined), firstSubmission: null };
+  const reopening = { ...activity('Experimento de luz', undefined, '0'), pendingResubmission: true, publishedAttemptId: 'published-first' };
+  const consultation = { ...activity('Material de consulta', undefined), firstSubmission: null, expected: false };
+  const calls = [];
+  const { view, tree } = await viewFor({ ...student([consultation, pending, reopening]), scope: 'self', plan }, {
+    onShowActivities: () => calls.push('activities'),
+  });
+  try {
+    const summary = descendants(tree, node => node.props.className === 'parity-progress-panel parity-own-summary')[0];
+    assert.match(text(summary), /Revisá los cambios para volver a entregar «Experimento de luz»/);
+    assert.doesNotMatch(text(summary), /Material de consulta|Guía de práctica/);
+    descendants(summary, node => node.type === 'button' && text(node).includes('Seguir con mis actividades'))[0].props.onClick();
+    assert.deepEqual(calls, ['activities']);
+  } finally { view.close(); }
+});
+
+test('an archived classroom suggests reviewing published feedback instead of submitting work', async () => {
+  const pending = { ...activity('Guía de práctica', undefined), firstSubmission: null };
+  const graded = { ...activity('Experimento de luz', undefined, '0'), publishedAttemptId: 'published-first' };
+  const { view, tree } = await viewFor({ ...student([pending, graded]), scope: 'self', archived: true, plan });
+  try {
+    const summary = descendants(tree, node => node.props.className === 'parity-progress-panel parity-own-summary')[0];
+    assert.match(text(summary), /Revisá la devolución publicada de «Experimento de luz»/);
+    assert.doesNotMatch(text(summary), /Guía de práctica/);
+  } finally { view.close(); }
+});

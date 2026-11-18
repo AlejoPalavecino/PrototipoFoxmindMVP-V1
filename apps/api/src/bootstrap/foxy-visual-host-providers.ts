@@ -10,7 +10,7 @@ export function selectFoxyVisualProviders(ai: AiConfiguration | undefined, visua
   if (overrides.enabled) return { IMAGE: config.enabled.IMAGE ? supplied?.IMAGE ?? null : null, DIAGRAM: config.enabled.DIAGRAM ? supplied?.DIAGRAM ?? null : null };
   const image = config.profiles.IMAGE, diagram = config.profiles.DIAGRAM;
   return {
-    IMAGE: config.enabled.IMAGE && image ? createGeminiFoxyImageAdapter({ apiKey: ai.apiKey, configuration: { model:image.model, profileVersion:image.profileVersion, maxInputTokens:image.maxInputTokens, maxOutputTokens:image.maxOutputTokens, deadlineMs:visual.providerDeadlineMs } }) : null,
-    DIAGRAM: config.enabled.DIAGRAM && diagram ? createGeminiFoxyDiagramAdapter({ apiKey: ai.apiKey, configuration: { model:diagram.model, profileVersion:'foxy-diagram-provider-v1', maxInputTokens:diagram.maxInputTokens, maxOutputTokens:diagram.maxOutputTokens, deadlineMs:visual.providerDeadlineMs } }) : null,
+    IMAGE: config.enabled.IMAGE && image ? createGeminiFoxyImageAdapter({ apiKey: ai.apiKey, configuration: { model:image.model, profileVersion:image.profileVersion, maxInputTokens:image.maxInputTokens, maxOutputTokens:image.maxOutputTokens, deadlineMs:visual.imageProviderDeadlineMs } }) : null,
+    DIAGRAM: config.enabled.DIAGRAM && diagram ? createGeminiFoxyDiagramAdapter({ apiKey: ai.apiKey, configuration: { model:diagram.model, profileVersion:diagram.profileVersion, maxInputTokens:diagram.maxInputTokens, maxOutputTokens:diagram.maxOutputTokens, deadlineMs:visual.providerDeadlineMs } }) : null,
   };
 }

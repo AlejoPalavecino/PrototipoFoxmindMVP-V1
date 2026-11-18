@@ -87,7 +87,7 @@ test('Study execution settles usage attached to a rejected provider result', asy
 
 test('Study execution blocks quota before dispatch and preserves busy/idempotency guards', async () => {
   const quota = fixture({ denied: true });
-  await assert.rejects(quota.run(), { code: 'QUOTA_EXCEEDED' });
+  await assert.rejects(quota.run(), { code: 'AI_BUDGET_EXCEEDED' });
   assert.ok(!quota.events.includes('generate'));
   for (const [option, code] of [['busy', 'AI_BUSY'], ['conflict', 'CONFLICT']]) {
     const f = fixture({ [option]: true });
@@ -138,7 +138,7 @@ test('Study feedback never claims a slot if reauthorization runs past its deadli
 });
 
 test('Study feedback never retries admission after budget denial or unknown provider outcome', async () => {
-  for (const [options, code] of [[{ denied: true }, 'QUOTA_EXCEEDED'], [{ stage: 'unknown' }, 'PROVIDER_OUTCOME_UNKNOWN']]) {
+  for (const [options, code] of [[{ denied: true }, 'AI_BUDGET_EXCEEDED'], [{ stage: 'unknown' }, 'PROVIDER_OUTCOME_UNKNOWN']]) {
     const f = fixture(options);
     await assert.rejects(f.run(true), { code });
     assert.equal(f.admissionChecks, 1);
@@ -147,14 +147,15 @@ test('Study feedback never retries admission after budget denial or unknown prov
   }
 });
 
-test('Study HTTP distinguishes busy capacity, timeout and provider throttling', async () => {
+test('Study HTTP distinguishes busy capacity, timeout, provider throttling and internal quotas', async () => {
   const { createStudyHandler } = loadTsModule('apps/api/src/modules/study/folders/presentation/http.ts');
   const handler = createStudyHandler({ command: async (_req, _id, body) => { throw fail(body.code); } }, async () => {});
   const server = createServer((req, res) => handler(req, res, () => { res.statusCode = 404; res.end(); }));
   server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   try {
-    for (const [code, status] of [['AI_BUSY', 503], ['AI_TIMEOUT', 504], ['AI_RATE_LIMITED', 429]]) {
+    for (const [code, status] of [['AI_BUSY', 503], ['AI_TIMEOUT', 504], ['AI_RATE_LIMITED', 429],
+      ['AI_BUDGET_EXCEEDED', 429], ['QUOTA_EXCEEDED', 409]]) {
       const response = await fetch(`http://127.0.0.1:${server.address().port}/api/v1/study-folders/fixture/commands`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }),
       });
@@ -215,7 +216,7 @@ test('Study adapter requests an admission wait only for callers that opt in', as
 });
 
 test('Study adapter maps neutral errors to existing API codes and preserves permission/timeout errors', async () => {
-  for (const code of ['AI_BUSY', 'AI_RATE_LIMITED', 'PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT', 'AI_TIMEOUT', 'FORBIDDEN', 'QUOTA_EXCEEDED']) {
+  for (const code of ['AI_BUSY', 'AI_RATE_LIMITED', 'PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT', 'AI_TIMEOUT', 'FORBIDDEN', 'QUOTA_EXCEEDED', 'AI_BUDGET_EXCEEDED']) {
     const f = adapterFixture(code);
     await assert.rejects(f.provider.generate({ system: '', prompt: 'synthetic' }), {
       code: ['PROVIDER_OUTCOME_UNKNOWN', 'INVALID_AI_OUTPUT'].includes(code) ? 'AI_UNAVAILABLE' : code,

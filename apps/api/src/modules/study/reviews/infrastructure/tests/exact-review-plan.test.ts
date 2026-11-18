@@ -46,8 +46,24 @@ test('legacy planning still consumes topics once and exact planning accepts expl
   assert.equal(exact.sessions.length, 2); assert.equal(exact.sessions[0]!.startAt, '2099-11-20T15:00:00.000Z');
 });
 
+test('review activities distinguish encounter, same-day revisit and spaced transfer in the plan time zone', async () => {
+  const { studyReviewActivities } = await import('../../../../../../../../src/core/domain/study/review.ts');
+  const [first, sameDay, second, third] = [
+    { id: 'a', startAt: '2099-11-20T23:30:00Z' },
+    { id: 'b', startAt: '2099-11-21T01:30:00Z' },
+    { id: 'c', startAt: '2099-11-22T15:00:00Z' },
+    { id: 'd', startAt: '2099-11-25T15:00:00Z', activity: 'Resolvé el caso que marcaste en clase.' },
+  ].map(session => ({ ...session, topicIds: [topicIds[0]!] }));
+  const result = studyReviewActivities([third!, second!, sameDay!, first!], base.timeZone);
+  assert.match(result.get('a')!, /sin mirar el material/i);
+  assert.match(result.get('b')!, /otro día/i);
+  assert.match(result.get('c')!, /caso distinto/i);
+  assert.equal(result.get('d'), third!.activity);
+});
+
 function fixture() {
   const owner = crypto.randomUUID(); let conflictChecks = 0, agendaWrites = 0;
+  const confirmed: unknown[][] = [];
   let row: FolderRow = { id: crypto.randomUUID(), owner_id: owner, status: 'ACTIVE', revision: 1n, created_at: new Date(), updated_at: new Date(), state: {
     version: 1, fields: { name: 'Estudio', subject: 'Historia', academicYear: 2026, bannerKey: 'general', linkedClassroomId: null, planFileId: null,
       units: [{ id: crypto.randomUUID(), title: 'Unidad', topics }] }, materials: [], conversations: [], creations: [], practices: [], exams: [], memory: {}, receipts: {} } };
@@ -64,8 +80,9 @@ function fixture() {
   const service = createStudyService({ uow: createStudentUnitOfWork({ database, authenticate: async (_tx, request) => (request as { owner?: string }).owner ?? owner }),
     folders: createFolderRepository(), newId: () => crypto.randomUUID(), digest: value => value, sources: async () => [], linkedClassrooms: async () => [], verifyLink: async () => {}, importPlan: async () => null,
     agenda: { conflicts: async (_tx, id, zone, sessions) => { conflictChecks++; assert.equal(id, owner); assert.equal(zone, base.timeZone); assert.equal(sessions.length, 3);
-      return [{ sessionId: sessions[0]!.id, occurrenceId: crypto.randomUUID(), title: 'Evento propio' }]; }, confirm: async () => { agendaWrites++; return {}; }, cancel: async () => {} } });
-  return { service, get row() { return row; }, get checks() { return conflictChecks; }, get writes() { return agendaWrites; },
+      return [{ sessionId: sessions[0]!.id, occurrenceId: crypto.randomUUID(), title: 'Evento propio' }]; },
+      confirm: async (_tx, _owner, _folder, _exam, sessions) => { agendaWrites++; confirmed.push(sessions); return {}; }, cancel: async () => {} } });
+  return { service, confirmed, get row() { return row; }, get checks() { return conflictChecks; }, get writes() { return agendaWrites; },
     input(extra: Record<string, unknown> = {}) { const { now: _, ...fields } = base; return { action: 'PLAN_EXAM', ...fields, title: 'Mi evaluación', sessionCount: 3,
       availability: availability(3), topicIds: [topicIds[0]], revision: String(row.revision), requestId: crypto.randomUUID(), ...extra }; } };
 }
@@ -77,6 +94,27 @@ test('exact PLAN_EXAM persists count with existing agenda warnings and replays w
   assert.equal((f.row.state.exams[0]!.sessions as unknown[]).length, 3); assert.equal(f.writes, 0);
   const snapshot = structuredClone(f.row); assert.deepEqual(await f.service.command({}, f.row.id, input), response);
   assert.deepEqual(f.row, snapshot); assert.equal(f.checks, 1); assert.equal(f.writes, 0);
+});
+
+test('editing a review persists a private activity and Agenda receives only the confirmed sessions', async () => {
+  const f = fixture(), response = await f.service.command({}, f.row.id, f.input());
+  const { exam } = response.result as { exam: FolderRow['state']['exams'][number] };
+  const [first, second] = exam.sessions;
+  const editedSessions = [{ ...first!, activity: 'Calculá la conversión de un plano nuevo.' }, ...exam.sessions.slice(1)];
+  const command = (fields: Record<string, unknown>) => ({
+    revision: String(f.row.revision), requestId: crypto.randomUUID(), examId: exam.id, ...fields,
+  });
+  await f.service.command({}, f.row.id, command({ action: 'EDIT_EXAM', sessions: editedSessions }));
+  assert.equal(f.row.state.exams[0]!.sessions[0]!.activity, editedSessions[0]!.activity);
+  assert.equal(f.writes, 0);
+  const confirm = command({ action: 'CONFIRM_AGENDA', sessionIds: [first!.id, second!.id] });
+  const confirmation = await f.service.command({}, f.row.id, confirm);
+  assert.deepEqual(await f.service.command({}, f.row.id, confirm), confirmation);
+  assert.equal(f.writes, 1);
+  const agendaSessions = f.confirmed[0] as typeof editedSessions;
+  assert.equal(agendaSessions.length, 2);
+  assert.equal(agendaSessions[0]!.activity, editedSessions[0]!.activity);
+  assert.match(agendaSessions[1]!.activity!, /caso distinto/);
 });
 
 test('invalid exact plans, foreign ownership and stale revisions cannot save a partial exam or consult Agenda', async () => {

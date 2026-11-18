@@ -117,6 +117,7 @@ export interface StudyExam {
     title: string;
     minutes: number;
     reminderMinutes: number | null;
+    activity?: string;
   }[];
   warnings?: string[];
   conflicts?: {

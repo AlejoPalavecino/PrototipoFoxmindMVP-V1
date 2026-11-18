@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {GoogleGenAI} from '@google/genai';
 const cap=16777216;
-async function wrap(base){return (await import("../foxy-image-bounded-fetch.ts")).createFoxyImageBoundedFetch(base);}
+async function wrap(base, deadlineMs){return (await import("../foxy-image-bounded-fetch.ts")).createFoxyImageBoundedFetch(base,deadlineMs);}
 function streaming(chunks,{headers={},status=200,holdOpen=false}={}){
  let index=0,cancelled=false;const body=new ReadableStream({pull(controller){if(index===chunks.length){if(!holdOpen)controller.close();}else controller.enqueue(chunks[index++]);},cancel(){cancelled=true;}});
  return {response:new Response(body,{status,headers}),cancelled:()=>cancelled};
@@ -33,6 +33,33 @@ test('aborting a stalled stream cancels it and rejects without a second request'
 test('pre-aborted request never invokes the underlying fetch',async()=>{
  let calls=0;const controller=new AbortController();controller.abort();const fetcher=await wrap(async()=>{calls++;return new Response('unexpected')});
  await assert.rejects(()=>fetcher('https://synthetic.invalid/',{signal:controller.signal}));assert.equal(calls,0);
+});
+test('a configured image deadline permits a slow response beyond the old 15-second cap',async t=>{
+ t.mock.timers.enable({apis:['setTimeout']});
+ let complete, calls=0;
+ const fetcher=await wrap(async()=>{calls++;return new Promise(resolve=>{complete=resolve;});},90_000);
+ const pending=fetcher('https://synthetic.invalid/');
+ const result=pending.then(response=>response, error=>error);
+ t.mock.timers.tick(20_000);
+ complete(new Response('image response'));
+ const response=await result;
+ assert.ok(response instanceof Response);
+ assert.equal(await response.text(),'image response');
+ assert.equal(calls,1);
+});
+test('a configured deadline still stops stalled headers or body without retry',async t=>{
+ t.mock.timers.enable({apis:['setTimeout']});
+ for(const stallAt of ['headers','body']){
+  let calls=0;
+  const body=streaming([],{holdOpen:true});
+  const fetcher=await wrap(async()=>{calls++;return stallAt==='headers'?new Promise(()=>{}):body.response;},90_000);
+  const pending=assert.rejects(fetcher('https://synthetic.invalid/'));
+  await new Promise(resolve=>setImmediate(resolve));
+  t.mock.timers.tick(90_000);
+  await pending;
+  if(stallAt==='body')assert.equal(body.cancelled(),true);
+  assert.equal(calls,1);
+ }
 });
 test('installed SDK generateContent reaches the bounded synthetic fetch seam',async()=>{
  let calls=0;const payload=JSON.stringify({candidates:[{finishReason:'STOP',content:{role:'model',parts:[{text:'synthetic'}]}}]});

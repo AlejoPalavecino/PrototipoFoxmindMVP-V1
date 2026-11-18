@@ -9,11 +9,11 @@ if (Object.keys(process.env).some(key => key.startsWith('AI_') || key === 'FOXY_
 loadEnvFile('.env.foxy-test');
 const ai = readAiConfiguration(process.env), host = readFoxyVisualConfiguration(process.env, ai);
 if (!ai || !host || !host.configuration.profiles.IMAGE || !host.configuration.profiles.DIAGRAM) throw new Error('Visual test configuration is incomplete.');
-const deadlineMs = host.providerDeadlineMs;
 const modes = process.argv.includes('--image-only') ? ['IMAGE'] : ['IMAGE', 'DIAGRAM'];
 const reasons = new Set(['RESPONSE_SHAPE','PROMPT_BLOCKED','CANDIDATE_COUNT','FINISH_REASON','PART_SHAPE','PART_FIELDS','SIGNATURE_LIMIT','DATA_VARIANT','TEXT_LIMIT','MIME','BASE64','BYTE_LIMIT','RASTER_SIGNATURE','MISSING_FINAL_IMAGE','MULTIPLE_FINAL_IMAGES']);
 for (const kind of modes) {
   const profile = host.configuration.profiles[kind];
+  const deadlineMs = kind === 'IMAGE' ? host.imageProviderDeadlineMs : host.providerDeadlineMs;
   const configuration = { model: profile.model, profileVersion: profile.profileVersion, maxInputTokens: profile.maxInputTokens, maxOutputTokens: profile.maxOutputTokens, deadlineMs };
   const adapter = kind === 'IMAGE' ? createGeminiFoxyImageAdapter({ apiKey: ai.apiKey, configuration }) : createGeminiFoxyDiagramAdapter({ apiKey: ai.apiKey, configuration });
   const input = { mode: 'GENERAL', prompt: kind === 'IMAGE' ? 'Ilustración educativa simple del ciclo del agua.' : 'Esquema educativo simple del ciclo del agua.', aspectRatio: '1:1', curriculum: null, sources: [], documents: [], warnings: [], history: [], signal: AbortSignal.timeout(deadlineMs) };

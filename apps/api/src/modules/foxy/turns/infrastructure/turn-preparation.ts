@@ -5,7 +5,7 @@ import type { FoxyTurnLease } from './turn-queue.ts';
 import type { FoxyClaimScope } from './claim-authority.ts';
 import { projectFoxyTextInput } from '../../domain/provider-input.ts';
 import type { AiExecutionSettings } from '../../../../../../../src/core/contracts/ai-execution.ts';
-import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
+import { configurationForJob, supportsFoxyPromptVersion } from '../../../../platform/ai/execution-snapshot.ts';
 import type { AiChatTimings } from '../../../../platform/ai/text-metrics.ts';
 
 type HistoryPair = { user: string; assistant: { title: string; markdown: string } };
@@ -87,8 +87,9 @@ export function createFoxyTurnPreparation<C extends Configuration, P extends Pro
         const configuration = turn.executionProfile != null || options.configuration.legacyExecutionProfiles || options.providerForExecution
           ? configurationForJob(options.configuration, turn.executionProfile, 'foxy') : options.configuration;
         const snapshot = configuration.executionProfile;
-        if (turn.metadata.model !== configuration.model || turn.metadata.promptVersion !== 'foxy-chat-v2'
-          || turn.metadata.schemaVersion !== 'foxy-answer-v1' || (snapshot && (snapshot.promptVersion !== turn.metadata.promptVersion
+        const { promptVersion } = turn.metadata;
+        if (turn.metadata.model !== configuration.model || !supportsFoxyPromptVersion(promptVersion)
+          || turn.metadata.schemaVersion !== 'foxy-answer-v1' || (snapshot && (snapshot.promptVersion !== promptVersion
             || snapshot.responseVersion !== turn.metadata.schemaVersion))) return failure('AI_UNAVAILABLE');
         onConfiguration?.(configuration);
         signal.throwIfAborted();

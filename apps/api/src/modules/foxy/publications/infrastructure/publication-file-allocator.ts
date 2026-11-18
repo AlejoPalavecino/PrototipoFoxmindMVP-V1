@@ -4,6 +4,7 @@ import type { FoxyPublicationArtifact } from '../../../../../../../src/core/doma
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyUnitOfWork } from '../../application/ports.ts';
 import type { FoxyPublicationLease } from './publication-queue.ts';
+import { ACCEPTED_FOXY_PDF_VERSIONS } from '../domain/pdf-renderer-version.ts';
 
 type Artifact = FoxyPublicationArtifact;
 type MaterialFiles = { beginInTransaction(tx: SqlTransaction, request: unknown, scope: { kind: 'classroom'; id: string },
@@ -18,7 +19,7 @@ function validate(value: Artifact): void {
       || !['foxy-diagram-png-v1','foxy-image-original-v1'].includes(value.producerVersion)
       || (value.producerVersion==='foxy-diagram-png-v1' && value.mimeType!=='image/png')) return invalid('INVALID_INPUT');
   } else if (value.sizeBytes>20000000 || !Number.isSafeInteger(value.pageCount) || value.pageCount<1 || value.pageCount>100
-    || !['foxy-text-pdf-v1','foxy-pdf-v1'].includes(value.rendererVersion)) return invalid('INVALID_INPUT');
+    || !ACCEPTED_FOXY_PDF_VERSIONS.includes(value.rendererVersion)) return invalid('INVALID_INPUT');
 }
 export function createFoxyPublicationFileAllocator(options: { assets: FoxyPrivateAssetReadRepositoryPort;  uow: FoxyUnitOfWork; files: MaterialFiles }) {
   return { ensureFile: async (request: unknown, lease: FoxyPublicationLease, artifact: Artifact, signal: AbortSignal) => {
