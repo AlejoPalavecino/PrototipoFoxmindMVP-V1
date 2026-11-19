@@ -42,9 +42,10 @@ const seed={version:1,selectedClass:'photo',profile:{docente:'Lucía',estudiante
  answers:{},submitted:{observe:{at:'13 de noviembre, 09:20',files:['Mis tres miradas.pdf']}},reviewDraft:{},messages:[],studyMessages:[],creations:[],materials:[{title:'La luz: exposición y contraste',kind:'PDF',unit:'La luz',size:'2,4 MB'}],posts:[{id:'welcome-photo',classId:'photo',name:'Lucía',title:'Esta semana miramos distinto',body:'Busquen una foto que les guste y observen de dónde viene la luz. En la próxima clase vamos a compartir lo que descubrimos.',time:'Hoy, 08:30',type:'Aviso'},{id:'question-photo-phone',classId:'photo',name:'Valentina',title:'¿Podemos usar una foto del celular?',body:'¿Sirve una foto del celular para compartir en clase?',time:'Hace 20 min',type:'Consulta'}],
  folders:[{name:'Mi rincón de fotografía',asset:'literature',topic:'Exposición y contraste'},{name:'Biología, a mi ritmo',asset:'biology',topic:'Las células'}],invitation:true,notificationsRead:false,classArchived:[],drafts:[],wizard:null,author:null,notes:'',eventNext:5
 };
+addSupportExamples(seed);
 let state=structuredClone(seed),storageAvailable=true;
 try{const saved=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')||'null');if(saved?.version===1){
- state={...state,...saved};
+ state={...state,...saved,supportExamples:saved.supportExamples===true};
  const [welcome,question]=seed.posts;
  for(const post of state.posts){
   if(!post.classId&&post.name===welcome.name&&post.title===welcome.title&&post.body===welcome.body&&post.type===welcome.type)
@@ -53,6 +54,7 @@ try{const saved=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')||'null');if
  if(!state.wallScoped&&!state.posts.some(p=>p.id===question.id))state.posts.push(structuredClone(question));
  if(state.wizard?.kind==='class')state.wizard=null;
 }}catch{storageAvailable=false;}
+addSupportExamples(state);
 state.wallScoped=true;
 let role='docente',view='inicio',tab='',question=0,activityId=state.currentActivityId||'light',reviewId=state.currentReviewId||'r1',selectedDay=13,calendarView='month',calendarMonth=10,collection='active',search='',topic=0,homeFilter='reviews',chatTab='chat',scenario='normal',step=0,focusReturn=null,jobToken=0,toastTimer,saveTimer;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

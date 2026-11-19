@@ -98,7 +98,7 @@ function installRoomPolish(){
   'room-section':b=>go('aula',b.dataset.roomSection),
   'room-open-deliveries':b=>{openActivity(b.dataset.id);go('actividad-detalle','entregas');},
   'room-open-result':b=>{openActivity(b.dataset.id);go('resultado');},
-  'student-card':b=>roomPersonDialog(b.dataset.name),
+  'student-card':b=>tab==='integrantes'&&activeClassrooms().includes(classroom())?supportDialog(classroom(),b.dataset.name):roomPersonDialog(b.dataset.name),
   material:()=>{
    if(!['actividad-detalle','actividad','corregir','recibo','resultado'].includes(view)){oldMaterial();return;}
    const a=activity(),c=state.classes.find(c=>c.id===a.classId),topics=learningTopics(a);

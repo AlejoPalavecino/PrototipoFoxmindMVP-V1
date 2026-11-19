@@ -99,6 +99,20 @@ installAuthoringExperience();
 installLearningExperience();
 installTeachingLibrary();
 installRoomPolish();
+actions['support-card']=b=>supportDialog(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+actions['support-more']=()=>{supportExpanded=!supportExpanded;refreshSupport('[data-action="support-more"]');};
+actions['support-filter']=supportPicker;
+actions['support-select']=b=>{
+  supportClass=b.dataset.room;
+  supportExpanded=false;
+  closeDialog();
+  refreshSupport('#support-filter');
+};
+actions['support-evidence']=b=>supportEvidence(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+actions['support-back']=b=>{
+  supportDialog(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+  document.querySelector('[data-action="support-evidence"]')?.focus();
+};
 installParticipationPolish();
 installAgenda();
 installStudyFolders();

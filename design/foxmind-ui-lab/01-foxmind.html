@@ -2038,6 +2038,34 @@ dialog.pf-picker { width: min(490px, calc(100vw - 28px)); }
  .focus-footer:has(#fp-save-status)>.actions {margin-left:0;width:100%;justify-content:flex-end}
  .focus-footer:has(#fp-save-status)>.actions .button {min-height:44px}
 }
+
+.support-widget{margin:0 0 26px;padding:clamp(16px,2.2vw,28px);container-type:inline-size}
+.support-heading,.support-title,.support-footer,.support-source,.support-grade,.support-detail h3{display:flex;align-items:center;gap:10px}
+.support-heading,.support-footer,.support-source{justify-content:space-between}
+.support-heading{flex-wrap:wrap;gap:14px}.support-title{min-width:0}.support-title h2{margin:0;font-size:clamp(19px,2vw,25px);line-height:1.17;letter-spacing:-.04em}
+.support-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:14px;color:#984311;background:#ffead7}
+.support-widget .support-filter{min-width:160px;max-width:100%;min-height:44px;border-radius:14px;justify-content:flex-start;background:#f7f9fb}.support-filter span{flex:1;text-align:left;overflow-wrap:anywhere}.support-filter>.icon:last-child{transform:rotate(90deg);width:14px}
+.support-choices{display:grid;gap:8px}.support-choice{display:grid;grid-template-columns:44px minmax(0,1fr) 22px;text-align:left;align-items:center;gap:12px;border:1px solid #d1dce6;border-radius:16px;padding:10px 13px;background:white;color:#25384a;cursor:pointer;font:inherit}.support-choice:hover{background:#f4f7fa}.support-choice[aria-pressed=true]{background:#fff5eb;border-color:#ba6836}.support-cover{width:44px;height:44px;object-fit:cover;border-radius:12px}.support-choice small,.support-copy small,.support-metrics span,.support-metrics small{display:block;font-size:12px;color:#526172}.support-choice i{display:grid;place-items:center;width:20px;height:20px;border-radius:100%;border:1px solid #adbac6}.support-choice[aria-pressed=true] i{background:#a44819;color:#fff;border:0}.support-choice i .icon{width:13px}
+.support-tone-0{--tint:#fcece9;--signal:#a9302a}.support-tone-1{--tint:#fff1d1;--signal:#80560d}.support-tone-2{--tint:#e6f4e9;--signal:#276544}.support-tone-3{--tint:#ebeff4;--signal:#495c70}
+.support-badge{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:fit-content;padding:5px 10px;border-radius:999px;font-size:12px;line-height:1.25;font-weight:850;color:var(--signal);background:var(--tint)}.support-badge i{width:7px;height:7px;flex:none;border-radius:50%;background:currentColor}
+.support-counts{display:flex;flex-wrap:wrap;gap:8px 20px;margin:18px 0 4px;padding:10px 0;border-block:1px solid #dfe6ec}
+.support-counts>div{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#37495a}
+.support-counts i{width:8px;height:8px;border-radius:100%;background:var(--signal)}.support-counts strong{font-variant-numeric:tabular-nums;color:var(--signal);background:var(--tint);padding:1px 7px;border-radius:9px}
+.support-empty{margin:18px 0 0;padding:18px;background:#f5f7fa;border-radius:12px}
+.support-row{display:grid;grid-template-columns:40px minmax(0,1fr) minmax(130px,175px) auto;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #dfe6ec}.support-copy{min-width:0;overflow-wrap:anywhere}.support-copy b{font-size:16px}.support-copy p,.support-detail p{margin:4px 0 0;color:#40546a;font-size:14px;line-height:1.45}.support-row>.support-badge{justify-self:start}
+.support-open.button,.support-all.button{min-height:44px;border-radius:13px;padding:9px 14px;font-size:13px;display:inline-flex;flex-direction:row-reverse;justify-content:center}.support-all.button{color:white;background:#a84716;border-color:#a84716;font-weight:800}.support-all.button:hover{background:#86370e;color:white}.support-footer{padding-top:15px}.support-footer>span{font-size:13px;color:#526172}
+.support-detail{display:grid;gap:14px;overflow-wrap:anywhere}.support-signal{background:var(--tint);border-radius:14px;padding:12px 14px}.support-signal .support-badge{padding:0;background:transparent}.support-detail h3{margin:0;font-size:16px}.support-detail h3 .icon{width:17px;flex:none}.support-metrics,.support-points{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.support-metrics>section,.support-chart,.support-points>section,.support-detail aside,.support-excerpt{padding:14px 16px;border:1px solid #d6e0e8;border-radius:16px}.support-metrics>section{background:#f4f8fc}.support-metrics small{font-weight:800}.support-metrics strong{display:block;font-size:26px;line-height:1.3}.support-chart>div{display:grid;gap:9px;margin-top:12px}.support-grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(30%,1fr) 3ch;font-size:13px}.support-grade b{text-align:right}.support-grade i,.support-track{height:9px;background:#e3eaf0;border-radius:20px;overflow:hidden}.support-grade u,.support-track i{display:block;height:100%;border-radius:inherit;background:#5485a4}.support-track{margin:3px 0 5px}.support-track i{background:#39866a}.support-points>section{background:#f0f7f1}.support-points>section+section{background:#fff8e8}.support-detail ul{padding-left:1.1em;margin:7px 0 0;font-size:14px}.support-source{flex-wrap:wrap;font-size:13px}.support-source>span{display:flex;align-items:center;gap:6px;color:#495d72}.support-detail aside{background:#fff1e3;border-color:#ebcdb6}.support-excerpt{background:#f5f8fb}
+@container(max-width:740px){.support-row{grid-template-columns:minmax(0,1fr) auto;gap:8px}.support-row>.avatar{display:none}.support-copy{grid-column:1/-1}.support-open{justify-self:end}.support-heading .support-filter{width:100%}}
+@media(max-width:560px){.support-points{grid-template-columns:1fr}.support-detail{gap:10px}.support-metrics>section,.support-chart,.support-detail aside{padding:11px}.support-metrics{gap:8px}.support-source .support-open{width:100%}.support-grade{grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr) 3ch}.support-widget .support-title .support-icon{width:36px;height:36px}.support-footer .support-all{min-width:112px}}
+
+
+
+.support-chart header,.support-reader header{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.support-chart small,.support-source small,.support-reader small{font-size:12px;color:#46586a}.support-grade i{height:12px;background:repeating-linear-gradient(to right,transparent 0 calc(25% - 1px),#a1b5c5 calc(25% - 1px) 25%),#e6edf2}.support-grade u{background:#326581}.support-grade b{color:#183d54;font-variant-numeric:tabular-nums}
+.support-observations{border:1px solid #cbd8e0;border-radius:16px;overflow:hidden}.support-source{padding:14px 16px;background:#f2f6f9;border-bottom:1px solid #d4dee6}.support-source small{display:block;margin-bottom:3px}.support-observations .support-points{padding:14px;gap:12px}.support-points h3,.support-detail aside h3{color:#23374a}
+.support-reader{color:#293d50;display:grid;gap:18px}.support-reader header{justify-content:flex-start;border-bottom:1px solid #d3dfe7;padding-bottom:14px}.support-reader small{display:block}.support-result{margin-left:auto;display:grid;text-align:right;color:#46586a;font-size:12px}.support-result b{font-size:18px;color:#235b47}
+.support-reader h3{font-size:15px;margin:0}.support-reader p,.support-reader blockquote{margin:6px 0 0;line-height:1.55;overflow-wrap:anywhere}.support-reader .support-answer{background:#f0f6fa;border-radius:14px;padding:16px}.support-reader blockquote{border-left:3px solid #477898;padding:2px 0 2px 12px;font-size:17px;color:#21394f}.support-reader footer{border-top:1px solid #d3dfe7;padding-top:14px}
+@media(max-width:560px){.support-observations .support-points{padding:10px}.support-source{padding:12px}.support-counts{gap:6px 12px}.support-chart header{align-items:baseline}.support-reader{gap:14px}}
 </style>
 </head>
 <body>
@@ -2101,9 +2129,10 @@ const seed={version:1,selectedClass:'photo',profile:{docente:'Lucía',estudiante
  answers:{},submitted:{observe:{at:'13 de noviembre, 09:20',files:['Mis tres miradas.pdf']}},reviewDraft:{},messages:[],studyMessages:[],creations:[],materials:[{title:'La luz: exposición y contraste',kind:'PDF',unit:'La luz',size:'2,4 MB'}],posts:[{id:'welcome-photo',classId:'photo',name:'Lucía',title:'Esta semana miramos distinto',body:'Busquen una foto que les guste y observen de dónde viene la luz. En la próxima clase vamos a compartir lo que descubrimos.',time:'Hoy, 08:30',type:'Aviso'},{id:'question-photo-phone',classId:'photo',name:'Valentina',title:'¿Podemos usar una foto del celular?',body:'¿Sirve una foto del celular para compartir en clase?',time:'Hace 20 min',type:'Consulta'}],
  folders:[{name:'Mi rincón de fotografía',asset:'literature',topic:'Exposición y contraste'},{name:'Biología, a mi ritmo',asset:'biology',topic:'Las células'}],invitation:true,notificationsRead:false,classArchived:[],drafts:[],wizard:null,author:null,notes:'',eventNext:5
 };
+addSupportExamples(seed);
 let state=structuredClone(seed),storageAvailable=true;
 try{const saved=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')||'null');if(saved?.version===1){
- state={...state,...saved};
+ state={...state,...saved,supportExamples:saved.supportExamples===true};
  const [welcome,question]=seed.posts;
  for(const post of state.posts){
   if(!post.classId&&post.name===welcome.name&&post.title===welcome.title&&post.body===welcome.body&&post.type===welcome.type)
@@ -2112,6 +2141,7 @@ try{const saved=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')||'null');if
  if(!state.wallScoped&&!state.posts.some(p=>p.id===question.id))state.posts.push(structuredClone(question));
  if(state.wizard?.kind==='class')state.wizard=null;
 }}catch{storageAvailable=false;}
+addSupportExamples(state);
 state.wallScoped=true;
 let role='docente',view='inicio',tab='',question=0,activityId=state.currentActivityId||'light',reviewId=state.currentReviewId||'r1',selectedDay=13,calendarView='month',calendarMonth=10,collection='active',search='',topic=0,homeFilter='reviews',chatTab='chat',scenario='normal',step=0,focusReturn=null,jobToken=0,toastTimer,saveTimer;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -2213,7 +2243,7 @@ function libraryScreen(){return `<div class="panel-header"><div><h2>Materiales p
 function materialResults(query){const items=state.materials.filter(m=>m.title.toLowerCase().includes(query.toLowerCase()));return items.map(m=>`<div class="material-row"><span class="file-mark">${m.kind}</span><div class="row-copy"><b>${esc(m.title)}</b><p>${esc(m.unit)} · Material de estudio · ${m.size}</p></div>${btn('Leer','material','','book')}</div>`).join('')||empty('No encontramos ese material','Probá con otra palabra.','',true);}
 function activitiesScreen(){const activities=state.activities.filter(a=>a.classId===classroom().id);return `<div class="panel-header"><div><h2>${role==='docente'?'Aprender haciendo':'Lo que sigue en tu aula'}</h2><p>${role==='docente'?'Consignas claras, espacio para las ideas y devoluciones que acompañan.':'Abrí una actividad para leer la consigna y empezar.'}</p></div>${role==='docente'?btn('Crear actividad','new-activity','primary','plus'):''}</div><section class="panel">${activities.length?activities.map(a=>`<div class="task-row"><span class="file-mark">${a.type==='Trabajo práctico'?'TP':'QUIZ'}</span><div class="row-copy"><div class="actions">${status(a.type)}${status(a.state==='graded'?'Con devolución':state.submitted[a.id]?'Entregada':'Para continuar',a.state==='graded'?'green':state.submitted[a.id]?'blue':'orange')}</div><b style="margin-top:9px">${esc(a.title)}</b><p>${esc(a.due)} · La luz</p></div>${btn(role==='docente'?'Abrir':a.state==='graded'?'Ver devolución':state.submitted[a.id]?'Ver entrega':'Empezar','open-activity','','arrow',`data-id="${a.id}"`)}</div>`).join(''):empty('Todavía no hay actividades',role==='docente'?'Prepará la primera propuesta para tu grupo.':'Tu docente va a compartir las próximas actividades acá.','',true)}</section>${role==='docente'?`<div class="section-head"><h2>Entregas para acompañar</h2></div><section class="panel">${state.reviews.filter(r=>r.classId===classroom().id).map(r=>`<div class="task-row">${avatar(r.name,'mint')}<div class="row-copy"><b>${esc(r.name)} Demo</b><p>${esc(r.title)} · ${r.received}</p></div>${status(r.state==='published'?'Publicada':r.state==='saved'?'Revisada':'Por revisar',r.state==='published'?'green':'orange')}${btn('Revisar','review','','arrow',`data-id="${r.id}"`)}</div>`).join('')||empty('Todo al día','Las nuevas entregas van a aparecer acá.','',true)}</section>`:''}`;}
 function progressScreen(){const c=classroom(),teacher=role==='docente',acts=state.activities.filter(a=>a.classId===c.id),graded=acts.filter(a=>a.state==='graded'),ownReceived=acts.filter(a=>a.state==='graded'||state.submitted[a.id]),average=list=>list.length?(list.reduce((n,a)=>n+Number(String(a.grade??a.publishedFeedback?.grade??0).replace(',','.')),0)/list.length).toLocaleString('es-AR',{maximumFractionDigits:2}):'—',published=state.reviews.filter(r=>r.classId===c.id&&r.state==='published');return `<div class="panel-header"><div><h2>${teacher?'Acompañar el recorrido':'Tu recorrido, paso a paso'}</h2><p>Entregas, resultados y temas: cada uno cuenta algo distinto.</p></div></div><div class="stats-strip"><div><p>${teacher?'Entregas por revisar':'Actividades entregadas'}</p><b>${teacher?state.reviews.filter(r=>r.classId===c.id&&r.state!=='published').length:ownReceived.length}${teacher?'':` <small>/ ${acts.length}</small>`}</b><small>${teacher?'Esperan tu devolución':'Tu avance en las entregas'}</small></div><div><p>${teacher?'Promedio publicado':'Tu promedio publicado'}</p><b>${teacher?average(published.length?published:graded):average(graded)} <small>/ 10</small></b><small>${(teacher?published.length||graded.length:graded.length)||'Todavía no hay'} actividades con nota</small></div><div><p>Temas de la clase</p><b>${c.taught} <small>/ ${c.topics}</small></b><small>Trabajados con tu grupo</small></div></div>${teacher?`<section class="panel"><h3>Una mirada a cada estudiante</h3><table class="table"><thead><tr><th>Estudiante</th><th class="num">Entregas</th><th>Última actividad</th><th class="num">Promedio</th><th><span class="small">Devolución</span></th></tr></thead><tbody>${c.roster.map((name,i)=>`<tr><td><div class="person">${avatar(name,['mint','sky','rose'][i%3])}<b>${name} Demo</b></div></td><td class="num">${name==='Marina'?ownReceived.length:state.reviews.filter(r=>r.name===name&&r.classId===c.id).length} / ${acts.length}</td><td>${name==='Marina'?'Hoy':'Esta semana'}</td><td class="num">${average(name==='Marina'?graded:published.filter(r=>r.name===name))}</td><td>${btn('Ver ficha','student-card','small','',`data-name="${name}"`)}</td></tr>`).join('')}</tbody></table></section>`:`<section class="panel"><h3>Tus devoluciones</h3>${graded.map(activityRow).join('')||empty('El próximo paso está en camino','Vas a ver tus resultados cuando tu docente los publique.','',true)}</section>`}`;}
-function membersScreen(){const c=classroom();return `<div class="panel-header"><div><h2>${role==='docente'?'Aprendemos en grupo':'Tu grupo'}</h2><p>${c.roster.length} estudiantes en ${esc(c.name)}.</p></div>${role==='docente'?btn('Invitar estudiantes','invite','primary','users'):''}</div>${role==='docente'?`<div class="invitation"><div><b>Un código, una puerta abierta</b><p>Compartí este código de ejemplo con tu grupo.</p></div><strong style="font-size:25px;letter-spacing:3px">${esc(classJoinCode(c).replace(/^(...)/,'$1 '))}</strong>${btn('Copiar código','copy-code','white')}</div>`:''}<section class="panel">${c.roster.map((name,i)=>`<div class="task-row">${avatar(name,['mint','sky','rose'][i%3])}<div class="row-copy"><b>${name} Demo</b><p>${name==='Marina'&&role==='estudiante'?'Vos':'Estudiante'}</p></div>${role==='docente'?btn('Ver ficha','student-card','small','',`data-name="${name}"`):''}</div>`).join('')}</section>${role==='estudiante'?`<div class="section-head"><button class="text-button" data-action="leave-class">Salir de esta aula</button></div>`:''}`;}
+function membersScreen(){const c=classroom();const support=role==='docente'&&activeClassrooms().includes(c)?roomData(c).people.map(p=>supportPerson(c,p)):[];return `<div class="panel-header"><div><h2>${role==='docente'?'Aprendemos en grupo':'Tu grupo'}</h2><p>${c.roster.length} estudiantes en ${esc(c.name)}.</p></div>${role==='docente'?btn('Invitar estudiantes','invite','primary','users'):''}</div>${role==='docente'?`<div class="invitation"><div><b>Un código, una puerta abierta</b><p>Compartí este código de ejemplo con tu grupo.</p></div><strong style="font-size:25px;letter-spacing:3px">${esc(classJoinCode(c).replace(/^(...)/,'$1 '))}</strong>${btn('Copiar código','copy-code','white')}</div>`:''}<section class="panel">${c.roster.map((name,i)=>`<div class="task-row">${avatar(name,['mint','sky','rose'][i%3])}<div class="row-copy"><b>${name} Demo</b><p>${name==='Marina'&&role==='estudiante'?'Vos':'Estudiante'}</p>${support[i]?supportBadge(support[i].level)+'<p>'+esc(support[i].reason)+'</p>':''}</div>${role==='docente'?btn('Ver ficha','student-card','small','',`data-name="${name}"`):''}</div>`).join('')}</section>${role==='estudiante'?`<div class="section-head"><button class="text-button" data-action="leave-class">Salir de esta aula</button></div>`:''}`;}
 function historyScreen(){return empty('Cada recorrido deja una historia','Acá vas a encontrar a quienes hayan dejado el aula. Sus trabajos y devoluciones se conservan.');}
 function classSettings(){const c=classroom();return `<div class="settings-grid"><form class="panel" data-form="class-settings"><h2>Tu aula, a tu manera</h2><div class="fields" style="margin-top:22px"><div><label for="class-name">Nombre del aula</label><input id="class-name" name="name" value="${esc(c.name)}" required maxlength="120"></div><div class="two-col"><div><label for="class-subject">Materia</label><input id="class-subject" name="subject" value="${esc(c.subject)}" required></div><div><label for="class-group">Grupo</label><input id="class-group" name="group" value="${esc(c.group)}" required></div></div><div><label>Portada</label><div class="cover-choices">${['literature','biology','math'].map(a=>`<button type="button" data-action="class-cover" data-value="${a}" class="${c.asset===a?'active':''}" aria-label="Portada ${a==='literature'?'Lectura':a==='biology'?'Naturaleza':'Geometría'}">${img(a)}</button>`).join('')}</div></div></div><div class="sticky-save"><span class="small muted">Los cambios se aplican al guardar.</span><button class="button primary" type="submit">Guardar cambios</button></div></form><aside class="panel"><h3>Estado del aula</h3><p style="margin:12px 0 19px;font-size:14px">Archivar conserva las clases, las entregas y las devoluciones para consultarlas después.</p>${btn(state.classArchived.includes(c.id)?'Reactivar aula':'Archivar aula','archive-class','','folder')}</aside></div>`;}
 function profileScreen(){return pageHead('Un espacio que se siente tuyo','Tu nombre y tu avatar te acompañan por FoxMind.')+`<div class="settings-grid"><form class="panel" data-form="profile"><h2>Tu perfil</h2><div class="fields" style="margin-top:22px"><div class="person">${avatar(state.profile[role],'mint')}<p class="small">${role==='docente'?'Docente':'Estudiante'} · Cuenta de demostración</p></div><div><label for="profile-name">¿Cómo te llamás?</label><input id="profile-name" name="name" value="${esc(state.profile[role])}" required maxlength="80"></div><div><label for="profile-email">Correo electrónico</label><input id="profile-email" value="${role}@foxmind.example" readonly><p class="field-hint">El correo no se cambia desde tu perfil.</p></div><div class="sticky-save"><p class="small">Sólo se guarda en esta maqueta.</p><button type="submit" class="button primary">Guardar cambios</button></div></div></form><aside class="panel"><h3>Tu cuenta, cuidada</h3><p style="margin:12px 0;font-size:14px">En FoxMind real, acá podés gestionar tu contraseña y cerrar tu sesión.</p>${btn('Ver configuración','account-settings','','shield')}</aside></div>`;}
@@ -2304,7 +2334,7 @@ function homeScreen(){
  const queries=teacher?state.posts.filter(p=>p.type==='Consulta'&&!p.replies?.some(r=>r.role==='docente')&&activeClassrooms().some(c=>c.id===p.classId)):[];
  const reviewContent=!teacher?'':homeFilter==='reviews'?(homeReviewGroups(pending)||empty('Tus devoluciones están al día','Cuando llegue una entrega, la vas a encontrar acá.','',true)):(queries.map(p=>`<button class="home-review-row home-question" data-action="home-query" data-id="${esc(p.id)}">${avatar(p.name,'sky')}<span class="home-review-copy"><span class="home-person">${esc(p.name)} <span>te consulta</span></span><b>${esc(p.title)}</b><span class="home-row-meta">${esc(state.classes.find(c=>c.id===p.classId)?.name)} <span>· ${esc(p.time)}</span></span></span><span class="home-row-action">Responder${icon('chat')}</span></button>`).join('')||empty('Tus consultas están al día','Las nuevas consultas del muro van a aparecer acá.','',true));
  const learningContent=teacher?'':pending.length?pending.slice(0,3).map((a,i)=>homeActivity(a,i===0)).join(''):empty('Un buen momento para explorar','Ya completaste tus actividades. Podés seguir con tus materiales.',btn('Ir a mi estudio','open-study-home','','folder'),true);
- return `${homeWelcome(teacher,pending)}<div class="home-grid home-dashboard"><section class="panel home-priorities ${teacher?'home-teacher-queue':'home-student-queue'}"><div class="panel-header"><div><h2>${teacher?'Por acompañar':'Tu próximo paso'}</h2><p>${teacher?'Tu mirada hace la diferencia.':'Un paso a la vez. Empezá por acá.'}</p></div><span class="home-widget-icon" aria-hidden="true">${icon(teacher?'chat':'book')}</span></div>
+ return `${homeWelcome(teacher,pending)}${teacher?supportWidget():''}<div class="home-grid home-dashboard"><section class="panel home-priorities ${teacher?'home-teacher-queue':'home-student-queue'}"><div class="panel-header"><div><h2>${teacher?'Por acompañar':'Tu próximo paso'}</h2><p>${teacher?'Tu mirada hace la diferencia.':'Un paso a la vez. Empezá por acá.'}</p></div><span class="home-widget-icon" aria-hidden="true">${icon(teacher?'chat':'book')}</span></div>
  ${teacher?`<div class="home-queue-tabs" aria-label="Pendientes docentes"><button aria-pressed="${homeFilter==='reviews'}" data-action="home-reviews">${icon('file')}Entregas <span>${pending.length}</span></button><button aria-pressed="${homeFilter==='queries'}" data-action="home-queries">${icon('chat')}Consultas <span>${queries.length}</span></button></div><div class="home-review-list">${reviewContent}</div>`:`<div class="learning-deck">${learningContent}</div><div class="home-priorities-footer">${link('Ver actividades del aula','aula/actividades','arrow','text-button')}</div>`}</section>
  ${homeDayWidget(events)}</div>
  <section><div class="section-head"><h2>Tus aulas</h2>${link('Ver mis aulas','aulas','arrow','text-button')}</div><div class="class-grid">${activeClassrooms().slice(0,3).map(classCard).join('')}</div></section>`;
@@ -5114,7 +5144,7 @@ function installRoomPolish(){
   'room-section':b=>go('aula',b.dataset.roomSection),
   'room-open-deliveries':b=>{openActivity(b.dataset.id);go('actividad-detalle','entregas');},
   'room-open-result':b=>{openActivity(b.dataset.id);go('resultado');},
-  'student-card':b=>roomPersonDialog(b.dataset.name),
+  'student-card':b=>tab==='integrantes'&&activeClassrooms().includes(classroom())?supportDialog(classroom(),b.dataset.name):roomPersonDialog(b.dataset.name),
   material:()=>{
    if(!['actividad-detalle','actividad','corregir','recibo','resultado'].includes(view)){oldMaterial();return;}
    const a=activity(),c=state.classes.find(c=>c.id===a.classId),topics=learningTopics(a);
@@ -6143,6 +6173,128 @@ function installProfile() {
   }, true);
 }
 
+/* Acompañamiento en el escenario local del viernes 13 de noviembre. */
+const supportDate = '2026-11-13';
+const supportStates = ['Prioridad alta','Prioridad media','Prioridad baja','Sin evidencia suficiente'];
+let supportClass = '';
+let supportExpanded = false;
+
+function addSupportExamples(model) {
+  addSupportHistory(model);
+  if (model.supportExamples || !model.classes.some(c => c.id === 'photo')) return;
+  const id = 'support-frame';
+  model.activities.push({id,title:'Decisiones de encuadre',classId:'photo',type:'Trabajo práctico',
+    due:'Vie 6 nov, 18:00',state:'graded',grade:'7',supportDue:'2026-11-06',spec:{instructions:'Explicá dos decisiones de encuadre y el efecto que buscaste.'}});
+  for (const name of ['Marina','Tomás']) {
+    model.reviews.push({id:'frame-'+name,classId:'photo',name,activityId:id,title:'Decisiones de encuadre',
+      state:'published',received:'6 de noviembre',publishedFeedback:{grade:'7'},
+      receipt:{at:'6 de noviembre',files:[],comment:'Dejé la ventana fuera del encuadre para concentrar la mirada en el rostro.'}});
+  }
+  const contrast = model.activities.find(a=>a.id==='contrast');
+  if (contrast) contrast.supportDue='2026-11-10';
+  for (const name of ['Mateo','Sofía','Joaquín']) {
+    for (const activityId of [id,'contrast']) {
+      const a=model.activities.find(item=>item.id===activityId);
+      if(a) model.reviews.push({id:activityId+'-'+name,classId:'photo',name,activityId,title:a.title,
+        state:'published',received:'10 de noviembre',publishedFeedback:{grade:'8'}});
+    }
+  }
+  model.supportExamples=true;
+}
+
+function supportPerson(c,p) {
+  const due=p.work.filter(w=>(w.activity.supportDue||w.activity.spec?.date||'9999')<supportDate);
+  const missing=due.filter(w=>!w.received);
+  const level=missing.length>=2?0:missing.length?1:due.length>=2?2:3;
+  const reason=missing.length?'Pendiente'+(missing.length===1?'':'s')+': '+missing.map(w=>w.activity.title).join(' y ')+'.':
+    level===2?'Entregó las actividades con plazo cumplido.':'Todavía hay pocas actividades con plazo cumplido.';
+  return {c,p,due,missing,level,reason};
+}
+function supportBadge(level) {
+  return '<span class="support-badge support-tone-'+level+'"><i aria-hidden="true"></i>'+supportStates[level]+'</span>';
+}
+function addSupportHistory(model) {
+  const room=model.classes.find(c=>c.id==='photo');
+  if(!room || model.activities.some(a=>a.id==='support-shadow')) return;
+  for(const [id,title,date,grade] of [
+    ['support-shadow','Luces y sombras','2026-10-23',6],
+    ['support-depth','Planos y profundidad','2026-10-30',8]
+  ]) {
+    const instructions='Describí una decisión de composición y explicá qué efecto tiene sobre quien mira.';
+    model.activities.push({id,title,classId:room.id,type:'Trabajo práctico',due:date,state:'graded',grade:String(grade),supportDue:date,spec:{instructions}});
+    for(const name of room.roster) {
+      model.reviews.push({id:id+'-'+name,classId:room.id,name,activityId:id,title,state:'published',
+        received:date,publishedFeedback:{grade:String(grade)},receipt:{at:date,files:[],
+        comment:id==='support-depth'?'Dejé la bicicleta en primer plano y el edificio al fondo.':'Moví la lámpara hacia un costado para que se vea la textura de la pared.'}});
+    }
+  }
+}
+function supportWidget() {
+  const rooms=activeClassrooms();
+  const selected=rooms.find(c=>c.id===supportClass);
+  if(!selected) supportClass='';
+  const people=(selected?[selected]:rooms).flatMap(c=>roomData(c).people.map(p=>supportPerson(c,p)))
+    .filter(person=>person.level<3)
+    .sort((a,b)=>a.level-b.level||a.p.name.localeCompare(b.p.name,'es'));
+  const visible=supportExpanded?people:people.slice(0,3);
+  return `<section class="panel support-widget" id="support-widget" aria-labelledby="support-title">
+    <header class="support-heading"><div class="support-title"><span class="support-icon">${icon('chart')}</span><h2 id="support-title">Semáforo de acompañamiento</h2></div>
+    <button class="button support-filter" id="support-filter" data-action="support-filter" aria-haspopup="dialog">${icon('layers')}<span>${esc(selected?.name||'Todas mis aulas')}</span>${icon('chevron')}</button></header>
+    ${people.length?`<div class="support-counts" role="group" aria-label="Prioridad por inscripción">${['Alta','Media','Baja'].map((label,i)=>`<div class="support-tone-${i}"><i aria-hidden="true"></i><span>${label}</span><strong>${people.filter(r=>r.level===i).length}</strong></div>`).join('')}</div>`:''}
+    <div class="support-list">${visible.map(({c,p,level,reason})=>`<article class="support-row">${avatar(esc(p.name),c.color||'sky')}<div class="support-copy"><b>${esc(p.name)} Demo</b><small>${esc(c.name)}</small><p>${esc(reason)}</p></div>${supportBadge(level)}${btn('Ver ficha','support-card','support-open','chevron',`data-name="${esc(p.name)}" data-room="${esc(c.id)}" aria-label="Ver ficha de ${esc(p.name)} en ${esc(c.name)}"`)}</article>`).join('')||'<p class="support-empty">Todavía no hay estudiantes con prioridad asignada para esta selección.</p>'}</div>
+    ${people.length>3?`<footer class="support-footer"><span>${visible.length} de ${people.length} inscripciones</span>${btn(supportExpanded?'Mostrar menos':'Ver todos','support-more','support-all',supportExpanded?'back':'arrow',`aria-expanded="${supportExpanded}"`)}</footer>`:''}</section>`;
+}
+function refreshSupport(selector) {
+  document.getElementById('support-widget').outerHTML=supportWidget();
+  document.querySelector(selector)?.focus({preventScroll:true});
+}
+function supportPicker() {
+  const rooms=activeClassrooms();
+  const options=[{id:'',name:'Todas mis aulas'},...rooms].map(c=>`<button class="support-choice" data-action="support-select" data-room="${esc(c.id)}" aria-pressed="${supportClass===c.id}">
+    ${c.asset?img(c.asset,'support-cover',''):`<span class="support-icon">${icon('layers')}</span>`}<span><b>${esc(c.name)}</b><small>${esc(c.group||rooms.length+' aulas activas')}</small></span><i>${supportClass===c.id?icon('check'):''}</i></button>`).join('');
+  showDialog('Filtrar por aula','',`<div class="support-choices">${options}</div>`);
+}
+function supportWriting(p) {
+  const work=p.work.find(w=>w.activity.id==='support-depth'&&w.review?.receipt?.comment==='Dejé la bicicleta en primer plano y el edificio al fondo.');
+  return work && {work,strong:'Distingue el primer plano y el fondo al describir su foto.',improve:'Le falta explicar qué efecto buscó al ubicar la bicicleta en primer plano.'};
+}
+function supportAttributes(c,name) {
+  return `data-room="${esc(c.id)}" data-name="${esc(name)}"`;
+}
+function supportEvidence(c,name) {
+  if(role!=='docente'||!activeClassrooms().includes(c))return;
+  const p=roomData(c).people.find(person=>person.name===name);
+  const source=p&&supportWriting(p);
+  if(!source)return;
+  const w=source.work;
+  showDialog(esc(w.activity.title),esc(name)+' Demo · '+esc(c.name),
+    `<article class="support-reader">
+      <header>${avatar(esc(name),'sky')}<div><strong>${esc(name)} Demo</strong><small>Entrega del ${new Date(w.review.receipt.at+'T12:00:00').toLocaleDateString('es-AR',{day:'numeric',month:'long'})}</small></div>${w.grade!==null?`<span class="support-result">Nota publicada <b>${roomNumber(w.grade)} / 10</b></span>`:''}</header>
+      <section><h3>Consigna</h3><p>${esc(w.activity.spec.instructions)}</p></section>
+      <section class="support-answer"><h3>Respuesta de ${esc(name)}</h3><blockquote>${esc(w.review.receipt.comment)}</blockquote></section>
+      <footer><h3>Qué se observa en esta entrega</h3><p>${esc(source.strong)} ${esc(source.improve)}</p></footer></article>`,
+    btn('Volver a la ficha','support-back','primary','back',supportAttributes(c,name)),true);
+}
+function supportDialog(c,name) {
+  if(role!=='docente'||!activeClassrooms().includes(c))return;
+  const p=roomData(c).people.find(person=>person.name===name);
+  if(!p)return;
+  const {level,reason,due,missing}=supportPerson(c,p);
+  const grades=p.work.filter(w=>w.grade!==null).sort((a,b)=>(a.activity.supportDue||a.activity.spec?.date||'').localeCompare(b.activity.supportDue||b.activity.spec?.date||''));
+  const sample=supportWriting(p);
+  const done=due.length-missing.length;
+  const trend=grades.length>1?`<section class="support-chart"><header><h3>Notas por actividad</h3><small>Escala de 0 a 10</small></header><div>${grades.map(w=>`<div class="support-grade"><span>${esc(w.activity.title)}</span><i aria-hidden="true"><u style="width:${w.grade*10}%"></u></i><b>${roomNumber(w.grade)}</b></div>`).join('')}</div></section>`:'';
+  const point=(title,text,glyph)=>`<section><h3>${icon(glyph)}${title}</h3>${sample?`<ul><li>${text}</li></ul>`:'<p>Todavía falta evidencia.</p>'}</section>`;
+  showDialog(esc(name)+' Demo',esc(c.name)+' · '+esc(c.group),`<div class="support-detail">
+    <section class="support-signal support-tone-${level}">${supportBadge(level)}<p>${esc(reason)}</p></section>
+    <div class="support-metrics"><section><small>Promedio publicado</small><strong>${grades.length?roomNumber(roomMean(p.grades)):'Sin notas'}</strong><span>${grades.length} actividades con nota</span></section>
+    <section><small>Entregas al cierre</small><strong>${due.length?done+' de '+due.length:'Sin plazos'}</strong>${due.length?`<div class="support-track" aria-hidden="true"><i style="width:${100*done/due.length}%"></i></div>`:''}<span>Al 13 de noviembre</span></section></div>
+    ${trend}<section class="support-observations" aria-label="Observaciones sobre el trabajo">
+    ${sample?`<header class="support-source"><div><small>Observaciones sobre la entrega</small><h3>${esc(sample.work.activity.title)}</h3></div>${btn('Leer entrega','support-evidence','support-open','chevron',supportAttributes(c,name))}</header>`:''}
+    <div class="support-points">${point('Puntos fuertes',sample?.strong,'check')}${point('Aspectos a reforzar',sample?.improve,'edit')}</div></section>
+    <aside><h3>${icon('chat')} Qué podés probar</h3><p>${missing.length?'Preguntale cómo viene con «'+esc(missing[0].activity.title)+'» y acuerden un primer paso.':sample?'Pedile dos encuadres de la misma escena y comparen qué se destaca en cada uno.':'Revisen juntos la próxima consigna.'}</p></aside></div>`,btn('Cerrar ficha','close'),true);
+}
+
 function legacyOpenActivity(id){activityId=id;const a=activity();state.selectedClass=a.classId;question=0;if(role==='docente'){showDialog(esc(a.title),`${a.type} · ${classroom().name}`,`<div class="notice"><p>Actividad compartida con tu grupo.</p></div><p style="margin:18px 0">Observá cómo cambia la luz y explicá tus decisiones usando el material de exposición.</p><dl class="detail-list"><div><dt>Entrega</dt><dd>${esc(a.due)}</dd></div><div><dt>Evaluación</dt><dd>Análisis y fundamentación · 100%</dd></div></dl>`,btn('Cerrar','close')+btn('Ver entregas','back-activities','primary','arrow'));return;}go(a.state==='graded'?'resultado':state.submitted[a.id]?'recibo':'actividad');}
 function validateAuthor(){const a=state.author;let error='';if(!a.title.trim()||!a.objective.trim()||!a.instructions.trim())error='Agregá un nombre, un objetivo y la consigna para continuar.';else if(step===1&&!a.rubric.trim())error='Agregá el criterio con el que vas a evaluar.';else if(step===2&&(!a.date||!a.time))error='Elegí la fecha y la hora de entrega.';if(error){$('#author-error').textContent=error;$('#author-error').scrollIntoView({block:'nearest'});return false;}return true;}
 function updateGradeDraft(form){const r=state.reviews.find(r=>r.id===reviewId);if(r.state==='published')return;const values=Object.fromEntries(new FormData(form));state.reviewDraft[r.id]={...values};if(r.state==='saved')r.state='pending';const publish=$('[data-action="publish-grade"]');if(publish)publish.disabled=true;const label=$('#grade-state');if(label)label.textContent='Cambios pendientes de guardar';}
@@ -6244,6 +6396,20 @@ installAuthoringExperience();
 installLearningExperience();
 installTeachingLibrary();
 installRoomPolish();
+actions['support-card']=b=>supportDialog(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+actions['support-more']=()=>{supportExpanded=!supportExpanded;refreshSupport('[data-action="support-more"]');};
+actions['support-filter']=supportPicker;
+actions['support-select']=b=>{
+  supportClass=b.dataset.room;
+  supportExpanded=false;
+  closeDialog();
+  refreshSupport('#support-filter');
+};
+actions['support-evidence']=b=>supportEvidence(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+actions['support-back']=b=>{
+  supportDialog(activeClassrooms().find(c=>c.id===b.dataset.room),b.dataset.name);
+  document.querySelector('[data-action="support-evidence"]')?.focus();
+};
 installParticipationPolish();
 installAgenda();
 installStudyFolders();
