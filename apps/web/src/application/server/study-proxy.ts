@@ -32,6 +32,12 @@ function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;u
   return {url,method,binary,upload:method==='PUT'};
  }
  if(!raw.startsWith(root))throw new Error();
+ const strategy=new RegExp(`^${root}/${uuid}/shared-strategy(?:/(${uuid}))?$`,'i').exec(path);
+ if(strategy){
+  if(url.search)throw new Error();
+  if(!(strategy[1]?['DELETE']:['GET','PUT']).includes(method))throw Object.assign(new Error(),{status:405});
+  return {url,method,binary:false,upload:false};
+ }
  const folder=new RegExp(`^${root}/${uuid}$`,'i'),commands=new RegExp(`^${root}/${uuid}/commands$`,'i');
  const uploads=new RegExp(`^${root}/${uuid}/uploads$`,'i'),uploadId=new RegExp(`^${root}/${uuid}/uploads/${uuid}$`,'i');
  const file=new RegExp(`^${root}/${uuid}/uploads/${uuid}/file$`,'i');

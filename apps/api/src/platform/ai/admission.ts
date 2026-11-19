@@ -14,6 +14,7 @@ const queues = [
   ['classroom_curriculum_extractions', 'generation'],
   ['activity_ai_generations', 'generation'],
   ['student_ai_reports', 'standard'],
+  ['teacher_writing_reports', 'standard'],
   ['grading_ai_jobs', 'standard'],
   ['foxy_turns', 'foxy-text'],
   ['foxy_visual_jobs', 'foxy-visual'],

@@ -20,3 +20,7 @@ Corte documental del **18 de noviembre de 2026** sobre el código de `main`, rev
 - **Operación en producción.** Siguen pendientes el hosting, el presupuesto global y el cupo productivo de almacenamiento. La aceptación de cuotas se comprobó con datos controlados y queda pendiente la conciliación con una factura real. [Registro de la cuota mensual](work-log/2026-11-18-root-monthly-ai-quota.md)
 
 Los resultados de compilación, navegador y proveedores corresponden a los candidatos y entornos indicados en cada recibo. El repositorio documenta integraciones en `main` y verificaciones locales. El estado de una instalación productiva requiere evidencia de despliegue. [Índice de verificación](verification/README.md)
+
+## Acompañamiento docente
+
+El semáforo y la ficha individual del docente están disponibles desde Inicio y Estudiantes. La ficha incluye análisis de escritura solicitado por el docente y estrategias que el estudiante elige compartir. [Semáforo y ficha](work-log/2026-11-18-root-implementacion-acompanamiento.md) · [Ampliación e integración](work-log/2026-11-19-root-acompanamiento.md).

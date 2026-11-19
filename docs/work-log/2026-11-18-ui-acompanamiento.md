@@ -1,0 +1,13 @@
+# Acompañamiento docente · interfaz
+
+18 de noviembre de 2026. Rama codex/semaforo-riesgo y base 0aa8be0d. Alcance: Inicio docente, estudiantes del aula, ficha y lectura de evidencia. Pruebas de interfaz con datos sintéticos. El coordinador integra y conserva el tablero.
+
+TDD de la interfaz. `node --test tests/teacher-support-ui.test.mjs` obtuvo RED 2/2 por ausencia de las superficies de widget y ficha. Después de la implementación, 4/4 en filtro y respuestas tardías, revocación de ficha, reintento aislado de lectura y roster paginado. La suite focalizada que agrega `tests/classroom-people-wall-exact.test.mjs` y `tests/teacher-home-polish.test.mjs` pasó 21/21. Pasaron tsc web, ESLint focalizado, check-frontend-architecture y git diff --check.
+
+El acceso activo ahora abre un diálogo compartido con carga independiente de la entrega. Fecha de corte y lectura se muestran con la zona horaria del aula. Se conservan la consulta al progreso individual, el análisis métrico existente y el acceso a baja en el contexto del aula. El test P8 mantiene la lectura y aserciones del DTO anterior y distingue su camino de la nueva ficha. Aulas archivadas e historial mantienen sus recorridos existentes.
+
+La primera ejecución E2E colaborativa pasó 6/6 en Chrom­ium. Se revisó la captura de la lectura móvil y se ajustó el encabezado para conservar autor y nota alineados con avatar. La variante de ficha del aula conserva división y correo que el docente ya tiene autorizado en el roster. La fecha usa la zona del aula y el motivo de alta individual indica el umbral cuando corresponde. Los pares texto y fondo de las cuatro etiquetas midieron entre 5,97:1 y 7,00:1. El relleno de ambas gráficas tiene contraste con su pista de al menos 5,00:1.
+
+La regresión `node --test tests/student-summary-scroll.test.mjs` pasó en Chromium con un fixture Vite aislado. Verificó visibilidad y foco del acceso a la ficha anterior y conservación del desplazamiento tras la baja de una matrícula.
+
+Verificación final de interfaz sobre build de producción local en la suite `tests/teacher-support-flow.test.mjs`, 6/6. Se inspeccionaron las capturas finales de Inicio y selector de aula en escritorio, junto con ficha y lector a 390 px. El widget conserva botones Brújula de al menos 44 px y cada nombre queda en línea distinta de su aula. Se verificaron el recorrido de teclado, la vuelta al control de lectura, la apertura desde ambos accesos, la revocación y el desborde a 320 px. Las capturas usan nombres y producciones sintéticas. El resultado corresponde a Chromium y evidencia automatizada, con validación humana de usabilidad pendiente.

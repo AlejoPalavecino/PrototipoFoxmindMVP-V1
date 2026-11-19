@@ -20,6 +20,15 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
   const { classrooms, classroomQuotaBytes } = readIntegrationOptions(options);
   return withP4Services(async runtime => {
     let db, api, web, failure, result;
+    async function stopOwnedApi() {
+      if (!api) return;
+      // A simulated process restart disconnects long-lived quota streams from open browser tabs.
+      const server = api.getHttpServer();
+      const closing = api.close();
+      server.closeAllConnections();
+      await closing;
+      api = undefined;
+    }
     const controls = createOwnedServiceControls(runtime);
     try {
       db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 });
@@ -94,9 +103,9 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
             const { InvitationDeliveryWorker } = await import("../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js");
             await api.get(InvitationDeliveryWorker).onModuleDestroy();
           },
-          async restartApi() { await api.close(); api = undefined; api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1'); },
+          async restartApi() { await stopOwnedApi(); api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1'); },
           async restartData() {
-            await api.close(); api = undefined; await db.end(); db = undefined;
+            await stopOwnedApi(); await db.end(); db = undefined;
             await runtime.restartData();
             db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 }); await db.connect();
             prisma(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/schema.prisma', '--exit-code']);
@@ -116,7 +125,7 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
         await Promise.race([exited, delay(5000)]);
         if (web.exitCode === null && web.signalCode === null) throw new Error('Owned integration web shutdown unavailable');
       });
-      await clean(async () => { if (api) await api.close(); });
+      await clean(stopOwnedApi);
       await clean(async () => { await db?.end(); });
       console.log(`P4 integrated process cleanup failures: ${failures.length}`);
       if (failures.length) failure = new AggregateError([...(failure ? [failure] : []), ...failures], 'P4 integration process cleanup failed');

@@ -1,3 +1,4 @@
+import { parseTeacherSupportQuery } from '../../../../../src/core/domain/grading/teacher-support-query.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
@@ -18,6 +19,10 @@ type Rule = { path: RegExp; methods: Record<string, string[] | null> };
 const rule = (path: string, methods: Rule['methods']): Rule => ({ path: new RegExp(`^/api/v1/classrooms${path}$`), methods });
 const routes: Rule[] = [
   rule('/search', { GET: null }),
+  rule('/teacher-support', { GET: null }),
+  rule(`/${uuid}/members/${uuid}/support/writing`, { GET: null, POST: [] }),
+  rule(`/${uuid}/members/${uuid}/support/writing/evidence/${uuid}`, { GET: null }),
+  rule(`/${uuid}/members/${uuid}/support(?:/evidence/${uuid})?`, { GET: null }),
   rule('', { GET: null }), rule('/drafts', { GET: null, POST: [] }),
   rule(`/drafts/${uuid}`, { GET: null, PATCH: ['revision', 'payload'], DELETE: ['revision', 'confirm'] }),
   rule(`/drafts/${uuid}/publish`, { POST: ['revision'] }),
@@ -241,7 +246,11 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const wallPath = new RegExp(`^/api/v1/classrooms/${uuid}/wall(?:/${uuid}(?:/replies)?)?$`).test(url.pathname);
   const notificationPage = url.pathname === '/api/v1/classrooms/notifications/page';
   const searchPage = url.pathname === '/api/v1/classrooms/search';
-  if (url.search && (!(wallPath || notificationPage || searchPage) || method !== 'GET')) { await reject(400, 'INVALID_INPUT'); return; }
+  const supportPage = url.pathname === '/api/v1/classrooms/teacher-support';
+  if (supportPage) {
+    try { parseTeacherSupportQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
+  }
+  if (url.search && (!(wallPath || notificationPage || searchPage || supportPage) || method !== 'GET')) { await reject(400, 'INVALID_INPUT'); return; }
   if (searchPage && method === 'GET') {
     try { parseBrujulaSearchQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
   }
@@ -277,7 +286,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     await reject(400, 'INVALID_INPUT'); return;
   }
-  if ((practicalRead || gradingRoute || gradingAiRoute || publicationRoute || correctionRoute || progressRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute || gradingAiRoute || publicationRoute || correctionRoute || progressRoute || supportPage || url.pathname.includes('/support')) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     await reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;

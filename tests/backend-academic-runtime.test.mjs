@@ -46,7 +46,8 @@ function composition() {
     './academic-student-composition.ts': { ActivityParticipationService: service('attempts'), PracticalSubmissionService: service('practical'),
       QuestionnaireAttemptService: service('questionnaires'), ActivityHistoryService: service('history') },
     './academic-grading-composition.ts': { GradingService: service('review'), GradingAiService: service('assistance'),
-      GradePublicationService: service('publication'), GradeCorrectionService: service('corrections'), ProgressService: service('progress') },
+      GradePublicationService: service('publication'), GradeCorrectionService: service('corrections'), ProgressService: service('progress'),
+      createTeacherSupportService: core => new (service('teacherSupport'))(core) },
   };
   const module = loadTsModule('apps/api/src/bootstrap/academic-composition.ts', { stubs });
   const ports = { files: { promoteDraftPlanInTransaction() {} }, database: {}, deliveryKey: Buffer.alloc(32), authenticate() { return this; } };
@@ -64,6 +65,8 @@ test('academic runtime groups capabilities around exactly one core and one set o
   assert.equal(runtime.activities.authoring, services.authoring);
   assert.equal(runtime.participation.attempts, services.attempts);
   assert.equal(runtime.grading.progress, services.progress);
+  assert.equal(runtime.grading.teacherSupport, services.teacherSupport);
+  assert.equal(services.teacherSupport.core, runtime.access);
   assert.ok(Object.values(services).every(service => service.core === cores[0]));
   assert.equal(runtime.changeActivities, undefined);
 });

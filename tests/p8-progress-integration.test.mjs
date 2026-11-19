@@ -229,11 +229,14 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         const fresh = await progressRead(student, progressPath, () => region(student).getByRole('button', { name: 'Reintentar progreso', exact: true }).click());
         assert.deepEqual(fresh, expectedOwn); assert.equal(await hash(), before);
       });
-      await check('actual current member summary preserves old DTO/history and adds separate member progress', async () => {
+      await check('current student record preserves the summary contract and opens separate member progress', async () => {
         await selectClassroomSection(teacher, 'members', 'Estudiantes');
+        const old = await ok(teacher, 'GET', `${root}/members/${studentUser.id}`);
+        assert.deepEqual(Object.keys(old).sort(), ['firstName', 'lastName', 'attempts'].sort());
         const after = responses.length; await teacher.getByRole('button', { name: 'Ver ficha', exact: true }).click();
-        const old = await observed(teacher, `${root}/members/${studentUser.id}`, 'GET', after); assert.equal(old.status(), 200);
-        assert.deepEqual(Object.keys(await old.json()).sort(), ['firstName', 'lastName', 'attempts'].sort());
+        const support = await observed(teacher, `${root}/members/${studentUser.id}/support`, 'GET', after);
+        assert.equal(support.status(), 200);
+        assert.equal((await support.json()).studentId, studentUser.id);
         await teacher.getByRole('button', { name: 'Ver progreso individual', exact: true }).waitFor();
         assert.equal(responses.slice(after).some(row => row.page === 'teacher' && row.path === '/api/v1' + memberPath && row.method === 'GET'), false,
           'Opening the student record must not automatically request individual progress');
@@ -245,7 +248,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
           .filter({ hasText: 'Progress delivered' }).getByText('Devolución publicada · Reentrega pendiente', { exact: true }).waitFor();
         await teacher.getByRole('dialog', { name: `El recorrido de ${studentUser.firstName} ${studentUser.lastName}`, exact: true }).waitFor();
         await teacher.getByRole('button', { name: /Volver a la ficha/ }).click();
-        await teacher.getByRole('button', { name: /Volver a Estudiantes/ }).click();
+        await teacher.getByRole('button', { name: 'Cerrar ficha', exact: true }).click();
       });
       await check('restart preserves all academic/private data; archive permits reads; rejected cross-scope reads never write', async () => {
         const before = await hash(); await runtime.restartData(); assert.equal(await hash(), before);

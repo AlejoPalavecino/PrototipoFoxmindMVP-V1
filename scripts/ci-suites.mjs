@@ -22,6 +22,11 @@ export const suites = {
     'apps/api/src/modules/study/folders/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/study-shared-strategy-policy.test.mjs',
+    'tests/teacher-writing-policy.test.mjs',
+    'tests/teacher-support-extension-ui.test.mjs',
+    'tests/teacher-support-backend-policy.test.mjs',
+    'tests/teacher-support-ui.test.mjs',
     'tests/ai-cost-reconciliation.test.mjs',
     'tests/monthly-ai-quota-errors.test.mjs',
     'tests/monthly-ai-quota-client.test.mjs',
@@ -119,6 +124,8 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'tests/teacher-support-backend-http.test.mjs',
+    'tests/teacher-support-transport.test.mjs',
     'tests/monthly-ai-quota-transport.test.mjs',
     'tests/agenda-client-http.test.mjs',
     'tests/proxy-rejection-lifecycle.test.mjs',

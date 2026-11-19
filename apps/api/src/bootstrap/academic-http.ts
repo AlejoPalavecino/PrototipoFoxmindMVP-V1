@@ -12,6 +12,8 @@ import { createAttemptsRoutes } from '../modules/participation/attempts/presenta
 import type { AttemptsHttpOperations } from '../modules/participation/attempts/application/http-operations.ts';
 import { createReviewRoutes } from '../modules/grading/review/presentation/academic-routes.ts';
 import type { ReviewHttpOperations } from '../modules/grading/review/application/http-operations.ts';
+import { createTeacherSupportRoute, type TeacherSupportHttpOperations } from '../modules/grading/progress/presentation/teacher-support-routes.ts';
+import { createTeacherWritingRoute, type TeacherWritingHttpOperations } from '../modules/grading/student-analysis/presentation/teacher-writing-routes.ts';
 import { createNotificationsRoutes } from '../modules/home/notifications/presentation/academic-routes.ts';
 import type { NotificationsHttpOperations } from '../modules/home/notifications/application/http-operations.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -37,7 +39,7 @@ export type ClassroomsHttpOperations =
   WallHttpOperations &
   AuthoringHttpOperations &
   AttemptsHttpOperations &
-  ReviewHttpOperations &
+  ReviewHttpOperations & TeacherSupportHttpOperations & TeacherWritingHttpOperations &
   NotificationsHttpOperations;
 export interface AcademicHttpServices {
   catalog: CatalogHttpOperations;
@@ -46,7 +48,7 @@ export interface AcademicHttpServices {
   wall: WallHttpOperations;
   authoring: AuthoringHttpOperations;
   attempts: AttemptsHttpOperations;
-  review: ReviewHttpOperations;
+  review: ReviewHttpOperations & TeacherSupportHttpOperations & TeacherWritingHttpOperations;
   notifications: NotificationsHttpOperations;
 }
 const statuses = {
@@ -127,6 +129,8 @@ export function createClassroomsHandler(
     ...createAuthoringRoutes(services.authoring),
     ...createAttemptsRoutes(services.attempts),
     ...createReviewRoutes(services.review),
+    createTeacherSupportRoute(services.review),
+    createTeacherWritingRoute(services.review),
     ...createNotificationsRoutes(services.notifications)
   ].sort((a, b) => a.order - b.order);
   let active = 0;
@@ -160,7 +164,8 @@ export function createClassroomsHandler(
         return;
       }
       if (
-        (url.search && !(method === 'GET' && (url.pathname === '/classrooms/search' || url.pathname === '/classrooms/notifications/page' || /^\/classrooms\/[^/]+\/wall(?:\/[^/]+(?:\/replies)?)?$/.test(url.pathname)))) ||
+        (url.search && !(method === 'GET' && (url.pathname === '/classrooms/search' || url.pathname === '/classrooms/notifications/page' ||
+          url.pathname === '/classrooms/teacher-support' || /^\/classrooms\/[^/]+\/wall(?:\/[^/]+(?:\/replies)?)?$/.test(url.pathname)))) ||
         (!write &&
           (req.headers['transfer-encoding'] ||
             Number(req.headers['content-length'] ?? 0) > 0))

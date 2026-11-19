@@ -20,6 +20,7 @@ import { ClassroomAiRuntime, type AiRuntimeOverride } from './academic-curriculu
 import { ActivityAiRuntime } from './academic-activity-ai-runtime.ts';
 import { createActivityAiAccess } from '../modules/activities/generation/infrastructure/activity-ai/database.ts';
 import { StudentAiRuntime } from './academic-student-runtime.ts';
+import { TeacherWritingWorker } from '../modules/grading/student-analysis/infrastructure/teacher-writing-worker.ts';
 import { GradingAiRuntime, type GradingAiFileGrant } from '../modules/grading/assistance/infrastructure/grading-ai/runtime.ts';
 import { createGradingAiProvider } from '../modules/grading/assistance/infrastructure/grading-ai/provider.ts';
 import { validateActivityGeneration } from '../modules/activities/generation/infrastructure/activity-ai/provenance.ts';
@@ -57,6 +58,9 @@ export class ClassroomsModule {
       ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [PrismaService, ACADEMIC_STUDENT_PROGRESS],
         useFactory: (database: PrismaService, progress: AcademicStudentProgress) =>
           new StudentAiRuntime({ database, progressView: progress.progressView }, ai, override?.studentProvider) }] : []),
+      { provide: TeacherWritingWorker, inject: [PrismaService],
+        useFactory: (database: PrismaService) => new TeacherWritingWorker(
+          database, !override || override.teacherWritingProvider ? ai : undefined, override?.teacherWritingProvider) },
       ...(ai ? [{ provide: ActivityAiRuntime, inject: [ACADEMIC_ACTIVITY_ACCESS, FileService],
         useFactory: (classrooms: AcademicActivityAccess, files: FileService) =>
           new ActivityAiRuntime(createActivityAiAccess(classrooms.ports, classrooms.classroom), files, ai, override?.activityProvider) }, { provide: ClassroomAiRuntime, inject: [PrismaService, IdentityRuntime, FileService],
@@ -66,6 +70,7 @@ export class ClassroomsModule {
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => integratedClassrooms({
           ...configuration, database, validateMailbox, files: { load: fileService.store.load.bind(fileService.store), loadAuthorized: fileService.store.loadAuthorized.bind(fileService.store), promoteDraftPlanInTransaction: fileService.promoteDraftPlanInTransaction.bind(fileService) }, diagnostics, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
           gradingAiAvailable: !!ai && (!override || !!override.gradingProvider),
+          teacherWritingEnabled: !!ai && (!override || !!override.teacherWritingProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
         }, fileService) },
       { provide: ACADEMIC_FOXY_ACCESS, inject: [ACADEMIC_RUNTIME], useFactory: academicFoxyAccess },

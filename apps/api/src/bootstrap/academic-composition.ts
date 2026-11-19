@@ -29,6 +29,9 @@ import { GradePublicationService } from './academic-grading-composition.ts';
 import { GradeCorrectionService } from './academic-grading-composition.ts';
 
 import { ProgressService } from './academic-grading-composition.ts';
+import { TeacherWritingService } from '../modules/grading/student-analysis/application/teacher-writing-service.ts';
+import { teacherWritingRepository } from '../modules/grading/student-analysis/infrastructure/teacher-writing-repository.ts';
+import { createTeacherSupportService } from './academic-grading-composition.ts';
 import type { ClassroomPorts } from '../modules/classrooms/access/application/runtime-ports.ts';
 
 /** One token and one composed graph per application instance. */
@@ -95,6 +98,8 @@ export function createAcademicRuntime(input: AcademicRuntimeInput) {
     gradingContext: grading.gradingContext.bind(grading), advanceRevision: advanceClassroomRevision,
   });
   const progress = new ProgressService(access);
+  const teacherWriting = new TeacherWritingService(access, ports.teacherWritingEnabled === true, teacherWritingRepository);
+  const teacherSupport = createTeacherSupportService(access);
 
   return {
     access,
@@ -112,7 +117,7 @@ export function createAcademicRuntime(input: AcademicRuntimeInput) {
     home: { notifications },
     activities: { authoring },
     participation: { attempts: participation, practicalSubmissions: practical, questionnaires: questionnaire, history },
-    grading: { review: grading, assistance: gradingAi, publication, corrections, progress },
+    grading: { review: grading, assistance: gradingAi, publication, corrections, progress, teacherSupport, teacherWriting },
   };
 }
 

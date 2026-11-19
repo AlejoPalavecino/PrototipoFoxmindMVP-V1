@@ -15,6 +15,8 @@ import {
 } from '../../../features/classrooms/index.ts';
 import { Notifications } from '../../../features/notifications/index.ts';
 import { createWebAgendaClient } from '../../clients/agenda-client.ts';
+import { createTeacherSupportClient } from '../../transport/teacher-support-client.ts';
+import { TeacherSupportWidget } from '../../../features/teacher-support/index.ts';
 import { Home } from '../../../features/home/index.ts';
 import { AppNavbar } from '../../../../../shared-ui/AppNavbar.tsx';
 import { AiQuotaIndicator } from '../../navigation/ai-quota-indicator.tsx';
@@ -83,6 +85,7 @@ export function ClassroomsApp({
   const [noticeKind, setNoticeKind] = useState<'info' | 'success'>('info');
   const requestedInvitationId = requestedInvitation?.toLowerCase();
   const pendingInvitationId = requestedInvitationId === resolvedInvitation ? undefined : requestedInvitationId;
+  const supportClient = useMemo(() => createTeacherSupportClient(api), [api]);
   const homeAgendaClient=useMemo(()=>createWebAgendaClient(),[subjectId]);
   const searchContent = useMemo(() => createBrujulaSearchClient(api), [api, subjectId]);
   const operations = useMemo(() => createClassroomCollectionOperations(api), [api]);
@@ -251,6 +254,7 @@ export function ClassroomsApp({
               key={classroomId}
               api={api}
               id={classroomId}
+              supportClient={accountRole==='teacher' ? supportClient : undefined}
               onExit={leaveView}
               onMembershipEnded={confirmed => {
                 setData(current => ({ ...current, study: current.study?.filter(room => room.id !== classroomId) }));
@@ -268,7 +272,7 @@ export function ClassroomsApp({
         ) : presentation === 'home' ? (
           <>
             {error ? <Notice error>{error} <button disabled={busy} onClick={() => setError('')}>Cerrar aviso</button></Notice> : null}
-            <Home agendaClient={homeAgendaClient} data={{teach:data.teach??[],study:data.study??[],drafts:data.drafts??[],invitations:data.invitations??[]}} api={api} accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
+            <Home teacherSupport={accountRole==='teacher' ? <TeacherSupportWidget key={subjectId} client={supportClient}/> : undefined} agendaClient={homeAgendaClient} data={{teach:data.teach??[],study:data.study??[],drafts:data.drafts??[],invitations:data.invitations??[]}} api={api} accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
               onOpenActivities={id=>{setActivitiesRoom(id);setHomeTarget(null);setWallTarget(null);setClassroomId(id);}} onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
               onCreate={() => void action(async () => { setDraft(await operations.createDraft()); })}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}

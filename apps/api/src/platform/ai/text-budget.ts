@@ -8,9 +8,9 @@ type ClassroomAiConfiguration = AiExecutionSettings & { maxOutputTokens: number;
   model?: string } & DailyLimits;
 type DailyLimits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type BudgetJob = { id: string; owner_id: string };
-export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs' | 'study_ai_dispatches';
+export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'teacher_writing_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs' | 'study_ai_dispatches';
 const tasks: Partial<Record<BudgetTable, AiExecutionTask>> = { classroom_curriculum_extractions: 'curriculum', activity_ai_generations: 'activities',
-  student_ai_reports: 'analysis', grading_ai_jobs: 'grading', foxy_turns: 'foxy', study_ai_dispatches: 'study' };
+  student_ai_reports: 'analysis', teacher_writing_reports: 'analysis', grading_ai_jobs: 'grading', foxy_turns: 'foxy', study_ai_dispatches: 'study' };
 function pinnedPrices(config: ClassroomAiConfiguration, table: BudgetTable, snapshot: unknown): ClassroomAiConfiguration {
   const task = tasks[table];
   if (!task) return config; // Visuales mantienen su contrato y snapshot de tarifas independiente.

@@ -11,8 +11,9 @@ import type { ClassroomAiConfiguration } from '../modules/curriculum/generation/
 import type { StructuredActivityGenerationPort } from '../../../../src/core/domain/activities/activity-generation.ts';
 import type { StudentAiProvider } from '../modules/grading/student-analysis/infrastructure/student-ai/worker.ts';
 import type { GradingAiProvider } from '../modules/grading/assistance/infrastructure/grading-ai/runtime.ts';
+import type { TeacherWritingProvider } from '../modules/grading/student-analysis/infrastructure/teacher-writing-provider.ts';
 export interface AiRuntimeOverride { provider: StructuredExtractionPort; activityProvider?: StructuredActivityGenerationPort;
-  studentProvider?: StudentAiProvider; gradingProvider?: GradingAiProvider }
+  studentProvider?: StudentAiProvider; gradingProvider?: GradingAiProvider; teacherWritingProvider?: TeacherWritingProvider }
 export class ClassroomAiRuntime {
   readonly service: ClassroomAiService;
   readonly worker: ClassroomAiWorker;

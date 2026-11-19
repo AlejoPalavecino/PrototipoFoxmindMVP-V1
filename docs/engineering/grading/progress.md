@@ -29,3 +29,11 @@ La orientación de Mi progreso prioriza una reentrega habilitada e indica la act
 La verificación de paridad actual se registra en [el trabajo de Progreso](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-classroom-progress-exact.md); las pruebas de componentes no sustituyen la comparación visual del coordinador.
 
 Fuentes: [servicio](../../../apps/api/src/bootstrap/academic-grading-composition.ts), [esquema](../../../prisma/schema.prisma). [Flujos actuales](../../verification/flows.md).
+
+## Semáforo de acompañamiento docente
+
+El listado reúne inscripciones vigentes de aulas activas propias. Aplica el filtro de aula antes de calcular los totales de prioridad y devuelve páginas de 20 inscripciones. La consulta del roster admite también estudiantes sin evidencia suficiente. Al abrir la ficha se revalidan docente, aula y alumno; al leer una producción se valida además el intento y su calificación efectiva publicada.
+
+La prioridad usa obligaciones y recepciones confirmadas. Una pendiente genera prioridad media, dos pendientes o una con diez días de atraso generan alta. Dos entregas con vencimiento en la ventana de 30 días y ningún pendiente generan baja. En los demás casos la ficha explicita que falta evidencia. La fecha del aula gobierna días de atraso y ventana. Las calificaciones publicadas se presentan por separado, incluido el cero.
+
+Las observaciones de una entrega reutilizan el comentario de su devolución y los puntajes publicados por criterio. La ficha identifica el criterio con puntaje máximo y, cuando hay diferencia entre criterios evaluados, el de menor puntaje relativo. Los textos de entregas prácticas y respuestas de desarrollo se leen al abrir la fuente. Los adjuntos y las prácticas privadas de Mi Estudio no forman parte de esa consulta. El análisis individual con IA existente conserva su acceso desde el aula. [Contrato del recorrido](../../product/acompanamiento-docente-propuesta.md).

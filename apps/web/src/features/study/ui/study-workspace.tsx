@@ -9,6 +9,8 @@ import { StudyConversation } from '../conversations/presentation/study-conversat
 import { StudyContextDialog } from '../workspace/study-context-dialog';
 import { StudyLibraryDialog } from '../workspace/study-library-dialog';
 import { StudyFolderOptions } from '../workspace/study-folder-options';
+import { StudySharedStrategyDialog } from '../workspace/StudySharedStrategyDialog.tsx';
+import { createStudyClient } from '../api.ts';
 import { useStudyChat } from '../conversations/use-study-chat.ts';
 import { useStudyConversations } from '../conversations/use-study-conversations.ts';
 import { useStudyCreations } from '../creations/use-study-creations.ts';
@@ -25,7 +27,7 @@ import { studentAttachmentPath } from '../../../shared/chat-attachments';
 import { commitChatTiming } from '../../../shared/chat-timing';
 
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback';
 import type { StudyDetail, StudyCollection } from '../model/study-contracts.ts';
@@ -109,6 +111,8 @@ export function StudyWorkspace({
   const [archived, setArchived] = useState(f.status === 'ARCHIVED');
   const topics = f.units.flatMap((u) => u.topics);
   const active = !archived;
+  const strategyRoom = active ? catalog.classrooms.find(room => room.id===f.linkedClassroomId && !room.archived) : undefined;
+  const strategyClient = useMemo(() => createStudyClient(),[]);
   useEffect(() => setArchived(f.status === 'ARCHIVED'), [f.status]);
 
   const panelLauncher = useRef<HTMLButtonElement | null>(null);
@@ -525,6 +529,7 @@ export function StudyWorkspace({
           busy={busy}
           archived={archived}
           deleteConfirmation={deleteConfirmation}
+          onSharedStrategy={strategyRoom ? () => Panel('strategy') : undefined}
           onClose={closePanel}
           onArchive={() =>
             void command(archived ? 'REACTIVATE' : 'ARCHIVE').then((ok) => {
@@ -539,6 +544,8 @@ export function StudyWorkspace({
           }}
         />
       )}
+      {panel === 'strategy' && strategyRoom ? <StudySharedStrategyDialog key={f.id+':'+strategyRoom.id} client={strategyClient}
+        folderId={f.id} room={strategyRoom} onClose={closePanel}/> : null}
       {creation?.kind === 'IMAGE' && (
         <StudyImagePreview folderId={f.id} creation={creation} onClose={() => Creation(undefined)} />
       )}

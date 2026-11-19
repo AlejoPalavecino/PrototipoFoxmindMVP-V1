@@ -13,13 +13,15 @@ type Props = {
   memberResource: Resource; historyResource: Resource; roster: RefObject<HTMLUListElement | null>;
   api: ClassroomClient; id: string; isCurrentRoom: () => boolean;
   access?: ReactNode;
+  onRecord?: (member: Member) => void;
+  priorityBadge?: (studentId: string) => ReactNode;
   setInviting: Dispatch<SetStateAction<boolean>>; setSummary: Dispatch<SetStateAction<(Summary & { studentId: string }) | null>>;
   setConfirm: Dispatch<SetStateAction<Confirmation>>; action: (task: () => Promise<void>, section?: string) => Promise<void>;
 };
 const formatDate = (value: string) => new Date(value).toLocaleDateString('es-AR');
 
 export function ClassroomRoster({ tab, teacher, room, busy, members, history, memberResource, historyResource,
-  roster, api, id, isCurrentRoom, setInviting, setSummary, action, access }: Props) {
+  roster, api, id, isCurrentRoom, setInviting, setSummary, action, access, onRecord, priorityBadge }: Props) {
   const historical = tab === 'history';
   const people = historical ? history : members;
   const ready = (historical ? historyResource : memberResource).status === 'ready';
@@ -45,13 +47,17 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
     <ul className={`p5-roster ${styles.people}`} ref={roster} aria-label={historical ? 'Inscripciones anteriores' : teacher ? 'Alumnos actuales' : 'Compañeros del aula'}>
       {people.map((member, index) => <li key={member.enrollmentId ?? index} className={teacher ? styles.actionable : undefined}
         onClick={event => {
-          if (teacher && !(event.target as HTMLElement).closest('button'))
-            event.currentTarget.querySelector<HTMLButtonElement>('[data-open-summary]')?.click();
+          if (teacher && !(event.target as HTMLElement).closest('button')) {
+            const opener = event.currentTarget.querySelector<HTMLButtonElement>('[data-open-summary]');
+            opener?.focus({preventScroll:true});
+            opener?.click();
+          }
         }}>
         <span className={`p5-avatar ${styles.avatar}`} aria-hidden="true">{initials(member.firstName, member.lastName)}</span>
         <div className={`classroom-person-details ${styles.person}`}>
           <strong>{member.firstName} {member.lastName}</strong>
           <small>{!teacher && member.isSelf === true ? 'Vos' : 'Estudiante'}</small>
+          {teacher && !historical && member.studentId ? priorityBadge?.(member.studentId) : null}
           {teacher && historical ? member.periods?.map((period, periodIndex) => <small key={periodIndex} className="classroom-history-date">
             Ingreso: {formatDate(period.joinedAt)} — {period.endedAt
               ? `${formatDate(period.endedAt)} · ${period.endReason === 'LEFT' ? 'Salida voluntaria' : 'Removido por docente'}`
@@ -59,10 +65,13 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
           </small>) : null}
         </div>
         {teacher ? <div className={`p5-actions ${styles.rowActions}`}><button className={`classroom-person-summary ${styles.more}`} data-open-summary disabled={busy}
-          onClick={() => void action(async () => {
-            const result = await api.call<Summary>(`/${id}/members/${member.studentId}`);
-            if (isCurrentRoom()) setSummary({ ...result, email: member.email, division: room.division, progress: historical, studentId: member.studentId! });
-          })}>
+          onClick={() => {
+            if (!historical && onRecord && member.studentId) { onRecord(member); return; }
+            void action(async () => {
+              const result = await api.call<Summary>(`/${id}/members/${member.studentId}`);
+              if (isCurrentRoom()) setSummary({ ...result, email: member.email, division: room.division, progress: historical, studentId: member.studentId! });
+            });
+          }}>
           {historical ? 'Ver registros' : 'Ver ficha'}
         </button></div> : null}
       </li>)}

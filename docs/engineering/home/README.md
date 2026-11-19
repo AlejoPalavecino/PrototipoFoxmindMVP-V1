@@ -1,6 +1,6 @@
 # Inicio, búsqueda y notificaciones
 
-Inicio es el destino ordinario al ingresar con una cuenta verificada. Abre con un saludo, la fecha local y acciones por rol. El docente puede crear una actividad o preparar con Foxy. El estudiante puede continuar o consultar una actividad disponible y abrir Mi estudio. Debajo se agrupan prioridades, mini agenda y aulas. La referencia aprobada limita Inicio a esos bloques: los borradores y las devoluciones publicadas se consultan dentro de las aulas.
+Inicio es el destino ordinario al ingresar con una cuenta verificada. Abre con un saludo, la fecha local y acciones por rol. El docente puede crear una actividad o preparar con Foxy. El estudiante puede continuar o consultar una actividad disponible y abrir Mi estudio. Debajo se agrupan prioridades, mini agenda y aulas. En Inicio docente, el semáforo de acompañamiento agrega prioridades por estudiante y aula. Los borradores y las devoluciones publicadas se consultan dentro de las aulas.
 
 En escritorio, «Tu próximo paso» conserva tarjetas verticales del ancho de una columna incluso con una sola actividad. Los contenedores estrechos usan la adaptación compacta móvil. La cantidad de actividades no debe cambiar la jerarquía visual de escritorio ni agregar contenido ficticio.
 

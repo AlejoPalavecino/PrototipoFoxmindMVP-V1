@@ -15,8 +15,9 @@ import { Library } from '../../../features/materials/index.ts';
 import { createMaterialsApi } from '../../../features/materials/api.ts';
 import { Wall } from '../../../features/communication/index.ts';
 import { Activities } from '../activity-session/Activities.tsx';
-import { Progress } from '../../../features/grading/index.ts';
-import { createGradingProgressApi } from '../../../features/grading/api.ts';
+import { Progress, StudentAiSummary } from '../../../features/grading/index.ts';
+import { SupportPriority, TeacherSupportDialog, useRosterSupport, type TeacherSupportReader, type SupportStudent } from '../../../features/teacher-support/index.ts';
+import { createGradingProgressApi, createStudentSummaryApi } from '../../../features/grading/api.ts';
 import { useClassroomResource } from './use-classroom-resource.ts';
 import { ClassroomSettings } from '../../../features/classrooms/index.ts';
 import { ClassroomDialogs } from './ClassroomDialogs.tsx';
@@ -32,6 +33,7 @@ import type { ClassroomCreationContext } from '../../../../../../src/core/contra
 
 export function ClassroomView({
   api,
+  supportClient,
   id,
   onExit,
   onMembershipEnded,
@@ -42,6 +44,7 @@ export function ClassroomView({
   onWallChanged,
 }: {
   api: ClassroomClient;
+  supportClient?: TeacherSupportReader;
   id: string;
   onExit: () => void;
   onMembershipEnded: (confirmed: boolean) => void;
@@ -80,6 +83,15 @@ export function ClassroomView({
   const historyResource = useClassroomResource<Member[]>(api, `/${id}/history`, tab === 'history' && !!teacher);
   const invitationResource = useClassroomResource<Invitation[]>(api, `/${id}/invitations`, tab === 'members' && !!teacher);
   const members = memberResource.data ?? [];
+  const activeSupport = teacher && !room?.archived && tab === 'members' ? supportClient : undefined;
+  const [supportRevision,setSupportRevision] = useState(0);
+  const supportByMember = useRosterSupport(activeSupport,id,members.map(member => member.studentId).filter(Boolean).join(','),supportRevision);
+  const [supportStudent,setSupportStudent] = useState<SupportStudent|null>(null);
+  const analysisOperations = useMemo(() => createStudentSummaryApi(api,id,supportStudent?.studentId ?? ''),[api,id,supportStudent?.studentId]);
+  const refreshRoster = () => {
+    setSupportRevision(value => value + 1);
+    return memberResource.reload();
+  };
   const history = historyResource.data ?? [];
   const invitations = invitationResource.data ?? [];
   const rosterLoaded = memberResource.status === 'ready';
@@ -120,8 +132,8 @@ export function ClassroomView({
   } | null>(null);
   const { settings, setSettings, settingsRevision, setSettingsRevision,
     settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
-  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setRoomNotice(''); setActionStates({}); setCode(initialCode); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
-  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setPlanMaterial(null); setUploadContext(null); setRoomNotice(''); }, [tab]);
+  useEffect(() => { setSupportStudent(null); setConfirm(null); setInviting(false); setSummary(null); setRoomNotice(''); setActionStates({}); setCode(initialCode); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
+  useEffect(() => { setSupportStudent(null); setConfirm(null); setInviting(false); setSummary(null); setPlanMaterial(null); setUploadContext(null); setRoomNotice(''); }, [tab]);
   useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : initialSection ?? homeClassroomTab(activeHomeTarget)); }, [id]);
   useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
   useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); if(activeHomeTarget.kind==='classroom' && activeHomeTarget.topicId)setSelectedTopic({roomId:id,id:activeHomeTarget.topicId}); } }, [activeHomeTarget, activeWallTarget,id]);
@@ -141,6 +153,7 @@ export function ClassroomView({
     isCurrentRoom, setSettings, setSettingsRevision, setSettingsConflict, setActionStates });
   const tabLabels: Record<string, string> = { members: teacher ? 'Estudiantes' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Ajustes' };
   function openProgressActivity(activityId?: string, attemptId?: string) {
+    setSupportStudent(null);
     setSummary(null);
     setPlanActivity(activityId ? { kind: teacher ? 'submission' : 'activity', classroomId: id, activityId, attemptId: attemptId ?? null } : null);
     setTab('activities');
@@ -175,6 +188,14 @@ export function ClassroomView({
                     setNotice={setNotice} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom}
                     invitations={invitations} invitationAction={invitationAction} invitationResource={invitationResource} action={action}/> : undefined}
                   isCurrentRoom={isCurrentRoom} setInviting={setInviting} setSummary={value => { if (navigation.current === currentNavigation) setSummary(value); }}
+                  onRecord={activeSupport ? member => {
+                    if (member.studentId) setSupportStudent({ classroomId:id,studentId:member.studentId,
+                      firstName:member.firstName,lastName:member.lastName,division:room.division,email:member.email });
+                  } : undefined}
+                  priorityBadge={studentId => {
+                    const value = supportByMember?.get(studentId)?.priority;
+                    return value ? <SupportPriority value={value}/> : null;
+                  }}
                   setConfirm={setConfirm} action={action} />
                 {teacher && tab === 'members' ? (
                   <ClassroomMembers part="invitations" api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
@@ -250,6 +271,20 @@ export function ClassroomView({
               </footer>
             ) : null}
             </div>
+      {activeSupport && supportStudent?.classroomId===id ?
+        <TeacherSupportDialog key={supportStudent.studentId} client={activeSupport} student={supportStudent}
+          onClose={() => setSupportStudent(null)} onRevoked={() => { void refreshRoster(); }}
+          progress={<Progress operations={progressOperations} classroomId={id} studentId={supportStudent.studentId}
+            onOpenActivity={openProgressActivity} onReview={openProgressActivity} />}
+          analysis={<StudentAiSummary operations={analysisOperations} classroomId={id} studentId={supportStudent.studentId} />}
+          onRemove={() => {
+            const studentId = supportStudent.studentId;
+            setSupportStudent(null);
+            setConfirm({title:'Dar de baja del aula',text:'Se conservarán sus entregas y resultados en Historial. Dejará de integrar los indicadores del grupo actual.',run:async()=>{
+              await api.call(`/${id}/members/${studentId}/remove`,'POST',{});
+              await Promise.all([refreshRoster(),historyResource.reload(),load()]);
+            }});
+          }}/> : null}
       <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
         onInvitationsChanged={invitationResource.reload} actionStates={actionStates}
         confirm={confirm} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom} summary={summary} setSummary={setSummary} action={action}

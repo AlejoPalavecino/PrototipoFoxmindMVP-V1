@@ -2,6 +2,8 @@
 
 Esta guía describe la experiencia en `main` al 18 de noviembre de 2026. Las acciones dependen de la cuenta, el contexto y los permisos del recurso. La galería recorre la aplicación compilada con cuentas sintéticas. Las comparaciones con UI Lab documentan las decisiones que dieron origen a la interfaz. [Galería vigente](current/README.md) · [Referencia aprobada](../../design/foxmind-ui-lab/IMPLEMENTATION-PLAN.md)
 
+La [maqueta HTML interactiva](../../design/foxmind-ui-lab/01-foxmind.html) incluye el semáforo propuesto en Inicio docente y las fichas en Aula → Estudiantes. [Recorrido y reglas](../product/acompanamiento-docente-propuesta.md).
+
 ## Lenguaje visual Brújula
 
 | Decisión | Cómo aplicarla |

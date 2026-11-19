@@ -41,6 +41,8 @@ export function academicHttpServices(runtime: AcademicRuntime): AcademicHttpServ
       ...boundMethods(grading.publication, ['publishAttemptGrade', 'getAttemptResult']),
       ...boundMethods(grading.corrections, ['getGradeCorrections', 'correctPublishedGrade']),
       ...boundMethods(grading.progress, ['getProgress', 'getStudentProgress', 'getStudentAiReport']),
+      ...boundMethods(grading.teacherSupport, ['listTeacherSupport', 'getTeacherSupport', 'getTeacherSupportEvidence']),
+      ...boundMethods(grading.teacherWriting, ['getTeacherWriting', 'startTeacherWriting', 'getTeacherWritingEvidence']),
     },
   };
 }

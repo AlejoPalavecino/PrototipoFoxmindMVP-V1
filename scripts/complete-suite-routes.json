@@ -484,7 +484,14 @@
       "tests/wizard-reference-drop.test.mjs",
       "tests/wizard-reference-navigation.test.mjs",
       "tests/wizard-reference-suggestions.test.mjs",
-      "tests/workspace-disclosure.test.mjs"
+      "tests/workspace-disclosure.test.mjs",
+      "tests/study-shared-strategy-policy.test.mjs",
+      "tests/teacher-support-backend-http.test.mjs",
+      "tests/teacher-support-backend-policy.test.mjs",
+      "tests/teacher-support-extension-ui.test.mjs",
+      "tests/teacher-support-transport.test.mjs",
+      "tests/teacher-support-ui.test.mjs",
+      "tests/teacher-writing-policy.test.mjs"
     ]
   },
   {
@@ -643,7 +650,10 @@
       "tests/parity-invitation-independent.test.mjs",
       "tests/parity-library-revision-independent.test.mjs",
       "tests/pending-classrooms-database.test.mjs",
-      "tests/student-ai-integration.test.mjs"
+      "tests/student-ai-integration.test.mjs",
+      "tests/study-shared-strategy-db.test.mjs",
+      "tests/teacher-support-backend-db.test.mjs",
+      "tests/teacher-writing-backend-db.test.mjs"
     ]
   },
   {
@@ -693,7 +703,9 @@
       "tests/p9-runtime-controls-integration.test.mjs",
       "tests/p9-service-recovery-integration.test.mjs",
       "tests/p9-teaching-remainder-integration.test.mjs",
-      "tests/student-summary-scroll.test.mjs"
+      "tests/student-summary-scroll.test.mjs",
+      "tests/teacher-support-flow.test.mjs",
+      "tests/teacher-support-sharing-flow.test.mjs"
     ]
   },
   {

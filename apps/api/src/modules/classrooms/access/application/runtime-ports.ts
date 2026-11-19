@@ -8,6 +8,7 @@ export interface ClassroomPorts {
   validateMailbox(input: unknown): string;
   gradingAiAvailable?: boolean;
   studentAiEnabled?: boolean;
+  teacherWritingEnabled?: boolean;
   validateActivityGeneration?(tx: Transaction, request: unknown, activityId: string): Promise<void>;
   database: SqlDatabase;
   // Actual P3 session validator; repeatable under user lock, Origin/CSRF on mutation.

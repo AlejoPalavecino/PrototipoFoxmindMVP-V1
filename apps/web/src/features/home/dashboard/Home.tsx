@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { HomeTarget, HomeResponse } from '../../../../../../src/core/domain/home/home.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { NotificationTarget } from '../../../../../../src/core/contracts/notifications.ts';
@@ -15,7 +15,7 @@ import { HomeClassCards } from './HomeClassCards.tsx';
 import { homeGreetingDate } from '../model/home-presentation.ts';
 export interface HomeProps {
  accountRole:'teacher'|'student';displayName:string;subjectId?:string;homeClient?:HomeClient;agendaClient?:HomeAgendaReader;busy?:boolean;
- onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
+ onCreate:()=>void;onJoin:()=>void;teacherSupport?:ReactNode;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
  api?:ClassroomClient;data?:{teach:Classroom[];study:Classroom[];drafts:Draft[];invitations:Invitation[]}|null;
  onOpenActivities?:(id:string)=>void;onEnter?:(id:string)=>void;onOpenTarget?:(target:NotificationTarget)=>void;
 }
@@ -28,6 +28,7 @@ export function Home(props:HomeProps){
  return <section className="fm-home parity-home" aria-label="Inicio">
   <HomeGreeting data={data} teacher={teacher} displayName={displayName} onCreate={()=>data.memberships.teach?setCreating(true):onCreate()} onAction={onAction}/>
   {data.participation==='none'?<div className="parity-home-empty"><h2>{data.memberships.archived?'Tu historial sigue acá':'Tu próximo paso empieza acá'}</h2><p>{data.memberships.archived?'Volvé a tus aulas anteriores para consultar el recorrido y los materiales.':teacher?'Creá tu primera aula y dale lugar a una nueva idea.':'Unite al aula de tu docente para empezar a aprender.'}</p><button className="primary" disabled={busy} onClick={data.memberships.archived?onClassrooms:teacher?onCreate:data.setup.invitations?onClassrooms:onJoin}>{data.memberships.archived?'Ver mis aulas':teacher?'Crear mi primera aula':data.setup.invitations?'Ver invitaciones':'Unirme con código'}</button></div>:null}
+  {teacher ? props.teacherSupport : null}
   <div className="home-grid home-dashboard">
    <HomePriorities data={data} teacher={teacher} tab={tab} onTab={setTab} order={home.orders[tab]} onOrder={value=>home.changeOrder(tab,value)} loading={Boolean(home.ordering[tab])} onAction={onAction} onRetry={name=>void home.retry(name)} onList={()=>{const room=data.modules.classrooms.status==='ready'?data.modules.classrooms.items.find(item=>!item.classroom.archived&&item.classroom.role==='student'):undefined;if(room&&props.onOpenActivities)props.onOpenActivities(room.classroom.id);else onClassrooms();}} busy={busy}/>
    <HomeMiniagenda agendaClient={props.agendaClient} data={data} teacher={teacher} client={homeClient} onAction={onAction} onAgenda={onAgenda} onRetry={()=>void home.retry('agenda')} onUnauthorized={()=>void home.refresh()} busy={busy}/>

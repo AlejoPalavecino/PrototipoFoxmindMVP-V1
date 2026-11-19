@@ -11,6 +11,7 @@ export function StudyFolderOptions({
   onDelete,
   onCancelDelete,
   onConfirmDelete,
+  onSharedStrategy,
 }: {
   folderName: string;
   busy: boolean;
@@ -21,11 +22,13 @@ export function StudyFolderOptions({
   onDelete: () => void;
   onCancelDelete: () => void;
   onConfirmDelete: () => Promise<void>;
+  onSharedStrategy?: () => void;
 }) {
   return (
     <Dialog title="Opciones de la carpeta" onClose={onClose}>
       <div className={`${s.dialogBody} parity-ai-dialogBody`}>
-        <p>Esta carpeta y todo su contenido son privados.</p>
+        <p>Tu carpeta es privada.</p>
+        {onSharedStrategy ? <button type="button" disabled={busy} onClick={onSharedStrategy}>Compartir estrategia</button> : null}
         <button disabled={busy} onClick={onArchive}>
           {archived ? 'Reactivar carpeta' : 'Archivar carpeta'}
         </button>

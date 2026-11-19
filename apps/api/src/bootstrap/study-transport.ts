@@ -7,7 +7,6 @@ import { clearSessionCookie } from '../modules/identity/accounts/presentation/se
 import { type IdentityRuntime, type IdentitySecurityConfiguration as IdentityConfiguration, IdentityHttpError, publicIdentityError } from '../modules/identity/public.ts';
 import { studyFail } from '../../../../src/core/domain/study/folders.ts';
 import type { StudyAuthentication } from '../modules/study/application/contracts.ts';
-import type { StudyService } from '../modules/study/folders/application/service.ts';
 import { createStudyHandler } from '../modules/study/folders/presentation/http.ts';
 function guard(security: IdentityConfiguration, r: IncomingMessage, verifier: string, write: boolean) { if (!write)
     return; try {
@@ -21,7 +20,7 @@ export function createStudyAuthentication(security: IdentityConfiguration): Stud
     throw new IdentityHttpError('AUTH_REQUIRED'); if (!context.user.email_verified_at)
     throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED'); if (context.user.account_role !== 'student')
     studyFail('FORBIDDEN'); guard(security, r, context.verifier, write); return context.user.id; }; }
-export function installStudyTransport(app: Pick<INestApplication, 'use'>, runtime: IdentityRuntime, service: StudyService) { const handler = createStudyHandler(service, async (r, w, res) => { const cookie = readSessionCookie(r.headers.cookie), context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null; if (cookie.present && !context)
+export function installStudyTransport(app: Pick<INestApplication, 'use'>, runtime: IdentityRuntime, service: Parameters<typeof createStudyHandler>[0]) { const handler = createStudyHandler(service, async (r, w, res) => { const cookie = readSessionCookie(r.headers.cookie), context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null; if (cookie.present && !context)
     res.setHeader('Set-Cookie', clearSessionCookie(runtime.configuration.security)); const ip = r.socket.remoteAddress; if (!ip)
     throw new IdentityHttpError('SERVICE_UNAVAILABLE'); await runtime.generalAdmission(ip, context); if (!context)
     throw new IdentityHttpError('AUTH_REQUIRED'); if (!context.user.email_verified_at)

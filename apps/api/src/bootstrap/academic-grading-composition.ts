@@ -19,6 +19,12 @@ import { repository as ProgressServiceRepository } from '../modules/grading/prog
 export class ProgressService extends ProgressServiceApplication {
  constructor(...args: ConstructorParameters<typeof ProgressServiceApplication> extends [...infer Args, unknown] ? Args : never) {super(...args,{...ProgressServiceRepository,studentSnapshot,displayReferences});}
 }
+import { TeacherSupportService } from '../modules/grading/progress/application/teacher-support.ts';
+import { teacherSupportRepository } from '../modules/grading/progress/infrastructure/teacher-support-repository.ts';
+import { readSharedStudyStrategies } from './study-composition.ts';
+export function createTeacherSupportService(access: ConstructorParameters<typeof TeacherSupportService>[0]) {
+  return new TeacherSupportService(access, teacherSupportRepository, readSharedStudyStrategies);
+}
 import { GradingAiService as GradingAiServiceApplication } from '../modules/grading/assistance/application/grading-ai/service.ts';
 import { repository as GradingAiServiceRepository } from '../modules/grading/assistance/infrastructure/grading-ai/service-repository.ts';
 export class GradingAiService extends GradingAiServiceApplication {

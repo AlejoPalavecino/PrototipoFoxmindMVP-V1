@@ -13,6 +13,7 @@ const capabilities: Record<string, string> = {
   curriculum: 'Planes de aula',
   activities: 'Actividades',
   analysis: 'Análisis de entregas',
+  'writing-analysis': 'Análisis de escritura',
   grading: 'Devoluciones',
   foxy: 'Foxy AI (grupo anterior)',
   foxy_chat: 'Chat de Foxy',

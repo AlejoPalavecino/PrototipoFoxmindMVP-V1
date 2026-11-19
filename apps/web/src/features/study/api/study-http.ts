@@ -7,28 +7,33 @@ import type {
 } from '../model/study-commands.ts';
 import { StudyError } from './study-error.ts';
 import { isAiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
+import type { PutSharedStudyStrategy, SharedStudyStrategyView } from '../../../../../../src/core/contracts/study-shared-strategy.ts';
+
 export function createStudyClient(fetcher: typeof fetch = fetch) {
   const requests = new Map<string, string>();
-  async function call<T>(path = '', method = 'GET', body?: unknown): Promise<T> {
+  async function call<T>(path = '', method = 'GET', body?: unknown, signal?: AbortSignal): Promise<T> {
     let response: Response;
     try {
       const headers: Record<string, string> = {};
+      const timeout = AbortSignal.timeout(120000);
+      const requestSignal = signal ? AbortSignal.any([signal,timeout]) : timeout;
       if (method !== 'GET') {
         const csrf = await fetcher('/api/v1/auth/csrf', {
           credentials: 'same-origin',
           cache: 'no-store',
+          signal: requestSignal,
         });
         const data = await csrf.json();
         if (!csrf.ok) throw new StudyError(data?.error?.code ?? 'AUTH_REQUIRED', csrf.status);
         headers['X-CSRF-Token'] = data.csrfToken;
-        headers['Content-Type'] = 'application/json';
+        if (body !== undefined) headers['Content-Type'] = 'application/json';
       }
       response = await fetcher(`/api/v1/study-folders${path}`, {
         method,
         headers,
         credentials: 'same-origin',
         cache: 'no-store',
-        signal: AbortSignal.timeout(120000),
+        signal: requestSignal,
         body: method === 'GET' ? undefined : JSON.stringify(body),
       });
       const result = await response.json();
@@ -43,6 +48,12 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
   return {
     call,
     list: () => call<StudyCollection>(),
+    sharedStrategy: (folderId: string, signal?: AbortSignal) =>
+      call<SharedStudyStrategyView>(`/${encodeURIComponent(folderId)}/shared-strategy`, 'GET', undefined, signal),
+    shareStrategy: (folderId: string, draft: PutSharedStudyStrategy, signal?: AbortSignal) =>
+      call<SharedStudyStrategyView>(`/${encodeURIComponent(folderId)}/shared-strategy`, 'PUT', draft, signal),
+    withdrawStrategy: (folderId: string, strategyId: string, signal?: AbortSignal) =>
+      call<SharedStudyStrategyView>(`/${encodeURIComponent(folderId)}/shared-strategy/${encodeURIComponent(strategyId)}`, 'DELETE', undefined, signal),
     get: (id: string) => call<StudyDetail>(`/${encodeURIComponent(id)}`),
     create: (data: StudyFolderInput) =>
       call<{
@@ -98,3 +109,5 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
     },
   };
 }
+
+export type SharedStrategyClient = Pick<ReturnType<typeof createStudyClient>, 'sharedStrategy'|'shareStrategy'|'withdrawStrategy'>;
