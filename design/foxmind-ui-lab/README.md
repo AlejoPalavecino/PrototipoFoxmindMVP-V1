@@ -2,6 +2,14 @@
 
 Propuesta navegable en HTML, CSS y JavaScript. No modifica la aplicación real, no envía archivos, no ejecuta IA ni usa sus credenciales. Los datos académicos son ejemplos; las acciones persisten sólo en este navegador y se pueden reiniciar.
 
+## Diseño de herramientas generativas
+
+Para quizzes, esquemas y futuras generaciones, incorporar las interacciones en las pantallas de esta maqueta. Usar Nunito, los controles de la plataforma y la navegación propia de cada rol. Para consultar una fuente, usar un botón con el nombre de la acción y el lector de la plataforma. Evitar el desplegable nativo con triángulo de las primeras propuestas.
+
+Para probar la generación, abrí Mi estudio → Biología, a mi ritmo o Foxy AI → Clase sobre división celular. **Probar el chat** también recupera la conversación de ejemplo del rol activo. En **Herramientas**, elegí el recurso, completá el pedido y los temas y confirmá. El trabajo y la creación quedan vinculados a ese chat en el navegador. La maqueta utiliza contenido preparado de mitosis.
+
+Desde **Creaciones** se puede abrir una revisión guardada o volver a preparar un recurso como copia. Los recursos textuales tienen un editor visual y descargas en PDF y Word. La demostración guarda los datos en este navegador.
+
 ## Abrir y recorrer
 
 - Abrir `01-foxmind.html` directamente en el navegador. Incluye CSS, JS, imágenes y tipografía; no necesita instalar dependencias ni conectarse a internet.
@@ -9,7 +17,7 @@ Propuesta navegable en HTML, CSS y JavaScript. No modifica la aplicación real, 
 - La barra superior permite elegir **Docente / Estudiante**, ver **Recorridos** y **Reiniciar** los ejemplos. No propone cambiar de rol en una cuenta real.
 - Recomendada: Inicio docente → revisar entrega de Marina → guardar → publicar; cambiar a Estudiante → Mis aulas → Actividades → ver devolución. Luego responder **Descubriendo la luz** y confirmar la entrega.
 - **Recorridos** permite probar espera de IA, error/reintento y búsqueda sin resultados. Para unirse al aula de ejemplo: **482619**.
-- Fuentes: `template.html`, `styles.css`, `core.js`, `screens.js`, `workspaces.js`, `flows.js`, `events.js`; assets locales con licencia de Nunito. Regenerar HTML con `node design/foxmind-ui-lab/build.mjs`.
+- Fuentes: `template.html`, `styles.css`, `core.js`, `screens.js`, `workspaces.js`, `flows.js`, `events.js`; assets locales con licencia de Nunito. Instalar las dependencias del laboratorio con `npm ci --prefix design/foxmind-ui-lab` y regenerar el HTML con `node design/foxmind-ui-lab/build.mjs`.
 
 El HTML de entrega pesa aproximadamente 1671 KB. Las fuentes separadas facilitan ajustes; el archivo generado incorpora los recursos en base64, por lo que no es un diff productivo para integrar. `refinement.css` y `refinement.js` contienen la segunda iteración visual; `home.css` y `home.js`, Inicio; `widgets.css`, actividades y entregas; `day-widget.css/js`, la agenda del Inicio; `alignment.css`, el ajuste final de espaciados. Se incorporan con el mismo build.
 

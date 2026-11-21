@@ -4,8 +4,8 @@ function fxGenerationStart(threadId,creation,request,resultText,phases){
  const t=state.foxySpace.threads.find(t=>t.id===threadId);
  if(!t||t.generation?.status==='waiting'||fxJobs.has(threadId)){fxFormError('Foxy ya está preparando algo en este chat. Volvé a la conversación para seguirlo.');return false;}
  const generation={id:fxId('job'),status:'waiting',phase:0,creation,resultText,phases,context:fxContextPayload(t)};
- if(!fxCommit(()=>{t.generation=generation;t.messages.push({id:fxId('message'),who:'user',text:request,context:generation.context});if(t.title==='Nueva conversación')t.title=request.slice(0,65);} ))return false;
- closeDialog();fxGenerationRun(threadId);fxPaint(threadId,true);return true;
+ if(!fxCommit(()=>{t.generation=generation;t.messages.push({id:fxId('message'),who:'user',text:request,toolTopics:creation.topics||[],context:generation.context});if(t.title==='Nueva conversación')t.title=request.slice(0,65);} ))return false;
+ closeDialog();if(mitosisTabs.includes(tab))history.replaceState(null,'',routeHash(view));fxGenerationRun(threadId);fxPaint(threadId,true);return true;
 }
 function fxGenerationRun(threadId){
  const t=state.foxySpace.threads.find(t=>t.id===threadId),g=t?.generation;if(!g||fxGenerationJobs.has(threadId))return;

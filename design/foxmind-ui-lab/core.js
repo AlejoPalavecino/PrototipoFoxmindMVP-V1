@@ -111,8 +111,8 @@ function parseRoute(){
  const [routeRole,target,section]=path.split('/');
  changeDemoRole(routeRole==='estudiante'?'estudiante':'docente');
  const key=routeResource(target);
- view=key?target:fragment.split('/')[1]||'inicio';
- tab=key?section||(key==='class'?'plan':''):fragment.split('/')[2]||'';
+ view=key?target:target||'inicio';
+ tab=key?section||(key==='class'?'plan':''):section||'';
  if(!key||(role==='estudiante'&&key==='review')||(role==='docente'&&key==='folder'))return;
  const requested=new URLSearchParams(query).get(key);
  const id=requested??routeResourceId(key);

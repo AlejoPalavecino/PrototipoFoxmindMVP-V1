@@ -5,6 +5,7 @@ function fxContextData(t=fxThread()){
  const requestedClassId=teacher?t.context?.classId:(Object.hasOwn(t,'previewClassId')?t.previewClassId:folder?.linkedClassId);
  const c=fxAccessibleClass(requestedClassId,t.role),classUnits=c?curriculumUnits(c):[];
  const ownUnits=(folder?.units||[]).map((title,i)=>({id:folder.id+'-u'+i,title,topics:(folder.unitTopics?.[i]||[title]).map((title,j)=>({id:folder.id+'-u'+i+'-t'+j,title}))}));
+ if(t.mitosisDemo)ownUnits.unshift({id:'mitosis-demo',title:'Mitosis',topics:['Duplicación del ADN','Fases de la mitosis','Metafase y anafase'].map((title,i)=>({title,id:'mitosis-demo-'+i}))});
  const seen=new Set(),units=[...classUnits,...ownUnits].map(u=>({...u,topics:u.topics.filter(t=>{const key=t.title.trim().toLocaleLowerCase('es');if(seen.has(key))return false;seen.add(key);return true;})})).filter(u=>u.topics.length);
  const privateMaterials=fxPrivateMaterials(t).map(m=>({...m,origin:'private',originName:teacher?'Este chat':'Esta carpeta'}));
  const classMaterials=c?teachingMaterials(c).filter(m=>teacher||(m.publication!=='draft'&&m.visibility!=='private')).map(m=>({...m,origin:'classroom',originName:c.name})):[];

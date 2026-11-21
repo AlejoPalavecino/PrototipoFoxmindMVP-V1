@@ -25,8 +25,9 @@ function fpExampleFor(folder) {
  return 'strategy';
 }
 
-function fpNewAttempt(folder) {
- return {id:fxId('attempt'),example:fpExampleFor(folder),index:0,stage:'question',answers:[null,null,null]};
+fpExamples.mitosis={label:'Mitosis',questions:[...mitosisQuestions.map(q=>[q.prompt,q.choices,q.key,q.feedback[q.key]]),['¿Qué se observa en telofase?',['Dos núcleos en formación.','Cromosomas alineados en el centro.','Duplicación del ADN.'],0,'En telofase se forman dos núcleos alrededor de los grupos de cromosomas.']]};
+function fpNewAttempt(folder,creation) {
+ return {id:fxId('attempt'),example:creation?.mitosisDemo?'mitosis':fpExampleFor(folder),index:0,stage:'question',answers:[null,null,null]};
 }
 
 function fxPracticeStart(creation) {
@@ -36,7 +37,7 @@ function fxPracticeStart(creation) {
  if (!fxCommit(()=>{
   state.fxPractice = {creationId:creation.id,folderId:folder.id};
   state.fxPracticeAttempts ??= {};
-  state.fxPracticeAttempts[creation.id] ??= [fpNewAttempt(folder)];
+  state.fxPracticeAttempts[creation.id] ??= [fpNewAttempt(folder,creation)];
  })) return;
  fpVisibleAttempt = null;
  closeDialog();
@@ -144,7 +145,7 @@ function fpFinish() {
 function fpRetry() {
  const context = fpContext();
  if (!context || context.attempt.stage!=='complete') return;
- if (!fxCommit(()=>context.attempts.push(fpNewAttempt(context.folder)))) return;
+ if (!fxCommit(()=>context.attempts.push(fpNewAttempt(context.folder,context.creation)))) return;
  fpVisibleAttempt = null;
  render();
 }
