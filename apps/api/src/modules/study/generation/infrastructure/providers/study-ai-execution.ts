@@ -14,7 +14,7 @@ export interface StudyFileDatabase {
   $transaction<T>(operation: (tx: { $queryRawUnsafe<T = unknown>(sql: string, ...values: unknown[]): Promise<T> }) => Promise<T>,
     options?: { maxWait: number; timeout: number }): Promise<T>;
 }
-export type StudyTextCapability = `study_${'chat' | 'tool' | 'feedback' | 'note' | 'outline' | 'plan' | 'quiz' | 'exercise' | 'mock_exam'}`;
+export type StudyTextCapability = `study_${'chat' | 'tool' | 'feedback' | 'note' | 'outline' | 'plan' | 'quiz' | 'exercise' | 'mock_exam' | 'review_plan'}`;
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 
 /** Domain-owned coordination: shared admission and existing SQL budget semantics. */

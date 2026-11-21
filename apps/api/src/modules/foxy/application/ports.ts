@@ -29,6 +29,9 @@ export type FoxyCreationDestination = {
     state: Exclude<CreationStatus, 'PRIVATE'>;
 };
 export type FoxyCreation = {
+    brief?: string;
+    selection?: SendFoxyMessage['selection'];
+    aspectRatio?: import('../../../../../../src/core/domain/foxy/visual.ts').FoxyAspectRatio;
     id: string;
     kind: CreationKind;
     title: string;

@@ -42,6 +42,7 @@ export interface StudyOptions {
     };
     agenda?: {
         conflicts?(tx: StudyQuery, ownerId: string, timeZone: string, sessions: StudyReviewWindow[]): Promise<StudyAgendaConflict[]>;
+        scheduled?(tx: StudyQuery, ownerId: string, folderId: string): Promise<{ sessionId: string; eventId: string }[]>;
         confirm(tx: StudyQuery, ownerId: string, folderId: string, exam: unknown, sessions: unknown[], requestId: string): Promise<unknown>;
         cancel(tx: StudyQuery, ownerId: string, folderId: string): Promise<void>;
     };

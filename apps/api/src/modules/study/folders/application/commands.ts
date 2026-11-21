@@ -16,7 +16,7 @@ function generationView(intent: StudyGenerationIntent, state: StudyState): Study
         return { ...intent, status: 'FAILED', reason: 'INTERRUPTED' };
     if (result?.status === 'PENDING' || result?.status === 'CANCELLED') return { ...intent, status: result.status };
     if (result?.status === 'INSUFFICIENT') return { ...intent, status: 'INSUFFICIENT', missingInformation: result.missingInformation as string[] };
-    if (result?.creation || result?.practice) return { ...intent, status: 'COMPLETE' };
+    if (result?.creation || result?.practice || result?.exam) return { ...intent, status: 'COMPLETE' };
     if (isAiBudgetRejectionCode(result?.errorCode)) {
         const quota = result.errorCode === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(result.quota) : undefined;
         return { ...intent, status: 'FAILED', errorCode: result.errorCode, ...(quota ? { quota } : {}) };
@@ -75,7 +75,7 @@ export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string,
     }
     if (['ADD_MATERIAL', 'EDIT_MATERIAL', 'REMOVE_MATERIAL'].includes(action)) return runSourcesCommand(tx, r, p, options);
     if (['NEW_CONVERSATION', 'RENAME_CONVERSATION'].includes(action)) return runConversationsCommand(tx, r, p, options);
-    if (['NEW_ATTEMPT', 'SAVE_ANSWERS', 'FINALIZE_PRACTICE', 'RETRY_FEEDBACK'].includes(action)) return runPracticesCommand(tx, r, p, options);
+    if (['NEW_ATTEMPT', 'SAVE_ANSWERS', 'CONFIRM_PRACTICE_ANSWER', 'FINALIZE_PRACTICE', 'RETRY_FEEDBACK'].includes(action)) return runPracticesCommand(tx, r, p, options);
     if (['PLAN_EXAM', 'EDIT_EXAM', 'CONFIRM_AGENDA'].includes(action)) return runReviewsCommand(tx, r, p, options);
     return runGenerationCommand(tx, r, p, options);
 }

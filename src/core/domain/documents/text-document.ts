@@ -1,4 +1,4 @@
-import { resourceBlocks, resourceInlineRuns, type InlineRun } from './resource-markdown.ts';
+import { documentInk, resourceBlocks, resourceBodyWithoutRepeatedTitle, resourceInlineRuns, type InlineRun } from './resource-markdown.ts';
 
 const relationshipNamespace = 'http://schemas.openxmlformats.org/package/2006/relationships';
 const relationshipType = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
@@ -31,7 +31,7 @@ export function createResourceDocument(title: string, markdown: string): Uint8Ar
   validateDocument(title, markdown);
   const numbering: { id: number; ordered: boolean; start: number }[] = [];
   let list: (typeof numbering)[number] | undefined;
-  const paragraphs = resourceBlocks(markdown).map(block => {
+  const paragraphs = resourceBlocks(resourceBodyWithoutRepeatedTitle(title, markdown)).map(block => {
     if (block.kind !== 'list') list = undefined;
     if (block.kind === 'blank') return '';
     const runs = resourceInlineRuns(block.text);
@@ -90,8 +90,11 @@ function resourceParagraph(runs: InlineRun[], properties = ''): string {
     plain: '', bold: '<w:b/>', italic: '<w:i/>', code: '<w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/>',
   };
   return '<w:p>' + (properties ? '<w:pPr>' + properties + '</w:pPr>' : '')
-    + runs.map(({style,text}) => '<w:r>' + (formatting[style] ? '<w:rPr>' + formatting[style] + '</w:rPr>' : '')
-      + '<w:t xml:space="preserve">' + escape(text) + '</w:t></w:r>').join('') + '</w:p>';
+    + runs.map(({style,text,color}) => {
+      const properties = formatting[style] + (color ? '<w:color w:val="' + documentInk[color].slice(1).toUpperCase() + '"/>' : '');
+      return '<w:r>' + (properties ? '<w:rPr>' + properties + '</w:rPr>' : '')
+        + '<w:t xml:space="preserve">' + escape(text) + '</w:t></w:r>';
+    }).join('') + '</w:p>';
 }
 
 function encodeStoredZip(entries: string[][]): Uint8Array {

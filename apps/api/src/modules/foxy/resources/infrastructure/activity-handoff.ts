@@ -4,6 +4,7 @@ import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql
 import type { ActivityDraftWriterPort } from '../../../activities/public.ts';
 import type { createFoxyResourceRepository } from './resource-repository.ts';
 import type { FoxyActor } from '../../application/ports.ts';
+import { foxyQuizActivityQuestions, foxyQuizFence, readFoxyQuiz } from '../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 const fail = (code: string): never => { throw Object.assign(new Error(code), { code }); };
 
 /** Owner lock from the Foxy UOW serializes resource edits and idempotent handoffs. */
@@ -22,8 +23,12 @@ export async function prepareFoxyActivity(tx: SqlTransaction, actor: FoxyActor, 
     'SELECT input_hash,result FROM foxy_resource_requests WHERE owner_id=$1::uuid AND request_id=$2::uuid', actor.id, body.requestId);
   if (prior) { if (prior.input_hash !== hash) return fail('CONFLICT'); return prior.result; }
   if (source.revision !== body.resourceRevision || String(room.revision) !== body.classroomRevision) return fail('CONFLICT');
-  const activityId = await createActivityDraftInTransaction(tx, { classroomId: body.classroomId, type: 'ASSIGNMENT', now: actor.now,
-    payload: { ...body.payload, topicId: body.payload.topicIds[0]!, attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false } });
+  const { activityKind, ...payload } = body.payload;
+  const quiz = readFoxyQuiz(source.markdown);
+  if ((activityKind === 'QUESTIONNAIRE') !== !!quiz || (!quiz && source.markdown.startsWith(foxyQuizFence))) return fail('INVALID_INPUT');
+  const activityId = await createActivityDraftInTransaction(tx, { classroomId: body.classroomId, type: activityKind ?? 'ASSIGNMENT', now: actor.now,
+    payload: { ...payload, topicId: payload.topicIds[0]!, attachmentRequired: false, instructionFileIds: [], materialIds: [],
+      questions: quiz ? foxyQuizActivityQuestions(quiz) : [], deadline: null, allowLate: false } });
   const [updated] = await tx.query<{ revision: bigint }>('UPDATE classrooms SET revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING revision', body.classroomId);
   const result = { activityId, classroomId: body.classroomId, revision: String(updated!.revision) };
   await tx.query(`INSERT INTO foxy_resource_requests(owner_id,request_id,resource_id,input_hash,result)

@@ -3,11 +3,12 @@ import type { StudyDetail, StudyExam } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../../shared-ui/feedback';
 type Session = StudyExam['sessions'][number];
-export function renderStudyExamSessions({ exam, sessions, activities, selection, busy, saving, setSelection, setEditing, longDate, local, allTopics }: {
+export function renderStudyExamSessions({ exam, sessions, activities, selection, scheduled, busy, saving, setSelection, setEditing, longDate, local, allTopics }: {
   exam: StudyExam;
   sessions: Session[];
   activities: ReadonlyMap<string, string>;
   selection: string[];
+  scheduled: ReadonlyMap<string, string>;
   busy: boolean;
   saving: boolean;
   setSelection: (value: string[]) => void;
@@ -18,7 +19,9 @@ export function renderStudyExamSessions({ exam, sessions, activities, selection,
 }) {
   return (<div className="study-exact-plan-review">
     <div className="study-exact-session-list">
-      {sessions.map((session, index) => (<section className="study-exact-session" key={session.id}>
+      {sessions.map((session, index) => {
+        const agendaEvent = scheduled.get(session.id);
+        return <section className="study-exact-session" key={session.id}>
         <header>
           <span>{index + 1}</span>
           <div>
@@ -28,7 +31,7 @@ export function renderStudyExamSessions({ exam, sessions, activities, selection,
               {local(session.endAt).slice(11)}
             </p>
           </div>
-          <label>
+          {agendaEvent ? <strong className="study-exact-plan-scheduled"><FoxmindIcon name="check" />En agenda</strong> : <label>
             <input
               type="checkbox"
               checked={selection.includes(session.id)}
@@ -37,7 +40,7 @@ export function renderStudyExamSessions({ exam, sessions, activities, selection,
                 ? [...selection, session.id]
                 : selection.filter((id) => id !== session.id))} />
             Agendar
-          </label>
+          </label>}
         </header>
         <p>
           {allTopics
@@ -53,15 +56,16 @@ export function renderStudyExamSessions({ exam, sessions, activities, selection,
           </Notice>))}
         <footer>
           <span>{session.minutes} minutos</span>
-          <button disabled={busy || saving} onClick={() => setEditing({
+          {agendaEvent ? <a href={`/agenda?event=${encodeURIComponent(agendaEvent)}&date=${local(session.startAt).slice(0, 10)}`}>Ver en Agenda</a> : <button disabled={busy || saving} onClick={() => setEditing({
             ...session
 
           })}>
             <FoxmindIcon name="edit" />
             Editar
-          </button>
+          </button>}
         </footer>
-      </section>))}
+      </section>;
+      })}
     </div>
   </div>);
 

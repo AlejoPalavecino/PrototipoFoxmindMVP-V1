@@ -3,6 +3,7 @@ import { agendaId } from '../../../../../../../src/core/domain/agenda/values.ts'
 import { parsePrepareFoxyPublication } from '../../../../../../../src/core/domain/foxy/resource-validation.ts';
 import { type FoxyPublicationState, type FoxyVisualPublicationSummary } from '../../../../../../../src/core/domain/foxy/resource.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
+import { foxyQuizFence } from '../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 
 type Row = { id: string; resource_id: string; resource_revision: bigint; classroom_id: string; unit_id: string | null;
   topic_id: string | null; title: string; state: FoxyPublicationState; revision: bigint; input_hash: string };
@@ -92,6 +93,7 @@ export function createFoxyPublicationRepository() {
         WHERE r.id=$1::uuid AND r.owner_id=$2::uuid AND c.deleted_at IS NULL
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms a WHERE a.id=c.classroom_id AND a.teacher_id=c.owner_id)) FOR UPDATE OF r`, resourceId, owner);
       if (!resource) return fail('NOT_FOUND');
+      if (resource.markdown.startsWith(foxyQuizFence)) return fail('CONFLICT');
       const [existing] = await tx.query<{ id: string; classroom_id: string }>('SELECT id,classroom_id FROM foxy_publications WHERE owner_id=$1::uuid AND request_id=$2::uuid', owner, v.requestId);
       if (existing) {
         const [prior] = await tx.query<Row>(`SELECT p.* FROM foxy_publications p JOIN classrooms c ON c.id=p.classroom_id AND c.teacher_id=p.owner_id

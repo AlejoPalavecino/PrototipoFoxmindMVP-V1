@@ -1,4 +1,5 @@
 import type { AiBudgetRejectionCode, AiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
+import type { FoxyDiagram } from '../../../../../../src/core/domain/foxy/visual.ts';
 
 export interface StudyTopic {
   id: string;
@@ -45,7 +46,8 @@ export interface StudySource {
 }
 export interface StudyGeneration {
   requestId: string;
-  kind: 'NOTE' | 'OUTLINE' | 'IMAGE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
+  kind: 'EXPLANATION' | 'NOTE' | 'OUTLINE' | 'IMAGE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM' | 'REVIEW_PLAN';
+  review?: import('../../../../../../src/core/domain/study/review.ts').StudyReviewRequest;
   topicIds: string[];
   sourceIds?: string[];
   questionCount: number;
@@ -69,6 +71,7 @@ export interface StudyTurn {
   generationRequestId?: string;
   creationId?: string;
   practiceId?: string;
+  examId?: string;
 }
 export interface StudyConversation {
   id: string;
@@ -83,6 +86,9 @@ export interface StudyCreation {
   markdown: string;
   body?: string;
   kind: string;
+  conversationId?: string;
+  diagram?: FoxyDiagram;
+  sourceRefs?: StudyTurn['sourceRefs'];
   sourceUnavailable?: boolean;
 }
 export interface StudyQuestion {
@@ -95,9 +101,15 @@ export interface StudyQuestion {
     label?: string;
   }[];
   explanation?: string;
+  correctOptionIds?: string[];
+  optionFeedback?: { optionId: string; text: string }[];
+  scoringRule?: 'EXACT' | 'PARTIAL';
+  sourceRefs?: { id: string; version: string }[];
 }
 export interface StudyPractice {
   id: string;
+  previousPracticeId?: string;
+  confirmedQuestionIds?: string[];
   attemptNumber?: number;
   kind?: string;
   title?: string;
@@ -124,6 +136,7 @@ export interface StudyExam {
     activity?: string;
   }[];
   warnings?: string[];
+  guidance?: string;
   conflicts?: {
     sessionId: string;
     occurrenceId: string;
@@ -138,6 +151,7 @@ export interface StudyDetail {
   creations: StudyCreation[];
   practices: StudyPractice[];
   exams: StudyExam[];
+  scheduledReviewSessions?: { sessionId: string; eventId: string }[];
   memory: unknown;
 }
 export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'>;

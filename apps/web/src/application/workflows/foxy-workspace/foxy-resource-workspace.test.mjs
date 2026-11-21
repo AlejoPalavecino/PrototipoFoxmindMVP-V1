@@ -17,22 +17,44 @@ function fixture(changes={}){const calls=[],record=name=>(...args)=>calls.push([
  confirmation:{review:{publication,classroomRevision:'3',classroomName:'Biologia',unitName:'Unidad',topicName:'Tema'},reviewed:false,reviewing:false,busy:false,pending:null,canReview:true,canConfirm:false,receipt:null,error:null},
  classrooms:[detail],ui:{leave:null,openingResource:false,loadingDestinationId:null,error:null},actions,publicationFileUrl:(id,mode)=>`/api/v1/foxy-ai/publications/${id}/file?mode=${mode}`,...changes};
  const {FoxyResourceWorkspace}=componentWithPorts("apps/web/src/application/workflows/foxy-workspace/FoxyResourceWorkspace.tsx",{});assert.equal(typeof FoxyResourceWorkspace,'function');return {calls,view:hookView(FoxyResourceWorkspace,props)};}
-test('opening a saved resource starts in reading mode with TXT outside the sharing controls',async()=>{
+test('opening a saved resource starts in reading mode with personal PDF and Word downloads',async()=>{
  const f=fixture({resource:{...resource,dirty:false,draft:{title:'Resumen',markdown:'## Introducción'},resource:{...resource.resource,markdown:'## Introducción'}}});
  try{await f.view.flush();
   const html=renderToStaticMarkup(f.view.tree);
   assert.match(html,/<h3>Introducción<\/h3>/);
   const sharing=descendants(f.view.tree,n=>n.props.className==='parity-foxy-sharing')[0];assert.ok(sharing);assert.equal(sharing.props.hidden,true);
-  assert.equal(descendants(sharing,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT')).length,0);
-  assert.equal(descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT')).length,1);
+  assert.doesNotMatch(html,/Descargar TXT/u);
+  assert.match(html,/Descargar PDF/u);
+  assert.match(html,/Descargar Word/u);
   const edit=descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('>Editar</button>'))[0];assert.ok(edit);edit.props.onClick();await f.view.flush();
   assert.equal(descendants(f.view.tree,n=>n.props.className==='parity-foxy-editor')[0].props.hidden,false);
   assert.deepEqual(f.calls,[]);
  }finally{f.view.close();}
 });
-test('resource workspace has one accessible dialog, editable draft and escaped model text',async()=>{const f=fixture();try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
- assert.equal(descendants(f.view.tree,n=>n.props?.role==='dialog').length,1);assert.ok(descendants(f.view.tree,n=>n.type==='textarea').length);assert.match(html,/guardar cambios/iu);
- assert.doesNotMatch(html,/<script>alert/iu);assert.match(html,/&lt;script&gt;/iu);
+
+test('both private readers show the saved title once and retain the first distinct section', async () => {
+ const title='Exposición y contraste en fotografía', section='La taza junto a la ventana';
+ const markdown=`# ${title}\n\n## ${section}\n\nDetalles del ejemplo.`;
+ const teacher=fixture({resource:{...resource,dirty:false,draft:{title,markdown},resource:{...resource.resource,title,markdown}}}).view;
+ const {StudyDocumentEditor}=componentWithPorts('apps/web/src/features/study/creations/study-creation-editor.tsx',{});
+ const student=hookView(StudyDocumentEditor,{creation:{id:rid,kind:'NOTE',title,markdown}});
+ try {
+  await Promise.all([teacher.flush(),student.flush()]);
+  const [teacherReader]=descendants(teacher.tree,node=>node.props['aria-label']==='Lectura del recurso');
+  const [studentReader]=descendants(student.tree,node=>node.type==='article');
+  for(const reader of [teacherReader,studentReader]){
+   const html=renderToStaticMarkup(reader);
+   assert.equal(html.split(title).length-1,1);
+   assert.match(html,new RegExp(section,'u'));
+  }
+ }finally{student.close();teacher.close();}
+});
+test('resource workspace has one accessible dialog and passes the draft to the visual editor',async()=>{const f=fixture();try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
+ assert.equal(descendants(f.view.tree,n=>n.props?.role==='dialog').length,1);
+ assert.equal(descendants(f.view.tree,n=>n.type?.name==='DocumentEditor')[0]?.props.value,resource.draft.markdown);
+ assert.match(html,/role="textbox".*aria-multiline="true"/iu);
+ assert.match(html,/guardar cambios/iu);
+ assert.doesNotMatch(html,/<script>alert/iu);
  }finally{f.view.close();}});
 test('workspace exposes actual destination hierarchy and private preparation',async()=>{const f=fixture();try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);for(const name of ['Biologia','Unidad','Tema'])assert.match(html,new RegExp(name,'iu'));
  assert.match(html,/preparar pdf/iu);assert.match(html,/todavía no|no.*visible|privad/iu);
@@ -47,7 +69,8 @@ test('leave guard is inline in same dialog and does not dispatch without choice'
  }finally{f.view.close();}});
 
 test('conflict preserves local draft and offers both resolution choices',async()=>{const f=fixture({resource:{...resource,conflict:{...resource.resource,title:'Servidor',revision:'2'},errorCode:'CONFLICT'}});try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
- assert.match(html,/conflicto|cambió|cambio/iu);assert.match(html,/conservar|mantener/iu);assert.match(html,/servidor|versión/iu);assert.match(html,/&lt;script&gt;/iu);
+ assert.match(html,/conflicto|cambió|cambio/iu);assert.match(html,/conservar|mantener/iu);assert.match(html,/servidor|versión/iu);
+ assert.equal(descendants(f.view.tree,n=>n.type?.name==='DocumentEditor')[0]?.props.value,resource.draft.markdown);
  }finally{f.view.close();}});
 
 test('successful receipt identifies publication in destination library without duplicate confirmation',async()=>{const f=fixture({confirmation:{review:null,reviewed:false,reviewing:false,busy:false,pending:null,canReview:false,canConfirm:false,
@@ -115,7 +138,7 @@ test('handoff opens sharing directly for a saved resource while a conflict prior
  const clean=fixture({initialHandoffMode:'RUBRIC',resource:{...resource,dirty:false,draft:{title:resource.resource.title,markdown:resource.resource.markdown}}});
  try{await clean.view.flush();assert.equal(descendants(clean.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,false);assert.deepEqual(clean.calls,[]);}finally{clean.view.close();}
  const conflict=fixture({initialHandoffMode:'RUBRIC',resource:{...resource,errorCode:'CONFLICT'}});
- try{await conflict.view.flush();const editor=descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-editor')[0];assert.equal(editor.props.hidden,false);assert.ok(descendants(editor,n=>n.type==='textarea'&&n.props.value===resource.draft.markdown).length);assert.equal(descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,true);assert.deepEqual(conflict.calls,[]);}finally{conflict.view.close();}
+ try{await conflict.view.flush();const editor=descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-editor')[0];assert.equal(editor.props.hidden,false);assert.ok(descendants(editor,n=>n.type?.name==='DocumentEditor'&&n.props.value===resource.draft.markdown).length);assert.equal(descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,true);assert.deepEqual(conflict.calls,[]);}finally{conflict.view.close();}
 });
 
 test('history identifies a previously shared version before selecting a destination again', async () => {
@@ -138,11 +161,11 @@ test('legacy model markdown line breaks are restored without changing already fo
  assert.equal(formatFoxyModelMarkdown(edited),edited);
 });
 
-test('teacher and student reader actions download the same saved Word and TXT bytes', async () => {
+test('teacher and student readers use the same saved Word and PDF inputs', async () => {
  const markdown='# Escalas\n\n- Calculá **$4 \\times 50$ cm**.';
  const teacher=fixture({resource:{...resource,dirty:false,resource:{...resource.resource,title:'Escalas',markdown}}}).view;
- const {StudyCreationEditor}=componentWithPorts('apps/web/src/features/study/creations/study-creation-editor.tsx',{});
- const student=hookView(StudyCreationEditor,{creation:{id:rid,kind:'NOTE',title:'Escalas',markdown}});
+ const {StudyDocumentEditor}=componentWithPorts('apps/web/src/features/study/creations/study-creation-editor.tsx',{});
+ const student=hookView(StudyDocumentEditor,{creation:{id:rid,kind:'NOTE',title:'Escalas',markdown}});
  const blobs=[];
  const previousDocument=globalThis.document;
  const {createObjectURL, revokeObjectURL}=URL;
@@ -152,10 +175,16 @@ test('teacher and student reader actions download the same saved Word and TXT by
   URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:foxmind-synthetic';};
   URL.revokeObjectURL=()=>{};
   for(const view of [teacher,student]){
-   for(const name of ['Descargar Word','Descargar TXT']){
-    const [button]=descendants(view.tree,node=>node.type==='button'&&renderToStaticMarkup(node).includes(name));
+   for(const name of ['Descargar Word']){
+    const [download]=descendants(view.tree,node=>node.type?.name==='DocumentDownloads');
+    assert.equal(download.props.markdown,markdown);
+    assert.match(renderToStaticMarkup(download),/Descargar PDF/u);
+    const actions=hookView(download.type,download.props);
+    await actions.flush();
+    const [button]=descendants(actions.tree,node=>node.type==='button'&&renderToStaticMarkup(node).includes(name));
     assert.ok(button,name);
     button.props.onClick();
+    actions.close();
    }
   }
  }finally{
@@ -164,7 +193,5 @@ test('teacher and student reader actions download the same saved Word and TXT by
   URL.revokeObjectURL=revokeObjectURL;
   student.close();teacher.close();
  }
- assert.deepEqual(await blobs[0].arrayBuffer(),await blobs[2].arrayBuffer());
- assert.equal(await blobs[1].text(),'Escalas\n\n- Calculá 4 × 50 cm.');
- assert.equal(await blobs[1].text(),await blobs[3].text());
+ assert.deepEqual(await blobs[0].arrayBuffer(),await blobs[1].arrayBuffer());
 });

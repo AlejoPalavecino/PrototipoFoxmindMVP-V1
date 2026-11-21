@@ -46,6 +46,34 @@ test('explicit RUBRIC purpose reaches the real adapter transport through token c
   const f=await fixture();await f.adapter.generate(input({purpose:'RUBRIC'}));assert.deepEqual(f.calls.map(([kind])=>kind),['count','generate']);
 });
 
+test('Foxy teacher requests an exact quiz schema and saves validated options with feedback', async () => {
+  const { readFoxyQuiz } = await import('../../../../../../../../../src/core/domain/foxy/foxy-quiz.ts');
+  const quiz = {
+    objective: 'Distinguir la alineación de la separación.',
+    instructions: 'Elegí una opción por consigna.',
+    questions: [{ prompt: '¿Qué cambia durante la anafase?', options: [
+      { text: 'Las cromátidas se separan.', correct: true, feedback: 'Se distribuyen hacia polos opuestos.' },
+      { text: 'Los cromosomas se alinean.', correct: false, feedback: 'La alineación caracteriza la metafase.' },
+    ] }],
+  };
+  const value = input({ purpose: 'ACTIVITY_IDEAS', message: 'Prepará un quiz interactivo de 1 preguntas.\nMitosis' });
+  const f = await fixture({ response: success(answer({ title: 'Mitosis', quiz })) });
+  const result = await f.adapter.generate(value);
+  assert.deepEqual(readFoxyQuiz(result.json.markdown), quiz);
+  const generation = f.calls.at(-1)[1];
+  assert.match(generation.config.systemInstruction, /exactly 1 questions/);
+  const schema = generation.config.responseJsonSchema.properties.quiz.anyOf[0].properties.questions;
+  assert.equal(schema.minItems, 1);
+  assert.equal(schema.maxItems, 1);
+
+  const invalid = await fixture({ response: success(answer({ quiz: { ...quiz, questions: [] } })) });
+  await assert.rejects(invalid.adapter.generate(value), { code: 'INVALID_AI_OUTPUT' });
+  const ambiguous = structuredClone(quiz);
+  ambiguous.questions[0].options[1].correct = true;
+  const manyKeys = await fixture({ response: success(answer({ quiz: ambiguous })) });
+  await assert.rejects(manyKeys.adapter.generate(value), { code: 'INVALID_AI_OUTPUT' });
+});
+
 test('new teaching resources receive distinct pedagogical instructions in count and generation', async () => {
   const rules = {
     CHAT: /when asked for a summary.*central idea.*essential relationships.*conditions and exceptions/i,
@@ -64,6 +92,17 @@ test('new teaching resources receive distinct pedagogical instructions in count 
     assert.deepEqual(count.contents.slice(1), generated.contents);
     assert.equal(JSON.parse(generated.contents[0].parts[0].text).message, value.message);
   }
+});
+
+test('V7 teaching texts ask for classroom language, coherent timing and consistent rubric levels', async () => {
+  const { foxyInstructionFor } = await import('../foxy-prompt.ts');
+  const lesson = foxyInstructionFor('LESSON_PLAN', 'foxy-chat-v7');
+  assert.match(lesson, /lenguaje natural de aula/);
+  assert.match(lesson, /suma de los momentos coincida con la duración total/);
+  const rubric = foxyInstructionFor('RUBRIC', 'foxy-chat-v7');
+  assert.match(rubric, /mismos nombres de nivel y el mismo orden/);
+  assert.match(rubric, /Si no se pide otro formato/);
+  assert.doesNotMatch(foxyInstructionFor('RUBRIC', 'foxy-chat-v6'), /mismos nombres de nivel/);
 });
 
 test('V6 rubrics use exportable headings and evidence lists by default and preserve explicit format requests', async () => {

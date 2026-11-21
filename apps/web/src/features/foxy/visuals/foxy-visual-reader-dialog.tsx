@@ -1,13 +1,14 @@
 import {useEffect,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
 import {openDialog} from '../../../../../shared-ui/dialog-focus';
-import {downloadPlainText} from '../../../../../shared-ui/text-document';
 import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
+import styles from '../../../../../shared-ui/interactive-diagram.module.css';
 import {FoxyVisualReader,visualReaderPreview} from './foxy-visual-reader';
 import {validVisualEditorial,type createFoxyVisualEditorController,type FoxyVisualEditorState} from './foxy-visual-editor-controller';
 
 type Props={assetId:string;state:FoxyVisualEditorState;actions:ReturnType<typeof createFoxyVisualEditorController>;
-  assetFileUrl(id:string,mode:'preview'|'download'):string;onClose():void;sharing:ReactNode;sharingTitle?:string;shareLocked?:boolean;sharePending?:boolean;published?:boolean};
+  assetFileUrl(id:string,mode:'preview'|'download'):string;onClose():void;onRepeat?():void;sharing:ReactNode;sharingTitle?:string;shareLocked?:boolean;sharePending?:boolean;published?:boolean;
+  inline?:boolean;sourceAction?:ReactNode};
 export function FoxyVisualReaderDialog(props:Props){
   const {state,actions}=props,ref=useRef<HTMLDialogElement>(null);
   const [mode,setMode]=useState<'read'|'edit'|'share'|'discard'|'pending'>(state.dirty||state.pending?'edit':props.sharePending?'share':'read');
@@ -15,6 +16,8 @@ export function FoxyVisualReaderDialog(props:Props){
   const locked=state.busy||!!props.shareLocked;
   const info=state.assetId===props.assetId?state.inspection:null;
   const visible=!!visualReaderPreview({...props,inspection:info,loading:state.loading,error:null});
+  const reading=mode==='read'||!visible;
+  const openingModal=!props.inline||!reading;
   const draft=visible?state.draft:null;
   const leave=(close:boolean)=>{
     if(locked)return;
@@ -22,18 +25,19 @@ export function FoxyVisualReaderDialog(props:Props){
     if(state.dirty){setExit(close);setMode('discard');return;}
     if(close)props.onClose();else setMode('read');
   };
-  useEffect(()=>{if(ref.current)return openDialog(ref.current);},[]);
+  useEffect(()=>{if(openingModal&&ref.current)return openDialog(ref.current);},[openingModal]);
   useEffect(()=>{if(!state.dirty&&!state.pending&&!state.loading)void actions.refresh();},[props.assetId,actions]);
   useEffect(()=>{const dialog=ref.current;if(mode==='edit')dialog?.querySelector<HTMLInputElement>('input')?.focus();else dialog?.querySelector<HTMLHeadingElement>('h2')?.focus();},[mode]);
   useEffect(()=>{if(state.conflict)setMode('edit');},[state.conflict]);
   const save=async()=>{if(await(state.pending?actions.retry():actions.save())){setMode('read');setNotice('Guardaste tu creación.');}};
   const heading=mode==='edit'?'Dale tu mirada':mode==='share'?'Directo a tu Biblioteca':mode==='discard'?'¿Descartás tus cambios?':'Antes de salir';
   const subtitle=mode==='edit'?'Los cambios quedan en tu creación privada.':mode==='share'?'Revisá el destino. No necesitás descargar ni volver a subir el archivo.':mode==='discard'?'La versión guardada se conserva.':'La solicitud puede haberse completado.';
-  return <dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-visual-reader-title" className={`p5-dialog parity-foxy-dialog parity-foxy-readingDialog parity-foxy-visualReader ${mode==='discard'?'parity-foxy-discardDialog':''}`}
-    onCancel={event=>{event.preventDefault();if(mode==='discard')setMode('edit');else if(mode==='pending')setMode(state.pending?'edit':'share');else leave(true);}}>
-    {mode==='read'||!visible?<FoxyVisualReader assetId={props.assetId} inspection={info} loading={state.loading} error={state.error} assetFileUrl={props.assetFileUrl}
-      onClose={()=>leave(true)} onRetry={()=>void actions.refresh()} onEdit={()=>{setNotice('');setMode('edit');}} onShare={()=>{setNotice('');setMode('share');}} published={props.published} locked={locked||!!state.pending} editLocked={!!props.sharePending}
-      onDownload={content=>downloadPlainText(info?.editorial?.title??info?.payload?.title??'Creación',content)}/>:<>
+  const reader=<FoxyVisualReader assetId={props.assetId} inspection={info} loading={state.loading} error={state.error} assetFileUrl={props.assetFileUrl} onRepeat={props.onRepeat}
+    inline={props.inline} sourceAction={props.sourceAction}
+    onClose={()=>leave(true)} onRetry={()=>void actions.refresh()} onEdit={()=>{setNotice('');setMode('edit');}} onShare={()=>{setNotice('');setMode('share');}} published={props.published} locked={locked||!!state.pending} editLocked={!!props.sharePending}/>;
+  const dialog=openingModal&&<dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-visual-reader-title" className={`p5-dialog parity-foxy-dialog parity-foxy-readingDialog parity-foxy-visualReader ${mode==='read'?styles.readerDialog:''} ${mode==='discard'?'parity-foxy-discardDialog':''}`}
+    onCancel={event=>{if(event.target!==event.currentTarget)return;event.preventDefault();if(mode==='discard')setMode('edit');else if(mode==='pending')setMode(state.pending?'edit':'share');else leave(true);}}>
+    {reading?reader:<>
       <header><div><h2 id="foxy-visual-reader-title" tabIndex={-1}>{heading}</h2><p>{subtitle}</p></div><button type="button" className="p5-close" disabled={locked} aria-label="Cerrar diálogo" onClick={()=>leave(true)}><FoxmindIcon name="close"/></button></header>
       <div className="brujula-dialog-body">
         {mode==='edit'&&draft&&<form id="foxy-visual-edit" className="parity-foxy-editor" onSubmit={event=>{event.preventDefault();void save();}}>
@@ -54,6 +58,10 @@ export function FoxyVisualReaderDialog(props:Props){
           :<><button type="button" onClick={()=>setMode(state.pending?'edit':'share')}>Seguir acá</button><button type="button" onClick={()=>props.onClose()}>Cerrar vista y continuar</button></>}
       </footer>
     </>}
-    {notice&&<p className="parity-foxy-saveNotice" role="status">{notice}</p>}
+    {!props.inline&&notice&&<p className="parity-foxy-saveNotice" role="status">{notice}</p>}
   </dialog>;
+  return props.inline ? <div className={styles.focusContainer}>
+    {reader}{dialog}
+    {notice&&<p className="parity-foxy-saveNotice" role="status">{notice}</p>}
+  </div> : dialog;
 }

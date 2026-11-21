@@ -1,9 +1,10 @@
-import type { FoxyContext } from '../../../../../../../src/core/domain/foxy/foxy-ai.ts';
+import type { FoxyContext, FoxySelection } from '../../../../../../../src/core/domain/foxy/foxy-ai.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { catalogUuid, creationOptions, invalidCatalog, type CreationPageOptions, type CreationKind, type CreationStatus } from '../application/catalog-input.ts';
+import type { FoxyAspectRatio } from '../../../../../../../src/core/domain/foxy/visual.ts';
 export type FoxyCreationDestination = { kind: 'MATERIAL' | 'ACTIVITY'; classroomId: string; classroomName: string; id: string | null; state: Exclude<CreationStatus, 'PRIVATE'> };
-export type FoxyCreation = { id: string; kind: CreationKind; title: string; context: FoxyContext; conversationId: string; turnId: string | null; visualJobId: string | null; assetId: string | null; createdAt: string; status: CreationStatus; destinations: FoxyCreationDestination[] };
-type Row = { id: string; kind: CreationKind; title: string; context_kind: 'GENERAL' | 'CLASSROOM'; classroom_id: string | null; conversation_id: string; turn_id: string | null; visual_job_id: string | null; asset_id: string | null; created_at: Date; status: CreationStatus; destinations: FoxyCreationDestination[] };
+export type FoxyCreation = { id: string; kind: CreationKind; title: string; brief: string; selection: FoxySelection; aspectRatio?: FoxyAspectRatio; context: FoxyContext; conversationId: string; turnId: string | null; visualJobId: string | null; assetId: string | null; createdAt: string; status: CreationStatus; destinations: FoxyCreationDestination[] };
+type Row = { id: string; kind: CreationKind; title: string; brief: string; selection: FoxySelection; aspect_ratio: FoxyAspectRatio | null; context_kind: 'GENERAL' | 'CLASSROOM'; classroom_id: string | null; conversation_id: string; turn_id: string | null; visual_job_id: string | null; asset_id: string | null; created_at: Date; status: CreationStatus; destinations: FoxyCreationDestination[] };
 const sql = `WITH visible_conversations AS (
   SELECT c.* FROM foxy_conversations c JOIN users u ON u.id=c.owner_id
   WHERE c.owner_id=$1::uuid AND c.deleted_at IS NULL AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
@@ -12,14 +13,19 @@ const sql = `WITH visible_conversations AS (
 ), creations AS (
  SELECT t.id,CASE t.purpose WHEN 'STUDY_MATERIAL' THEN 'NOTE' WHEN 'REVIEW' THEN 'NOTE' WHEN 'LESSON_PLAN' THEN 'PLAN'
    WHEN 'ACTIVITY_IDEAS' THEN 'ACTIVITY' WHEN 'RUBRIC' THEN 'RUBRIC' END kind,
-   COALESCE(r.title,t.answer->>'title') title,c.context_kind,c.classroom_id,c.id conversation_id,
+   COALESCE(r.title,t.answer->>'title') title,t.message_text brief,
+   CASE WHEN jsonb_typeof(t.snapshot->'classroomScope')='object'
+     THEN '{"mode":"ALL_CLASSROOM","topicIds":[],"sourceIds":[]}'::jsonb
+     ELSE jsonb_build_object('topicIds',COALESCE(t.snapshot#>'{curriculum,selectedTopicIds}','[]'::jsonb),
+         'sourceIds',jsonb_path_query_array(t.snapshot,'$.sources[*].sourceId')) END selection,
+   NULL::text aspect_ratio,c.context_kind,c.classroom_id,c.id conversation_id,
    t.id turn_id,NULL::uuid visual_job_id,NULL::uuid asset_id,t.created_at,r.id resource_id
  FROM visible_conversations c JOIN foxy_turns t ON t.conversation_id=c.id AND t.owner_id=$1::uuid
  LEFT JOIN foxy_resources r ON r.source_turn_id=t.id AND r.owner_id=$1::uuid
  WHERE t.state='READY' AND t.purpose IN ('STUDY_MATERIAL','REVIEW','LESSON_PLAN','ACTIVITY_IDEAS','RUBRIC')
    AND t.answer->'missingInformation'='[]'::jsonb
  UNION ALL
- SELECT j.id,j.kind,COALESCE(a.editorial_title,a.title),c.context_kind,c.classroom_id,c.id,NULL::uuid,j.id,a.id,j.created_at,NULL::uuid
+ SELECT j.id,j.kind,COALESCE(a.editorial_title,a.title),j.prompt,j.selection,j.aspect_ratio,c.context_kind,c.classroom_id,c.id,NULL::uuid,j.id,a.id,j.created_at,NULL::uuid
  FROM visible_conversations c JOIN foxy_visual_jobs j ON j.conversation_id=c.id AND j.owner_id=$1::uuid
  JOIN foxy_visual_assets a ON a.id=j.asset_id AND a.owner_id=$1::uuid AND a.conversation_id=c.id
  WHERE j.state='READY' AND a.state='READY' AND a.blob_deleted_at IS NULL
@@ -53,7 +59,8 @@ export function createFoxyCreationRepository() {
     if (!catalogUuid.test(owner)) return invalidCatalog();
     const v=creationOptions(input);
     const rows=await tx.query<Row>(sql,owner,v.context,v.q,v.type,v.status,v.after?.createdAt??null,v.after?.id??null,v.limit+1);
-    const items: FoxyCreation[]=rows.slice(0,v.limit).map(r=>({id:r.id,kind:r.kind,title:r.title,
+    const items: FoxyCreation[]=rows.slice(0,v.limit).map(r=>({id:r.id,kind:r.kind,title:r.title,brief:r.brief,selection:r.selection,
+      ...(r.aspect_ratio ? { aspectRatio:r.aspect_ratio } : {}),
       context:r.context_kind==='GENERAL'?{kind:'GENERAL'}:{kind:'CLASSROOM',classroomId:r.classroom_id!},
       conversationId:r.conversation_id,turnId:r.turn_id,visualJobId:r.visual_job_id,assetId:r.asset_id,
       createdAt:r.created_at.toISOString(),status:r.status,destinations:r.destinations}));

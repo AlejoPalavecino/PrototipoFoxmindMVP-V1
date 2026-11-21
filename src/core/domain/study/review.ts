@@ -1,5 +1,11 @@
 export const studyReviewActivityLimit = 500;
 
+export type StudyReviewRequest = {
+  examAt: string;
+  timeZone: string;
+  availability: { start: string; minutes: number }[];
+};
+
 type ReviewSession = {
   id: string;
   startAt: string;

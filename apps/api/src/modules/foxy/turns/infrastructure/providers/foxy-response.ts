@@ -6,6 +6,7 @@ import { type FoxyTextInput, type FoxyTextResponse } from '../../../../../../../
 import { AiError } from '../../../../../platform/ai/errors.ts';
 
 import { resourceMarkdown } from '../../../../../../../../src/core/domain/documents/provider-markdown.ts';
+import { encodeFoxyQuiz, parseFoxyQuiz } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 
 function text(value: unknown, max: number, empty = false): string {
   if (typeof value !== 'string' || (!empty && !value.trim()) || [...value].length > max
@@ -30,12 +31,15 @@ function reference(value: unknown, input: FoxyTextInput): FoxyTextResponse['refe
     || doc.pageCount === null || v.page < 1 || v.page > doc.pageCount))) throw new Error();
   return { sourceKey: v.sourceKey, documentKey: v.documentKey, page: v.page as number | null };
 }
-function parse(value: unknown, input: FoxyTextInput): FoxyTextResponse {
-  const v = strictObject(value, ['schemaVersion', 'status', 'title', 'markdown', 'references', 'warnings', 'missingInformation']);
+function parse(value: unknown, input: FoxyTextInput, quizCount: number | null): FoxyTextResponse {
+  const v = strictObject(value, ['schemaVersion', 'status', 'title', 'markdown', 'references', 'warnings', 'missingInformation',
+    ...(quizCount ? ['quiz'] : [])]);
   if (v.schemaVersion !== 'foxy-text-response-v1' || (v.status !== 'READY' && v.status !== 'INSUFFICIENT_CONTENT')) throw new Error();
   const title = text(v.title, 200);
   const raw = text(v.markdown, 50000, v.status === 'INSUFFICIENT_CONTENT');
-  const markdown = input.purpose === 'CHAT' ? raw : resourceMarkdown(raw);
+  const markdown = quizCount && v.status === 'READY' ? text(encodeFoxyQuiz(parseFoxyQuiz(v.quiz, quizCount)), 50000)
+    : input.purpose === 'CHAT' ? raw : resourceMarkdown(raw);
+  if (quizCount && v.status === 'INSUFFICIENT_CONTENT' && v.quiz !== null) throw new Error();
   if (v.status === 'READY' && !markdown.trim()) throw new Error();
   const references = list(v.references, 100, item => reference(item, input));
   const warnings = list(v.warnings, 10, item => text(item, 500)), missingInformation = list(v.missingInformation, 10, item => text(item, 500));
@@ -43,12 +47,12 @@ function parse(value: unknown, input: FoxyTextInput): FoxyTextResponse {
   return { schemaVersion: v.schemaVersion, status: v.status, title, markdown, references, warnings, missingInformation };
 }
 const usage = (value: unknown): number | null => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
-export function foxyResponse(response: GenerateContentResponse | AiTextResult, input: FoxyTextInput) {
+export function foxyResponse(response: GenerateContentResponse | AiTextResult, input: FoxyTextInput, quizCount: number | null = null) {
   const result = 'finish' in response ? response : sdkTextResult(response);
   if (result.finish !== 'stop'
     || typeof result.text !== 'string' || Buffer.byteLength(result.text) > 262144) throw new AiError('INVALID_AI_OUTPUT');
   let json: FoxyTextResponse;
-  try { json = parse(JSON.parse(result.text), input); } catch { throw new AiError('INVALID_AI_OUTPUT'); }
+  try { json = parse(JSON.parse(result.text), input, quizCount); } catch { throw new AiError('INVALID_AI_OUTPUT'); }
   const output = result.usage.outputTokens;
   const thoughts = 0;
   return { json, inputTokens: result.usage.inputTokens,

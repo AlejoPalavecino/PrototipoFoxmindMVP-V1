@@ -46,6 +46,7 @@ export interface StudyCommandData {
     sourceIds?: string[];
     questionCount?: number;
     difficulty?: string;
+    review?: import('../../../../../../src/core/domain/study/review.ts').StudyReviewRequest;
   };
   EDIT_CREATION: {
     creationId: string;
@@ -58,6 +59,11 @@ export interface StudyCommandData {
   SAVE_ANSWERS: {
     practiceId: string;
     answers: StudyAnswers;
+  };
+  CONFIRM_PRACTICE_ANSWER: {
+    practiceId: string;
+    questionId: string;
+    optionIds: string[];
   };
   FINALIZE_PRACTICE: {
     practiceId: string;

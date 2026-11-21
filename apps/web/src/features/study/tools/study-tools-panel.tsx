@@ -13,7 +13,7 @@ export function StudyToolsPanel({
       <div className="study-exact-tools">
         {[
           {
-            kind: 'NOTE',
+            kind: 'EXPLANATION',
             title: 'Entender un tema',
             hint: 'Un ejemplo, paso a paso.',
             icon: 'book',

@@ -2,7 +2,8 @@ import { priceFoxyImageUsage, quoteFoxyImageBudget } from './providers/foxy-imag
 import { reserveAiTextBudget, settleAiTextBudget, tokenCost } from '../../../../platform/ai/text-budget.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
-import { exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
+import { describedOpeningImageProfileVersion, exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
+import { maxOpeningCaptionTokens } from '../application/visual-runtime-contracts.ts';
 type Limits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type Row = { id: string; owner_id: string; dispatch_count: number; reserved_microusd: bigint; profile: VisualProfile };
 const invalid = (): never => { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); };
@@ -29,11 +30,12 @@ async function current(tx: SqlTransaction, lease: FoxyVisualLease, requireAccess
   return row ?? null;
 }
 export function createFoxyVisualBudget(options: { limits: Limits }) {
-  async function reserve(tx: SqlTransaction, lease: FoxyVisualLease, preflightTokens: number | null): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'> {
+  async function reserve(tx: SqlTransaction, lease: FoxyVisualLease, preflightTokens: number | null, openingCaption?: true): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'> {
     if (preflightTokens !== null && (!Number.isSafeInteger(preflightTokens) || preflightTokens < 1)) return invalid();
     await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)'); const row = await current(tx,lease,true);
     if (!row) return 'NOT_CURRENT'; if (row.dispatch_count) return 'ALREADY_DISPATCHED';
     const config = configuration(row.profile,options.limits);
+    if (openingCaption && (preflightTokens === null || row.profile.kind !== 'IMAGE' || row.profile.profileVersion !== describedOpeningImageProfileVersion)) return invalid();
     if (preflightTokens === null) {
       if (row.profile.kind !== 'IMAGE' || row.profile.profileVersion !== exactOpeningImageProfileVersion) return invalid();
       // Local rendering still consumes a daily request slot and records a durable dispatch.
@@ -41,7 +43,9 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
       return await reserveAiTextBudget(tx,row,0,quota,'foxy_visual_jobs') ? 'RESERVED' : 'NO_BUDGET';
     }
     if (preflightTokens > row.profile.maxInputTokens) return invalid();
-    if (!await reserveAiTextBudget(tx,row,row.profile.maxInputTokens,config,'foxy_visual_jobs', {
+    const quote = openingCaption ? { ...config, maxOutputTokens: Math.min(config.maxOutputTokens, maxOpeningCaptionTokens),
+      outputUsdPerMillion: Number(row.profile.textOutputUsdPerMillion) } : config;
+    if (!await reserveAiTextBudget(tx,row,row.profile.maxInputTokens,quote,'foxy_visual_jobs', {
       capability: row.profile.kind === 'IMAGE' ? 'foxy_image' : 'foxy_diagram',
       provider: 'gemini', model: row.profile.model,
       pricing: { inputUsdPerMillion: config.inputUsdPerMillion, outputUsdPerMillion: config.outputUsdPerMillion,

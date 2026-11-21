@@ -29,6 +29,22 @@ test('an unlabeled relationship is rejected only under the new diagram profile',
  await adapter.countTokens(legacy);
  assert.deepEqual((await adapter.generate(legacy)).diagram, unlabeled);
 });
+test('the interactive profile requires Gemini to explain concepts and arrows', async () => {
+ const interactive = { ...graph, schemaVersion: 'foxy-diagram-v2',
+   nodes: graph.nodes.map(node => ({ ...node, explanation: 'Estado del agua.' })),
+   edges: graph.edges.map(edge => ({ ...edge, explanation: 'El agua pasa al estado gaseoso.' })),
+   challenge: { question: '¿Qué cambio de estado ocurre?', answer: 'Evaporación.' } };
+ const profile = { ...configuration, profileVersion: 'foxy-diagram-provider-v3' };
+ const { adapter, calls } = await fixture(response(JSON.stringify(interactive)), profile);
+ const current = input();
+ await adapter.countTokens(current);
+ assert.deepEqual((await adapter.generate(current)).diagram, interactive);
+ assert.deepEqual(calls[1][1].config.responseJsonSchema.properties.schemaVersion.enum, ['foxy-diagram-v2']);
+ assert.match(calls[1][1].contents[0].parts[0].text, /explicá por qué existe esa relación específica/);
+ const invalidOutput = await fixture(response(), profile);
+ await invalidOutput.adapter.countTokens(current);
+ await assert.rejects(invalidOutput.adapter.generate(current), { code: 'INVALID_AI_OUTPUT' });
+});
 test('diagram preflight binds one generation to same content with structured graph and conservative usage',async()=>{const f=await fixture(),x=input();assert.equal(await f.adapter.countTokens(x),12);const result=await f.adapter.generate(x);assert.deepEqual(result.diagram,graph);assert.deepEqual(result.usage,{inputTokens:12,outputTokens:23});
  const [count,generate]=f.calls.map(c=>c[1]);assert.deepEqual(count.contents,generate.contents);assert.deepEqual(count.config.systemInstruction,generate.config.systemInstruction);assert.equal(generate.config.responseMimeType,'application/json');assert.ok(generate.config.responseJsonSchema);assert.equal(generate.config.candidateCount,1);assert.equal(generate.config.httpOptions.retryOptions.attempts,1);await assert.rejects(f.adapter.generate(x));assert.equal(f.calls.length,2);
 });

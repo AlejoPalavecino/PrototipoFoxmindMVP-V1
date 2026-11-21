@@ -1,3 +1,4 @@
+import { materialsInConversation } from '../../../../../shared-ui/creation-presentation';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../shared-ui/feedback';
@@ -40,9 +41,18 @@ export function StudyToolDialog({
   onClose: () => void;
 }) {
   const image = kind === 'IMAGE';
-  const example = image
-    ? 'Dibujá una célula vegetal con sus partes principales, como una ilustración de libro escolar.'
-    : 'Ayudame a repasar las ideas principales con un ejemplo y una pregunta para comprobar si entendí.';
+  const topic = topics.find(item => selected.includes(item.id))?.title ?? topics[0]?.title;
+  const subject = topic ?? 'el tema que estoy estudiando';
+  const examples: Record<string, string> = {
+    EXPLANATION: `Ayudame a entender ${subject} paso a paso, con un ejemplo y una pregunta para ver si lo entendí.`,
+    NOTE: `Prepará un apunte sobre ${subject} con las ideas principales de mis materiales y un ejemplo para repasar.`,
+    OUTLINE: `Mostrame cómo se relacionan los conceptos principales de ${subject}. Explicá qué significa cada flecha.`,
+    IMAGE: topic ? `Ilustrá ${topic} para que pueda reconocer sus partes principales.` : 'Dibujá una célula vegetal con sus partes principales, como una ilustración de libro escolar.',
+    QUIZ: `Prepará preguntas sobre ${subject} que me ayuden a distinguir las ideas que se suelen confundir.`,
+    EXERCISE: `Dame ejercicios sobre ${subject} para aplicar lo que aprendí en situaciones distintas.`,
+    MOCK_EXAM: `Armá un simulacro sobre ${subject} con preguntas de aplicación para resolver por mi cuenta.`,
+  };
+  const example = examples[kind] ?? examples.NOTE;
   return (
     <FoxyDialog
       description={image ? 'Describí la imagen. Podés verla y descargarla desde Creaciones.' : 'Contale a Foxy qué necesitás. Después podés revisar y editar.'}
@@ -61,7 +71,7 @@ export function StudyToolDialog({
           <FoxmindIcon name="book" />
           <div>
             <b>{folderName}</b>
-            <p>{image ? 'Foxy usa la descripción que escribís.' : `${sourceCount} materiales incluidos en esta conversación.`}</p>
+            <p>{image ? 'Foxy usa la descripción que escribís.' : materialsInConversation(sourceCount)}</p>
           </div>
         </div>
         <label>
@@ -72,7 +82,7 @@ export function StudyToolDialog({
             maxLength={1500}
             value={brief}
             onChange={(event) => onBrief(event.target.value)}
-            placeholder={image ? example : 'Por ejemplo: un apunte con una explicación sencilla y dos ejemplos cotidianos…'}
+            placeholder={example}
           />
         </label>
         <button

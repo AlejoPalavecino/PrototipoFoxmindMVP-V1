@@ -2,7 +2,7 @@ import type { StudyRun } from './study-commands.ts';
 import type {StudyConversation,StudyDetail,StudyGeneration,StudyTurn} from './study-contracts.ts';
 
 export type StudyGenerationRequest=StudyGeneration&{conversationId:string;message:string};
-export type StudyGenerationInput=Pick<StudyGeneration,'kind'|'topicIds'|'sourceIds'|'questionCount'|'difficulty'>&{message:string};
+export type StudyGenerationInput=Pick<StudyGeneration,'kind'|'topicIds'|'sourceIds'|'questionCount'|'difficulty'|'review'>&{message:string};
 export type StudyGenerationRun=StudyRun;
 
 export function studyGenerationRequests(conversation?:StudyConversation):StudyGenerationRequest[]{
@@ -12,15 +12,17 @@ export function studyGenerationRequests(conversation?:StudyConversation):StudyGe
 }
 
 /** Only public identity belongs in a chat result card; practice answers stay in the practice view. */
-export function studyGenerationResult(detail:Pick<StudyDetail,'creations'|'practices'>,turn:StudyTurn):{kind:'creation'|'practice';id:string;title:string}|null{
- if(turn.role!=='assistant'||!!turn.creationId===!!turn.practiceId)return null;
- const kind=turn.creationId?'creation':'practice',id=turn.creationId??turn.practiceId;
- const resource=kind==='creation'?detail.creations.find(item=>item.id===id):detail.practices.find(item=>item.id===id);
+export function studyGenerationResult(detail:Pick<StudyDetail,'creations'|'practices'>&Partial<Pick<StudyDetail,'exams'>>,turn:StudyTurn):{kind:'creation'|'practice'|'exam';id:string;title:string}|null{
+ if(turn.role!=='assistant'||[turn.creationId,turn.practiceId,turn.examId].filter(Boolean).length!==1)return null;
+ const kind=turn.creationId?'creation':turn.practiceId?'practice':'exam',id=turn.creationId??turn.practiceId??turn.examId;
+ const entries=kind==='creation'?detail.creations:kind==='practice'?detail.practices:detail.exams??[];
+ const resource=entries.find(item=>item.id===id);
  return resource?{kind,id:resource.id,title:resource.title??'Práctica personal'}:null;
 }
 
 export function studyGenerationRetryData(request:StudyGenerationRequest):StudyGenerationInput{
  return {kind:request.kind,message:request.message,topicIds:[...request.topicIds],questionCount:request.questionCount,difficulty:request.difficulty,
+  ...(request.review?{review:request.review}:{}),
   ...(request.sourceIds?{sourceIds:[...request.sourceIds]}:{})};
 }
 

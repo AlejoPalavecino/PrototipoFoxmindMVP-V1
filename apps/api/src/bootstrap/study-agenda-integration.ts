@@ -8,6 +8,11 @@ import { studySessionEvent } from '../modules/study/reviews/infrastructure/sessi
 function fail(code='INVALID_INPUT'):never{throw Object.assign(new Error(code),{code});}
 export function createStudyAgendaIntegration():NonNullable<StudyOptions['agenda']> {
   return {
+    async scheduled(tx, ownerId, folderId) {
+      return tx.query<{ sessionId: string; eventId: string }>(`SELECT s.id AS "sessionId", e.id AS "eventId"
+        FROM study_review_sessions s JOIN agenda_events e ON e.id=s.agenda_event_id AND e.owner_id=s.owner_id AND e.revision=s.event_revision
+        WHERE s.owner_id=$1::uuid AND s.folder_id=$2::uuid AND s.cancelled_at IS NULL`, ownerId, folderId);
+    },
     async conflicts(tx,ownerId,timeZone,sessions) {
       if (!sessions.length) return [];
       const windows = sessions.map(session => {

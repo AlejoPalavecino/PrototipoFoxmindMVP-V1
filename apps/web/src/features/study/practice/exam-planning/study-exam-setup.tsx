@@ -41,7 +41,7 @@ export function renderStudyExamSetup({ title, start, date, time, count, minutes,
           required
           maxLength={120}
           value={title}
-          placeholder="Por ejemplo: evaluación de exposición y contraste"
+          placeholder="Por ejemplo: evaluación sobre los temas de tu carpeta"
           onChange={(event) => setTitle(event.target.value)} />
       </label>
       <div className="study-exact-form-pair">
@@ -116,7 +116,7 @@ export function renderStudyExamSetup({ title, start, date, time, count, minutes,
       </button>
       <button className="primary" disabled={busy || saving}>
         <FoxmindIcon name="spark" />
-        {saving ? 'Preparando el plan…' : 'Preparar mi plan'}
+        Preparar mi plan
       </button>
     </footer>
   </form>);

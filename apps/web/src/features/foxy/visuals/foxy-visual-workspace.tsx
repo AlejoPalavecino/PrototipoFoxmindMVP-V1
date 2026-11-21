@@ -1,3 +1,4 @@
+import { creationPresentation, materialsInConversation } from '../../../../../shared-ui/creation-presentation';
 import { useState, type ReactNode } from 'react';
 import type { FoxyAspectRatio, FoxyVisualKind } from '../../../../../../src/core/domain/foxy/visual.ts';
 import type { FoxyVisualJob } from '../api/foxy-client';
@@ -35,7 +36,7 @@ export function FoxyVisualWorkspace(props: Props) {
       onClick={() => setGeneratorOpen(open => !open)}>Nuevo recurso visual</button>}
     <form id="foxy-visual-form" className="parity-foxy-toolForm" hidden={!!safePreview && !generatorOpen}
       onSubmit={event => { event.preventDefault(); if ((!safePreview || generatorOpen) && !props.busy && !props.pending && props.capabilities[props.kind] && valid) props.actions.start(topics.length?topicIds:undefined); }}>
-      {props.contextName&&<div className="parity-foxy-scopeBanner"><FoxmindIcon name="book"/><div><strong>{props.contextName}</strong>{props.materialCount!==undefined&&<p>{props.materialCount} materiales incluidos en esta conversación.</p>}</div></div>}
+      {props.contextName&&<div className="parity-foxy-scopeBanner"><FoxmindIcon name="book"/><div><strong>{props.contextName}</strong>{props.materialCount!==undefined&&<p>{materialsInConversation(props.materialCount)}</p>}</div></div>}
       <label>¿Qué te gustaría preparar?<textarea autoFocus rows={5} maxLength={1500} placeholder="Por ejemplo: un esquema para explicar las ideas principales…" disabled={props.busy} value={props.prompt} onChange={event=>props.actions.setPrompt(event.target.value)}/></label>
       <button type="button" className="parity-foxy-example" onClick={()=>props.actions.setPrompt('Prepará una explicación visual con un ejemplo cotidiano y sus ideas principales.')}><FoxmindIcon name="spark"/>Usar una idea para empezar</button>
       {topics.length>0&&<fieldset className="parity-foxy-choiceGroup"><legend>Temas que querés incluir</legend><div>{topics.map(topic=><label key={topic.id}><input type="checkbox" disabled={props.busy||!!props.pending} checked={topicIds.includes(topic.id)} onChange={()=>setChosenTopics(topicIds.includes(topic.id)?topicIds.filter(id=>id!==topic.id):[...topicIds,topic.id])}/>{topic.name}</label>)}</div></fieldset>}
@@ -46,7 +47,7 @@ export function FoxyVisualWorkspace(props: Props) {
   </section>;
 }
 
-export type FoxyVisualTranscript = { jobs: FoxyVisualJob[]; pending?: { prompt: string } | null; error?: string | null; busy?: boolean;
+export type FoxyVisualTranscript = { titles?: Record<string, string>; jobs: FoxyVisualJob[]; pending?: { prompt: string } | null; error?: string | null; busy?: boolean;
   onStop: (id: string) => void; onRetry: () => void; onRefresh?: () => void; onOpen: (id: string) => void };
 
 const budgetMessages: Record<AiBudgetRejectionCode, string> = {
@@ -59,13 +60,13 @@ function terminalVisualMessage(job: FoxyVisualJob) {
   if (job.state === 'CANCELLED') return 'Detuviste la propuesta. Podés preparar otra cuando quieras.';
   return isAiBudgetRejectionCode(job.errorCode) ? budgetMessages[job.errorCode] : 'No pudimos completar esta propuesta. Podés volver a prepararla desde Herramientas.';
 }
-export function FoxyVisualTimeline({ jobs, pending, error, busy, onStop, onRetry, onRefresh, onOpen, identity }: FoxyVisualTranscript & { identity?: ChatIdentity }) {
+export function FoxyVisualTimeline({ titles, jobs, pending, error, busy, onStop, onRetry, onRefresh, onOpen, identity }: FoxyVisualTranscript & { identity?: ChatIdentity }) {
   const request = (prompt: string) => <div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{prompt}</p></div>;
   return <div className="parity-foxy-visualTimeline">
     {pending&&<article className={`${styles.turn} parity-ai-turn`}>{request(pending.prompt)}{!error&&<FoxyWait generating queued title="Preparando tu solicitud visual"/>}</article>}
     {jobs.map(job=><article key={job.id} className={`${styles.turn} parity-ai-turn`}>{job.prompt&&request(job.prompt)}
       {job.state==='QUEUED'||job.state==='RUNNING'?<FoxyWait generating queued={job.state==='QUEUED'} title={job.state==='QUEUED'?'Tu solicitud está en cola':job.kind==='IMAGE'?'Diseñando una imagen para explicarla':'Diseñando tu esquema'} onStop={()=>onStop(job.id)} disabled={busy}/>
-      :job.state==='READY'?<div className="parity-foxy-visualReady"><img src="/brujula/foxy-logotipo-redondo.webp" width={36} height={36} alt=""/><div><b>Foxy</b><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p><button type="button" onClick={()=>onOpen(job.id)}><FoxmindIcon name="file"/>Abrir creación</button></div></div>
+      :job.state==='READY'?<div className="parity-foxy-visualReady"><img src="/brujula/foxy-logotipo-redondo.webp" width={36} height={36} alt=""/><div><b>Foxy</b><h3>{titles?.[job.id] ?? creationPresentation(job.kind).label}</h3><button type="button" onClick={()=>onOpen(job.id)}><FoxmindIcon name={creationPresentation(job.kind).icon}/>{creationPresentation(job.kind).action}</button></div></div>
       :<p role="status">{terminalVisualMessage(job)}</p>}</article>)}
     {error&&<div role="alert"><p>{error}</p>{pending?<button type="button" disabled={busy} onClick={onRetry}>Reintentar solicitud</button>:onRefresh&&<button type="button" disabled={busy} onClick={onRefresh}>Volver a consultar</button>}</div>}
   </div>;

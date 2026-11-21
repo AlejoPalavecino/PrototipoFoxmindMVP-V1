@@ -29,7 +29,7 @@ export type FoxyCreationKind = 'NOTE' | 'PLAN' | 'ACTIVITY' | 'RUBRIC' | 'DIAGRA
 export type FoxyCreationStatus = 'PRIVATE' | 'PREPARING' | 'DRAFT' | 'PUBLISHED';
 export interface FoxyCreationCursor { createdAt: string; id: string }
 export interface FoxyCreation {
-  id: string; kind: FoxyCreationKind; title: string; context: FoxyContext; conversationId: string;
+  id: string; kind: FoxyCreationKind; title: string; brief?: string; selection?: SendFoxyMessage['selection']; aspectRatio?: FoxyAspectRatio; context: FoxyContext; conversationId: string;
   turnId: string | null; visualJobId: string | null; assetId: string | null; createdAt: string; status: FoxyCreationStatus;
   destinations: { kind: 'MATERIAL' | 'ACTIVITY'; classroomId: string; classroomName: string; id: string | null; state: 'PREPARING' | 'DRAFT' | 'PUBLISHED' }[];
 }

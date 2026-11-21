@@ -14,9 +14,14 @@ const diagram={schemaVersion:'foxy-diagram-v1',title:'Ciclo privado',description
 test('authorized diagram reader presents every real node and edge legibly without flattening branching or cycles',()=>{
  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),info=inspection();info.asset.kind='DIAGRAM';info.payload.diagram=diagram;
  const tree=FoxyVisualReader({assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`});
- const html=renderToStaticMarkup(tree);assert.match(html,/aria-label="Esquema de conceptos"/);assert.match(html,/Ciclo privado/);assert.match(html,/Nube &lt;script&gt;/);assert.doesNotMatch(html,/<img|<script>/);
- const relations=descendants(tree,node=>node.type==='li'&&node.props.className==='parity-foxy-conceptRelation');assert.equal(relations.length,4);
- const text=relations.map(node=>renderToStaticMarkup(node));for(const [index,edge] of diagram.edges.entries()){assert.match(text[index],new RegExp(edge.label));assert.ok(text[index].includes(diagram.nodes.find(node=>node.id===edge.from).label.replace('<','&lt;').replace('>','&gt;')));assert.ok(text[index].includes(diagram.nodes.find(node=>node.id===edge.to).label.replace('<','&lt;').replace('>','&gt;')));}
+ const html=renderToStaticMarkup(tree);assert.match(html,/aria-label="Esquema de conceptos"/);assert.match(html,/Nube &lt;script&gt;/);assert.doesNotMatch(html,/<img|<script>/);
+ const reader=descendants(tree,node=>node.type?.name==='InteractiveDiagram')[0];
+ assert.deepEqual(reader.props.diagram,diagram);
+ for(const edge of diagram.edges) {
+  const from=diagram.nodes.find(node=>node.id===edge.from).label.replace('<','&lt;').replace('>','&gt;');
+  const to=diagram.nodes.find(node=>node.id===edge.to).label.replace('<','&lt;').replace('>','&gt;');
+  assert.ok(html.includes(`aria-label="${from}: ${edge.label} → ${to}"`),edge.label);
+ }
 });
 
 test('diagram rendering enforces private-reader guards and invalid structure or IMAGE keep PNG fallback',()=>{
@@ -24,7 +29,7 @@ test('diagram rendering enforces private-reader guards and invalid structure or 
  const props={assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`};
  for(const patch of [{inspection:{...info,canPreview:false}},{assetId:other},{error:'Sin acceso'},{loading:true},{assetFileUrl:()=>`https://external.invalid/${id}`}])assert.doesNotMatch(renderToStaticMarkup(FoxyVisualReader({...props,...patch})),/Ciclo privado|Agua|Evapora|Esquema de conceptos|<img/);
  for(const patch of [{asset:{...info.asset,kind:'IMAGE'}},{payload:{...info.payload,diagram:{...diagram,nodes:[]}}},{payload:{...info.payload,diagram:{...diagram,edges:[{from:'a',to:'missing',label:'Inválida'}]}}}]){
-  const html=renderToStaticMarkup(FoxyVisualReader({...props,inspection:{...info,...patch}}));assert.match(html,/<img/);assert.doesNotMatch(html,/Esquema de conceptos|Inválida/);
+  const html=renderToStaticMarkup(FoxyVisualReader({...props,inspection:{...info,...patch}}));assert.match(html,/<img/);assert.doesNotMatch(html,/aria-label="Esquema de conceptos"|Inválida/);
  }
 });
 async function fixture(){const calls=[],client={inspectAsset:async()=>inspection(),updateVisualEditorial:async(asset,input)=>{calls.push({asset,input});return inspection('1',input.title);}};
@@ -73,12 +78,14 @@ test('editor validates title and description while allowing optional empty descr
   }finally{c.dispose();}
 });
 
-test('reader exports current editorial text and hides both metadata and links during errors',()=>{
-  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),calls=[];
-  const props={assetId:id,inspection:inspection('2','Editado <script>'),loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onDownload:text=>calls.push(text)};
-  const tree=FoxyVisualReader(props);assert.match(renderToStaticMarkup(tree),/Editado &lt;script&gt;/);
-  descendants(tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT'))[0].props.onClick();assert.deepEqual(calls,['Editado <script>\n\nContenido guardado']);
-  assert.doesNotMatch(renderToStaticMarkup(FoxyVisualReader({...props,error:'Sin acceso'})),/Editado|Contenido guardado|<img|Descargar TXT/);
+test('reader presents current editorial text and hides both metadata and links during errors',()=>{
+  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{});
+  const props={assetId:id,inspection:inspection('2','Editado <script>'),loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:(asset,mode)=>`/api/v1/foxy-ai/assets/${asset}/file?mode=${mode}`};
+  const html=renderToStaticMarkup(FoxyVisualReader(props));
+  assert.match(html,/Editado &lt;script&gt;/);
+  assert.match(html,/Contenido guardado/);
+  assert.doesNotMatch(html,/Descargar TXT/);
+  assert.doesNotMatch(renderToStaticMarkup(FoxyVisualReader({...props,error:'Sin acceso'})),/Editado|Contenido guardado|<img|mode=download/);
 });
 
 test('dialog cancel and Escape require discard confirmation and preserve the unsaved draft',async()=>{
@@ -144,20 +151,18 @@ test('previous READY preparation opens explicitly after editing while new prepar
   }finally{c.dispose();}
 });
 
-test('the private reader exports the binary and a complete diagram without changing its existing TXT action', () => {
-  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{}),calls=[];
+test('the private diagram reader exports the authorized PNG without offering TXT', () => {
+  const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{});
   const info=inspection();
   info.asset.kind='DIAGRAM';
   info.payload.diagram=diagram;
   const props={assetId:id,inspection:info,loading:false,error:null,onClose(){},onRetry(){},onShare(){},
-    onDownload:text=>calls.push(text),assetFileUrl:(asset,mode)=>'/api/v1/foxy-ai/assets/'+asset+'/file?mode='+mode};
+    assetFileUrl:(asset,mode)=>'/api/v1/foxy-ai/assets/'+asset+'/file?mode='+mode};
   const tree=FoxyVisualReader(props);
   const link=descendants(tree,n=>n.type==='a'&&n.props.href.endsWith('mode=download'))[0];
   assert.ok(link);
   assert.equal(link.props.href,props.assetFileUrl(id,'download'));
-  descendants(tree,n=>n.type==='button'&&n.props.children==='Descargar esquema completo (TXT)')[0].props.onClick();
-  assert.match(calls[0],/Conceptos\n- Agua/);
-  assert.match(calls[0],/Relaciones\n.*Evapora.*→/);
+  assert.doesNotMatch(renderToStaticMarkup(tree),/Descargar esquema completo \(TXT\)/);
   const denied=FoxyVisualReader({...props,inspection:{...info,canPreview:false}});
   assert.equal(descendants(denied,n=>n.type==='a').length,0);
 });

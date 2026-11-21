@@ -9,7 +9,7 @@ export const diagramSchema = { type:'object', additionalProperties:false, requir
 } };
 function invalid(): never { throw Object.assign(new Error('INVALID_AI_OUTPUT'),{code:'INVALID_AI_OUTPUT'}); }
 function record(value: unknown): value is Record<string,unknown> { return !!value && typeof value==='object' && !Array.isArray(value); }
-export function parseDiagramResponse(value: unknown, requireEdgeLabels = false): {diagram:FoxyDiagram;usage:{inputTokens:number;outputTokens:number}|null} {
+export function parseDiagramResponse(value: unknown, requireEdgeLabels = false, interactive = false): {diagram:FoxyDiagram;usage:{inputTokens:number;outputTokens:number}|null} {
   if (!record(value) || (value.promptFeedback!==undefined && (!record(value.promptFeedback) || value.promptFeedback.blockReason!==undefined))
     || !Array.isArray(value.candidates) || value.candidates.length!==1) return invalid();
   const candidate=value.candidates[0];
@@ -22,6 +22,7 @@ export function parseDiagramResponse(value: unknown, requireEdgeLabels = false):
     bytes+=Buffer.byteLength(part.text); if (bytes>65536) return invalid(); if (part.thought!==true) json+=part.text;
   }
   let diagram: FoxyDiagram; try { diagram=parseFoxyDiagram(JSON.parse(json)); } catch { return invalid(); }
-  if (!diagram.nodes.length || (requireEdgeLabels && diagram.edges.some(edge => !edge.label.trim()))) return invalid();
+  if (diagram.schemaVersion !== (interactive ? 'foxy-diagram-v2' : 'foxy-diagram-v1')
+    || !diagram.nodes.length || (requireEdgeLabels && diagram.edges.some(edge => !edge.label.trim()))) return invalid();
   return {diagram,usage:imageUsage(value.usageMetadata)};
 }

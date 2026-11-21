@@ -1,7 +1,7 @@
 import { contractObject, contractRevision, contractUuid } from '../classrooms/contract-values.ts';
 import { parseEvaluationRubric, type EvaluationRubric } from '../grading/evaluation-rubric.ts';
 export interface FoxyActivityPayload { title: string; objective: string; instructions: string; teacherComment: string;
-  unitId: string; topicIds: string[]; evaluationRubric: EvaluationRubric }
+  unitId: string; topicIds: string[]; evaluationRubric: EvaluationRubric; activityKind?: 'QUESTIONNAIRE' }
 export interface FoxyActivityDraftInput { requestId: string; resourceRevision: string; classroomId: string; classroomRevision: string; payload: FoxyActivityPayload }
 export interface FoxyActivityDraftReceipt { activityId: string; classroomId: string; revision: string }
 function text(value: unknown, max: number, required = true): string {
@@ -9,13 +9,15 @@ function text(value: unknown, max: number, required = true): string {
   return value.trim();
 }
 export function parseFoxyActivityPayload(input: unknown): FoxyActivityPayload {
-  const p = contractObject(input, ['title', 'objective', 'instructions', 'teacherComment', 'unitId', 'topicIds', 'evaluationRubric']);
-  if (Object.keys(p).length !== 7 || !contractUuid(p.unitId) || !Array.isArray(p.topicIds) || !p.topicIds.length || p.topicIds.length > 100
+  const p = contractObject(input, ['title', 'objective', 'instructions', 'teacherComment', 'unitId', 'topicIds', 'evaluationRubric', 'activityKind']);
+  const questionnaire = p.activityKind === 'QUESTIONNAIRE';
+  if (Object.keys(p).length !== (questionnaire ? 8 : 7) || (Object.hasOwn(p, 'activityKind') && !questionnaire)
+    || !contractUuid(p.unitId) || !Array.isArray(p.topicIds) || !p.topicIds.length || p.topicIds.length > 100
     || !p.topicIds.every(contractUuid) || new Set(p.topicIds).size !== p.topicIds.length) throw new Error('INVALID_INPUT');
   const evaluationRubric = parseEvaluationRubric(p.evaluationRubric);
-  if (!evaluationRubric.length) throw new Error('INVALID_INPUT');
+  if (!questionnaire && !evaluationRubric.length) throw new Error('INVALID_INPUT');
   return { title: text(p.title, 200), objective: text(p.objective, 1400), instructions: text(p.instructions, 5000), teacherComment: text(p.teacherComment, 5000, false),
-    unitId: p.unitId, topicIds: p.topicIds as string[], evaluationRubric };
+    unitId: p.unitId, topicIds: p.topicIds as string[], evaluationRubric, ...(questionnaire ? { activityKind: 'QUESTIONNAIRE' } : {}) };
 }
 export function parseFoxyActivityDraft(input: unknown): FoxyActivityDraftInput {
   const body = contractObject(input, ['requestId', 'resourceRevision', 'classroomId', 'classroomRevision', 'payload']);

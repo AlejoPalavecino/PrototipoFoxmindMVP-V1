@@ -6,7 +6,8 @@ import type { AiTextClient } from '../../../../../platform/ai/text-client.ts';
 import { injectedTextClient, textClientCompatibilityView } from '../../../../../platform/ai/sdk-text-compat.ts';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import { AiError } from '../../../../../platform/ai/errors.ts';
-import { foxyMessages, foxyInstructionFor, foxyResponseSchema } from './foxy-prompt.ts';
+import { foxyMessages, foxyInstructionFor, foxyResponseSchema, foxyQuizInstruction, foxyQuizResponseSchema } from './foxy-prompt.ts';
+import { foxyQuizQuestionCount } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 import { foxyResponse } from './foxy-response.ts';
 import { createFoxyStreamPreview } from './foxy-stream-preview.ts';
 type Configuration = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>
@@ -63,9 +64,12 @@ export class GeminiFoxyTextAdapter {
  }
  private call(input: FoxyTextInput, publish?: (markdown: string | undefined) => void) {
   const streaming = eligible(input) && this.executionProvider === 'gemini';
+  const quizCount = input.purpose === 'ACTIVITY_IDEAS' ? foxyQuizQuestionCount(input.message) : null;
   return { key: input, signal: input.signal, request: () => {
-   validate(input); return { system: foxyInstructionFor(input.purpose, this.promptVersion),
-    messages: foxyMessages(input), schema: streaming ? streamingSchema : foxyResponseSchema };
+   validate(input);
+   const instruction = foxyInstructionFor(input.purpose, this.promptVersion);
+   return { system: quizCount ? `${instruction}\n\n${foxyQuizInstruction(quizCount)}` : instruction,
+    messages: foxyMessages(input), schema: quizCount ? foxyQuizResponseSchema(quizCount) : streaming ? streamingSchema : foxyResponseSchema };
   }, ...(streaming && publish ? { preview: createFoxyStreamPreview(publish) } : {}) };
  }
  async countTokens(input: FoxyTextInput): Promise<number> { return this.execution.count(this.call(input)); }
@@ -73,6 +77,7 @@ export class GeminiFoxyTextAdapter {
   validate(input);
   const responseInput = { ...input, sources: input.sources.map(source => ({ ...source, documentKeys: [...source.documentKeys] })),
    documents: input.documents.map(doc => ({ ...doc, sourceKeys: [...doc.sourceKeys] })) };
-  return foxyResponse(await this.execution.generate(this.call(input, preview)), responseInput);
+  const quizCount = input.purpose === 'ACTIVITY_IDEAS' ? foxyQuizQuestionCount(input.message) : null;
+  return foxyResponse(await this.execution.generate(this.call(input, preview)), responseInput, quizCount);
  }
 }

@@ -8,7 +8,7 @@ test('visual host defaults off, rejects malformed flags, and requires enabled AI
 });
 test('image and diagram flags independently build frozen profiles and exact bigint quota',async()=>{const read=await parser();for(const kind of ['IMAGE','DIAGRAM']){const v=read({...env,[`AI_${kind}_ENABLED`]:'true'},ai),c=v.configuration;
  assert.equal(c.enabled[kind],true);assert.equal(c.enabled[kind==='IMAGE'?'DIAGRAM':'IMAGE'],false);assert.equal(c.privateQuotaBytes,9007199254740993n);assert.equal(c.maxConcurrency,3);assert.equal(c.maxJobAgeMs,300000);assert.equal(c.deadlineMs,180000);assert.equal(v.providerDeadlineMs,30000);assert.equal(c.profiles[kind==='IMAGE'?'DIAGRAM':'IMAGE'],null);
- const p=c.profiles[kind];assert.equal(p.maxInputTokens,65536);assert.equal(p.maxOutputTokens,4096);assert.equal(p.profileVersion,kind==='IMAGE'?'foxy-gemini-image-v4':'foxy-diagram-provider-v2');assert.equal(p.outputUsdPerMillion,kind==='IMAGE'?'30':'1.5');assert.ok(!JSON.stringify(v,(_k,value)=>typeof value==='bigint'?value.toString():value).includes('synthetic-secret'));
+ const p=c.profiles[kind];assert.equal(p.maxInputTokens,65536);assert.equal(p.maxOutputTokens,4096);assert.equal(p.profileVersion,kind==='IMAGE'?'foxy-gemini-image-v5':'foxy-diagram-provider-v3');assert.equal(p.outputUsdPerMillion,kind==='IMAGE'?'30':'1.5');assert.ok(!JSON.stringify(v,(_k,value)=>typeof value==='bigint'?value.toString():value).includes('synthetic-secret'));
  }});
 test('image inherits its own finite provider deadline and diagrams keep the shorter deadline',async()=>{
  const read=await parser(), enabled={...env,AI_IMAGE_ENABLED:'true',AI_DIAGRAM_ENABLED:'true'};

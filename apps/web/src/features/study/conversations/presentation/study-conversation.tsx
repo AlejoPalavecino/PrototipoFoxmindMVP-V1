@@ -34,6 +34,7 @@ export function StudyConversation({
   onText,
   onCreation,
   onPractice,
+  onExam,
   onSources,
   onReload,
   onLibrary,
@@ -41,7 +42,7 @@ export function StudyConversation({
 }: {
   identity?: ChatIdentity;
   current?: Pick<Conversation, 'id' | 'sourceUnavailable'>;
-  detail: Pick<StudyDetail, 'creations' | 'practices'>;
+  detail: Pick<StudyDetail, 'creations' | 'practices' | 'exams'>;
   messages: StudyTurn[];
   generation: StudyGenerationPresentation;
   chat: StudyChatPresentation;
@@ -56,6 +57,7 @@ export function StudyConversation({
   onText: (value: string) => void;
   onCreation: (value: StudyCreation | undefined) => void;
   onPractice: (id: string) => void;
+  onExam: (id: string) => void;
   onSources: (refs: NonNullable<StudyTurn['sourceRefs']>) => void;
   onReload: () => void;
   onLibrary: (launcher: HTMLButtonElement) => void;
@@ -87,6 +89,7 @@ export function StudyConversation({
             active={active}
             onCreation={onCreation}
             onPractice={onPractice}
+            onExam={onExam}
             onSources={onSources}
             onReload={onReload}
           />

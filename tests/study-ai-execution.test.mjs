@@ -187,7 +187,7 @@ function adapterFixture(failure, options) {
 
 test('Study adapter preserves SDK override, source markers, PDF bytes and academic schema', async () => {
   const f = adapterFixture(), bytes = Buffer.from('%PDF-synthetic'), sourceRef = { id: 'source-a', version: 'v1' };
-  const context = { topics: [{ id: 'topic-a' }], sources: [sourceRef], questionCount: 3 };
+  const context = { action: 'QUIZ', topics: [{ id: 'topic-a' }], sources: [sourceRef], questionCount: 3 };
   const prompt = JSON.stringify(context);
   assert.deepEqual(await f.provider.generate({ system: 'Synthetic', prompt, context, documents: [
     { sourceRef, document: { kind: 'pdf', bytes } }, { sourceRef, document: { kind: 'text', text: 'Synthetic material' } },
@@ -207,6 +207,14 @@ test('Study adapter preserves SDK override, source markers, PDF bytes and academ
   ]);
   assert.deepEqual(execution.request.schema.properties.practice.properties.questions.items.properties.topicId.enum, ['topic-a']);
   assert.equal(execution.request.schema.properties.practice.properties.questions.minItems, 3);
+});
+
+test('document and diagram requests keep their tool instructions free of quiz formatting', async () => {
+  for (const action of ['NOTE', 'EXPLANATION', 'OUTLINE']) {
+    const f = adapterFixture();
+    await f.provider.generate({ system: 'Consigna seleccionada', prompt: 'Material', context: { action } });
+    assert.equal(f.captured.execution.request.system, 'Consigna seleccionada');
+  }
 });
 
 test('Study adapter preserves input guards before SQL/execution', async () => {

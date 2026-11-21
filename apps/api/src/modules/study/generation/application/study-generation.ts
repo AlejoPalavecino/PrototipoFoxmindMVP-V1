@@ -1,14 +1,16 @@
 import type { StudyCommandPorts } from '../../application/ports.ts';
 import type { FolderRow, StudyQuery, StudySource, StudyGenerationIntent, StudyState } from '../../application/contracts.ts';
 import { studyFail, studyId, studyObject, studyText } from '../../../../../../../src/core/domain/study/folders.ts';
-import { topicEvidence, usesStudyPracticeEvidence, type StudyInput, type StudyResult, type StudyAction, type PracticeResult, type SourceRef } from '../../../../../../../src/core/domain/study/engine.ts';
+import { parseStudyOutline, topicEvidence, usesStudyPracticeEvidence, type StudyInput, type StudyResult, type StudyAction, type PracticeResult, type SourceRef } from '../../../../../../../src/core/domain/study/engine.ts';
 import { refsAvailable, conversationSources, selectTopics } from '../../sources/public.ts';
 import { practiceView } from '../../practices/public.ts';
+import { applyGeneratedReviewSessions, prepareReviewPlan } from '../../reviews/public.ts';
 
 export type PreparedStudyGeneration = {
     mode: 'generate'; action: string; kind: StudyAction; conversationId?: string;
     linkedGeneration: boolean; generationRequestId?: string; generationIntent?: StudyGenerationIntent;
     sources: StudySource[]; attachmentIds: string[];
+    reviewPlan?: ReturnType<typeof prepareReviewPlan>;
     input: StudyInput & { questionCount: number; difficulty: 'EASY' | 'MEDIUM' | 'HARD' };
 };
 type ContextPorts = Pick<StudyCommandPorts, 'sources' | 'files'>;
@@ -19,9 +21,12 @@ export async function prepareStudyGeneration(tx: StudyQuery, r: FolderRow, p: Re
     if (!isStudyAction(kind))
         studyFail('INVALID_INPUT');
     const linkedGeneration = action === 'GENERATE' && p.conversationId !== undefined;
-    if (linkedGeneration && !['NOTE', 'OUTLINE', 'QUIZ', 'EXERCISE', 'MOCK_EXAM'].includes(kind)) studyFail('INVALID_INPUT');
+    if (linkedGeneration && !['NOTE', 'EXPLANATION', 'OUTLINE', 'QUIZ', 'EXERCISE', 'MOCK_EXAM', 'REVIEW_PLAN'].includes(kind)) studyFail('INVALID_INPUT');
     if (linkedGeneration && r.status !== 'ACTIVE') studyFail('CONFLICT');
     const selected = selectTopics(p.topicIds, topics);
+    const reviewPlan = kind === 'REVIEW_PLAN' ? prepareReviewPlan(p.review, selected) : undefined;
+    if (reviewPlan && r.status !== 'ACTIVE') studyFail('CONFLICT');
+    if (reviewPlan && s.exams.length >= 50) studyFail('QUOTA_EXCEEDED');
     const difficulty = p.difficulty ?? s.memory.preferences?.difficulty ?? 'MEDIUM';
     const questionCount = p.questionCount ?? s.memory.preferences?.questionCount ?? 5;
     if ((difficulty !== 'EASY' && difficulty !== 'MEDIUM' && difficulty !== 'HARD') ||
@@ -30,7 +35,7 @@ export async function prepareStudyGeneration(tx: StudyQuery, r: FolderRow, p: Re
     // Validate before durable reservation or AI admission.
     if (['QUIZ', 'EXERCISE', 'MOCK_EXAM'].includes(kind) && selected.length === 0)
         studyFail('INVALID_INPUT');
-    if (s.creations.length + s.practices.length >= 500)
+    if (!reviewPlan && s.creations.length + s.practices.length >= 500)
         studyFail('QUOTA_EXCEEDED');
     const conversation = action === 'CHAT' || linkedGeneration ? s.conversations.find(c => c.id === studyId(p.conversationId)) : null;
     if ((action === 'CHAT' || linkedGeneration) && !conversation)
@@ -76,17 +81,18 @@ export async function prepareStudyGeneration(tx: StudyQuery, r: FolderRow, p: Re
     const generationIntent: StudyGenerationIntent | undefined = linkedGeneration && !hasGenerationRequest ? {
         requestId: generationRequestId!, kind: kind as StudyGenerationIntent['kind'],
         topicIds: selected.map(topic => topic.id), ...(p.sourceIds !== undefined ? { sourceIds: (Array.isArray(p.sourceIds) ? p.sourceIds : []).map(studyId) } : {}),
+        ...(reviewPlan ? { review: reviewPlan.request } : {}),
         questionCount, difficulty,
     } : undefined;
     const input: PreparedStudyGeneration['input'] = { action: kind, message, topics: selected, sources: sources.filter(x => x.text.trim() || x.document), history: history.map(turn => {
         if (typeof turn.role !== 'string' || typeof turn.text !== 'string' || !Array.isArray(turn.sourceRefs)) throw new Error('INVALID_STUDY_INPUT');
         const sourceRefs: SourceRef[] = turn.sourceRefs.map(ref => { const value = studyObject(ref); if (typeof value.id !== 'string' || typeof value.version !== 'string') throw new Error('INVALID_STUDY_INPUT'); return { id: value.id, version: value.version }; });
         return { ...turn, role: turn.role, text: turn.text, sourceRefs };
-    }), questionCount, difficulty };
+    }), questionCount, difficulty, ...(reviewPlan ? { reviewMinutes: reviewPlan.schedule.sessions.map(session => session.minutes) } : {}) };
     if (usesStudyPracticeEvidence(kind)) {
         input.evidence = topicEvidence(selected, s.practices.filter(x => x.status === 'FINALIZED').map(x => x.result as PracticeResult));
     }
-    return { mode: 'generate', action, kind, conversationId: conversation?.id, linkedGeneration, generationRequestId,
+    return { mode: 'generate', action, kind, reviewPlan, conversationId: conversation?.id, linkedGeneration, generationRequestId,
         generationIntent, sources, attachmentIds, input };
 }
 
@@ -101,7 +107,7 @@ export function reserveStudyGeneration(r: FolderRow, plan: PreparedStudyGenerati
 
 /** Applies only the provider result; the caller owns revision/receipt CAS and persistence. */
 export async function applyStudyGeneration(tx: StudyQuery, r: FolderRow, plan: PreparedStudyGeneration, generated: StudyResult,
-    options: Pick<StudyCommandPorts, 'newId' | 'sources' | 'files'>) {
+    options: Pick<StudyCommandPorts, 'newId' | 'sources' | 'files' | 'agenda'>) {
     const { kind, action, conversationId, linkedGeneration, generationRequestId, sources, attachmentIds } = plan;
     const { message, topics: selected, difficulty, questionCount } = plan.input;
     const s = r.state, conversation = s.conversations.find(item => item.id === conversationId);
@@ -113,6 +119,21 @@ export async function applyStudyGeneration(tx: StudyQuery, r: FolderRow, plan: P
         studyFail('SOURCE_UNAVAILABLE');
     if (generated.status === 'INSUFFICIENT')
         return generated;
+    let diagram: StudyResult['diagram'];
+    if (kind === 'OUTLINE') {
+        try { diagram = parseStudyOutline(generated.diagram); }
+        catch { studyFail('AI_UNAVAILABLE'); }
+    }
+    if (plan.reviewPlan) {
+        const { request, schedule } = plan.reviewPlan;
+        const sessions = applyGeneratedReviewSessions(plan.reviewPlan, generated.reviewSessions, options.newId);
+        const conflicts = await options.agenda?.conflicts?.(tx, r.owner_id, request.timeZone, sessions) ?? [];
+        const exam = { id: options.newId(), title: generated.title, examAt: request.examAt, timeZone: request.timeZone,
+            sessions, warnings: schedule.warnings, conflicts, guidance: generated.markdown };
+        s.exams.push(exam);
+        if (linkedGeneration) conversationTurns!.push({ id: options.newId(), role: 'assistant', generationRequestId, examId: exam.id, sourceRefs: generated.sourceRefs });
+        return { exam };
+    }
     if (kind === 'PLAN') {
         s.fields.units = (generated.units ?? []).map(u => ({ id: options.newId(), title: u.title, topics: u.topics.map(title => ({ id: options.newId(), title })) }));
         return { units: s.fields.units };
@@ -125,15 +146,17 @@ export async function applyStudyGeneration(tx: StudyQuery, r: FolderRow, plan: P
         return { conversation };
     }
     s.memory.preferences = {difficulty: difficulty as 'EASY' | 'MEDIUM' | 'HARD', questionCount: Number(questionCount), topicIds: selected.map(topic=>topic.id), lastTool: kind as NonNullable<StudyState['memory']['preferences']>['lastTool']};
-    if (generated.practice) {
+    if (generated.practice && kind !== 'OUTLINE') {
         const practice = { id: options.newId(), kind, title: generated.title, version: 1, status: 'ACTIVE', sourceRefs: generated.sourceRefs, privatePractice: generated.practice, answers: {}, ...(linkedGeneration ? { conversationId: studyId(conversation!.id) } : {}) };
         s.practices.push(practice);
         if (linkedGeneration) conversationTurns!.push({ id: options.newId(), role: 'assistant', generationRequestId, practiceId: practice.id, sourceRefs: generated.sourceRefs });
         return { practice: practiceView(practice) };
     }
-    const creation = { id: options.newId(), kind, title: generated.title, markdown: generated.markdown, sourceRefs: generated.sourceRefs, revision: 1, ...(linkedGeneration ? { conversationId: studyId(conversation!.id) } : {}) };
+    const creation = { id: options.newId(), kind, title: generated.title, markdown: generated.markdown, sourceRefs: generated.sourceRefs, revision: 1,
+        ...(diagram ? { diagram } : {}),
+        ...(linkedGeneration ? { conversationId: studyId(conversation!.id) } : {}) };
     s.creations.push(creation);
     if (linkedGeneration) conversationTurns!.push({ id: options.newId(), role: 'assistant', generationRequestId, creationId: creation.id, sourceRefs: generated.sourceRefs });
     return { creation };
 }
-function isStudyAction(value: string): value is StudyAction { return ['CHAT', 'NOTE', 'OUTLINE', 'QUIZ', 'EXERCISE', 'MOCK_EXAM', 'PLAN'].includes(value); }
+function isStudyAction(value: string): value is StudyAction { return ['CHAT', 'NOTE', 'EXPLANATION', 'OUTLINE', 'QUIZ', 'EXERCISE', 'MOCK_EXAM', 'PLAN', 'REVIEW_PLAN'].includes(value); }

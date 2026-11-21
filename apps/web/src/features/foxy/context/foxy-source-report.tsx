@@ -6,14 +6,18 @@ function sourceExclusion(reason: string) {
   return ({ FILE_NOT_READY: 'Archivo sin preparar', UNSUPPORTED_FORMAT: 'Formato sin lectura de IA', AI_INPUT_LIMIT: 'Supera el límite individual', EMPTY_CONTENT: 'Sin contenido legible' } as Record<string, string>)[reason] ?? 'No disponible';
 }
 
-export function renderFoxySourceReport({ conversationId, turnId, scopeReport, citations, onClose }: {
+export function renderFoxySourceReport({ conversationId, turnId, scopeReport, citations, status, onClose }: {
   conversationId: string;
   turnId: string;
   scopeReport?: FoxyTurn['classroomSources'];
   citations: FoxyCitation[];
+  status?: 'loading' | 'ready' | 'unavailable';
   onClose: () => void;
 }) {
   return <FoxyDialog title="Fuentes de esta respuesta" onClose={onClose}>
+    {status === 'loading' && <p role="status">Cargando fuentes…</p>}
+    {status === 'unavailable' && <p role="alert">No pudimos consultar las fuentes. Volvé a abrir la vista para reintentar.</p>}
+    {status === 'ready' && citations.length === 0 && !scopeReport?.used.length && <p>Esta creación no tiene un apunte disponible.</p>}
     {scopeReport && <>
       <h3>Usadas</h3>
       {scopeReport.used.length ? <ul>{scopeReport.used.map(item => <li key={item.sourceId}>{item.title}</li>)}</ul> : <p>La respuesta usó los temas del plan.</p>}

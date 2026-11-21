@@ -21,7 +21,26 @@ export const studyPreviewProvider = {
       });
       return {...base,title:`QA sintética: ${context.action==='QUIZ'?'Quiz':context.action==='EXERCISE'?'Ejercicios':'Simulacro'}`,practice:{title:'Práctica sintética de luz y exposición',questions}};
     }
-    if(context.action==='OUTLINE')return {...base,title:'QA sintética: esquema de estudio',markdown:'## Esquema sintético de QA\n- Luz\n  - Exposición: luz acumulada durante un intervalo.\n  - Apertura: regula la entrada de luz.\n- Contraste: diferencia entre zonas claras y oscuras.'};
+    if(context.action==='OUTLINE')return {
+      ...base,
+      title:'QA sintética: esquema de estudio',
+      markdown:'## Esquema sintético de QA\nLa apertura regula la entrada de luz y la luz acumulada produce la exposición.',
+      diagram:{
+        schemaVersion:'foxy-diagram-v2',
+        title:'Apertura y exposición',
+        description:'La apertura influye en la cantidad de luz acumulada durante una toma.',
+        direction:'LEFT_RIGHT',
+        nodes:[
+          {id:'apertura',label:'Apertura',explanation:'Regula cuánto abre el diafragma.'},
+          {id:'luz',label:'Entrada de luz',explanation:'La luz que llega al sensor o a la película.'},
+          {id:'exposicion',label:'Exposición',explanation:'La luz total acumulada durante una toma.'},
+        ],
+        edges:[
+          {from:'apertura',to:'luz',label:'regula',explanation:'Una apertura más amplia permite el paso de más luz.'},
+          {from:'luz',to:'exposicion',label:'se acumula',explanation:'La exposición depende de cuánta luz llega durante el intervalo.'},
+        ],
+      },
+    };
     if(context.action==='NOTE')return {...base,title:'QA sintética: apunte editable',markdown:'## Apunte sintético de QA\nLa exposición describe la luz acumulada durante un intervalo. Para estudiar, compará una imagen con apertura mayor con otra de apertura menor y explicá el efecto esperado. Este texto es una salida determinista de prueba, no una respuesta de un proveedor real.'};
     const feedback=String(context.message).startsWith('Da devolución orientativa');
     return {...base,title:feedback?'QA sintética: devolución orientativa':'QA sintética: conversación',markdown:feedback?'Devolución orientativa sintética para QA: identificaste la relación entre luz y exposición. Podés mejorar la respuesta explicando cómo intervienen la apertura y el tiempo. No es una nota oficial ni una respuesta de un proveedor real.':privateSource?'Documento privado recibido por el proveedor sintético.':base.markdown};

@@ -2,7 +2,7 @@ import { parseFoxyDiagram } from '../../../../../../../src/core/domain/foxy/visu
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import { isDeepStrictEqual } from 'node:util';
 import { projectFoxyTextInput } from '../../domain/provider-input.ts';
-import { exactOpeningImageProfileVersion, supportsPinnedVisualProfileVersion } from '../../domain/visual-profile.ts';
+import { describedOpeningImageProfileVersion, exactOpeningImageProfileVersion, supportsPinnedVisualProfileVersion } from '../../domain/visual-profile.ts';
 import { parseExactOpeningImage } from '../../domain/exact-opening-image.ts';
 import { renderExactOpeningImage } from './exact-opening-image-renderer.ts';
 import { createVisualHeartbeat } from './visual-worker-heartbeat.ts';
@@ -55,28 +55,43 @@ export function createFoxyVisualWorker(options: VisualOptions) {
         const grounding = await options.loader.load(scope,signal); signal.throwIfAborted();
         const text = projectFoxyTextInput({ purpose: 'CHAT', message: scope.job.prompt, grounding, signal });
         const { purpose: _purpose, message: prompt, ...context } = text;
-        const input = { ...context, prompt, aspectRatio: scope.job.aspectRatio, profileVersion: scope.job.profile.profileVersion };
-        const exactOpening = scope.job.kind === 'IMAGE' && input.profileVersion === exactOpeningImageProfileVersion
-          && input.mode === 'GENERAL' && !input.sources.length && !input.documents.length && !input.history.length && !input.warnings.length
+        const profileVersion = scope.job.profile.profileVersion, describeOpening = profileVersion === describedOpeningImageProfileVersion;
+        const exactOpening = scope.job.kind === 'IMAGE' && (describeOpening || profileVersion === exactOpeningImageProfileVersion)
+          && context.mode === 'GENERAL' && !context.sources.length && !context.documents.length && !context.history.length && !context.warnings.length
           ? parseExactOpeningImage(prompt) : null;
+        const input = { ...context, prompt, aspectRatio: scope.job.aspectRatio, profileVersion,
+          ...(exactOpening && describeOpening ? { openingComparison: exactOpening } : {}) };
+        if (input.openingComparison && !options.providers.IMAGE.describeOpening) return fail('AI_UNAVAILABLE');
         const provider = options.providers[scope.job.kind];
-        const count = exactOpening ? null : await provider.countTokens(input);
+        const localOnly = exactOpening && !describeOpening;
+        const count = localOnly ? null : await provider.countTokens(input);
         signal.throwIfAborted();
-        if (!exactOpening && (count === null || !Number.isSafeInteger(count) || count < 1 || count > scope.job.profile.maxInputTokens)) return fail('AI_INPUT_LIMIT');
+        if (!localOnly && (count === null || !Number.isSafeInteger(count) || count < 1 || count > scope.job.profile.maxInputTokens)) return fail('AI_INPUT_LIMIT');
         const capability = scope.capability;
         const reservation = await transact(options,async tx => {
           if (!await options.authority.revalidateGrounding(capability,signal,tx)) return fail('CONFLICT');
-          signal.throwIfAborted(); return options.budget.reserve(tx,lease,count);
+          signal.throwIfAborted();
+          return input.openingComparison ? options.budget.reserve(tx,lease,count,true) : options.budget.reserve(tx,lease,count);
         });
         if (reservation === 'NOT_CURRENT') return true;
         if (reservation !== 'RESERVED') return fail(reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN');
         reservedHere = true;
-        renderingLocally = exactOpening !== null;
         signal.throwIfAborted();
         let payload: Parameters<VisualOptions['custody']['receive']>[1];
         if (exactOpening) {
+          let description = scope.job.prompt;
+          if (input.openingComparison) {
+            dispatched = true;
+            const caption = await options.providers.IMAGE.describeOpening!(input);
+            usage = caption.usage;
+            signal.throwIfAborted();
+            if (!await transact(options,tx => options.budget.settle(tx,lease,usage))) return fail('CONFLICT');
+            checkUsage(usage,scope.job.profile);
+            description = caption.description;
+          }
+          renderingLocally = true;
           const bytes = await renderExactOpeningImage(exactOpening, input.aspectRatio, signal);
-          payload = imagePayload(bytes, scope.job.prompt);
+          payload = imagePayload(bytes, description);
         } else if (scope.job.kind === 'IMAGE') {
           dispatched = true;
           const generated = await options.providers.IMAGE.generate(input); usage = generated.usage; signal.throwIfAborted();

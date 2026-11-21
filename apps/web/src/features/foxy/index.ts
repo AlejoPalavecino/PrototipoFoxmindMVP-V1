@@ -6,7 +6,9 @@ export { FoxyVisualWorkspace, FoxyVisualTimeline } from './visuals/foxy-visual-w
 export { formatFoxyModelMarkdown } from './conversations/foxy-markdown-format.ts';
 export { FoxyVisualReaderDialog } from './visuals/foxy-visual-reader-dialog.tsx';
 export { FoxyWorkspace } from './workspace/foxy-workspace.tsx';
+export { renderFoxySourceReport } from './context/foxy-source-report.tsx';
 export { createFoxyActivityHandoff } from './resources/foxy-activity-handoff.ts';
+export { TeacherPlanningReader, TeacherRubricEditor } from './resources/teacher-planning.tsx';
 export { createFoxyCatalogController } from './collections/foxy-catalog-controller.ts';
 export type { FoxyConversationQuery, FoxyCreationQuery, FoxyCatalogState } from './collections/foxy-catalog-controller.ts';
 export { createFoxyChatController } from './conversations/foxy-chat-controller.ts';

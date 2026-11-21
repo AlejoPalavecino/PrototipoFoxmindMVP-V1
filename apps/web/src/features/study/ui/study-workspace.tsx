@@ -30,11 +30,10 @@ import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback';
-import type { StudyDetail, StudyCollection } from '../model/study-contracts.ts';
+import type { StudyCreation, StudyDetail, StudyCollection } from '../model/study-contracts.ts';
 import { studyGenerationData, studyGenerationIssue } from '../model/study-transitions.ts';
 import { useStudyGeneration } from '../model/use-study-generation';
 import { type StudyGenerationInput } from '../model/study-generation';
-import { downloadPlainText } from '../../../../../shared-ui/text-document';
 import { StudyPracticeView, StudyExamPlanner } from '../practice/study-practice';
 import s from './study.module.css';
 import { startStudyConversation, studyInitialPreferences } from '../model/study-discovery';
@@ -145,6 +144,8 @@ export function StudyWorkspace({
     [contextWorking, setContextWorking] = useState(false);
 
   const [selectedExam, setSelectedExam] = useState(examId);
+  const [repeatPlan, setRepeatPlan] = useState<StudyGenerationInput>();
+  const [repeatSources, setRepeatSources] = useState<string[]>();
   const [toolTitle, setToolTitle] = useState('Preparar un apunte');
   const [toolBrief, setToolBrief] = useState('');
   const [toolError, setToolError] = useState('');
@@ -236,10 +237,109 @@ export function StudyWorkspace({
     }
   }
   function openChat(id: string) {
+    if (inlinePractice && !closePractice()) return;
+    if (inlineDiagram) Creation(undefined);
     chooseChat(id);
     Tab('chat');
   }
+  function prepareAgain(id: string, resourceKind: string, title: string) {
+    if (inlinePractice && !closePractice()) { Tab('chat'); return; }
+    if (inlineDiagram) Creation(undefined);
+    let original: StudyGenerationInput | undefined;
+    for (const chat of detail.conversations) {
+      const turns = chat.messages ?? chat.turns ?? [];
+      const reply = turns.find(turn => turn.creationId === id || turn.practiceId === id || turn.examId === id);
+      if (!reply) continue;
+      const request = turns.find(turn => turn.generation && turn.generation.requestId === reply.generationRequestId);
+      if (request?.generation) original = { ...request.generation, message: request.content ?? request.text ?? title };
+      chooseChat(chat.id);
+      break;
+    }
+    Tab('chat');
+    setRepeatPlan(original);
+    if (resourceKind === 'REVIEW_PLAN') {
+      setSelectedExam(undefined);
+      Panel('exam');
+      return;
+    }
+    Kind(resourceKind);
+    const toolTitles: Record<string, string> = { NOTE: 'Preparar un apunte', EXPLANATION: 'Entender un tema', OUTLINE: 'Conectar ideas', IMAGE: 'Crear una imagen', QUIZ: 'Practicar', EXERCISE: 'Crear ejercicios', MOCK_EXAM: 'Preparar una evaluación' };
+    setToolTitle(toolTitles[resourceKind] ?? 'Preparar propuesta');
+    setToolBrief(original?.message ?? title);
+    setToolError('');
+    setRepeatSources(original?.sourceIds);
+    if (original) {
+      Selected(original.topicIds.filter(id => topics.some(topic => topic.id === id)));
+      Count(original.questionCount);
+      Difficulty(original.difficulty);
+    }
+    Panel('tool');
+  }
   const generationIssue = studyGenerationIssue(kind, selected);
+  const openedPractice = detail.practices.find((item) => item.id === practice);
+  const inlinePractice = openedPractice?.kind === 'QUIZ';
+  const practiceSources = inlinePractice ? detail.sources.filter(source => source.available &&
+    openedPractice.questions.some(question => question.sourceRefs?.some(ref => ref.id === source.id && ref.version === source.version))) : [];
+  const inlineDiagram = creation?.kind === 'OUTLINE' && !!creation.diagram;
+  function openCreation(item?: StudyCreation) {
+    Tab('chat');
+    if (inlinePractice && !closePractice()) return;
+    if (item?.kind === 'OUTLINE' && item.diagram && item.conversationId && item.conversationId !== current?.id)
+      chooseChat(item.conversationId);
+    Creation(item);
+  }
+  function closeCreation() {
+    Creation(undefined);
+    if (inlineDiagram && typeof requestAnimationFrame === 'function')
+      requestAnimationFrame(() => document.getElementById('study-message')?.focus());
+  }
+  const creationReader = creation && creation.kind !== 'IMAGE' && (
+    <StudyCreationEditor
+      key={creation.id}
+      creation={creation}
+      inlineDiagram={inlineDiagram}
+      diagramSources={creation.diagram && creation.sourceRefs ? {
+        folderId: f.id,
+        items: detail.sources.filter(source => source.available &&
+          creation.sourceRefs?.some(ref => ref.id === source.id && ref.version === source.version)),
+      } : undefined}
+      onRepeatDiagram={active && creation.diagram ? () => prepareAgain(creation.id, creation.kind, creation.title) : undefined}
+      availableIllustrations={inlineDiagram ? undefined : detail.creations.filter(item => item.kind === 'IMAGE').map(item => ({
+        url: `/api/v1/study-folders/${encodeURIComponent(f.id)}/images/${encodeURIComponent(item.id)}`,
+        caption: item.title,
+      }))}
+      disabled={!active || busy}
+      onClose={closeCreation}
+      onSave={async (title, body) => {
+        const response = await command('EDIT_CREATION', { creationId: creation.id, title, body });
+        if (!response || !response.result?.creation) return false;
+        Creation({ ...creation, ...response.result.creation });
+        return true;
+      }}
+    />
+  );
+  function closePractice() {
+    if (busy || (panelDirty && !window.confirm('Hay respuestas sin guardar. ¿Querés cerrar?'))) return false;
+    PanelDirty(false);
+    Practice('');
+    return true;
+  }
+  const practiceReader = openedPractice && (
+    <StudyPracticeView
+      key={openedPractice.id}
+      inline={inlinePractice}
+      sources={practiceSources.length ? { folderId: f.id, items: practiceSources } : undefined}
+      folderName={f.name}
+      onClose={closePractice}
+      onNewAttempt={newAttempt}
+      onSelectAttempt={Practice}
+      practices={detail.practices}
+      onDirtyChange={PanelDirty}
+      practice={openedPractice}
+      busy={busy || !active}
+      run={run}
+    />
+  );
   return (
     <div className={`${s.workspaceFrame} parity-study-workspace`}>
       {archived && (
@@ -280,6 +380,10 @@ export function StudyWorkspace({
             imageGenerationAvailable={detail.imageGenerationAvailable}
             onChoose={(tool) => {
               Tab('chat');
+              if (inlinePractice && !closePractice()) return;
+              if (inlineDiagram) Creation(undefined);
+              setRepeatPlan(undefined);
+              setRepeatSources(undefined);
               if (tool.kind === 'PLAN') {
                 setSelectedExam(undefined);
                 Panel('exam');
@@ -301,16 +405,19 @@ export function StudyWorkspace({
             matchingPlans={matchingPlans}
             onSearch={Search}
             onKind={CreationType}
-            onCreation={(item) => {
-              Tab('chat');
-              Creation(item);
-            }}
+            repeatDisabled={busy || !active || generation.blocked}
+            onRepeat={prepareAgain}
+            onCreation={openCreation}
             onPractice={(id) => {
               Tab('chat');
+              if (inlinePractice && !closePractice()) return;
+              if (inlineDiagram) Creation(undefined);
               setPracticePreview(id);
             }}
             onExam={(id) => {
               Tab('chat');
+              if (inlinePractice && !closePractice()) return;
+              if (inlineDiagram) Creation(undefined);
               setSelectedExam(id);
               Panel('exam');
             }}
@@ -326,6 +433,7 @@ export function StudyWorkspace({
               className={`${s.backLink} parity-ai-backLink`}
               href="/carpetas-de-estudio"
               aria-label="Volver a Mis carpetas"
+              onClick={(event) => { if (inlinePractice && !closePractice()) event.preventDefault(); }}
             >
               <FoxmindIcon name="arrow-left" />
             </Link>
@@ -358,7 +466,7 @@ export function StudyWorkspace({
           </>
         }
       >
-        <StudyConversation
+        {inlineDiagram ? creationReader : inlinePractice ? practiceReader : <StudyConversation
           identity={identity}
           current={current}
           detail={detail}
@@ -377,15 +485,19 @@ export function StudyWorkspace({
             requestAnimationFrame(() => document.getElementById('study-message')?.focus());
           }}
           onText={Text}
-          onCreation={Creation}
+          onCreation={openCreation}
           onPractice={setPracticePreview}
+          onExam={(id) => {
+            setSelectedExam(id);
+            Panel('exam');
+          }}
           onSources={setCitedSources}
           onReload={() =>
             void onReload().catch(() => NoticeText('No pudimos actualizar la carpeta.'))
           }
           onLibrary={(launcher) => openPanelFrom('library', launcher)}
           onAttach={attach}
-        />
+        />}
       </FoxyChatLayout>
       {citedSources.length > 0 && (
         <StudySourcesDialog
@@ -426,18 +538,6 @@ export function StudyWorkspace({
         <StudyPracticePreview
           practice={detail.practices.find((item) => item.id === practicePreview)!}
           onClose={() => setPracticePreview('')}
-          onDownload={() => {
-            const item = detail.practices.find((item) => item.id === practicePreview)!;
-            downloadPlainText(
-              item.title ?? 'Práctica personal',
-              item.questions
-                .map(
-                  (question, index) =>
-                    `${index + 1}. ${question.prompt}\n${question.options?.map((option) => option.text).join('\n') ?? ''}`,
-                )
-                .join('\n\n'),
-            );
-          }}
           onStart={() => {
             Practice(practicePreview);
             setPracticePreview('');
@@ -517,7 +617,7 @@ export function StudyWorkspace({
             ) as StudyGenerationInput;
             dismissPanel(false);
             Tab('chat');
-            void generation.submit(data).then((ok) => {
+            void generation.submit(repeatSources ? { ...data, sourceIds: repeatSources } : data).then((ok) => {
               if (ok) setToolBrief((value) => (value === submitted ? '' : value));
             });
           }}
@@ -547,57 +647,34 @@ export function StudyWorkspace({
       {panel === 'strategy' && strategyRoom ? <StudySharedStrategyDialog key={f.id+':'+strategyRoom.id} client={strategyClient}
         folderId={f.id} room={strategyRoom} onClose={closePanel}/> : null}
       {creation?.kind === 'IMAGE' && (
-        <StudyImagePreview folderId={f.id} creation={creation} onClose={() => Creation(undefined)} />
+        <StudyImagePreview folderId={f.id} creation={creation} onClose={() => Creation(undefined)}
+          onRepeat={active ? () => { Creation(undefined); prepareAgain(creation.id, creation.kind, creation.title); } : undefined} />
       )}
-      {creation && creation.kind !== 'IMAGE' && (
-        <StudyCreationEditor
-          creation={creation}
-          disabled={!active || busy}
-          onClose={() => Creation(undefined)}
-          onSave={async (title, body) => {
-            if (await command('EDIT_CREATION', { creationId: creation.id, title, body }))
-              Creation(undefined);
-          }}
-        />
-      )}
-      {practice && detail.practices.find((item) => item.id === practice) && (
-        <StudyPracticeView
-          key={practice}
-          folderName={f.name}
-          onClose={() => {
-            if (
-              !busy &&
-              (!panelDirty || window.confirm('Hay respuestas sin guardar. ¿Querés cerrar?'))
-            ) {
-              PanelDirty(false);
-              Practice('');
-            }
-          }}
-          onNewAttempt={newAttempt}
-          onDirtyChange={PanelDirty}
-          practice={detail.practices.find((item) => item.id === practice)!}
-          busy={busy || !active}
-          run={run}
-        />
-      )}
+      {!inlineDiagram && creationReader}
+      {!inlinePractice && practiceReader}
       {panel === 'exam' && (
         <Dialog
           className="parity-study-plan-dialog"
           title={
-            selectedExam || examId ? 'Tu recorrido de repaso' : 'Un plan para llegar con calma'
+            selectedExam ? 'Tu recorrido de repaso' : 'Un plan para llegar con calma'
           }
           onClose={closePanel}
         >
-          {examId && !detail.exams.some((exam) => exam.id === examId) && (
+          {selectedExam && !detail.exams.some((exam) => exam.id === selectedExam) && (
             <Notice>Este plan de repaso ya no está disponible.</Notice>
           )}
           <StudyExamPlanner
+            initialRequest={repeatPlan}
             onClose={closePanel}
-            onPrepared={setSelectedExam}
-            examId={selectedExam ?? examId}
+            onGenerate={(data) => {
+              dismissPanel(false);
+              Tab('chat');
+              void generation.submit(data);
+            }}
+            examId={selectedExam}
             onDirtyChange={PanelDirty}
             detail={detail}
-            busy={busy || !active}
+            busy={busy || !active || (!selectedExam && generation.blocked)}
             run={run}
           />
         </Dialog>

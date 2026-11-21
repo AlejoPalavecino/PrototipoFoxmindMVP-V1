@@ -167,7 +167,9 @@ export function createStudyService(options: StudyApplicationPorts) {
             return run(request, false, async (tx, owner) => {
                 const r = await load(tx, owner, id, false), sources = await options.sources(tx, r, options);
                 const attachments = await options.files?.chatSources?.(tx, owner, r.id);
+                const scheduled = r.state.exams.length ? await options.agenda?.scheduled?.(tx, owner, r.id) : undefined;
                 return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources, attachments),
+                    ...(scheduled ? { scheduledReviewSessions: scheduled } : {}),
                     ...(options.images?.generate ? { imageGenerationAvailable: true } : {}) };
             });
         },

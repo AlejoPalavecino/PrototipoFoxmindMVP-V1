@@ -24,6 +24,7 @@ const instructions = {
   EXERCISE: practice,
   QUIZ: practice,
   MOCK_EXAM: practice + ' Prepará el simulacro para resolución autónoma; reservá las pistas y explicaciones para después del intento.',
+  EXPLANATION: studyResource + 'Respondé directamente la duda. Explicá el mecanismo paso a paso, ilustralo con un ejemplo respaldado por la fuente y cerrá con una pregunta para comprobar la comprensión. Usá subtítulos breves. Terminá con ## Ponete a prueba para la pregunta y ## Respuesta para su explicación, en secciones separadas.',
   NOTE: studyResource + 'Prepará un apunte editable para estudiar. Organizá el texto alrededor de la relación central entre los conceptos. '
     + 'Conservá términos, condiciones y excepciones de las fuentes. Si el pedido es resumir, respetá su extensión y no agregues hechos. '
     + 'Conservá las unidades y condiciones de los datos cuantitativos. Separá los hechos de las interpretaciones de la fuente. '
@@ -36,6 +37,12 @@ const instructions = {
     + 'Usá títulos cortos y viñetas legibles por sí solas. Evitá enlaces inventados y no uses diagramas de código ni notación gráfica para las relaciones.',
   PLAN: 'Extraé la jerarquía y el orden del programa tal como figuran en las fuentes. Preservá los nombres y agrupaciones académicas '
     + 'sin inferir unidades, prerrequisitos ni fechas de repaso. Si el documento no permite reconocer un programa, indicá qué falta.',
+  REVIEW_PLAN: 'Para REVIEW_PLAN, el objetivo y los temas seleccionados alcanzan para proponer actividades de repaso incluso sin fuentes. '
+    + 'Sin fuentes, usá sourceRefs vacío y evitá afirmaciones académicas o respuestas modelo. En markdown escribí un consejo breve y específico para este recorrido, de hasta 500 caracteres. Devolvé reviewSessions: '
+    + '[{title, topicIds, activity}]. Proponé una sesión por cada entrada de reviewMinutes, en el mismo orden, y usá sólo los identificadores de temas provistos. '
+    + 'Incluí todos los temas en el conjunto del plan. Escribí un título breve y una actividad de hasta 500 caracteres, realizable en el tiempo indicado. '
+    + 'Alterná tareas de recuperar de memoria, comparar, explicar conexiones y aplicar. Evitá repetir la misma consigna entre sesiones. '
+    + 'Si hay fuentes útiles, citá las que uses. El calendario asigna horarios. Omití fechas y números de sesión en título y actividad.',
 };
 
 export function studyPedagogy(purpose: keyof typeof instructions): string {

@@ -4,12 +4,10 @@ import type { StudyPractice } from '../../model/study-contracts.ts';
 export function StudyPracticePreview({
   practice,
   onClose,
-  onDownload,
   onStart,
 }: {
   practice: StudyPractice;
   onClose: () => void;
-  onDownload: () => void;
   onStart: () => void;
 }) {
   return (
@@ -39,10 +37,6 @@ export function StudyPracticePreview({
       </article>
       <footer className="study-exact-dialog-footer">
         <button onClick={onClose}>Cerrar</button>
-        <button onClick={onDownload}>
-          <FoxmindIcon name="download" />
-          Descargar TXT
-        </button>
         <button className="primary" onClick={onStart}>
           {practice?.status === 'FINALIZED'
             ? 'Ver orientación'

@@ -24,6 +24,18 @@ test('la práctica muestra una pregunta por vez y revisar conserva las respuesta
  }finally{view.close();}
 });
 
+test('un quiz anterior muestra su explicación general cuando ya se confirmó una respuesta', async () => {
+  const { StudyPracticeView } = componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx', {});
+  const legacy = { ...practice, kind: 'QUIZ', confirmedQuestionIds: ['q1'],
+    questions: [{ ...practice.questions[0], correctOptionIds: ['a'], explanation: 'Explicación guardada de la consigna.' }] };
+  const view = hookView(StudyPracticeView, { practice: legacy, busy: false, run: async () => assert.fail('reabrir no pide IA'),
+    onDirtyChange() {}, onNewAttempt: async () => {} });
+  try {
+    await view.flush();
+    assert.ok(descendants(view.tree, node => node.type?.name === 'FoxyMarkdown' && node.props.markdown === legacy.questions[0].explanation).length);
+  } finally { view.close(); }
+});
+
 test('finalizar exige confirmación y guarda antes de cerrar el intento',async()=>{
  const {StudyPracticeView}=componentWithPorts('apps/web/src/features/study/practice/study-practice.tsx',{});
  const calls=[];const view=hookView(StudyPracticeView,{practice:{...practice,answers:{q1:['a'],q2:'Respuesta guardada'}},busy:false,run:async(...args)=>calls.push(args),onDirtyChange(){},onNewAttempt:async()=>{},onClose(){}});

@@ -1,8 +1,10 @@
 import type { StartFoxyVisual } from '../../../../../../src/core/domain/foxy/visual.ts';
 export const exactOpeningImageProfileVersion = 'foxy-gemini-image-v4';
+export const describedOpeningImageProfileVersion = 'foxy-gemini-image-v5';
+export const interactiveDiagramProfileVersion = 'foxy-diagram-provider-v3';
 export const visualProfileVersions = {
-  IMAGE: { current: exactOpeningImageProfileVersion, historical: ['foxy-gemini-image-v1', 'foxy-gemini-image-v2', 'foxy-gemini-image-v3'] },
-  DIAGRAM: { current: 'foxy-diagram-provider-v2', historical: ['foxy-diagram-provider-v1'] },
+  IMAGE: { current: describedOpeningImageProfileVersion, historical: ['foxy-gemini-image-v1', 'foxy-gemini-image-v2', 'foxy-gemini-image-v3', exactOpeningImageProfileVersion] },
+  DIAGRAM: { current: interactiveDiagramProfileVersion, historical: ['foxy-diagram-provider-v1', 'foxy-diagram-provider-v2'] },
 } as const;
 export function supportsVisualProfileVersion(kind: StartFoxyVisual['kind'], version: string): boolean {
   return supportsPinnedVisualProfileVersion(kind, visualProfileVersions[kind].current, version);

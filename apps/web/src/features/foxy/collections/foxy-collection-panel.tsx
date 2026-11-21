@@ -45,7 +45,7 @@ export function FoxyConversationPanel({ page, query, classrooms, currentId, disa
   return <CollectionFrame items={page.items}>
     <header className="parity-foxy-sectionHead"><h2>Conversaciones</h2>{onNew&&<button data-foxy-thread type="button" disabled={disabled} onClick={onNew}><FoxmindIcon name="plus"/>Nueva</button>}</header>
     {onQuery&&<>
-      <label className="parity-foxy-search"><FoxmindIcon name="search"/><input autoFocus aria-label="Buscar conversaciones" type="search" placeholder="Buscar conversación" maxLength={120} value={query.q} onChange={event=>onQuery({...query,q:event.target.value})}/></label>
+      <label className="parity-foxy-search"><FoxmindIcon name="search"/><input aria-label="Buscar conversaciones" type="search" placeholder="Buscar conversación" maxLength={120} value={query.q} onChange={event=>onQuery({...query,q:event.target.value})}/></label>
       <div className={styles.catalogFilters}><ContextFilter classrooms={classrooms} value={query.context} onChange={context=>onQuery({...query,context})}/></div>
     </>}
     <CatalogFeedback page={page} filtered={Boolean(query.q) || query.context !== 'ALL'} name="conversaciones" onRefresh={onRefresh}/>
@@ -57,14 +57,14 @@ export function FoxyConversationPanel({ page, query, classrooms, currentId, disa
     <p className="parity-foxy-privacy"><FoxmindIcon name="lock"/>Este espacio es privado.</p>
   </CollectionFrame>;
 }
-export function FoxyCollectionPanel({ page, query, classrooms, onQuery, onMore, onOpen, onRefresh, onTools, disabled }: {
+export function FoxyCollectionPanel({ page, query, classrooms, onQuery, onMore, onOpen, onRefresh, onTools, onRepeat, disabled }: {
   page: FoxyCatalogPage<FoxyCreation>; query: FoxyCreationQuery; classrooms: Classroom[]; onQuery?: (query: FoxyCreationQuery) => void;
-  onMore?: () => void; onOpen?: (item: FoxyCreation) => void; onRefresh?: () => void; onTools?:()=>void; onNavigate?: (href: string) => void; destinationHref?: FoxyDestinationHref; disabled?: boolean;
+  onRepeat?: (item: FoxyCreation) => void; onMore?: () => void; onOpen?: (item: FoxyCreation) => void; onRefresh?: () => void; onTools?:()=>void; onNavigate?: (href: string) => void; destinationHref?: FoxyDestinationHref; disabled?: boolean;
 }) {
   const filtered = !!query.q || query.type !== 'ALL' || query.context !== 'ALL' || query.status !== 'ALL';
   return <CollectionFrame items={page.items}>
     <header className="parity-foxy-sectionHead"><h2>Mis creaciones</h2></header>
-    <label className="parity-foxy-search"><FoxmindIcon name="search"/><input autoFocus aria-label="Buscar creaciones" type="search" placeholder="Buscar creación" maxLength={120} value={query.q} onChange={event=>onQuery?.({...query,q:event.target.value})}/></label>
+    <label className="parity-foxy-search"><FoxmindIcon name="search"/><input aria-label="Buscar creaciones" type="search" placeholder="Buscar creación" maxLength={120} value={query.q} onChange={event=>onQuery?.({...query,q:event.target.value})}/></label>
     <div className={styles.catalogFilters}>
       <ContextFilter classrooms={classrooms} value={query.context} onChange={context=>onQuery?.({...query,context})}/>
       <label>Estado<select value={query.status} onChange={event=>onQuery?.({...query,status:event.target.value})}>
@@ -77,7 +77,7 @@ export function FoxyCollectionPanel({ page, query, classrooms, onQuery, onMore, 
         .map(([type,label])=><button key={type} type="button" aria-pressed={query.type===type} onClick={()=>onQuery?.({...query,type})}>{label}</button>)}
     </div>
     {page.loading&&<p role="status">Cargando creaciones…</p>}{page.error&&<p role="alert">{page.error} <button type="button" onClick={onRefresh}>Reintentar catálogo</button></p>}
-    <ul className="parity-foxy-creationList">{page.items.map(item=><li key={item.id}><button type="button" disabled={disabled||!onOpen} aria-label={`Abrir ${item.title}`} onClick={()=>onOpen?.(item)}><span className="parity-foxy-toolIcon sky"><FoxmindIcon name={item.kind==='PLAN'?'calendar':item.kind==='DIAGRAM'||item.kind==='IMAGE'?'layers':'book'}/></span><span><strong>{item.title}</strong><small>{kinds[item.kind]} · {contextName(item.context,classrooms)} · {statuses[item.status]}{item.destinations.length?' · Con vínculos':''}</small></span><FoxmindIcon name="chevron-right"/></button></li>)}</ul>
+    <ul className="parity-foxy-creationList">{page.items.map(item=><li key={item.id} className="creation-shelf-row"><button type="button" disabled={disabled||!onOpen} aria-label={`Abrir ${item.title}`} onClick={()=>onOpen?.(item)}><span className="parity-foxy-toolIcon sky"><FoxmindIcon name={item.kind==='PLAN'?'calendar':item.kind==='DIAGRAM'||item.kind==='IMAGE'?'layers':'book'}/></span><span><strong>{item.title}</strong>{item.brief && <span className="creation-shelf-description">{item.brief}</span>}<small>{kinds[item.kind]} · {contextName(item.context,classrooms)} · {statuses[item.status]}{item.destinations.length?' · Con vínculos':''}</small></span><FoxmindIcon name="chevron-right"/></button>{onRepeat && <button type="button" className="creation-repeat" disabled={disabled} aria-label={`Volver a preparar: ${item.title}`} title="Volver a preparar" onClick={()=>onRepeat(item)}><FoxmindIcon name="refresh"/></button>}</li>)}</ul>
     {!page.items.length&&!page.loading&&!page.error&&<div className="parity-foxy-libraryEmpty"><FoxmindIcon name="folder"/><h3>{filtered?'No hay coincidencias':'Tus ideas tienen lugar'}</h3><p>{filtered?'Probá otro nombre o cambiá los filtros.':'Elegí una herramienta. La propuesta va a quedar acá para retomarla.'}</p>{onTools&&<button type="button" onClick={onTools}><FoxmindIcon name="spark"/>Ver herramientas</button>}</div>}
     {!!page.next&&<button type="button" disabled={page.loading} onClick={onMore}>Más creaciones</button>}
   </CollectionFrame>;

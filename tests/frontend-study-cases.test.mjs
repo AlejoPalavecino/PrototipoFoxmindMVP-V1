@@ -25,9 +25,18 @@ test('new attempt selects the command practice ID without a second detail fetch'
   value.practices = ['old', 'actual-result', 'unrelated-last'].map((id) => ({
     id,
     title: id,
-    status: 'ACTIVE',
+    kind: 'QUIZ',
+    status: id === 'old' ? 'FINALIZED' : 'ACTIVE',
     questions: [],
   }));
+  value.practices[0].questions.push({
+    id: 'q', prompt: 'Compará las fuentes.', type: 'SINGLE', sourceRefs: [{ id: 'source', version: '1' }],
+  });
+  value.sources = [
+    { id: 'source', version: '1', title: 'Apunte citado', available: true },
+    { id: 'source', version: '2', title: 'Otra revisión', available: true },
+    { id: 'unrelated', version: '1', title: 'Apunte ajeno al pedido', available: true },
+  ];
   const calls = [];
   let reads = 0;
   const priorFetch = globalThis.fetch;
@@ -49,20 +58,20 @@ test('new attempt selects the command practice ID without a second detail fetch'
   try {
     await view.flush();
     const layout = descendants(view.tree, (node) => node.type?.name === 'FoxyChatLayout')[0];
-    descendants(
-      layout.props.creations,
-      (node) => node.type === 'button' && node.key === 'old',
-    )[0].props.onClick();
+    const row = descendants(layout.props.creations, (node) => node.key === 'old' &&
+      node.props.className === 'creation-shelf-row')[0];
+    descendants(row, (node) => node.type === 'button' && node.props.className === 'study-exact-creation-item')[0].props.onClick();
     await view.flush();
     descendants(
       view.tree,
-      (node) => node.type === 'button' && node.props.children === 'Empezar práctica',
+      (node) => node.type === 'button' && node.props.children === 'Ver orientación',
     )[0].props.onClick();
     await view.flush();
-    await descendants(
-      view.tree,
-      (node) => node.type?.name === 'StudyPracticeView',
-    )[0].props.onNewAttempt();
+    const reader = descendants(view.tree, (node) => node.type?.name === 'FoxyChatLayout')[0].props.children;
+    assert.equal(reader.type.name, 'StudyPracticeView');
+    assert.equal(reader.props.inline, true);
+    assert.deepEqual(reader.props.sources.items.map(source => source.title), ['Apunte citado']);
+    await reader.props.onNewAttempt();
     await view.flush();
     assert.deepEqual(calls, [['NEW_ATTEMPT', { practiceId: 'old' }, undefined]]);
     assert.equal(reads, 0);
@@ -141,6 +150,23 @@ test('late A completion cannot release a pending B lock', async () => {
   b.resolve({ folder: detail('B').folder });
   await workB;
   assert.equal(busy.at(-1), false);
+});
+
+test('a failed generation stays in the chat while other folder errors reach the page', async () => {
+  const { createStudyFolderOperations } = loadTsModule('apps/web/src/features/study/folders/study-folder-operations.ts');
+  const failure = new Error('Cupo agotado');
+  const notices = [];
+  const operations = createStudyFolderOperations({
+    command: async () => { throw failure; },
+    get: async () => detail('folder'),
+  }, {
+    onDetail() {}, onBusy() {},
+    onError: (message, error) => { if (error) notices.push({ message, error }); },
+  });
+  operations.replace(detail('folder'));
+  await assert.rejects(operations.run('GENERATE', { conversationId: 'chat' }), failure);
+  await assert.rejects(operations.run('ARCHIVE'), failure);
+  assert.deepEqual(notices, [{ message: '', error: failure }, { message: failure.message, error: failure }]);
 });
 
 test('conversation switches preserve a separate composer draft for each chat', async () => {

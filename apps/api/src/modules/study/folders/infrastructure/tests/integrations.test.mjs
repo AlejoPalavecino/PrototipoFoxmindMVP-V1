@@ -121,7 +121,7 @@ test('admisión IA compartida: revalida tras preflight y deduplica gasto sin pro
   }}});
   const calls=[];const client={countTokens:async input=>{calls.push('count');return sdk.models.countTokens(input);},generateContent:async input=>{const schema=input.config.responseJsonSchema;assert.ok(schema);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.type.enum,['SINGLE','MULTIPLE','DEVELOPMENT']);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.topicId.enum,['topic-a']);assert.equal(schema.properties.practice.properties.questions.minItems,3);assert.equal(schema.properties.sourceRefs.items.anyOf[0].properties.id.enum[0],'source-a');assert.match(input.contents[0].parts[1].text,/source-a/u);calls.push('generate');return {text:'{"synthetic":true}',candidates:[{finishReason:'STOP',content:{parts:[{text:'{"synthetic":true}'}]}}],usageMetadata:{promptTokenCount:10,candidatesTokenCount:8,thoughtsTokenCount:3}};}};
   const request=randomUUID();const provider=createGeminiStudyProvider(config,database,owner,request,async()=>{calls.push('authorize');},client);
-  const context={topics:[{id:'topic-a'}],sources:[{id:'source-a',version:'v1'}],questionCount:3};
+  const context={action:'EXERCISE',topics:[{id:'topic-a'}],sources:[{id:'source-a',version:'v1'}],questionCount:3};
   assert.deepEqual(await provider.generate({system:'Synthetic',prompt:JSON.stringify(context),context,documents:[{sourceRef:{id:'source-a',version:'v1'},document:{kind:'text',text:'Synthetic'}}]}),{synthetic:true});
   // Approved runtime contract also revalidates authorization after the response.
   assert.deepEqual(calls,['authorize','count','authorize','generate','authorize']);

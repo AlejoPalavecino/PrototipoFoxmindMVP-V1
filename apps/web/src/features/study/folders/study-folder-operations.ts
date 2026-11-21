@@ -45,8 +45,11 @@ export function createStudyFolderOperations(api: StudyRevisionPort, observers: O
       try {
         return await controller.run(action, data, requestId);
       } catch (error) {
-        if (started === generation)
-          observers.onError(error instanceof Error ? error.message : 'No pudimos guardar.', error);
+        if (started === generation) {
+          // The linked generation displays its own receipt or local retry in the transcript.
+          const inChat = action === 'GENERATE' && 'conversationId' in data;
+          observers.onError(inChat ? '' : error instanceof Error ? error.message : 'No pudimos guardar.', error);
+        }
         throw error;
       } finally {
         if (started === generation) {

@@ -26,6 +26,24 @@ test('initializes capabilities and conversations and selects a newly created con
   assert.ok(f.calls.some(x=>x.name==='create'));assert.ok(f.calls.some(x=>x.name==='list'));c.dispose();
 });
 
+test('citations of a creation bind to its conversation and turn without switching chats', async () => {
+  const f = fixture(), turnId = randomUUID(), reads = [];
+  f.client.citations = async (conversationId, requestedTurn) => {
+    reads.push([conversationId, requestedTurn]);
+    return [{ id: 'c1', availability: 'AVAILABLE' }];
+  };
+  f.client.citationUrl = (conversationId, requestedTurn, citationId) => `/${conversationId}/${requestedTurn}/${citationId}`;
+  const controller = create(f);
+  await controller.init();
+  await controller.select(f.a.id);
+  const sources = await controller.loadCitations(turnId, f.b.id);
+  assert.deepEqual(reads, [[f.b.id, turnId]]);
+  assert.equal(sources[0].href, `/${f.b.id}/${turnId}/c1`);
+  assert.equal(controller.getState().current.id, f.a.id);
+  assert.ok(!f.calls.some(call => call.name === 'send'));
+  controller.dispose();
+});
+
 test('failed send retains exact intent and explicit retry reuses request, revision and selection',async()=>{
   const f=fixture(),c=create(f);await c.init();await c.select(f.a.id);f.queue.push(Error('network'));
   const selection={topicIds:[],sourceIds:[]};await c.send('CHAT','Hola',selection);

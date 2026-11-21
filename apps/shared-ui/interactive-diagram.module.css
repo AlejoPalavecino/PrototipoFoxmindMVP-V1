@@ -1,0 +1,258 @@
+.reader {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.focusPage {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  background: #fff;
+  padding: clamp(12px, 2.4vw, 32px);
+}
+.focusContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.focusContainer .focusPage { flex: 1; }
+.focusInner { max-width: 970px; margin: 0 auto; }
+.focusNav { margin-bottom: 18px; }
+.focusNav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font: inherit;
+  font-weight: 800;
+}
+.focusFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.focusFooter :is(button, a) {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border: 1px solid #c4d2df;
+  background: white;
+  color: #28394c;
+  border-radius: 12px;
+  min-height: 44px;
+  padding: 8px 14px;
+  font: inherit;
+}
+.focusFooter :global(.p5-primary) { color: white; background: #a8461a; border-color: #a8461a; }
+:global(#foxmind-product.fm3d-theme) dialog.readerDialog:global(.p5-dialog)[open] {
+  width: min(970px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+}
+dialog.projected[open] {
+  width: min(1200px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+}
+.exitProjection {
+  margin-top: 14px;
+  min-height: 44px;
+}
+.cover, .challenge, .atlasHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cover {
+  background: #fff5e9;
+  border: 1px solid #e3cbb0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  color: #253142;
+  overflow-wrap: anywhere;
+}
+.coverIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #f7ddc7;
+  color: #8a431e;
+}
+.coverText { flex: 1; min-width: 0; }
+.cover button.secondary { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; min-height: 44px; }
+.sourceList { padding-left: 1.25rem; }
+.sourceList li { margin-bottom: 8px; }
+:is(:global(.p5-dialog), .focusPage) .cover h3 {
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 850;
+  letter-spacing: -.025em;
+  line-height: 1.15;
+  margin: 4px 0;
+}
+.cover p, .caption p { margin: 0; line-height: 1.5; }
+.cover p { font-size: 13px; }
+.atlas {
+  background: white;
+  border: 1px solid #c4d2df;
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.atlasHeader { justify-content: space-between; flex-wrap: wrap; }
+.atlas .atlasHeader h4 { margin: 0; font-size: 18px; font-weight: 850; }
+.sequence, .concepts {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 5px 3px 9px;
+}
+.sequence {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.concepts { flex-wrap: wrap; }
+.atlas button, .challenge button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  min-height: 44px;
+  font: inherit;
+  cursor: pointer;
+}
+.atlas button:focus-visible, .challenge button:focus-visible {
+  outline: 2px solid #2d627a;
+  outline-offset: 2px;
+}
+.atlas button.node, .atlas button.edge {
+  padding: 8px 9px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  scroll-snap-align: center;
+}
+.atlas button.node {
+  min-height: 78px;
+  flex-direction: column;
+  color: #2a414c;
+  border: 1px solid #c4d2df;
+  border-radius: 14px;
+  background: #f1f6fa;
+}
+.sequence .node { flex: 1 0 104px; }
+.sequence .edge { flex: 0 0 90px; align-self: center; }
+.node svg { width: 24px; height: 24px; color: #4b6471; }
+.atlas button.edge {
+  padding: 6px 5px;
+  flex-direction: column;
+  border: 1px dashed #91a5b3;
+  border-radius: 12px;
+  color: #415c6f;
+  background: white;
+  max-width: 100%;
+}
+.edge strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.arrow { font-size: 22px; line-height: 1; }
+.atlas button[aria-pressed='true'] {
+  background: #fff1e4;
+  border-color: #ba4d1a;
+  color: #894217;
+  box-shadow: inset 0 0 0 1px #ba4d1a;
+}
+.relations { display: grid; list-style: none; padding: 0; margin: 0; gap: 6px; }
+.relations li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(62px, .9fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.relations li > span { padding: 7px 8px; border-radius: 9px; background: #f1f6fa; }
+.detail {
+  display: grid;
+  grid-template-columns: minmax(160px, .9fr) 1.1fr;
+  background: #edf5f0;
+  border-radius: 14px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.detailVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 84px;
+  padding: 12px;
+  color: #284e43;
+  background-image: radial-gradient(#bccfc6 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.detailVisual span {
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #bdcfc6;
+  text-align: center;
+  font-weight: 750;
+}
+.caption { padding: 18px 20px; }
+.caption small { font-weight: 800; color: #365e51; }
+.atlas .caption h4 { font-size: 22px; margin: 2px 0 6px; line-height: 1.2; font-weight: 850; }
+.challenge {
+  border: 1px solid #e1bd9e;
+  background: #fff4e9;
+  border-radius: 16px;
+  padding: 14px 18px;
+  overflow-wrap: anywhere;
+}
+.challenge div { flex: 1; min-width: 0; }
+.challenge h4 { font-size: 18px; margin: 3px 0; }
+.challenge strong { color: #8a431e; font-size: 13px; }
+.challenge p { margin: 8px 0 0; }
+.challenge img { object-fit: contain; }
+.secondary, .reveal {
+  padding: 5px 12px;
+  border: 1px solid #c4d2df;
+  border-radius: 12px;
+  color: #28394c;
+  background: white;
+}
+.challenge .reveal { background: #a8461a; border-color: #a8461a; color: white; }
+@media (max-width: 680px) {
+  .cover {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    padding: 12px;
+  }
+  .cover > button { grid-column: 2; justify-self: start; }
+  .atlas { padding: 12px; }
+  .detail { grid-template-columns: 1fr; }
+  .detailVisual { min-height: 62px; }
+  .caption { padding: 12px; }
+  .challenge { display: grid; grid-template-columns: auto 1fr; padding: 12px; gap: 8px; }
+  .challenge button { grid-column: 2; justify-self: start; }
+  .challenge img { width: 34px; height: 34px; }
+}

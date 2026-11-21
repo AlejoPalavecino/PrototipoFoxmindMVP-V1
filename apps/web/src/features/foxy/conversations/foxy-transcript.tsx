@@ -1,3 +1,4 @@
+import { creationPresentation } from '../../../../../shared-ui/creation-presentation';
 import { Fragment, type ReactNode } from 'react';
 import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
@@ -24,10 +25,11 @@ function failureMessage(turn: FoxyTurn) {
 }
 
 export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity,
-  onOpenResource, onActivityHandoff, controller, attachmentCount, pendingText, setText, onSources, enabled, mode }: {
+  catalogItems, onOpenResource, onActivityHandoff, controller, attachmentCount, pendingText, setText, onSources, enabled, mode }: {
   state: FoxyChatState; chatFollow: ReturnType<typeof useChatFollow>; pendingVisible: boolean;
   visualTimeline?: FoxyVisualTranscript; tool?: { label: string; placeholder: string }; chooseExample: (text: string) => void;
   identity?: ChatIdentity;
+  catalogItems?: ReadonlyArray<{ turnId: string | null; title: string }>;
   onOpenResource?: (conversationId: string, turnId: string) => void;
   onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY'|'RUBRIC') => void;
   controller: FoxyChatActions; attachmentCount: number; pendingText?: string;
@@ -40,9 +42,9 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
     body: <article className={styles.turn + ' parity-ai-turn'}>
       <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/><p>{turn.message}</p></div>
       {turn.answer ? <div className={styles.answer + ' parity-ai-answer'}><ChatByline/>
-        {turn.state === 'READY' && turn.purpose !== 'CHAT' && onOpenResource && turn.answer.markdown.trim()
-          ? <div className="parity-foxy-creationReply"><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p>
-            <button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}><FoxmindIcon name="file"/>Abrir creación</button>
+        {turn.state === 'READY' && turn.purpose !== 'CHAT' && onOpenResource && !turn.answer.missingInformation?.length && turn.answer.markdown.trim()
+          ? <div className="parity-foxy-creationReply"><small>{creationPresentation(turn.purpose).label}</small><h3>{catalogItems?.find(item => item.turnId === turn.id)?.title ?? turn.answer.title}</h3>
+            <button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}><FoxmindIcon name={creationPresentation(turn.purpose).icon}/>{creationPresentation(turn.purpose).action}</button>
             {onActivityHandoff && turn.purpose === 'RUBRIC' && <button type="button" onClick={() => onActivityHandoff(state.current!.id, turn.id, 'RUBRIC')}>Usar rúbrica en una actividad</button>}
             {onActivityHandoff && turn.purpose === 'ACTIVITY_IDEAS' && <button type="button" onClick={() => onActivityHandoff(state.current!.id, turn.id, 'ACTIVITY')}>Preparar en Actividades</button>}
           </div>

@@ -71,3 +71,51 @@ test('Herramientas envía la descripción de la imagen y Creaciones abre el viso
   assert.equal(calls.length, 1, 'abrir y descargar una imagen no invoca generación');
  } finally { view.close(); }
 });
+test('volver a preparar recupera el pedido y sus opciones sin generar ni sobrescribir', async () => {
+ const { StudyWorkspace } = componentWithPorts('apps/web/src/features/study/ui/study-workspace.tsx', ports);
+ const topic = { id: 'topic', title: 'Anafase' };
+ const folder = { ...base.folder, units: [{ id: 'u', title: 'Mitosis', topics: [topic] }] };
+ const source = { id: 'explain', kind: 'EXPLANATION', title: 'Las dos copias', markdown: 'Explicación.' };
+ const generation = { ...input, kind: source.kind, sourceIds: ['s'], questionCount: 7, difficulty: 'HARD' };
+ const detail = { ...base, folder, creations: [source], conversations: [{ id: 'chat', title: 'Biología', turns: [
+   { role: 'user', text: 'Explicá la separación', generation },
+   { role: 'assistant', generationRequestId: input.requestId, creationId: source.id },
+ ] }] };
+ const view = hookView(StudyWorkspace, { detail, catalog: {classrooms: []}, run: () => assert.fail('Abrir el formulario no genera') });
+ try {
+   await view.flush();
+   const layout = descendants(view.tree, node => node.type?.name === 'FoxyChatLayout')[0];
+   descendants(layout.props.creations, node => node.type === 'button' && node.props['aria-label'] === 'Volver a preparar: Las dos copias')[0].props.onClick();
+   await view.flush();
+   assert.equal(descendants(view.tree, n => n.type === 'textarea' && n.props.maxLength === 1500)[0].props.value, 'Explicá la separación');
+   assert.equal(descendants(view.tree, n => n.type === 'input' && n.props.type === 'checkbox')[0].props.checked, true);
+   assert.equal(detail.creations.length, 1);
+ } finally { view.close(); }
+});
+
+test('un esquema guardado abre su chat original y ocupa el espacio de lectura', async () => {
+ const { StudyWorkspace } = componentWithPorts('apps/web/src/features/study/ui/study-workspace.tsx', ports);
+ const diagram = { schemaVersion: 'foxy-diagram-v2', title: 'Agua', description: 'Dos estados', direction: 'LEFT_RIGHT',
+  nodes: [{ id: 'a', label: 'Agua', explanation: 'Líquido' }, { id: 'b', label: 'Vapor', explanation: 'Gas' }],
+  edges: [{ from: 'a', to: 'b', label: 'Evapora', explanation: 'Cambio de estado' }] };
+ const saved = { id: 'saved-map', title: 'Ciclo del agua', kind: 'OUTLINE', markdown: 'Dos estados', diagram, conversationId: 'original' };
+ const selected = [];
+ const detail = { ...base, creations: [saved], conversations: [
+  { id: 'original', title: 'Chat del esquema', turns: [] }, { id: 'other', title: 'Otro chat', turns: [] },
+ ] };
+ const view = hookView(StudyWorkspace, { detail, selectedConversationId: 'other', catalog: { classrooms: [] },
+  onConversationSelect: id => selected.push(id), run: () => assert.fail('abrir un esquema no llama a Gemini') });
+ try {
+  await view.flush();
+  const layout = () => descendants(view.tree, node => node.type?.name === 'FoxyChatLayout')[0];
+  descendants(layout().props.creations, node => node.type === 'button' && node.props.className === 'study-exact-creation-item')[0].props.onClick();
+  await view.flush();
+  assert.deepEqual(selected, ['original']);
+  assert.match(renderToStaticMarkup(layout().props.children), /Navegación del esquema/);
+  assert.doesNotMatch(renderToStaticMarkup(layout().props.children), /<dialog|¿Qué te gustaría entender mejor/);
+  layout().props.children.props.onClose();
+  await view.flush();
+  assert.equal(layout().props.children.type.name, 'StudyConversation');
+  assert.equal(layout().props.children.props.current.id, 'original');
+ } finally { view.close(); }
+});

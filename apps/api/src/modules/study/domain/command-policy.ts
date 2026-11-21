@@ -6,8 +6,9 @@ export function validateStudyCommand(r: FolderRow, p: Record<string, unknown>): 
         IMPORT_CLASSROOM_PLAN: ['classroomId'], CONFIRM_FOLDER: [], ARCHIVE: [], REACTIVATE: [], DELETE: ['confirmed'],
         ADD_MATERIAL: ['fileId', 'title', 'topicIds'], REMOVE_MATERIAL: ['materialId'], EDIT_MATERIAL: ['materialId', 'title', 'topicIds'],
         NEW_CONVERSATION: ['title'], RENAME_CONVERSATION: ['conversationId', 'title'], CHAT: ['conversationId', 'message', 'topicIds', 'sourceIds'],
-        GENERATE: ['conversationId', 'kind', 'message', 'topicIds', 'sourceIds', 'questionCount', 'difficulty'], EDIT_CREATION: ['creationId', 'title', 'body'],
-        SAVE_ANSWERS: ['practiceId', 'answers'], FINALIZE_PRACTICE: ['practiceId', 'confirmedEmpty'], RETRY_FEEDBACK: ['practiceId'], NEW_ATTEMPT: ['practiceId'],
+        GENERATE: ['conversationId', 'kind', 'message', 'topicIds', 'sourceIds', 'questionCount', 'difficulty', ...(p.kind === 'REVIEW_PLAN' ? ['review'] : [])], EDIT_CREATION: ['creationId', 'title', 'body'],
+        SAVE_ANSWERS: ['practiceId', 'answers'], CONFIRM_PRACTICE_ANSWER: ['practiceId', 'questionId', 'optionIds'],
+        FINALIZE_PRACTICE: ['practiceId', 'confirmedEmpty'], RETRY_FEEDBACK: ['practiceId'], NEW_ATTEMPT: ['practiceId'],
         PLAN_EXAM: ['examAt', 'timeZone', 'availability', 'minutesPerTopic', 'topicIds', 'title', 'sessionCount'],
         EDIT_EXAM: ['examId', 'sessions'], CONFIRM_AGENDA: ['examId', 'sessionIds'],
     };

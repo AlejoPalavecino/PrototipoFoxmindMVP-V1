@@ -1,4 +1,6 @@
-export type InlineRun = { text: string; style: 'plain' | 'bold' | 'italic' | 'code' };
+export const documentInk = { orange: '#a34519', green: '#31634e', blue: '#285c85' } as const;
+export type DocumentInk = keyof typeof documentInk;
+export type InlineRun = { text: string; style: 'plain' | 'bold' | 'italic' | 'code'; color?: DocumentInk };
 export type ResourceBlock =
   | { kind: 'paragraph' | 'divider' | 'blank'; text: string }
   | { kind: 'heading'; text: string; level: number }
@@ -30,6 +32,29 @@ function readableMath(text: string): string {
 }
 
 export function resourceInlineRuns(text: string): InlineRun[] {
+  const inline: InlineRun[] = [];
+  let start = 0;
+  // The editor's color token is data. Consumers render the content as text.
+  for (const match of text.matchAll(/<span data-foxmind-ink="(orange|green|blue)">([^<>\r\n]*)<\/span>/gu)) {
+    inline.push(...plainInlineRuns(text.slice(start, match.index)));
+    inline.push(...plainInlineRuns(match[2]!).map(run => ({ ...run, color: match[1] as DocumentInk })));
+    start = match.index + match[0].length;
+  }
+  return inline.concat(plainInlineRuns(text.slice(start)));
+}
+
+/** Keeps the stored body intact and avoids displaying the document title twice. */
+export function resourceBodyWithoutRepeatedTitle(title: string, markdown: string): string {
+  const opening = /^(?:[ \t]*\r?\n)*#{1,6}[ \t]+([^\r\n]+)(?:\r?\n|$)/u.exec(markdown);
+  if (!opening || !title.trim()) return markdown;
+  const comparable = (text: string) => text.normalize('NFC').trim().replace(/\s+/gu, ' ');
+  const heading = resourceInlineRuns(opening[1]!).map(run => run.text).join('');
+  return comparable(title) === comparable(heading)
+    ? markdown.slice(opening[0].length).replace(/^(?:[ \t]*\r?\n)*/u, '')
+    : markdown;
+}
+
+function plainInlineRuns(text: string): InlineRun[] {
   return text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*|`[^`\n]+`|!?\[[^\]\n]*\]\([^\n]*?\))/gu).map((part): InlineRun => {
     if (part.startsWith('**') && part.endsWith('**') && part.length > 4)
       return { text: readableMath(part.slice(2, -2)), style: 'bold' };

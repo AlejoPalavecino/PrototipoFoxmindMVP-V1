@@ -5,6 +5,13 @@ import { executeStudy, publicPractice, finalizePractice, topicEvidence, planExam
 const sources = [{ id: 's1', version: 'v1', title: 'Biología', text: 'Las células poseen membrana.' }];
 const topics = [{ id: 't1', title: 'Célula' }];
 const refs = [{ id: 's1', version: 'v1' }];
+const diagram = {
+  schemaVersion: 'foxy-diagram-v2', title: 'Célula y membrana', description: 'La membrana rodea la célula.',
+  direction: 'LEFT_RIGHT', nodes: [
+    { id: 'membrane', label: 'Membrana', explanation: 'Delimita el interior celular.' },
+    { id: 'cell', label: 'Célula', explanation: 'Unidad básica de los seres vivos.' },
+  ], edges: [{ from: 'membrane', to: 'cell', label: 'delimita', explanation: 'Separa el interior celular del entorno.' }],
+};
 const practice = { title: 'Quiz', questions: [{ id: 'q1', topicId: 't1', type: 'MULTIPLE' as const, scoringRule:'PARTIAL' as const,prompt: 'Elegí', options: [{id:'a',text:'A'},{id:'b',text:'B'},{id:'c',text:'C'}], correctOptionIds:['a','b'], explanation:'Porque', sourceRefs:refs }] };
 test('cada operación recibe la estrategia educativa correspondiente en el pedido al proveedor', async () => {
   const requests = new Map<string, string>();
@@ -48,7 +55,7 @@ test('Foxy estudiante pide brevedad en consultas puntuales, permite ampliarlas y
       assert.doesNotMatch(system, /brevedad por defecto/);
     }
     return { status: 'COMPLETE', title: 'Célula', markdown: 'Texto', sourceRefs: refs, missingInformation: [],
-      practice, units: [{ title: 'Biología celular', topics: ['Célula'] }] };
+      practice, units: [{ title: 'Biología celular', topics: ['Célula'] }], ...(context.action === 'OUTLINE' ? { diagram } : {}) };
   } };
   for (const action of ['CHAT', 'NOTE', 'OUTLINE', 'PLAN', 'QUIZ', 'EXERCISE', 'MOCK_EXAM'] as const) {
     await executeStudy({ action, message, topics, sources, history, questionCount: 1 }, provider);
@@ -58,9 +65,10 @@ test('Foxy estudiante pide brevedad en consultas puntuales, permite ampliarlas y
 test('el esquema explica vínculos y el resumen conserva la distinción entre fuente e inferencia', async () => {
   const requests = new Map<string, string>();
   const provider = { async generate({ system, prompt }: { system: string; prompt: string }) {
-    requests.set(JSON.parse(prompt).action, system);
+    const { action } = JSON.parse(prompt);
+    requests.set(action, system);
     return { status: 'COMPLETE', title: 'Célula', markdown: 'La membrana delimita la célula.',
-      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }] };
+      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }], ...(action === 'OUTLINE' ? { diagram } : {}) };
   } };
   for (const action of ['NOTE', 'OUTLINE', 'PLAN'] as const) {
     await executeStudy({ action, message: 'Organizá el material', topics, sources }, provider);
@@ -107,6 +115,22 @@ test('la devolución pide variar el razonamiento y usa ejemplos autorizados sól
 test('sin fuentes no llama proveedor y devuelve insuficiencia', async () => {
   const result = await executeStudy({action:'NOTE',message:'Apunte',topics,sources:[]}, {generate:async()=>{throw Error('No llamar');}});
   assert.equal(result.status,'INSUFFICIENT');
+});
+test('un OUTLINE completo exige un grafo interactivo y la insuficiencia conserva sus faltantes', async () => {
+  const input = { action: 'OUTLINE', message: 'Relacioná célula y membrana', topics, sources } as const;
+  const complete = { status: 'COMPLETE', title: 'Relaciones', markdown: 'La membrana delimita la célula.',
+    sourceRefs: refs, missingInformation: [] };
+  await assert.rejects(executeStudy(input, { generate: async () => complete }), /INVALID_STUDY_OUTPUT/);
+  const historical = { ...diagram, schemaVersion: 'foxy-diagram-v1',
+    nodes: diagram.nodes.map(({ id, label }) => ({ id, label })),
+    edges: diagram.edges.map(({ from, to, label }) => ({ from, to, label })) };
+  await assert.rejects(executeStudy(input, { generate: async () => ({ ...complete, diagram: historical }) }), /INVALID_STUDY_OUTPUT/);
+  const graphOnly = await executeStudy(input, { generate: async () => ({ ...complete, diagram }) });
+  assert.deepEqual(graphOnly.diagram, diagram);
+  const insufficient = { status: 'INSUFFICIENT', title: 'Faltan fuentes', markdown: '', sourceRefs: [],
+    missingInformation: ['El material no explica cómo se relacionan.'] };
+  assert.deepEqual(await executeStudy(input, { generate: async () => insufficient }), insufficient);
+  await assert.rejects(executeStudy(input, { generate: async () => ({ ...insufficient, diagram }) }), /INVALID_STUDY_OUTPUT/);
 });
 test('PDF llega al port sin serializar bytes como texto; texto ejecutable del modelo se rechaza',async()=>{
   let attached=0;
@@ -191,7 +215,8 @@ test('materiales de estudio excluyen evidencia de prácticas y el chat sólo la 
     const context = JSON.parse(prompt);
     requests.set(context.action, { system, context });
     return { status: 'COMPLETE', title: 'Célula', markdown: 'La membrana delimita la célula.',
-      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }], practice };
+      sourceRefs: refs, missingInformation: [], units: [{ title: 'Biología celular', topics: ['Célula'] }], practice,
+      ...(context.action === 'OUTLINE' ? { diagram } : {}) };
   } };
   for (const action of ['NOTE', 'OUTLINE', 'PLAN', 'CHAT', 'EXERCISE'] as const) {
     await executeStudy({ action, message: 'Organizá lo esencial de la membrana', topics, sources, evidence, questionCount: 1 }, provider);
@@ -293,7 +318,7 @@ test('evidencia no inventa dominio; calendario respeta disponibilidad y examen',
 test('normaliza separadores serializados del recurso generado sin cambiar ejemplos de código ni notación', async () => {
   const markdown = '# Luz\\n\\n## Relación\\n* **Apertura**: cambia la luz.\\n* Notación: `a\\n\\nb` y \\nu.';
   const result = await executeStudy({action:'OUTLINE', message:'Relacioná las ideas', topics, sources}, {generate:async()=>({
-    status:'COMPLETE',title:'Relaciones',markdown,sourceRefs:refs,missingInformation:[],
+    status:'COMPLETE',title:'Relaciones',markdown,sourceRefs:refs,missingInformation:[],diagram,
   })});
   assert.equal(result.markdown, '# Luz\n\n## Relación\n* **Apertura**: cambia la luz.\n* Notación: `a\\n\\nb` y \\nu.');
 });

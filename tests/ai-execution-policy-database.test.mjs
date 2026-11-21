@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createAgendaDatabaseFixture, withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -134,6 +134,11 @@ test('AI profile upgrade, immutable snapshots, policy transitions and concurrent
       } finally { await old.query("SET application_name='foxmind-api-ai-execution-v1'"); old.release(); }
     });
     await t.test('budget uses pinned prices and output limit despite different live configuration', async () => {
+      // Exercise today's billing code against the upgraded database with the original pinned job.
+      const laterMigrations = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name) && name > migration).sort();
+      for (const name of laterMigrations) {
+        await pool.query(await readFile(`prisma/migrations/${name}/migration.sql`, 'utf8'));
+      }
       const live = { ...configuration(), maxOutputTokens: 900, inputUsdPerMillion: 90, outputUsdPerMillion: 90 };
       const job = { id: pinned.id, owner_id: owner };
       await db.$transaction(async raw => {

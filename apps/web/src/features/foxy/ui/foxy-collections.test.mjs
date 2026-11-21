@@ -123,7 +123,7 @@ test('visual prompt survives a rebuilt transcript and keeps its place before lat
   chatFollow:{},controller:{},attachmentCount:0,enabled:true,visualTimeline:{jobs:[visual],onOpen(){}}}));
  assert.ok(html.indexOf('Primer texto')<html.indexOf(visual.prompt));
  assert.ok(html.indexOf(visual.prompt)<html.indexOf('Texto posterior'));
- assert.match(html,/Abrir creación/);
+ assert.match(html,/Explorar esquema/);
 });
 
 test('the classroom scope announces one selected source in the singular', async () => {

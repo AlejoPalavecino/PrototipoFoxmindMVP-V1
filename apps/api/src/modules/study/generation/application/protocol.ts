@@ -55,7 +55,7 @@ export async function executePreparedStudyOperation(plan: PreparedStudyOperation
 
 /** Caller checks revision/cancellation, validates, then saves artifact and terminal receipt in the same UoW. */
 export async function applyPreparedStudyOperation(tx: StudyQuery, row: FolderRow, plan: PreparedStudyOperation, output: GeneratedStudyOutput,
-    ports: Pick<StudyCommandPorts, 'newId' | 'sources' | 'files' | 'images'>) {
+    ports: Pick<StudyCommandPorts, 'newId' | 'sources' | 'files' | 'images' | 'agenda'>) {
     if (plan.mode === 'image' && output.mode === 'image') return applyStudyImage(tx, row, plan, output.value, ports);
     if (plan.mode === 'generate' && output.mode === 'generate') return applyStudyGeneration(tx, row, plan, output.value, ports);
     if (plan.mode === 'feedback' && output.mode === 'feedback') return applyPracticeFeedback(row, plan, output.value);

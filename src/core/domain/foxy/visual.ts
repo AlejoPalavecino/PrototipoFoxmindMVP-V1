@@ -10,13 +10,14 @@ export interface StartFoxyVisual {
   selection: FoxySelection;
   aspectRatio: FoxyAspectRatio;
 }
-export interface FoxyDiagramNode { id: string; label: string }
-export interface FoxyDiagramEdge { from: string; to: string; label: string }
+export interface FoxyDiagramNode { id: string; label: string; explanation?: string }
+export interface FoxyDiagramEdge { from: string; to: string; label: string; explanation?: string }
 export interface FoxyDiagram {
-  schemaVersion: 'foxy-diagram-v1';
+  schemaVersion: 'foxy-diagram-v1' | 'foxy-diagram-v2';
   title: string;
   nodes: FoxyDiagramNode[];
   edges: FoxyDiagramEdge[];
   direction: 'TOP_DOWN' | 'LEFT_RIGHT';
   description: string;
+  challenge?: { question: string; answer: string };
 }

@@ -1,10 +1,12 @@
 import type { RefObject } from 'react';
 import type { StudyPractice } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
-export function renderStudyPracticeReview({ practice, heading, empty, answerText, busy, setIndex, setReview }: {
+export function renderStudyPracticeReview({ practice, heading, empty, unchecked, locked, answerText, busy, setIndex, setReview }: {
   practice: StudyPractice;
   heading: RefObject<HTMLElement | null>;
   empty: number;
+  unchecked: boolean;
+  locked: Set<string>;
   answerText: (id: string) => string;
   busy: boolean;
   setIndex: (index: number) => void;
@@ -15,9 +17,11 @@ export function renderStudyPracticeReview({ practice, heading, empty, answerText
       Revisá tus respuestas
     </h2>
     <p>
-      {empty
+      {unchecked
+        ? 'Confirmá las respuestas del quiz para finalizar.'
+        : empty
         ? 'Respondé todas las preguntas para finalizar.'
-        : 'Podés cambiar tus respuestas antes de finalizar.'}
+        : locked.size ? 'Podés volver a leer tus respuestas antes de finalizar.' : 'Podés cambiar tus respuestas antes de finalizar.'}
     </p>
     <ol>
       {practice.questions.map((q, i) => (<li key={q.id}>
@@ -25,13 +29,13 @@ export function renderStudyPracticeReview({ practice, heading, empty, answerText
           <h3>{q.prompt}</h3>
           <p>{answerText(q.id)}</p>
         </div>
-        <button disabled={busy} aria-label={`Editar respuesta ${i + 1}`} onClick={() => {
+        <button disabled={busy} aria-label={`${locked.has(q.id) ? 'Ver' : 'Editar'} respuesta ${i + 1}`} onClick={() => {
           setIndex(i);
           setReview(false);
 
         }}>
-          <FoxmindIcon name="edit" />
-          Editar
+          <FoxmindIcon name={locked.has(q.id) ? 'book' : 'edit'} />
+          {locked.has(q.id) ? 'Ver respuesta' : 'Editar'}
         </button>
       </li>))}
     </ol>

@@ -10,11 +10,31 @@ globalThis.window={document:{},location:{replace(){}},addEventListener(){},remov
 const classroom={id:randomUUID(),name:'Biología'}, conversation={id:randomUUID(),title:'Repaso',context:{kind:'GENERAL'},revision:'0'};
 const base={capabilities:{textGeneration:{enabled:true},imageGeneration:{enabled:false},diagramGeneration:{enabled:false}},conversations:[conversation],
   nextConversationCursor:null,current:conversation,turns:[],activeTurn:null,nextAfterSequence:null,pending:null,error:null,busy:false};
-function fixture(state=base){
+function fixture(state=base, props={}){
   const calls=[],controller=Object.fromEntries(['init','create','select','send','retry','loadMore','loadMoreConversations','dispose'].map(name=>[name,(...args)=>calls.push({name,args})]));
   const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx",{});
-  assert.equal(typeof FoxyWorkspace,'function');return {controller,calls,view:hookView(FoxyWorkspace,{controller,state,classrooms:[classroom]})};
+  assert.equal(typeof FoxyWorkspace,'function');return {controller,calls,view:hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],...props})};
 }
+
+test('an inline reader replaces the transcript and preserves the Foxy toolbar', async () => {
+  let closed = 0;
+  const f = fixture(base, {
+    inlineReader: React.createElement('section', { 'aria-label': 'Revisión del quiz' }, 'Preguntas guardadas'),
+    onCloseReader: () => { closed++; return true; },
+  });
+  try {
+    await f.view.flush();
+    const html = renderToStaticMarkup(f.view.tree);
+    assert.match(html, /Revisión del quiz/);
+    assert.match(html, /aria-label="Herramientas"/);
+    assert.doesNotMatch(html, /<textarea/);
+    const layout = descendants(f.view.tree, node => node.type?.name === 'FoxyChatLayout')[0];
+    layout.props.onNew();
+    assert.equal(closed, 1);
+  } finally {
+    f.view.close();
+  }
+});
 
 test('outgoing request replaces the welcome before the server receipt arrives',async()=>{
   const f=fixture({...base,busy:true,pending:{requestId:randomUUID(),revision:'0',purpose:'CHAT',text:'Explicame la exposición',selection:{topicIds:[],sourceIds:[]}}});
@@ -140,7 +160,7 @@ test('READY answer exposes edit resource even when AI generation is disabled',as
   turns:[{id:turnId,sequence:1,state:'READY',purpose:'SUMMARY',message:'Hola',answer:{title:'Resumen',markdown:'Contenido',warnings:[],missingInformation:[]},errorCode:null,createdAt:'2026-01-01T00:00:00.000Z'}]};
  const controller=Object.fromEntries(['init','create','select','send','retry','loadMore','loadMoreConversations','dispose'].map(name=>[name,()=>{}]));
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx",{}),view=hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],onOpenResource:(...args)=>calls.push(args)});
- try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/abrir creación/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
+ try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/leer apunte/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
 });
 
 test('non-READY or missing answer never offers resource editing',async()=>{

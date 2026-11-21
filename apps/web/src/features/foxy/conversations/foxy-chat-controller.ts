@@ -279,14 +279,18 @@ export function createFoxyChatController(options: Options) {
       } catch { if (valid(version)) update({ error: 'No pudimos cargar las fuentes del aula.' }); }
       finally { if (valid(version)) loadingSources.delete(kind); }
     },
-    async loadCitations(turnId: string) {
-      if (disposed || !state.current) return;
-      const version = epoch, id = state.current.id;
+    async loadCitations(turnId: string, requestedConversationId?: string) {
+      const conversationId = requestedConversationId ?? state.current?.id;
+      if (disposed || !conversationId) return;
+      const version = epoch;
       try {
-        const citations = await options.client.citations(id, turnId, abort.signal);
-        if (valid(version)) update({ citations: { ...state.citations, [turnId]: citations.map(item => ({ ...item,
-          href: item.availability === 'AVAILABLE' ? options.client.citationUrl(id, turnId, item.id, 'preview') : null })) } });
-      } catch { if (valid(version)) update({ error: 'No pudimos cargar las citas.' }); }
+        const citations = await options.client.citations(conversationId, turnId, abort.signal);
+        if (!valid(version)) return;
+        const visible = citations.map(item => ({ ...item,
+          href: item.availability === 'AVAILABLE' ? options.client.citationUrl(conversationId, turnId, item.id, 'preview') : null }));
+        update({ citations: { ...state.citations, [turnId]: visible } });
+        return visible;
+      } catch { if (valid(version) && !requestedConversationId) update({ error: 'No pudimos cargar las citas.' }); }
     },
     async resolveToolSelection(topicIds: string[], baseSelection?:SendFoxyMessage['selection']): Promise<SendFoxyMessage['selection'] | undefined> {
       const current=state.current, version=epoch;

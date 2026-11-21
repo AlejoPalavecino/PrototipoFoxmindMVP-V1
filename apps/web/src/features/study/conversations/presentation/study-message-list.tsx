@@ -1,3 +1,4 @@
+import { creationExcerpt, creationPresentation } from '../../../../../../shared-ui/creation-presentation';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import s from '../../ui/study.module.css';
 import { Fragment } from 'react';
@@ -16,17 +17,19 @@ export function StudyMessageList({
   active,
   onCreation,
   onPractice,
+  onExam,
   onSources,
   onReload,
 }: {
   identity?: ChatIdentity;
-  detail: Pick<StudyDetail, 'creations' | 'practices'>;
+  detail: Pick<StudyDetail, 'creations' | 'practices' | 'exams'>;
   messages: StudyTurn[];
   generation: StudyGenerationPresentation;
   busy: boolean;
   active: boolean;
   onCreation: (value: StudyCreation | undefined) => void;
   onPractice: (id: string) => void;
+  onExam: (id: string) => void;
   onSources: (refs: NonNullable<StudyTurn['sourceRefs']>) => void;
   onReload: () => void;
 }) {
@@ -37,6 +40,12 @@ export function StudyMessageList({
           request =
             message.generation &&
             generation.requests.find((item) => item.requestId === message.generation!.requestId);
+        const creation = result?.kind === 'creation' ? detail.creations.find(item => item.id === result.id) : undefined;
+        const practice = result?.kind === 'practice' ? detail.practices.find(item => item.id === result.id) : undefined;
+        const card = creationPresentation(creation?.kind ?? practice?.kind ?? (result?.kind === 'exam' ? 'REVIEW_PLAN' : 'QUIZ'));
+        const exam = result?.kind === 'exam' ? detail.exams?.find(item => item.id === result.id) : undefined;
+        const description = practice?.questions ? `${practice.questions.length} preguntas`
+          : exam ? `${exam.sessions.length} sesiones de repaso` : creation && !creation.sourceUnavailable ? creationExcerpt(creation.markdown) : '';
         return (
           <Fragment key={message.id ?? index}>
             <article
@@ -53,21 +62,23 @@ export function StudyMessageList({
                   className="study-exact-generation-result"
                   onClick={() => {
                     if (result.kind === 'creation')
-                      onCreation(detail.creations.find((item) => item.id === result.id));
+                      onCreation(creation);
+                    else if (result.kind === 'exam') onExam(result.id);
                     else onPractice(result.id);
                   }}
                 >
                   <span className="study-exact-tool-icon sky">
-                    <FoxmindIcon name={result.kind === 'practice' ? 'edit' : 'file'} />
+                    <FoxmindIcon name={card.icon} />
                   </span>
                   <span>
-                    <small>Tu propuesta está lista</small>
+                    <small>{card.label}</small>
                     <strong>{result.title}</strong>
-                    <b>Abrir creación</b>
+                    {description && <span className="creation-shelf-description">{description}</span>}
+                    <b>{card.action}</b>
                   </span>
                   <FoxmindIcon name="chevron-right" />
                 </button>
-              ) : message.creationId || message.practiceId ? (
+              ) : message.creationId || message.practiceId || message.examId ? (
                 <div className="study-exact-generation-notice">
                   <p>No pudimos abrir la propuesta guardada. Volvé a consultar la carpeta.</p>
                   <button onClick={() => onReload()}>Actualizar</button>

@@ -16,8 +16,9 @@ import { foxyThreadId } from '../../navigation/foxy-navigation-bridge';
 import { useFoxyWorkspaceActions } from '../../../features/foxy/index.ts';
 import { useFoxyCatalog } from '../../../features/foxy/index.ts';
 import type { FoxyCreation } from '../../../features/foxy/api.ts';
-import { FoxyWorkspace } from '../../../features/foxy/index.ts';
+import { FoxyWorkspace, renderFoxySourceReport } from '../../../features/foxy/index.ts';
 import { FoxyResourceWorkspace } from './FoxyResourceWorkspace';
+import { readFoxyQuiz } from '../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 import { FoxyVisualWorkspace } from '../../../features/foxy/index.ts';
 import { FoxyVisualPublicationPanel, FoxyVisualReaderDialog } from '../../../features/foxy/index.ts';
 
@@ -45,6 +46,40 @@ function PendingLeaveDialog({ cancel, proceed, reason }: { cancel: () => void; p
   </dialog>;
 }
 
+function DiagramSourceLinks({ classroomId, sourceIds, load }: {
+  classroomId: string;
+  sourceIds: readonly string[];
+  load(id: string, signal: AbortSignal): Promise<{ materials: { id: string; title: string }[] }>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [materials, setMaterials] = useState<{ id: string; title: string }[] | null>();
+  useEffect(() => {
+    if (!open) return;
+    const abort = new AbortController();
+    setMaterials(undefined);
+    void load(classroomId, abort.signal).then(({ materials: next }) => {
+      if (!abort.signal.aborted) setMaterials(next);
+    }, () => {
+      if (!abort.signal.aborted) setMaterials(null);
+    });
+    return () => abort.abort();
+  }, [classroomId, load, open]);
+  const selected = materials?.filter(material => sourceIds.includes('material:' + material.id));
+  return <>
+    <button className="p5-action" type="button" onClick={() => setOpen(true)}>
+      <FoxmindIcon name="book" />Ver fuentes
+    </button>
+    {open && <FoxyDialog title="Materiales del pedido" onClose={() => setOpen(false)} focusTitle>
+      {materials === undefined ? <p role="status">Consultando Biblioteca…</p> :
+        materials === null ? <p role="alert">No pudimos consultar Biblioteca. Volvé a intentar.</p> :
+          selected?.length ? <ul>{selected.map(material => <li key={material.id}>
+            <a href={classroomHomeHref({ kind: 'material', classroomId, materialId: material.id })}
+              target="_blank" rel="noopener noreferrer">{material.title}</a>
+          </li>)}</ul> : <p>Los materiales del pedido ya no están disponibles.</p>}
+    </FoxyDialog>}
+  </>;
+}
+
 export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, onNavigate, onRegister }: { identity?: ChatIdentity; subjectId: string;
   onIdentityRequired: (code: string) => void; onNavigate?: (href: string) => void | Promise<void>;
   onRegister?: (binding: { navigate: (href: string) => void; shouldBlock: () => boolean } | null) => void }) {
@@ -55,10 +90,12 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
   const submittingVisualDraft = useRef(false);
   const resolvingVisual = useRef(false);
   const [resolvingVisualSources,setResolvingVisualSources]=useState(false),[visualSetupError,setVisualSetupError]=useState('');
+  const [visualRepeat, setVisualRepeat] = useState<FoxyCreation>();
   const [visualMaterialCount,setVisualMaterialCount]=useState<number|undefined>(undefined);
   const [draftPreview,setDraftPreview]=useState<{classroomId:string;topics:{id:string;name:string}[];materialCount:number;error?:string}>();
   const [previewRetry,setPreviewRetry]=useState(0);
   const [handoffStart, setHandoffStart] = useState<{ turnId: string; mode: 'ACTIVITY' | 'RUBRIC' } | null>(null);
+  const [quizSource, setQuizSource] = useState<{ conversationId: string; turnId: string; status: 'loading' | 'ready' | 'unavailable' }>();
   const { state, runtime, initializing } = useFoxyWorkspace({ subjectId, onIdentityRequired });
   const { actions, ui } = useFoxyWorkspaceActions({ runtime, state, onNavigate: onNavigate ?? (() => {}) });
   const previewClient = useMemo(() => createWebClassroomClient(fetch, onIdentityRequired), [subjectId, onIdentityRequired]);
@@ -112,7 +149,20 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
   }, [runtime, actions, onRegister]);
   if (!state || !runtime || !actions || !ui || !state.chat) return <AsyncFeedback title="Cargando Foxy AI…"/>;
   const visualChat = state.chat.current;
+  const resourceConversation = state.resource?.resource?.conversationId;
+  const resourceImages = new Map<string, string>();
+  if (resourceConversation) {
+    for (const job of state.visual?.jobs ?? []) {
+      if (job.kind === 'IMAGE' && job.state === 'READY' && job.assetId && job.conversationId === resourceConversation)
+        resourceImages.set(job.assetId, job.prompt ?? 'Ilustración de Foxy AI');
+    }
+    for (const item of catalog?.state?.creations?.items ?? []) {
+      if (item.kind === 'IMAGE' && item.assetId && item.conversationId === resourceConversation)
+        resourceImages.set(item.assetId, item.title);
+    }
+  }
   const selectedVisual = state.visual?.jobs.find(job => job.id === state.visual?.selectedId);
+  const visualCreation = catalog?.state.creations.items.find(item => item.visualJobId === selectedVisual?.id);
   const visualSharing = selectedVisual?.state === 'READY' && state.visualPublication?.assetId === selectedVisual.assetId
     ? state.visualPublication : null;
   const capabilities = { IMAGE: !!state.chat.capabilities?.imageGeneration?.enabled, DIAGRAM: !!state.chat.capabilities?.diagramGeneration?.enabled };
@@ -149,7 +199,7 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
     const id=runtime.getState().chat?.current?.id;if(!id)return;
     resolvingVisual.current=true;setResolvingVisualSources(true);setVisualSetupError('');
     try{
-      const selection=topicIds===undefined?undefined:await runtime.chat.resolveToolSelection(topicIds);
+      const selection=topicIds===undefined?undefined:await runtime.chat.resolveToolSelection(topicIds,visualRepeat?.selection);
       if(runtime.getState().chat?.current?.id!==id)return;
       if(topicIds!==undefined&&!selection){setVisualSetupError('No pudimos preparar tus temas y fuentes. Tu idea sigue acá; volvé a intentar.');return;}
       const before=runtime.visual.getState().jobs.map(job=>job.id),pending=runtime.visual.start(selection);
@@ -162,17 +212,66 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
   const sourceTurnId=state.resource?.resource?.sourceTurnId;
   const resourceKind=sourceTurnId?(state.chat?.turns?.find(turn=>turn.id===sourceTurnId)?.purpose??catalog?.state.creations.items.find(item=>item.turnId===sourceTurnId)?.kind):undefined;
   const resourceLabels:Record<string,string>={STUDY_MATERIAL:'Preparar un apunte',REVIEW:'Preparar un apunte',SUMMARY:'Preparar un apunte',NOTE:'Preparar un apunte',LESSON_PLAN:'Planificar una clase',PLAN:'Planificar una clase',RUBRIC:'Pensar una rúbrica',ACTIVITY_IDEAS:'Crear una actividad',ACTIVITY:'Crear una actividad'};
+  const inlineQuiz = !!readFoxyQuiz(state.resource?.resource?.markdown ?? '');
+  const quizConversationId = state.resource?.resource?.conversationId;
+  const openQuizSources = inlineQuiz && sourceTurnId && quizConversationId ? () => {
+    const request = { conversationId: quizConversationId, turnId: sourceTurnId, status: 'loading' as const };
+    setQuizSource(request);
+    void actions.chat.loadCitations(request.turnId, request.conversationId)?.then((citations) =>
+      setQuizSource(current => current === request ? { ...request, status: citations ? 'ready' : 'unavailable' } : current));
+  } : undefined;
+  const resourceWorkspace = state.resource && (state.resource.status !== 'closed' || ui.openingResource) &&
+    state.preparation && state.history && state.confirmation && <FoxyResourceWorkspace
+      resource={state.resource} creationLabel={resourceKind?resourceLabels[resourceKind]:undefined} preparation={state.preparation}
+      history={state.history} confirmation={state.confirmation} management={state.management} inlineQuiz={inlineQuiz} onOpenQuizSources={openQuizSources}
+      availableIllustrations={[...resourceImages].map(([id, caption]) => ({url:runtime.assetFileUrl(id,'preview'),caption}))}
+      classrooms={state.classrooms} ui={ui} actions={actions} handoffRuntime={runtime} handoffState={state.activityHandoff}
+      initialHandoffMode={handoffStart?.turnId === sourceTurnId ? handoffStart?.mode : undefined} publicationFileUrl={runtime.publicationFileUrl} />;
+  const inlineDiagram = !visualDraft && !!activeVisual && !visualCreating && selectedVisual?.state === 'READY' && selectedVisual.kind === 'DIAGRAM';
+  const visualSourceIds = visualCreation?.selection?.sourceIds.filter(id => id.startsWith('material:')) ?? [];
+  const visualWorkspace = !visualDraft && activeVisual && !visualCreating && selectedVisual?.state === 'READY' &&
+    state.visualEditor && <FoxyVisualReaderDialog key={selectedVisual.assetId} assetId={selectedVisual.assetId}
+      state={state.visualEditor} actions={runtime.visualEditor} assetFileUrl={runtime.assetFileUrl} onClose={() => {
+        setVisualConversation(null);
+        if (inlineDiagram && typeof requestAnimationFrame === 'function')
+          requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('.parity-ai-chat textarea')?.focus());
+      }}
+      inline={inlineDiagram} sourceAction={inlineDiagram && visualChat?.context.kind === 'CLASSROOM' && visualSourceIds.length > 0
+        ? <DiagramSourceLinks classroomId={visualChat.context.classroomId} sourceIds={visualSourceIds} load={previewContext} /> : undefined}
+      onRepeat={selectedVisual.prompt ? () => {
+        runtime.visual.setKind(selectedVisual.kind);
+        runtime.visual.setPrompt(selectedVisual.prompt!);
+        runtime.visual.setAspectRatio(selectedVisual.aspectRatio);
+        setVisualRepeat(visualCreation);
+        setVisualSetupError('');
+        setVisualCreating(true);
+      } : undefined}
+      sharingTitle={visualSharing?.publication?.title}
+      shareLocked={!!visualSharing?.busy} sharePending={!!visualSharing?.pending} published={visualSharing?.hasSharedVersions||!!visualSharing?.receipt||visualSharing?.publication?.state==='PUBLISHED'}
+      sharing={visualSharing?<FoxyVisualPublicationPanel state={visualSharing} actions={runtime.visualPublication} classrooms={state.classrooms} publicationFileUrl={runtime.publicationFileUrl}/>:<p role="status">Consultando la versión guardada…</p>}/>;
   return <>{state.classroomsError && <p role="alert">{state.classroomsError}</p>}
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&
       <PendingLeaveDialog reason={ui.leave.reason} cancel={() => actions.cancelLeave()} proceed={() => { void actions.discardAndContinue(); }} />}
-    <FoxyWorkspace visualTimeline={state.visual ? {
+    <FoxyWorkspace inlineReader={inlineDiagram ? visualWorkspace : inlineQuiz ? resourceWorkspace : undefined}
+      onCloseReader={() => {
+        if (inlineDiagram) {
+          if (state.visualEditor?.dirty || state.visualEditor?.busy || state.visualEditor?.pending || visualSharing?.busy || visualSharing?.pending) return false;
+          setVisualConversation(null);
+          return true;
+        }
+        const closed = actions.resource.close();
+        if (closed) setHandoffStart(null);
+        return closed;
+      }}
+      visualTimeline={state.visual ? {
       ...state.visual,
+      titles: Object.fromEntries((catalog?.state.creations.items ?? []).filter(item => item.visualJobId).map(item => [item.visualJobId!, item.title])),
       onStop: id => void runtime.visual.cancel(id),
       onRetry: () => void runtime.visual.retry(),
       onRefresh: () => void runtime.visual.refresh(),
       onOpen: id => { runtime.visual.select(id); setVisualCreating(false); setVisualConversation(visualChat?.id ?? null); },
-    } : undefined} previewContext={previewContext} onStartActivity={classroomId=>{void actions.requestNavigate(classroomHomeHref({kind:'create-activity',classroomId}));}} onNewDraft={()=>setThreadAddress(null)} identity={identity} destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
+    } : undefined} previewContext={previewContext} onNewDraft={()=>setThreadAddress(null)} identity={identity} destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
       onConversationQuery={query => { void catalog?.controller.setConversationQuery(query); }}
       onCreationQuery={query => { void catalog?.controller.setCreationQuery(query); }}
       onMoreConversations={() => { void catalog?.controller.moreConversations(); }} onMoreCreations={() => { void catalog?.controller.moreCreations(); }}
@@ -180,16 +279,30 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
       onOpenVisual={state.visual ? (draft,details) => {
         setVisualCreating(true);
         setVisualSetupError('');setVisualMaterialCount(details?.materialCount);
-        if (draft) {
+        const repeat = details?.repeat;
+        setVisualRepeat(repeat);
+        if (repeat && (repeat.kind === 'IMAGE' || repeat.kind === 'DIAGRAM')) {
+          runtime.visual.setKind(repeat.kind);
+          if (repeat.aspectRatio) runtime.visual.setAspectRatio(repeat.aspectRatio);
+          runtime.visual.setPrompt(repeat.brief ?? repeat.title);
+          setVisualConversation(repeat.conversationId);
+        } else if (draft) {
           visualDraftRequest.current = null;
           setVisualConversation(null);
           setVisualDraft({ ...draft, kind: capabilities.DIAGRAM ? 'DIAGRAM' : 'IMAGE', aspectRatio: '1:1', prompt: '', error: null });
         } else if (visualChat) setVisualConversation(visualChat.id);
       } : undefined}
       onOpenCreation={(item: FoxyCreation) => {
-        if (item.turnId) void actions.resource.openCreation(item.conversationId, item.turnId);
-        else if (item.visualJobId) void actions.openVisualCreation(item.conversationId, item.visualJobId,
-          () => {setVisualCreating(false);setVisualConversation(item.conversationId);});
+        if (item.turnId) {
+          if (inlineDiagram) setVisualConversation(null);
+          setHandoffStart(null);
+          void actions.resource.openCreation(item.conversationId, item.turnId);
+        }
+        else if (item.visualJobId) {
+          if (inlineQuiz && !actions.resource.close()) return;
+          void actions.openVisualCreation(item.conversationId, item.visualJobId,
+            () => {setVisualCreating(false);setVisualConversation(item.conversationId);});
+        }
       }}
       onNavigate={href => { void actions.requestNavigate(href); }} creationBlocked={!!ui.leave} onCreateDiagram={async prompt => {
       const snapshot = runtime.getState(), chat = snapshot.chat;
@@ -206,12 +319,8 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
     }} onActivityHandoff={(conversationId, turnId, mode) => { void Promise.resolve(actions.resource.open(conversationId, turnId)).then(result => {
       if (result === 'opened') { runtime.activityHandoff.reset(); setHandoffStart({ turnId, mode }); }
     }); }} controller={actions.chat} state={state.chat} classrooms={state.classrooms}
-      onOpenResource={(conversationId, turnId) => { void actions.resource.open(conversationId, turnId); }} />
-    {!visualDraft&&activeVisual&&!visualCreating&&selectedVisual?.state==='READY'&&state.visualEditor&&<FoxyVisualReaderDialog key={selectedVisual.assetId} assetId={selectedVisual.assetId}
-      state={state.visualEditor} actions={runtime.visualEditor} assetFileUrl={runtime.assetFileUrl} onClose={()=>setVisualConversation(null)}
-      sharingTitle={visualSharing?.publication?.title}
-      shareLocked={!!visualSharing?.busy} sharePending={!!visualSharing?.pending} published={visualSharing?.hasSharedVersions||!!visualSharing?.receipt||visualSharing?.publication?.state==='PUBLISHED'}
-      sharing={visualSharing?<FoxyVisualPublicationPanel state={visualSharing} actions={runtime.visualPublication} classrooms={state.classrooms} publicationFileUrl={runtime.publicationFileUrl}/>:<p role="status">Consultando la versión guardada…</p>}/>}
+      onOpenResource={(conversationId, turnId) => { setHandoffStart(null); void actions.resource.open(conversationId, turnId); }} />
+    {!inlineDiagram && visualWorkspace}
     {(visualDraft || activeVisual&&(visualCreating||selectedVisual?.state!=='READY')) && <FoxyDialog title="Imágenes y esquemas" description="Contale a Foxy qué necesitás. Después podés revisar y editar." className="parity-foxy-visualDialog" footer={<>
       <button type="button" disabled={resolvingVisualSources||submittingVisualDraft.current} onClick={()=>{setVisualDraft(null);setVisualConversation(null);}}>Cerrar</button>
       {(visualDraft||visualCreating||!selectedVisual)&&<button type="submit" form="foxy-visual-form" className="p5-primary" disabled={chatBusy||!!state.visual?.busy||!!state.visual?.pending||resolvingVisualSources||visualDraftLoading||!!draftPreview?.error}><FoxmindIcon name="spark"/>Preparar propuesta</button>}
@@ -229,14 +338,18 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
         actions={{ setKind: kind => updateVisualDraft({ kind }), setPrompt: prompt => updateVisualDraft({ prompt }),
           setAspectRatio: aspectRatio => updateVisualDraft({ aspectRatio }), start: topicIds => generateFirstVisual(visualDraft,topicIds) }} />
       : activeVisual && <FoxyVisualWorkspace {...activeVisual} selectedId={visualCreating?null:activeVisual.selectedId} capabilities={capabilities}
-        topics={state.chat.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={state.chat.selection?.mode==='ALL_CLASSROOM'?undefined:state.chat.selection?.topicIds}
+        topics={state.chat.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={(visualRepeat?.selection ?? state.chat.selection)?.mode==='ALL_CLASSROOM'?undefined:(visualRepeat?.selection ?? state.chat.selection)?.topicIds.filter(id=>state.chat?.curriculum?.units.some(unit=>unit.topics.some(topic=>topic.id===id)))}
         contextName={state.chat.curriculum?.classroomTitle??'Contexto general'} materialCount={visualMaterialCount} error={visualSetupError||activeVisual.error}
         busy={activeVisual.busy || chatBusy || resolvingVisualSources || !!state.visualPublication?.busy || !!state.visualPublication?.pending || (visualChat?.context.kind === 'CLASSROOM' && !state.chat.curriculum?.canGenerate)}
         actions={{...runtime.visual,start:topicIds=>void generateVisual(topicIds)}} assetFileUrl={runtime.assetFileUrl}
         />}
     </FoxyDialog>}
-    {state.resource && (state.resource.status !== 'closed' || ui.openingResource) && state.preparation && state.history && state.confirmation && <FoxyResourceWorkspace
-      resource={state.resource} creationLabel={resourceKind?resourceLabels[resourceKind]:undefined} preparation={state.preparation} history={state.history} confirmation={state.confirmation} management={state.management}
-      classrooms={state.classrooms} ui={ui} actions={actions} handoffRuntime={runtime} handoffState={state.activityHandoff} initialHandoffMode={handoffStart?.turnId === state.resource.resource?.sourceTurnId ? handoffStart?.mode : undefined} publicationFileUrl={runtime.publicationFileUrl} />}
+    {!inlineQuiz && resourceWorkspace}
+    {inlineQuiz && quizSource && quizSource.turnId === sourceTurnId && renderFoxySourceReport({
+      conversationId: quizSource.conversationId, turnId: quizSource.turnId, status: quizSource.status,
+      scopeReport: state.chat.turns.find(turn => turn.id === sourceTurnId)?.classroomSources,
+      citations: quizSource.status === 'ready' ? state.chat.citations?.[quizSource.turnId] ?? [] : [],
+      onClose: () => setQuizSource(undefined),
+    })}
   </>;
 }

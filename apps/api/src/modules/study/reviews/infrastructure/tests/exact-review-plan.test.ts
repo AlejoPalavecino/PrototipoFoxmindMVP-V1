@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { planExam } from '../../../../../../../../src/core/domain/study/engine.ts';
+import { executeStudy, planExam } from '../../../../../../../../src/core/domain/study/engine.ts';
 import { createStudyService } from '../../../folders/application/service.ts';
 import { createStudentUnitOfWork } from '../../../folders/infrastructure/unit-of-work.ts';
 import { createFolderRepository } from '../../../folders/infrastructure/folder-repository.ts';
@@ -10,6 +10,27 @@ const topicIds = Array.from({ length: 8 }, () => crypto.randomUUID());
 const topics = topicIds.map((id, i) => ({ id, title: `Tema ${i + 1}` }));
 const availability = (count: number, minutes = 25) => Array.from({ length: count }, (_, i) => ({ start: `2099-11-${String(20 + i).padStart(2, '0')}T15:00:00Z`, minutes }));
 const base = { examAt: '2099-12-01T15:00:00Z', now: '2099-11-18T15:00:00Z', timeZone: 'America/Argentina/Buenos_Aires', minutesPerTopic: 25 };
+
+test('Gemini proposes an activity for each review session using only the selected topics', async () => {
+  const response = { status: 'COMPLETE', title: 'Repaso de mitosis', markdown: '', sourceRefs: [], missingInformation: [],
+    reviewSessions: [{ title: 'Secuencia de fases', topicIds: [topicIds[0]], activity: 'Dibujá el orden de las fases de memoria.' },
+      { title: 'Comparación', topicIds: [topicIds[1]], activity: 'Explicá cómo distinguís metafase y anafase.' }] };
+  const input = { action: 'REVIEW_PLAN', message: 'Quiero preparar la evaluación de mitosis', sources: [], topics: topics.slice(0, 2),
+    reviewMinutes: [25, 40] } as const;
+  const request = { ...input, topics: [...input.topics], sources: [], reviewMinutes: [...input.reviewMinutes] };
+  const result = await executeStudy(request, { async generate({ prompt }) {
+    assert.deepEqual(JSON.parse(prompt).reviewMinutes, [25, 40]);
+    return response;
+  } });
+  assert.deepEqual(result.reviewSessions, response.reviewSessions);
+  for (const reviewSessions of [
+    response.reviewSessions.slice(1),
+    [{ ...response.reviewSessions[0]!, topicIds: [topicIds[2]] }, response.reviewSessions[1]],
+    [{ ...response.reviewSessions[0]!, activity: '<script>…</script>' }, response.reviewSessions[1]],
+    [{ ...response.reviewSessions[0]!, startAt: base.now }, response.reviewSessions[1]],
+    [{ ...response.reviewSessions[0]!, activity: ' ' }, response.reviewSessions[1]],
+  ]) await assert.rejects(executeStudy(request, { async generate() { return { ...response, reviewSessions }; } }), /INVALID_STUDY_OUTPUT/);
+});
 
 test('exact review uses one full window per session and rotates topics for every supported count/duration', () => {
   for (const sessionCount of [2, 3, 4, 5]) for (const minutes of [15, 25, 40]) for (const topicCount of [1, 2, 8]) {
@@ -62,11 +83,13 @@ test('review activities distinguish encounter, same-day revisit and spaced trans
 });
 
 function fixture() {
-  const owner = crypto.randomUUID(); let conflictChecks = 0, agendaWrites = 0;
+  const owner = crypto.randomUUID(); let conflictChecks = 0, agendaWrites = 0, generations = 0;
+  const conversationId = crypto.randomUUID();
   const confirmed: unknown[][] = [];
   let row: FolderRow = { id: crypto.randomUUID(), owner_id: owner, status: 'ACTIVE', revision: 1n, created_at: new Date(), updated_at: new Date(), state: {
     version: 1, fields: { name: 'Estudio', subject: 'Historia', academicYear: 2026, bannerKey: 'general', linkedClassroomId: null, planFileId: null,
-      units: [{ id: crypto.randomUUID(), title: 'Unidad', topics }] }, materials: [], conversations: [], creations: [], practices: [], exams: [], memory: {}, receipts: {} } };
+      units: [{ id: crypto.randomUUID(), title: 'Unidad', topics }] }, materials: [],
+    conversations: [{ id: conversationId, title: 'Biología', turns: [] }], creations: [], practices: [], exams: [], memory: {}, receipts: {} } };
   const database: StudyDatabase = { async $transaction(operation) {
     const before = structuredClone(row);
     try { return await operation({ $queryRawUnsafe: async <T>(sql: string, ...values: unknown[]) => {
@@ -79,13 +102,45 @@ function fixture() {
   } };
   const service = createStudyService({ uow: createStudentUnitOfWork({ database, authenticate: async (_tx, request) => (request as { owner?: string }).owner ?? owner }),
     folders: createFolderRepository(), newId: () => crypto.randomUUID(), digest: value => value, sources: async () => [], linkedClassrooms: async () => [], verifyLink: async () => {}, importPlan: async () => null,
+    generate: input => executeStudy(input, { async generate() {
+      generations++;
+      return { status: 'COMPLETE', title: 'Repasá mitosis', markdown: '', sourceRefs: [], missingInformation: [],
+        reviewSessions: ['Dibujá las fases.', 'Compará dos fases.', 'Explicá lo que cambia.']
+          .map((activity, index) => ({ title: `Mitosis · ${index + 1}`, topicIds: [topicIds[0]], activity })) };
+    } }),
     agenda: { conflicts: async (_tx, id, zone, sessions) => { conflictChecks++; assert.equal(id, owner); assert.equal(zone, base.timeZone); assert.equal(sessions.length, 3);
       return [{ sessionId: sessions[0]!.id, occurrenceId: crypto.randomUUID(), title: 'Evento propio' }]; },
       confirm: async (_tx, _owner, _folder, _exam, sessions) => { agendaWrites++; confirmed.push(sessions); return {}; }, cancel: async () => {} } });
-  return { service, confirmed, get row() { return row; }, get checks() { return conflictChecks; }, get writes() { return agendaWrites; },
+  return { service, confirmed, conversationId, get row() { return row; }, get generations() { return generations; }, get checks() { return conflictChecks; }, get writes() { return agendaWrites; },
     input(extra: Record<string, unknown> = {}) { const { now: _, ...fields } = base; return { action: 'PLAN_EXAM', ...fields, title: 'Mi evaluación', sessionCount: 3,
       availability: availability(3), topicIds: [topicIds[0]], revision: String(row.revision), requestId: crypto.randomUUID(), ...extra }; } };
 }
+
+test('a Gemini review survives reload and receipt replay, then sends the confirmed activities to Agenda', async () => {
+  const f = fixture();
+  const input = { action: 'GENERATE', kind: 'REVIEW_PLAN', message: 'Repasar para la evaluación de mitosis',
+    topicIds: [topicIds[0]], conversationId: f.conversationId, revision: String(f.row.revision), requestId: crypto.randomUUID(),
+    review: { examAt: base.examAt, timeZone: base.timeZone, availability: availability(3) } };
+  const response = await f.service.command({}, f.row.id, input);
+  assert.equal(f.generations, 1);
+  assert.equal(f.writes, 0);
+  const { exam } = response.result as { exam: FolderRow['state']['exams'][number] };
+  assert.equal(exam.sessions[0]?.startAt, new Date(input.review.availability[0]!.start).toISOString());
+  const detail = await f.service.get({}, f.row.id);
+  assert.equal(detail.exams[0]?.id, exam.id);
+  const generation = detail.conversations[0]?.turns[0]?.generation;
+  assert.ok(generation && 'status' in generation);
+  assert.equal(generation.status, 'COMPLETE');
+  assert.equal(detail.conversations[0]?.turns[1]?.examId, exam.id);
+  assert.deepEqual(await f.service.command({}, f.row.id, input), response);
+  assert.equal(f.generations, 1);
+  const confirm = { action: 'CONFIRM_AGENDA', examId: exam.id, sessionIds: [exam.sessions[1]?.id],
+    revision: String(f.row.revision), requestId: crypto.randomUUID() };
+  await f.service.command({}, f.row.id, confirm);
+  await f.service.command({}, f.row.id, confirm);
+  assert.equal(f.writes, 1);
+  assert.deepEqual(f.confirmed[0], [exam.sessions[1]]);
+});
 
 test('exact PLAN_EXAM persists count with existing agenda warnings and replays without creating events', async () => {
   const f = fixture(), input = f.input(), response = await f.service.command({}, f.row.id, input);

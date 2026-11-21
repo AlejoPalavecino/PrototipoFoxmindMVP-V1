@@ -1,5 +1,6 @@
 import type { StudyInput, StudyResult, StudyPractice, StudyAnswers, PracticeResult, SourceRef, planExam, generateDevelopmentFeedback } from '../../../../../../src/core/domain/study/engine.ts';
 import type { FolderFields } from '../../../../../../src/core/domain/study/folders.ts';
+import type { StudyReviewRequest } from '../../../../../../src/core/domain/study/review.ts';
 export interface StudySource {
     kind?: 'PLAN' | 'MATERIAL';
     extension?: string;
@@ -55,12 +56,13 @@ export interface StudyPreferences {
     difficulty: 'EASY' | 'MEDIUM' | 'HARD';
     questionCount: number;
     topicIds: string[];
-    lastTool: 'NOTE' | 'OUTLINE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
+    lastTool: 'EXPLANATION' | 'NOTE' | 'OUTLINE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
 }
 export const STUDY_GENERATION_PENDING_MS = 600000;
 export interface StudyGenerationIntent {
     requestId: string;
-    kind: StudyPreferences['lastTool'] | 'IMAGE';
+    kind: StudyPreferences['lastTool'] | 'IMAGE' | 'REVIEW_PLAN';
+    review?: StudyReviewRequest;
     topicIds: string[];
     sourceIds?: string[];
     questionCount: number;
@@ -70,6 +72,7 @@ export type StoredStudyPractice = {
     id: string; kind: string; title: string; version: number; status: string;
     sourceRefs: SourceRef[]; privatePractice: StudyPractice; answers: StudyAnswers;
     conversationId?: string; previousPracticeId?: string; attemptNumber?: number;
+    confirmedQuestionIds?: string[];
     result?: PracticeResult; feedback?: Awaited<ReturnType<typeof generateDevelopmentFeedback>> | { status: 'PENDING' };
     finalizedAt?: string;
 };
@@ -77,14 +80,14 @@ export type StudyFeedbackInput = { practice: StudyPractice; answers: StudyAnswer
 export type StudyFeedbackResult = Awaited<ReturnType<typeof generateDevelopmentFeedback>>;
 /** Known fields of persisted v1 records; optional turn IDs preserve earlier valid history. */
 export type StoredStudyTurn = { id?: string; role: string; text?: string; sourceRefs?: SourceRef[];
-    attachmentIds?: string[]; generation?: StudyGenerationIntent; generationRequestId?: string; creationId?: string; practiceId?: string };
+    attachmentIds?: string[]; generation?: StudyGenerationIntent; generationRequestId?: string; creationId?: string; practiceId?: string; examId?: string };
 export type StoredStudyConversation = { id: string; title: string; turns: StoredStudyTurn[] };
-export type StoredStudyCreation = { id: string; kind: string; title: string; markdown: string; sourceRefs: SourceRef[]; revision: number; conversationId?: string };
+export type StoredStudyCreation = { id: string; kind: string; title: string; markdown: string; sourceRefs: SourceRef[]; revision: number; conversationId?: string; diagram?: StudyResult['diagram'] };
 export type StudyReviewSession = ReturnType<typeof planExam>['sessions'][number] & {
     reminderMinutes?: number | null;
     activity?: string;
 };
-export type StoredStudyExam = { id: string; title: string; examAt: string; timeZone: string; sessions: StudyReviewSession[]; warnings: string[]; conflicts?: StudyAgendaConflict[] };
+export type StoredStudyExam = { id: string; title: string; examAt: string; timeZone: string; sessions: StudyReviewSession[]; warnings: string[]; conflicts?: StudyAgendaConflict[]; guidance?: string };
 export interface StudyState {
     version: 1;
     fields: FolderFields;

@@ -14,14 +14,19 @@ export function ChatByline({ user, identity }: { user?: boolean; identity?: Chat
   </div>;
 }
 
-export function FoxyDialog({ title, description, onClose, children, footer, className = '' }: {
-  title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; className?: string;
+export function FoxyDialog({ title, description, onClose, children, footer, focusTitle = false, className = '' }: {
+  title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; focusTitle?: boolean; className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null), titleId = useId(), descriptionId = useId();
-  useEffect(() => openDialog(ref.current!), []);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    const restore = openDialog(ref.current!);
+    if (focusTitle) heading.current?.focus({ preventScroll: true });
+    return restore;
+  }, [focusTitle]);
   return <dialog ref={ref} className={`p5-dialog parity-foxy-dialog ${className}`} aria-labelledby={titleId}
     aria-describedby={description ? descriptionId : undefined} onCancel={event => { if (event.target !== event.currentTarget) return; event.preventDefault(); onClose(); }}>
-    <header><div><h2 id={titleId}>{title}</h2>{description && <p id={descriptionId}>{description}</p>}</div>
+    <header><div><h2 ref={heading} tabIndex={focusTitle ? -1 : undefined} id={titleId}>{title}</h2>{description && <p id={descriptionId}>{description}</p>}</div>
       <button type="button" className="p5-close" aria-label="Cerrar diálogo" onClick={onClose}><FoxmindIcon name="close"/></button></header>
     <div className="brujula-dialog-body">{children}</div>
     {footer && <footer className="parity-foxy-dialogFooter">{footer}</footer>}
@@ -63,7 +68,7 @@ export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenK
     <div className={`${s.compactBody} parity-ai-compactBody`}>{children}</div>
     {tray && <FoxyDialog title={tray === 'history' ? 'Tu historial' : tray === 'tools' ? 'Herramientas de Foxy' : 'Tus creaciones'}
       description={tray === 'history' ? 'Volvé a una conversación o empezá una nueva.' : tray === 'tools' ? 'Elegí qué querés preparar. Lo revisamos juntos.' : 'Ideas guardadas para seguir trabajando.'}
-      onClose={close} className={`${s.dialog} parity-ai-tray`}
+      onClose={close} focusTitle className={`${s.dialog} parity-ai-tray tray-${tray}`}
       footer={<button type="button" onClick={close}><FoxmindIcon name="arrow-left"/>Volver al chat</button>}>
       {tray === 'history' ? <div onClick={event => {
         if ((event.target as HTMLElement).closest('button[data-foxy-thread],button[data-foxy-rename]')) close();

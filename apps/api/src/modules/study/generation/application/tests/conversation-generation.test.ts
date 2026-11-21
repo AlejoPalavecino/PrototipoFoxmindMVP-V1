@@ -16,6 +16,14 @@ type Generation = { requestId: string; kind: string; topicIds: string[]; sourceI
   difficulty: string; status: string; reason?: string; missingInformation?: string[] };
 type Turn = { id: string; role: string; text?: string; generation?: Generation; generationRequestId?: string;
   creationId?: string; practiceId?: string; sourceRefs?: { id: string; version: string }[]; sourceUnavailable?: boolean };
+const waterDiagram = {
+  schemaVersion: 'foxy-diagram-v2', title: 'El ciclo del agua', description: 'Relaciones entre dos estados.',
+  direction: 'LEFT_RIGHT', nodes: [
+    { id: 'agua', label: 'Agua líquida', explanation: 'Se acumula en ríos y lagos.' },
+    { id: 'vapor', label: 'Vapor', explanation: 'Es el estado gaseoso del agua.' },
+  ], edges: [{ from: 'agua', to: 'vapor', label: 'se evapora', explanation: 'El agua pasa al estado gaseoso.' }],
+  challenge: { question: '¿Qué estado se alcanza al evaporarse?', answer: 'El estado gaseoso.' },
+};
 function fixture() {
   const owner = randomUUID(), conversationId = randomUUID(), topicId = randomUUID(), sourceId = randomUUID();
   let row: FolderRow = { id: randomUUID(), owner_id: owner, revision: 1n, status: 'ACTIVE', created_at: new Date(), updated_at: new Date(),
@@ -132,6 +140,55 @@ test('practice card and request expose no answer key, explanation or private gen
   assert.equal(card.practiceId, (detail.practices[0]! as Record<string, unknown>).id); assert.equal(card.generationRequestId, input.requestId);
   assert.equal(Object.hasOwn(card, 'creationId'), false); assert.equal(Object.hasOwn(card, 'text'), false);
   assert.doesNotMatch(JSON.stringify({ response, detail }), /PRIVATE_MARKDOWN|PRIVATE_EXPLANATION|correctOptionIds|privatePractice/);
+  const practiceId = card.practiceId!;
+  const reopened = f.makeService();
+  const cmd = (action: string, data: object) => reopened.command({}, f.row.id, {
+    action, ...data, revision: String(f.row.revision), requestId: randomUUID(),
+  });
+  const confirmed = await cmd('CONFIRM_PRACTICE_ANSWER', { practiceId, questionId: 'q1', optionIds: ['a'] });
+  assert.match(JSON.stringify(confirmed.result), /PRIVATE_EXPLANATION/);
+  assert.doesNotMatch(JSON.stringify(confirmed.result), /optionFeedback/);
+  await cmd('FINALIZE_PRACTICE', { practiceId });
+  const retry = await cmd('NEW_ATTEMPT', { practiceId });
+  assert.doesNotMatch(JSON.stringify(retry.result), /PRIVATE_EXPLANATION|correctOptionIds|optionFeedback/);
+  const retryId = (retry.result as { practice: { id: string } }).practice.id;
+  const secondConfirmation = await cmd('CONFIRM_PRACTICE_ANSWER', { practiceId: retryId, questionId: 'q1', optionIds: ['b'] });
+  assert.match(JSON.stringify(secondConfirmation.result), /PRIVATE_EXPLANATION/);
+  assert.equal(f.generated, 1, 'confirming and retrying read the previously stored format');
+});
+
+test('checking a quiz answer unlocks only its feedback and preserves the selection', async () => {
+  const f = fixture();
+  f.provider(async () => ({ ...f.note(), markdown: '', practice: { title: 'Práctica', questions: ['q1', 'q2'].map(id => ({
+    id, topicId: f.topicId, type: 'SINGLE', prompt: 'Elegí una opción', options: [{ id: 'a', text: 'A' }, { id: 'b', text: 'B' }],
+    correctOptionIds: ['a'], explanation: `EXPLANATION_${id}`,
+    optionFeedback: [{ optionId: 'a', text: `CORRECT_${id}` }, { optionId: 'b', text: `DISTRACTOR_${id}` }],
+    sourceRefs: [{ id: f.sourceId, version: f.sourceId }],
+  })) } }));
+  await f.service.command({}, f.row.id, f.input({ kind: 'QUIZ', questionCount: 2 }));
+  const cmd = (action: string, data: object) => f.service.command({}, f.row.id, {
+    action, ...data, revision: String(f.row.revision), requestId: randomUUID(),
+  });
+  const practiceId = f.row.state.practices[0]!.id;
+  await cmd('SAVE_ANSWERS', { practiceId, answers: { q1: ['b'] } });
+  const confirmed = await cmd('CONFIRM_PRACTICE_ANSWER', { practiceId, questionId: 'q1', optionIds: ['b'] });
+  assert.match(JSON.stringify(confirmed.result), /EXPLANATION_q1/);
+  assert.match(JSON.stringify(confirmed.result), /DISTRACTOR_q1/);
+  assert.doesNotMatch(JSON.stringify(confirmed.result), /EXPLANATION_q2|DISTRACTOR_q2/);
+  await assert.rejects(cmd('SAVE_ANSWERS', { practiceId, answers: { q1: ['a'] } }), { code: 'CONFLICT' });
+  const detail = await f.service.get({}, f.row.id);
+  assert.match(JSON.stringify(detail.practices), /EXPLANATION_q1/);
+  assert.doesNotMatch(JSON.stringify(detail.practices), /EXPLANATION_q2/);
+  await cmd('SAVE_ANSWERS', { practiceId, answers: { q1: ['b'], q2: ['a'] } });
+  await cmd('FINALIZE_PRACTICE', { practiceId, confirmedEmpty: false });
+  const second = await cmd('NEW_ATTEMPT', { practiceId });
+  const third = await cmd('NEW_ATTEMPT', { practiceId });
+  assert.equal((second.result as { practice: { attemptNumber: number } }).practice.attemptNumber, 2);
+  assert.equal((third.result as { practice: { attemptNumber: number } }).practice.attemptNumber, 3);
+  assert.doesNotMatch(JSON.stringify(third), /EXPLANATION_q[12]|correctOptionIds|optionFeedback/);
+  await f.service.command({}, f.row.id, f.input({ kind: 'MOCK_EXAM', questionCount: 2 }));
+  const examId = f.row.state.practices.at(-1)!.id;
+  await assert.rejects(cmd('CONFIRM_PRACTICE_ANSWER', { practiceId: examId, questionId: 'q1', optionIds: ['a'] }), { code: 'INVALID_INPUT' });
 });
 
 test('cancellation after reservation survives reload, preserves the request and discards late output and replay', async () => {
@@ -218,10 +275,43 @@ test('new conversation keeps earlier chats intact, with generated cards excluded
   const next = await f.service.command({}, f.row.id, { action: 'NEW_CONVERSATION', title: 'Nueva', revision: '1', requestId: randomUUID() });
   const conversationId = (next.result as { conversation: { id: string } }).conversation.id;
   await f.service.command({}, f.row.id, f.input({ conversationId }));
+  f.provider(input => executeStudy(input, { generate: async () => ({ ...f.note(), diagram: waterDiagram }) }));
   await f.service.command({}, f.row.id, f.input({ conversationId, kind: 'OUTLINE' }));
   const detail = await f.service.get({}, f.row.id);
   assert.equal(turns(detail, 0).length, 0); assert.equal(turns(detail, 1).length, 4);
   assert.deepEqual(f.inputs.map(input => input.history), [[], []]); assert.equal(detail.creations.length, 2);
+});
+
+test('Conectar ideas reopens the saved Gemini graph and rejects explanations with broken arrows', async () => {
+  const f = fixture();
+  const diagram = waterDiagram;
+  f.provider(async input => executeStudy(input, {
+    generate: async ({ system }) => {
+      assert.match(system, /foxy-diagram-v2/);
+      return { ...f.note(), diagram };
+    },
+  }));
+  const command = f.input({ kind: 'OUTLINE' });
+  await f.service.command({}, f.row.id, command);
+  const detail = await f.makeService().get({}, f.row.id);
+  assert.deepEqual(detail.creations[0]?.diagram, diagram);
+  assert.equal(turns(detail)[1]?.creationId, detail.creations[0]?.id);
+
+  await assert.rejects(executeStudy(f.inputs[0]!, { generate: async () => ({
+    ...f.note(), diagram: { ...diagram, edges: [{ ...diagram.edges[0], to: 'desconocido' }] },
+  }) }), /INVALID_STUDY_OUTPUT/);
+  assert.equal(f.row.state.creations.length, 1);
+});
+
+test('a custom generation port cannot save a new OUTLINE as text only', async () => {
+  const f = fixture();
+  const command = f.input({ kind: 'OUTLINE' });
+  f.provider(async () => f.note());
+  await assert.rejects(f.service.command({}, f.row.id, command), { code: 'AI_UNAVAILABLE' });
+  const detail = await f.makeService().get({}, f.row.id);
+  assert.equal(detail.creations.length, 0);
+  assert.equal(turns(detail)[0]?.generation?.status, 'FAILED');
+  assert.equal(turns(detail).filter(turn => turn.creationId).length, 0);
 });
 
 test('revoked sources cannot apply late resources and prior cards carry the availability warning', async () => {
@@ -292,7 +382,9 @@ test('historical generated paragraphs are readable and a student revision keeps 
   const stored = {id:randomUUID(), title:'Relaciones', kind:'OUTLINE', revision:1,
     markdown:'Idea\\n\\n## Vínculo', sourceRefs:[{id:f.sourceId,version:f.sourceId}]};
   f.row.state.creations.push(stored);
-  assert.equal((await f.service.get({},f.row.id)).creations[0]!.markdown, 'Idea\n\n## Vínculo');
+  const reopened = (await f.service.get({},f.row.id)).creations[0]!;
+  assert.equal(reopened.markdown, 'Idea\n\n## Vínculo');
+  assert.equal(reopened.diagram, undefined);
   assert.equal(stored.markdown, 'Idea\\n\\n## Vínculo');
   stored.revision=2;
   assert.equal((await f.service.get({},f.row.id)).creations[0]!.markdown, stored.markdown);

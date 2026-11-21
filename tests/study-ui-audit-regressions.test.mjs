@@ -105,8 +105,8 @@ test('ejercicios conservan la configuración elegida y los intentos muestran su 
     { id: 'new', title: 'Luz', kind: 'QUIZ', status: 'ACTIVE', attemptNumber: 2 }];
   const creations = StudyCreationsPanel({ matchingCreations: [], matchingPractices: items, matchingPlans: [] });
   const rows = descendants(creations, node => node.type === 'button' && node.props.className === 'study-exact-creation-item');
-  assert.match(text(rows[0]), /Intento 1 · Finalizada/);
-  assert.match(text(rows[1]), /Intento 2 · Sin empezar/);
+  assert.match(text(rows[0]), /Intento 1.*Finalizada/);
+  assert.match(text(rows[1]), /Intento 2.*Sin empezar/);
 });
 
 test('editar una sesión permite guardar un aviso de 15 minutos sin cambiar su horario', () => {
@@ -182,25 +182,21 @@ test('la colección filtra año, vínculo y texto y permite abrir una carpeta ar
   }
 });
 
-test('apuntes ofrecen DOCX y TXT a partir de la misma versión guardada', async () => {
-  const downloads = [];
-  const { StudyCreationEditor } = componentWithPorts(study + 'creations/study-creation-editor.tsx', {
-    '../../../../../shared-ui/text-document': {
-      downloadTextDocument: (...args) => downloads.push(['docx', ...args]),
-      downloadMarkdownText: (...args) => downloads.push(['txt', ...args]),
-    },
-  });
-  const view = hookView(StudyCreationEditor, {
-    creation: { id: 'note', title: 'Luz', markdown: '# Exposición revisada', kind: 'NOTE' },
+test('una explicación conserva su versión guardada y ofrece una ilustración de la carpeta para el PDF', async () => {
+  const { StudyDocumentEditor } = componentWithPorts(study + 'creations/study-creation-editor.tsx', {});
+  const markdown = '# Mitosis\n\n## Ponete a prueba\n¿Qué ocurre en anafase?\n\n## Respuesta\nSe separan las cromátidas hermanas.';
+  const availableIllustrations = [{ url: '/api/v1/study-folders/folder/images/image', caption: 'Mitosis' }];
+  const view = hookView(StudyDocumentEditor, {
+    creation: { id: 'explanation', title: 'Mitosis', markdown, kind: 'EXPLANATION' },
+    availableIllustrations,
   });
   try {
     await view.flush();
-    button(view.tree, 'Descargar Word').props.onClick();
-    button(view.tree, 'Descargar TXT').props.onClick();
-    assert.deepEqual(downloads, [
-      ['docx', 'Luz', '# Exposición revisada'],
-      ['txt', 'Luz', '# Exposición revisada'],
-    ]);
+    const [downloads] = descendants(view.tree, node => node.type?.name === 'DocumentDownloads');
+    assert.deepEqual(downloads.props, { title: 'Mitosis', markdown, kind: 'Explicación', illustrations: undefined, availableIllustrations });
+    const [reader] = descendants(view.tree, node => node.type?.name === 'DocumentReader');
+    assert.equal(reader.props.explanation, true);
+    assert.equal(reader.props.markdown, markdown);
   } finally {
     view.close();
   }

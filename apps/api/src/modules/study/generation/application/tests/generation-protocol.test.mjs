@@ -27,7 +27,7 @@ test('preparation and validation have no provider, resource, receipt or ID alloc
 });
 
 test('new finalized answers do not alter the authorized snapshot of a source-based note or outline', async () => {
-  for (const kind of ['NOTE', 'OUTLINE']) {
+  for (const kind of ['NOTE', 'EXPLANATION', 'OUTLINE']) {
     const f = fixture(), command = { ...f.command, kind };
     const plan = await protocol.prepareStudyOperation(f.tx, f.row, command, f.ports);
     assert.equal(Object.hasOwn(plan.input, 'evidence'), false);

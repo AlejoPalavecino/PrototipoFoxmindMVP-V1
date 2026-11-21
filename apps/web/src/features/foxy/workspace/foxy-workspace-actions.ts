@@ -81,7 +81,7 @@ export function createFoxyWorkspaceActions(options: Options) {
       selectSource: (id: string) => { if (active()) return runtime.chat.selectSource(id); },
       selectTopic: (id: string) => { if (active()) return runtime.chat.selectTopic(id); },
       resolveToolSelection: (...args: Parameters<Runtime['chat']['resolveToolSelection']>) => { if (active()) return runtime.chat.resolveToolSelection(...args); },
-      loadCitations: (id: string) => { if (active()) return runtime.chat.loadCitations(id); },
+      loadCitations: (...args: Parameters<Runtime['chat']['loadCitations']>) => { if (active()) return runtime.chat.loadCitations(...args); },
     },
     resource: {
       openCreation: (conversationId: string, turnId: string) => guarded(async () => {

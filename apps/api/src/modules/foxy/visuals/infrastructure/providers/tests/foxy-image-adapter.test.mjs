@@ -62,6 +62,22 @@ test('image v3 respects a brief without text and preserves the exact v1 and v2 i
   assert.equal(createHash('sha256').update(instruction).digest('hex'), digest);
  }
 });
+test('exact opening v5 sends one text-only Gemini caption request and accounts for text tokens', async () => {
+ const text = 'Una apertura mayor deja entrar más luz si las demás condiciones se mantienen.';
+ const result = { ...imageResponse(), candidates: [{ finishReason: 'STOP', content: { parts: [{ text }] } }] };
+ const { adapter, calls } = await fixture({ profileVersion: 'foxy-gemini-image-v5', result });
+ const input = general({ openingComparison: [{ opening: 'small', arrowCount: 2 }, { opening: 'large', arrowCount: 6 }] });
+ await adapter.countTokens(input);
+ assert.deepEqual(await adapter.describeOpening(input), {description:text,usage:{
+   inputTokens:12,outputTokens:23,textOutputTokens:23,imageOutputTokens:0,
+ }});
+ assert.deepEqual(calls[0][1].contents, calls[1][1].contents);
+ assert.deepEqual(calls[1][1].config.responseModalities, ['TEXT']);
+ assert.equal(calls[1][1].config.imageConfig, undefined);
+ await assert.rejects(adapter.describeOpening(input));
+ assert.equal(calls.length, 2);
+});
+
 test('production image factory keeps its bounded SDK request open past 15 seconds when configured', async t => {
  t.mock.timers.enable({apis:['setTimeout']});
  const { createGeminiFoxyImageAdapter } = await import('../foxy-image-adapter.ts');

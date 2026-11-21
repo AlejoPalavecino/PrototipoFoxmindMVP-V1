@@ -39,6 +39,7 @@ test('FOX-01 filters precede pagination, includes unopened READY tools and edite
     await resources.edit(tx,f.teacherActor,resource.id,{requestId:randomUUID(),revision:resource.revision,title:'Editado privado',markdown:'Contenido'});
     const filtered=await creations.listPage(tx,f.teacherActor,{limit:1,after:null,q:'Editado',type:'NOTE',status:'PRIVATE',context:'GENERAL'});
     assert.equal(filtered.items.length,1); assert.equal(filtered.items[0].title,'Editado privado');
+    assert.equal(filtered.items[0].brief,'Crear'); assert.deepEqual(filtered.items[0].selection,{topicIds:[],sourceIds:[]});
     assert.equal(filtered.items[0].turnId,ids[0].turn.id); assert.deepEqual(filtered.items[0].destinations,[]);
     assert.equal((await creations.listPage(tx,f.teacherActor,{limit:1,after:null,q:'100%_'})).items.length,0);
     const {createFoxyPublicationRepository}=await import("../../../publications/infrastructure/publication-repository.ts");

@@ -54,7 +54,7 @@ test('review session and Agenda confirmation show the suggested or edited activi
   const { renderStudyExamAgendaConfirmation } = loadTsModule(base + 'study-exam-agenda-confirmation.tsx');
   const session = { id: 'one', topicIds: ['t'], title: 'Escala', startAt: '2099-02-01T17:00Z', endAt: '2099-02-01T17:25Z', minutes: 25 };
   const activities = new Map([['one', 'Explicá el procedimiento sin mirar el material.'], ['two', 'No seleccionada']]);
-  const props = { exam: {}, sessions: [session], activities, selection: ['one'], busy: false, saving: false, error: '',
+  const props = { exam: {}, sessions: [session], activities, scheduled: new Map(), selection: ['one'], busy: false, saving: false, error: '',
     setSelection() {}, setEditing() {}, setConfirmation() {}, onConfirm() {}, allTopics: [{ id: 't', title: 'Escala' }],
     longDate: () => '1 de febrero', local: value => value.slice(0, 16) };
   for (const render of [renderStudyExamSessions, renderStudyExamAgendaConfirmation]) {

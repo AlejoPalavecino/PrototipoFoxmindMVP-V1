@@ -37,6 +37,7 @@ const capabilities: Record<string, string> = {
   study_quiz: 'Cuestionarios de Mi estudio',
   study_exercise: 'Ejercicios de Mi estudio',
   study_mock_exam: 'Simulacros de Mi estudio',
+  study_review_plan: 'Planes de repaso de Mi estudio',
 };
 
 function operations(count: number) { return `${count} ${count === 1 ? 'operación' : 'operaciones'}`; }

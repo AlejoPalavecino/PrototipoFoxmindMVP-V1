@@ -22,7 +22,7 @@ function fixture(settings={}){
  const provider={countTokens:async()=>{hit('count');return 20},generate:async()=>{hit('generate');if(settings.unknown)throw Object.assign(Error('synthetic'),{code:'PROVIDER_OUTCOME_UNKNOWN'});const usage=settings.overCap?{inputTokens:70000,outputTokens:5000}:{inputTokens:20,outputTokens:40};return kind==='IMAGE'?{bytes,declaredMimeType:'image/png',usage}:{diagram:graph,usage};}};
  const renderer={render:async()=>{hit('render');return {bytes,mimeType:'image/png',width:1600,height:1600,digest:'a'.repeat(64),rendererVersion:'foxy-diagram-png-v1'}}};
  const custody={receive:async(_cap,payload)=>{hit('receive',payload);if(settings.storageFailure)throw Object.assign(Error('synthetic'),{code:'SERVICE_UNAVAILABLE'});return {digest:'a'.repeat(64),mimeType:'image/png',width:1600,height:1600,sizeBytes:bytes.length}},recover:async()=>{hit('recover');if(settings.recoverFailure)throw Object.assign(Error('synthetic'),{code:'NOT_FOUND'});return {digest:'a'.repeat(64),mimeType:'image/png',width:1600,height:1600,sizeBytes:bytes.length}}};
- const budget={reserve:async(_tx,_lease,count)=>{hit('reserve',count);return settings.reservation??'RESERVED'},settle:async(...args)=>{hit('settle',...args);return true},settleExpired:async()=>{hit('settleExpired');return true}};
+ const budget={reserve:async(_tx,_lease,count,...mode)=>{hit('reserve',count,...mode);return settings.reservation??'RESERVED'},settle:async(...args)=>{hit('settle',...args);return true},settleExpired:async()=>{hit('settleExpired');return true}};
  const completion={finish:async(...args)=>{hit('finish',...args);return true}};
  const configuration=settings.version?{...config,profiles:{...config.profiles,[kind]:{...profile,profileVersion:settings.liveVersion??profile.profileVersion}}}:config;
  return {calls,options:{database,queue,authority,loader,providers:{IMAGE:provider,DIAGRAM:provider},renderer,custody,budget,completion,configuration}};
@@ -69,7 +69,7 @@ for (const [prompt, expected, order, aspectRatio, dimensions] of [
   [openingBrief.replace('Dos flechas frente al primero y seis frente al segundo','Poné 12 flechas delante del segundo y una flecha delante del primero'), [1, 12], 'small-first', '3:4', [1200, 1600]],
   ['Sin texto, sobre fondo blanco. Dibujá dos círculos iguales: uno con apertura grande y otro con apertura pequeña. Poné 3 flechas frente a la apertura pequeña y 8 frente a la grande.', [8, 3], 'large-first', '4:3', [1600, 1200]],
   ['Mostrá dos círculos iguales: el primero con abertura pequeña, el segundo con abertura grande; frente a la abertura grande, seis flechas, frente al primero, dos flechas. En fondo blanco y sin texto.', [2, 6], 'small-first', '1:1', [1600, 1600]],
-]) test(`current image draws exact counts ${expected.join('/')} in the assigned order without Gemini`, async () => {
+]) test(`pinned v4 image draws exact counts ${expected.join('/')} in the assigned order`, async () => {
   const f=fixture({ version:'foxy-gemini-image-v4', prompt, aspectRatio });
   await run(f);
   assert.equal(finish(f).state,'READY');
@@ -100,6 +100,27 @@ for (const [prompt, expected, order, aspectRatio, dimensions] of [
   });
   assert.ok(holeRadius.every(radius=>radius>0&&radius<info.height/4));
   assert.equal(holeRadius[0]<holeRadius[1]?'small-first':'large-first',order);
+});
+
+test('current opening comparison bills Gemini caption once and keeps the exact v4 raster', async () => {
+ const f = fixture({version:'foxy-gemini-image-v5',prompt:openingBrief});
+ const description='La apertura más amplia deja pasar más luz si todo lo demás se mantiene.';
+ const usage={inputTokens:20,outputTokens:40,textOutputTokens:40,imageOutputTokens:0};
+ f.options.providers.IMAGE.describeOpening = async input => {
+  f.calls.push({operation:'describeOpening',args:[input.openingComparison]});
+  return {description,usage};
+ };
+ await run(f);
+ assert.deepEqual(f.calls.find(x=>x.operation==='describeOpening').args,[[{opening:'small',arrowCount:2},{opening:'large',arrowCount:6}]]);
+ assert.deepEqual(f.calls.find(x=>x.operation==='reserve').args,[20,true]);
+ assert.deepEqual(f.calls.find(x=>x.operation==='settle').args[2],usage);
+ assert.equal(names(f).includes('generate'),false);
+ const payload=f.calls.find(x=>x.operation==='receive').args[0];
+ assert.equal(payload.description,description);
+ const historical=fixture({version:'foxy-gemini-image-v4',liveVersion:'foxy-gemini-image-v5',prompt:openingBrief});
+ await run(historical);
+ assert.deepEqual(payload.bytes,historical.calls.find(x=>x.operation==='receive').args[0].bytes);
+ assert.equal(finish(f).state,'READY');
 });
 
 test('local image respects grounding, quota, and custody failure without trying Gemini', async () => {
