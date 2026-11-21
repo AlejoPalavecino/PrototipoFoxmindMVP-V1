@@ -2,6 +2,17 @@
 
 Requisitos del repositorio: Node 24, npm/lockfile y Docker Desktop con motor Linux. La aplicación usa Next, API Nest, PostgreSQL, almacenamiento privado compatible con S3, ClamAV y Mailpit. No basta iniciar una web sin API/servicios para afirmar un recorrido integrado.
 
+## Retomar el caso de Marina Demo
+
+El caso está guardado en los volúmenes persistentes del entorno local de este equipo. Para retomarlo:
+
+1. Abrí Docker Desktop. Desde la raíz de `ProtipoFoxMind`, ejecutá `npm run local:up`. Cuando `npm run local:status` indique `READY`, abrí [FoxMind local](http://127.0.0.1:3000).
+2. **Como docente**, ingresá con `teacherEmail` y `password` de `.test-artifacts/local-app/accounts.json`. En **Inicio → Semáforo de acompañamiento**, filtrá por **Taller de escritura fotográfica · Prueba Gemini** y abrí la ficha de **Marina Demo**. También podés entrar por **Mis aulas → Taller de escritura fotográfica · Prueba Gemini → Estudiantes → Ver ficha**.
+3. **Como Marina**, usá una ventana privada e ingresá con `studentEmail` y `password` del mismo archivo. La carpeta es **Mi Estudio → Encuadres de Marina · Prueba de estrategia**. En **Opciones de la carpeta → Compartir estrategia** podés repetir el recorrido. La última prueba terminó con la estrategia retirada. [Registro del recorrido en Ego Lite](../../work-log/2026-11-19-root-ego-estrategia.md).
+4. Al terminar, ejecutá `npm run local:stop` y comprobá que `npm run local:status` indique `STOPPED`. Así se conservan la base, la carpeta y las entregas para el siguiente arranque.
+
+**Cómo reconocer el caso.** El 19/11/2026 Marina tenía dos entregas calificadas: *Luz lateral y textura* (9) y *El encuadre de una escena* (7). El promedio era 8. *Justificar el punto de vista* estaba pendiente desde el 17/11 y la prioridad era media. El semáforo se recalcula según la fecha de consulta, por lo que el color puede cambiar aunque se conserven las entregas. En la ficha, **Análisis de escritura** permite consultar el informe de Gemini mientras siga vigente. Consultarlo no consume cuota adicional.
+
 ## Entorno descartable de revisión
 
 1. Instalar dependencias según lockfile si el equipo aún no las tiene, mediante npm ci.
