@@ -29,6 +29,7 @@ test('files are disabled unless explicitly enabled and enabled configuration has
 async function host(t, options = {}) {
   const app = express(); let admitted = 0, authenticated = 0, received, original;
   const runtime = { configuration: { security: { secureCookies: false,
+    clientAddress: request => request.socket.remoteAddress,
     assertOrigin(origin) { if (origin !== 'http://localhost:3000') throw new IdentityHttpError('ORIGIN_NOT_ALLOWED'); },
     validateCsrf(raw, submitted) { return raw === verifier && submitted === 'valid'; } } },
     store: { async authenticate() { authenticated++; return options.anonymous ? null : { verifier, sessionId: 'session', user: { id: 'user' } }; } },
