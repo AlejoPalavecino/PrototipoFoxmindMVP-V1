@@ -12,7 +12,7 @@ export function installHomeTransport(app: Pick<INestApplication,'use'>, runtime:
     const cookie = readSessionCookie(request.headers.cookie);
     const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
     if (cookie.present && !context) response.setHeader('Set-Cookie',clearSessionCookie(runtime.configuration.security));
-    const ip = request.socket.remoteAddress;
+    const ip = runtime.configuration.security.clientAddress(request);
     if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
     await runtime.generalAdmission(ip,context);
     if (!context) throw new IdentityHttpError('AUTH_REQUIRED');

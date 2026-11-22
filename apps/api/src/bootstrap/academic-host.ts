@@ -52,7 +52,7 @@ export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
         const cookie = readSessionCookie(request.headers.cookie);
         const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
         if (cookie.present && !context) response.setHeader('Set-Cookie', clearSessionCookie(security));
-        const ip = request.socket.remoteAddress;
+        const ip = runtime.configuration.security.clientAddress(request);
         if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
         const pathname = new URL(request.url ?? '/', 'http://classrooms.invalid').pathname;
         const [, , , collection, resource] = pathname.split('/');

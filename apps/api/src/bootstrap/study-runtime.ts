@@ -60,8 +60,9 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     void response;
     const cookie = readSessionCookie(request.headers.cookie);
     const context = cookie.verifier ? await identity.store.authenticate(cookie.verifier) : null;
-    if (!request.socket.remoteAddress) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
-    await identity.generalAdmission(request.socket.remoteAddress, context);
+    const ip = identity.configuration.security.clientAddress(request);
+    if (!ip) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
+    await identity.generalAdmission(ip, context);
   };
   let cleanup: Promise<void> | undefined;
   const timer = setInterval(() => {

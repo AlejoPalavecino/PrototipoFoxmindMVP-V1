@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { agendaId, agendaObject, agendaRevision, parseAgendaEvent, parseAgendaRange } from '../../../../../src/core/domain/agenda/index.ts';
@@ -93,6 +94,7 @@ async function upstreamBody(result: IncomingMessage, response: ServerResponse) {
 function forward(request: IncomingMessage, response: ServerResponse, origin: string, url: URL, method: string, content?: Buffer) {
   return new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
+    Object.assign(headers, clientAddressHeaders(request));
     for (const key of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[key]; if (typeof value === 'string') headers[key] = value;
     }

@@ -69,7 +69,7 @@ El arranque inicial de la política de perfiles se verificó el 16 de noviembre 
 
 Identificar y autorizar por separado base, bucket, escáner, correo y claves. Configurar nombres de variables de identidad, archivos, aulas y web según sus módulos; no buscar credenciales retenidas ni ejecutar helpers históricos para recuperarlas.
 
-API recibe DATABASE_URL y orígenes/flags en su entorno. Web recibe FOXMIND_API_ORIGIN sólo en servidor. APP_ORIGIN debe ser el origen exacto de la web; localhost y127.0.0.1 son distintos. No exponer claves en NEXT_PUBLIC ni pegar valores en registros.
+API recibe DATABASE_URL y orígenes/flags en su entorno. Web recibe FOXMIND_API_ORIGIN sólo en servidor. Web y API comparten el secreto de servidor FOXMIND_PROXY_CLIENT_KEY (base64url, al menos 32 bytes), que permite aplicar los límites por IP a cada cliente y no a la dirección del servidor web; el arranque local lo genera con las demás claves en `.env` y lo pasa a la web (ver [identidad](../identity/README.md)). APP_ORIGIN debe ser el origen exacto de la web; localhost y127.0.0.1 son distintos. No exponer claves en NEXT_PUBLIC ni pegar valores en registros.
 
 Arrancar la API no migra la base. Usar [migraciones](database.md) sólo sobre el destino autorizado. Mailpit local captura; no envía correo a destinatarios reales.
 

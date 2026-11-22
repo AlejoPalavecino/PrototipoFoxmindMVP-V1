@@ -19,7 +19,7 @@ try{
   await state('STARTING');
   api=await start(['--env-file=.env',resolve(root,'.build/api/apps/api/src/main.js')],'api',{...process.env,...env});
   await ready(api,env.FOXMIND_API_ORIGIN+'/api/v1/health/ready');
-  const webEnv={...process.env,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',FOXMIND_API_ORIGIN:env.FOXMIND_API_ORIGIN};
+  const webEnv={...process.env,NODE_ENV:'production',NEXT_TELEMETRY_DISABLED:'1',FOXMIND_API_ORIGIN:env.FOXMIND_API_ORIGIN,...(env.FOXMIND_PROXY_CLIENT_KEY?{FOXMIND_PROXY_CLIENT_KEY:env.FOXMIND_PROXY_CLIENT_KEY}:{})};
   for(const key of Object.keys(webEnv))if(key.startsWith('AI_'))delete webEnv[key];
   web=await start(['node_modules/next/dist/bin/next','start','apps/web','--hostname','127.0.0.1','--port','3000'],'web',webEnv);
   await ready(web,env.APP_ORIGIN+'/sign-in');

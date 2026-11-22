@@ -140,6 +140,7 @@ export const suites = {
     'tests/agenda-proxy.test.mjs', 'tests/p9-home-client.test.mjs', 'tests/p6-wall-client.test.mjs',
     'tests/p7-authoring-proxy.test.mjs', 'tests/p8-grading-proxy.test.mjs',
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
+    'tests/client-address.test.mjs', 'tests/proxy-client-address.test.mjs', 'tests/study-proxy-upload-streaming.test.mjs',
   ],
   'integration-owned': [
     'tests/ai-execution-policy-database.test.mjs',

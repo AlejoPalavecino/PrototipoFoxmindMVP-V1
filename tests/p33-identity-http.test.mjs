@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { clientProof } from '../.build/api/apps/api/src/platform/http/client-address.js';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { request } from 'node:http';
 import { channel } from 'node:diagnostics_channel';
@@ -224,6 +225,21 @@ test('D1 socket IP ignores spoofed XFF; general and session limits are enforced'
   const cookie = cookieOf(await login(fixtureEmail, password, { target: session.base }));
   assert.equal((await send('/auth/session', { cookie, target: session.base })).status, 200);
   await error(await send('/auth/csrf', { cookie, target: session.base }), 429, 'RATE_LIMITED');
+});
+test('signed proxy client addresses get independent general-identity buckets; forged ones do not', async () => {
+  const key = randomBytes(32);
+  const signed = (ip, signingKey = key) => ({ 'X-Foxmind-Client-Address': ip,
+    'X-Foxmind-Client-Proof': clientProof(signingKey, ip, Math.floor(Date.now() / 1000)) });
+  const keyed = await start({ FOXMIND_PROXY_CLIENT_KEY: key.toString('base64url'),
+    AUTH_RATE_LIMITS_JSON: JSON.stringify({ 'general-identity': { ip: { limit: 1, windowSeconds: 60 } } }) });
+  assert.equal((await send('/auth/session', { target: keyed.base, headers: signed('203.0.113.1') })).status, 200);
+  await error(await send('/auth/session', { target: keyed.base, headers: signed('203.0.113.1') }), 429, 'RATE_LIMITED');
+  assert.equal((await send('/auth/session', { target: keyed.base, headers: signed('203.0.113.2') })).status, 200);
+  assert.equal((await send('/auth/session', { target: keyed.base, headers: signed('2001:db8::7') })).status, 200);
+  // Forged proofs and unsigned claims collapse onto the socket address bucket (127.0.0.1).
+  assert.equal((await send('/auth/session', { target: keyed.base, headers: signed('203.0.113.3', randomBytes(32)) })).status, 200);
+  await error(await send('/auth/session', { target: keyed.base, headers: { 'X-Foxmind-Client-Address': '203.0.113.4' } }), 429, 'RATE_LIMITED');
+  await assert.rejects(() => start({ FOXMIND_PROXY_CLIENT_KEY: 'too-short' }));
 });
 test('D1 stale credential snapshot cannot sign in after serialized password replacement', async () => {
   let reached, release;

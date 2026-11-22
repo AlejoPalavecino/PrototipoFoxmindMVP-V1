@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'node:stream';
 import { proxyAccountRequest } from '../../../src/application/server/identity-proxy';
+import { clientAddressHeaders } from '../../../src/application/server/client-address';
 
 export const config = { api: { bodyParser: false, responseLimit: '16kb' } };
 
@@ -15,7 +16,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
     init.body = Readable.toWeb(request) as ReadableStream<Uint8Array>;
     init.duplex = 'half';
   }
-  const result = await proxyAccountRequest(new Request(new URL(request.url ?? '/', 'http://web.invalid'), init), process.env.FOXMIND_API_ORIGIN);
+  const result = await proxyAccountRequest(new Request(new URL(request.url ?? '/', 'http://web.invalid'), init), process.env.FOXMIND_API_ORIGIN, fetch, clientAddressHeaders(request));
   response.status(result.status);
   for (const [name, value] of result.headers) if (name !== 'set-cookie') response.setHeader(name, value);
   const cookies = result.headers.getSetCookie();

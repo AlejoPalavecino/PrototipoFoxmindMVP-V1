@@ -66,7 +66,7 @@ export function installIdentityTransport(app: INestApplication, runtime: Identit
       const cookie = readSessionCookie(request.headers.cookie);
       const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
       if (cookie.present && !context) response.setHeader('Set-Cookie', clearSessionCookie(config));
-      const ip = request.socket.remoteAddress;
+      const ip = config.clientAddress(request);
       if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
       await runtime.generalAdmission(ip, context);
       if (request.method === 'POST' || request.method === 'PATCH') {
