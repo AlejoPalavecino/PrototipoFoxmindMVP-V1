@@ -353,9 +353,10 @@ export function ClassroomsApp({
           >
             {preview ? <InvitationPreview classroom={preview.classroom}/> : (
               <div className="collection-code-field"><label>Código del aula
-                <input required autoFocus placeholder="000000" value={code}
-                  onChange={event=>setCode(event.target.value)} autoComplete="off"/>
-              </label></div>
+                <input required autoFocus placeholder="ABCD-EFGH" value={code} maxLength={16}
+                  autoCapitalize="characters" autoCorrect="off" spellCheck={false} aria-describedby="join-code-hint"
+                  onChange={event=>setCode(event.target.value.toUpperCase())} autoComplete="off"/>
+              </label><small id="join-code-hint">Son 8 letras y números. Los códigos anteriores de 6 dígitos también funcionan.</small></div>
             )}
             <footer className="p5-form-footer">
               <button

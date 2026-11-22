@@ -57,6 +57,7 @@ const statuses = {
   INVITATION_BATCH_NOT_FOUND: 404,
   CONFLICT: 409,
   ENROLLMENT_UNAVAILABLE: 409,
+  RATE_LIMITED: 429,
   SERVICE_UNAVAILABLE: 503,
 };
 function json(res: ServerResponse, status: number, value: unknown) {
@@ -210,6 +211,7 @@ export function createClassroomsHandler(
         }
         const code =
           e instanceof ClassroomError ? e.code : 'SERVICE_UNAVAILABLE';
+        if (e instanceof ClassroomError && e.retryAfter) res.setHeader('Retry-After', String(e.retryAfter));
         json(res, statuses[code], { error: { code } });
       })
       .finally(() => {

@@ -6,14 +6,24 @@ import type { MembershipAccess } from '../../application/management-operations.t
 
 export function createMembershipCodeOperations(repository: MembershipCodeRepository, dependencies: { digest(text: string): string }) {
 const { digest } = dependencies;
+/** Adivinanzas fallidas tolerables entre todas las cuentas antes de bloquear nuevas consultas. */
+const GLOBAL_FAILURE_LIMIT = 300;
+const GLOBAL_FAILURE_WINDOW_SECONDS = 600;
+const MISS = Symbol('code-miss');
 async function previewCodeOperation(capability: MembershipAccess, request: unknown, input: unknown) {
     const normalized = normalizeClassroomCode(input);
     if (!normalized)
-      return fail('ENROLLMENT_UNAVAILABLE');
-    return capability.run(request, true, async (tx, actor) => {
+      return fail('INVALID_INPUT');
+    const outcome = await capability.run(request, true, async (tx, actor) => {
       if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
+      const [window] = await repository.readGlobalCodeFailures(tx, { windowSeconds: GLOBAL_FAILURE_WINDOW_SECONDS });
+      if (window && window.failures >= GLOBAL_FAILURE_LIMIT) return fail('RATE_LIMITED', window.retry_after);
       const [code] = await repository.findLiveCode(tx, { digest: digest(normalized) });
-      if (!code) return fail('ENROLLMENT_UNAVAILABLE');
+      if (!code) {
+        // Se registra y se confirma la transacción; el rechazo se emite después para que el conteo sobreviva.
+        await repository.recordGlobalCodeFailure(tx, { windowSeconds: GLOBAL_FAILURE_WINDOW_SECONDS });
+        return MISS;
+      }
       const { classroom, exists, live } = await previewState(tx, code.classroom_id, actor.id, code.id);
       if (
         !classroom ||
@@ -26,6 +36,8 @@ async function previewCodeOperation(capability: MembershipAccess, request: unkno
       const [{ now }] = await repository.readPreviewTime(tx, {  });
       return previewPayload(capability, classroom, code, actor, now);
     });
+    if (outcome === MISS) return fail('ENROLLMENT_UNAVAILABLE');
+    return outcome;
   }
 
 function confirmCodeOperation(capability: MembershipAccess, request: unknown, confirmation: unknown) {

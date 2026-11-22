@@ -2,6 +2,7 @@ import styles from '../styles/classroom-secondary.module.css';
 import type { Dispatch, SetStateAction } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail, Invitation } from '../../../../../../src/core/contracts/classrooms.ts';
+import { formatAccessCode } from '../../../../../../src/core/domain/classrooms/access-code.ts';
 import { Notice } from '../../../../../shared-ui/feedback.tsx';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { ResourceNotice } from '../workspace/ResourceNotice.tsx';
@@ -26,7 +27,7 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                     </p></div></header>
                     {code ? (
                       <div className={styles.codeValue}>
-                        <code aria-label={`Código de acceso: ${code}`}>{/^\d{6}$/.test(code) ? `${code.slice(0,3)} ${code.slice(3)}` : code}</code>
+                        <code aria-label={`Código de acceso: ${formatAccessCode(code).replace('-', ' ')}`}>{formatAccessCode(code)}</code>
                         <button
                           onClick={() =>
                             void action(async () => {

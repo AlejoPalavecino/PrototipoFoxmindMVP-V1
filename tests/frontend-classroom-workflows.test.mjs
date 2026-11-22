@@ -57,11 +57,15 @@ test('collection loading ignores superseded responses, errors and invalidated in
   assert.equal(aborted.current(), false);
 });
 
-test('enrollment adapter preserves six digit normalization and preview then explicit confirmation', async () => {
+test('enrollment adapter normalizes 8-character and legacy six digit codes and preview then explicit confirmation', async () => {
   const { createEnrollmentOperations } = loadTsModule(`${base}/enrollment/enrollment-api.ts`);
   const calls = [], api = createEnrollmentOperations({ call: async (...args) => { calls.push(args); return { confirmation: 'signed' }; } });
   await api.previewCode(' 12 34 56 ');
   assert.deepEqual(calls, [['/codes/preview', 'POST', { code: '123456' }]]);
+  await api.previewCode(' abcd-efgh ');
+  await api.previewCode('2345 6789');
+  assert.deepEqual(calls.slice(1), [['/codes/preview', 'POST', { code: 'ABCDEFGH' }], ['/codes/preview', 'POST', { code: '23456789' }]]);
+  calls.length = 1;
   await api.confirmCode('signed');
   await api.respondInvitation('invitation', 'accept');
   assert.deepEqual(calls.slice(1), [
@@ -137,4 +141,12 @@ test('collection and creation adapters keep read cancellation and confirmed draf
     ['/drafts/draft', 'PATCH', { revision: 'r2', payload: { wizardStep: 3, wizardMethod: 'manual' } }],
     ['/drafts/draft/publish', 'POST', { revision: 'r3' }],
   ]);
+});
+
+test('access code display groups new 8-character codes and keeps legacy six digit grouping', () => {
+  const { formatAccessCode, normalizeAccessCodeInput } = loadTsModule('src/core/domain/classrooms/access-code.ts');
+  assert.equal(formatAccessCode('ABCDEFGH'), 'ABCD-EFGH');
+  assert.equal(formatAccessCode('123456'), '123 456');
+  assert.equal(normalizeAccessCodeInput('abcd efgh'), 'ABCDEFGH');
+  assert.equal(normalizeAccessCodeInput('abcd-efg1'), undefined);
 });

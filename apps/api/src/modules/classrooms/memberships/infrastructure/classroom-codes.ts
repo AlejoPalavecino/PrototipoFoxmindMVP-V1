@@ -1,13 +1,21 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import type { Transaction } from '../../access/public.ts';
 import { fail } from '../../domain/policy.ts';
+import { CLASSROOM_CODE_ALPHABET, CLASSROOM_CODE_LENGTH } from '../../../../../../../src/core/domain/classrooms/access-code.ts';
+
+/** randomInt evita el sesgo de módulo; cada carácter se sortea de forma independiente. */
+export function generateClassroomCode(): string {
+  let code = '';
+  for (let index = 0; index < CLASSROOM_CODE_LENGTH; index++) code += CLASSROOM_CODE_ALPHABET[randomInt(CLASSROOM_CODE_ALPHABET.length)];
+  return code;
+}
 
 
 
 /** Call while holding the classroom write lock, or during initial publication. */
 export async function newClassroomCode(tx: Transaction, classroomId: string, key: Buffer, digest: (text: string) => string, encryptDelivery: (key: Buffer, value: { code: string }, aad: string) => string) {
   for (let attempt = 0; attempt < 16; attempt++) {
-    const code = String(randomInt(1_000_000)).padStart(6, '0');
+    const code = generateClassroomCode();
     // Reserve against the global digest index, including rows already revoked.
     const [reserved] = await tx.query<{ id: string }>(`INSERT INTO classroom_codes
       (id,updated_at,classroom_id,code_digest,revoked_at)

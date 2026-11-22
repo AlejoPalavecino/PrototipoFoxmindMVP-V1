@@ -116,7 +116,7 @@ La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo n
 
 ## Evolución del modelo
 
-El candidato de Mis aulas del 2026-11-11 agrega `ClassroomInvitationBatch` mediante `202611110001_classroom_invitation_batches`: clave compuesta `(classroom_id, request_id)`, fecha y recibo cifrado. La referencia al aula es restrictiva. Conserva destinatarios y resultados para reconciliación/idempotencia; no incorpora una purga automática. La emisión de cada posición comparte transacción con Invitation y outbox. ClassroomCode conserva digest/envelope e historia global única: los códigos de seis dígitos revocados no se reasignan, por lo que el espacio finito requiere seguimiento de capacidad antes de una futura ampliación.
+El candidato de Mis aulas del 2026-11-11 agrega `ClassroomInvitationBatch` mediante `202611110001_classroom_invitation_batches`: clave compuesta `(classroom_id, request_id)`, fecha y recibo cifrado. La referencia al aula es restrictiva. Conserva destinatarios y resultados para reconciliación/idempotencia; no incorpora una purga automática. La emisión de cada posición comparte transacción con Invitation y outbox. ClassroomCode conserva digest/envelope e historia global única: los códigos revocados no se reasignan; el espacio de 8 caracteres (unos 6,5 x 10^11) reduce el riesgo de agotamiento, pero los códigos anteriores de seis dígitos ya ocupan su propio espacio.
 
 Las migraciones siguientes incorporan cambios de UX, ejecución IA y cuota. El orden de directorios sirve para ubicar los cambios. Para una instalación existente, consultá su registro de migraciones y la guía de transición.
 

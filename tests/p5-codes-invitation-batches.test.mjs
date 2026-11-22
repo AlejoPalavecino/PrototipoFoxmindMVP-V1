@@ -12,6 +12,35 @@ import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/accou
 import { ClassroomError } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/policy.js';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { ClassroomService } from './helpers/academic-fixture.ts';
+import { generateClassroomCode } from '../.build/api/apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.js';
+import { normalizeClassroomCode } from '../.build/api/apps/api/src/modules/classrooms/memberships/domain/classroom-code.js';
+
+const ALPHABET = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
+const draws = text => [...text].map(character => ALPHABET.indexOf(character));
+const CODE_A = '23456789', CODE_B = '2345678A', CODE_C = '2345678B';
+
+test('generated codes have 8 characters from the unambiguous alphabet and a flat distribution', () => {
+  const counts = new Map();
+  for (let i = 0; i < 6000; i++) {
+    const code = generateClassroomCode();
+    assert.match(code, /^[23456789ABCDEFGHJKMNPQRSTVWXYZ]{8}$/);
+    for (const character of code) counts.set(character, (counts.get(character) ?? 0) + 1);
+  }
+  assert.equal(counts.size, 30);
+  const expected = 6000 * 8 / 30;
+  for (const [, count] of counts) assert.ok(count > expected * 0.8 && count < expected * 1.2);
+  assert.equal(new Set(Array.from({ length: 200 }, generateClassroomCode)).size, 200);
+});
+
+test('code input accepts legacy 6 digits and 8-character codes, and rejects everything else', () => {
+  assert.equal(normalizeClassroomCode(' 000 042 '), '000042');
+  assert.equal(normalizeClassroomCode(' abcd-efgh '), 'ABCD-EFGH'.replace('-', ''));
+  assert.equal(normalizeClassroomCode('2345 6789'), '23456789');
+  assert.equal(normalizeClassroomCode('-_legacy-AcceptedCode123'), '-_legacy-AcceptedCode123');
+  for (const bad of ['', '12345', '1234567', '0123456789', 'ABCDEFGI', 'ABCD-EFG1', 'ABCDEFGHJ', '2345678!', null, 12345678, {}, 'A'.repeat(60)])
+    assert.equal(normalizeClassroomCode(bad), undefined, String(bad));
+});
+
 
 const denied = (promise, code) => assert.rejects(promise, error => error.code === code);
 const hash = (action, subject) => crypto.createHmac('sha256', 'fixture-only').update(action + subject).digest('hex');
@@ -52,26 +81,28 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       await pool.query(`INSERT INTO classroom_codes (id,classroom_id,code_digest,issued_at)
         VALUES($1,$2,$3,now()-interval '1 year')`, [randomUUID(), room, crypto.createHash('sha256').update(legacy).digest('hex')]);
       const old = await service.previewCode(student, legacy);
-      const draws = [42, 42, 43, 42, 43, 44];
-      const random = t.mock.method(crypto, 'randomInt', () => draws.shift() ?? 42);
+      const queue = [...draws(CODE_A), ...draws(CODE_A), ...draws(CODE_B), ...draws(CODE_A), ...draws(CODE_B), ...draws(CODE_C)];
+      let fallback = 0;
+      const random = t.mock.method(crypto, 'randomInt', () => queue.shift() ?? fallback++ % 8);
       syncBuiltinESMExports();
       try {
         const first = await service.rotateCode(teacher, room);
-        assert.equal(first.code, '000042');
-        assert.equal((await service.detail(teacher, room)).accessCode, '000042');
+        assert.equal(first.code, CODE_A);
+        assert.equal((await service.detail(teacher, room)).accessCode, CODE_A);
         await denied(service.confirmCode(student, old.confirmation), 'ENROLLMENT_UNAVAILABLE');
         await denied(service.previewCode(student, legacy), 'ENROLLMENT_UNAVAILABLE');
         await pool.query(`UPDATE classroom_codes SET issued_at=now()-interval '1 year'
           WHERE classroom_id=$1 AND revoked_at IS NULL`, [room]);
-        assert.equal((await service.previewCode(student, ' 000 042 ')).classroom.name, 'Fixture');
+        assert.equal((await service.previewCode(student, ' 2345-6789 ')).classroom.name, 'Fixture');
+        await denied(service.previewCode(student, '2345 678'), 'INVALID_INPUT');
 
         const results = await Promise.all([service.rotateCode(teacher, room), service.rotateCode(other, otherRoom)]);
-        assert.deepEqual(results.map(({ code }) => code).sort(), ['000043', '000044']);
+        assert.deepEqual(results.map(({ code }) => code).sort(), [CODE_B, CODE_C]);
         const live = (await service.detail(teacher, room)).accessCode;
         await denied(service.rotateCode(teacher, room), 'SERVICE_UNAVAILABLE');
         assert.equal((await service.detail(teacher, room)).accessCode, live);
         assert.equal((await pool.query('SELECT count(*)::int n FROM classroom_codes WHERE revoked_at IS NULL')).rows[0].n, 2);
-        await denied(service.previewCode(student, '000042'), 'ENROLLMENT_UNAVAILABLE');
+        await denied(service.previewCode(student, CODE_A), 'ENROLLMENT_UNAVAILABLE');
       } finally {
         random.mock.restore();
         syncBuiltinESMExports();
@@ -170,6 +201,45 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       const result = await emitted.json();
       assert.equal(result.status, 'created');
       assert.deepEqual(await (await fetch(receipt, { headers: owner })).json(), { requestId, recipients: [result] });
+    });
+
+    await t.test('legacy 6-digit codes keep resolving without forced rotation', async () => {
+      const [legacyRoom] = await Promise.all([classroom(other)]);
+      await pool.query(`UPDATE classroom_codes SET revoked_at=now() WHERE classroom_id=$1 AND revoked_at IS NULL`, [legacyRoom]);
+      await pool.query(`INSERT INTO classroom_codes (id,classroom_id,code_digest) VALUES($1,$2,$3)`,
+        [randomUUID(), legacyRoom, crypto.createHash('sha256').update('048151').digest('hex')]);
+      assert.equal((await service.previewCode(student, '048 151')).classroom.name, 'Fixture');
+    });
+
+    await t.test('malformed codes are rejected before any database lookup or failure count', async () => {
+      const before = (await pool.query("SELECT coalesce(sum(request_count),0)::int n FROM account_action_controls WHERE action='classroom-code-failure'")).rows[0].n;
+      const seen = [];
+      const tracked = new Proxy(database, { get(target, property) {
+        if (property !== '$transaction') return Reflect.get(target, property);
+        return (fn, options) => { seen.push('transaction'); return target.$transaction(fn, options); };
+      } });
+      const probe = new ClassroomService({ ...configuration, database: tracked });
+      await denied(probe.previewCode(student, 'ABCD-EFG'), 'INVALID_INPUT');
+      assert.deepEqual(seen, []);
+      assert.equal((await pool.query("SELECT coalesce(sum(request_count),0)::int n FROM account_action_controls WHERE action='classroom-code-failure'")).rows[0].n, before);
+    });
+
+    await t.test('failed guesses are counted globally across accounts, survive the failed operation and end in 429', async () => {
+      await pool.query("DELETE FROM account_action_controls WHERE action='classroom-code-failure'");
+      const students = await Promise.all(Array.from({ length: 6 }, () => account('student')));
+      const guess = i => 'ZZ' + Array.from({ length: 6 }, (_, k) => ALPHABET[Math.floor(i / 30 ** k) % 30]).join('');
+      const count = async () => (await pool.query("SELECT request_count n FROM account_action_controls WHERE action='classroom-code-failure' AND subject_key='global'")).rows[0]?.n ?? 0;
+      for (let i = 0; i < 300; i++) {
+        await denied(service.previewCode(students[i % students.length], guess(i)), 'ENROLLMENT_UNAVAILABLE');
+      }
+      assert.equal(await count(), 300);
+      await assert.rejects(service.previewCode(students[0], 'ZZZZ2222'), error => error.code === 'RATE_LIMITED' && error.retryAfter > 0);
+      // Another account, and even a valid code, are blocked while the global window is saturated.
+      await assert.rejects(service.previewCode(students[5], CODE_B), error => error.code === 'RATE_LIMITED');
+      assert.equal(await count(), 300);
+      await pool.query("UPDATE account_action_controls SET window_started_at=now()-interval '11 minutes' WHERE action='classroom-code-failure'");
+      await denied(service.previewCode(students[1], 'ZZZZ2222'), 'ENROLLMENT_UNAVAILABLE');
+      assert.equal(await count(), 1);
     });
 
     await t.test('verified code previews are rate-limited by account across sessions and allow a shared network', async t => {
