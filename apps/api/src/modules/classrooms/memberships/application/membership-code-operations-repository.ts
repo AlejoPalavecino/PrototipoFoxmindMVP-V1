@@ -1,6 +1,9 @@
 import type { Transaction } from '../../access/public.ts';
 
 export interface MembershipCodeRepository {
+  /** Intentos fallidos vigentes en la ventana global y segundos hasta que ésta se renueva. */
+  readGlobalCodeFailures(tx: Transaction, input: { windowSeconds: number }): Promise<{ failures: number; retry_after: number }[]>;
+  recordGlobalCodeFailure(tx: Transaction, input: { windowSeconds: number }): Promise<{ request_count: number }[]>;
   findLiveCode(tx: Transaction, input: { digest: string }): Promise<{
         id: string;
         classroom_id: string;

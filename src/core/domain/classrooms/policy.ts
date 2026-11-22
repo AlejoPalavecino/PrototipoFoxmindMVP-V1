@@ -5,16 +5,19 @@ export type ClassroomErrorCode =
   | 'CONFLICT'
   | 'INVITATION_BATCH_NOT_FOUND'
   | 'ENROLLMENT_UNAVAILABLE'
+  | 'RATE_LIMITED'
   | 'SERVICE_UNAVAILABLE';
 export class ClassroomError extends Error {
   readonly code: ClassroomErrorCode;
-  constructor(code: ClassroomErrorCode) {
+  readonly retryAfter?: number;
+  constructor(code: ClassroomErrorCode, retryAfter?: number) {
     super(code);
     this.code = code;
+    this.retryAfter = retryAfter;
   }
 }
-export const fail = (code: ClassroomErrorCode): never => {
-  throw new ClassroomError(code);
+export const fail = (code: ClassroomErrorCode, retryAfter?: number): never => {
+  throw new ClassroomError(code, retryAfter);
 };
 export const uuid = (x: unknown): x is string =>
   typeof x === 'string' &&
