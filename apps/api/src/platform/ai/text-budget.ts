@@ -6,7 +6,7 @@ import { reserveAiMonthlyBudget, settleAiMonthlyBudget, type MonthlyBudgetJob, t
 type Transaction = SqlTransaction;
 type ClassroomAiConfiguration = AiExecutionSettings & { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
   model?: string } & DailyLimits;
-type DailyLimits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
+type DailyLimits = { dailyBudgetUsd: number; dailyActorBudgetUsd?: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type BudgetJob = { id: string; owner_id: string };
 export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'teacher_writing_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs' | 'study_ai_dispatches';
 const tasks: Partial<Record<BudgetTable, AiExecutionTask>> = { classroom_curriculum_extractions: 'curriculum', activity_ai_generations: 'activities',
@@ -33,8 +33,11 @@ export function tokenCost(tokens: number, rate: number): bigint {
   return (BigInt(tokens) * numerator + denominator - 1n) / denominator;
 }
 async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigint, config: DailyLimits) {
-  const [num, den] = decimal(config.dailyBudgetUsd), maximum = num * 1000000n / den;
+  const [num, den] = decimal(config.dailyBudgetUsd), globalMaximum = num * 1000000n / den;
+  // Without a dedicated per-actor cap the owner scope keeps sharing the global cap (previous behaviour).
+  const [actorNum, actorDen] = decimal(config.dailyActorBudgetUsd ?? config.dailyBudgetUsd), actorMaximum = actorNum * 1000000n / actorDen;
   for (const scope of ['global', ownerId]) {
+    const maximum = scope === 'global' ? globalMaximum : actorMaximum;
     await tx.query(`INSERT INTO ai_usage_daily(day,scope,capability) VALUES((transaction_timestamp() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1')
       ON CONFLICT DO NOTHING RETURNING scope`, scope);
     const [usage] = await tx.query<{ request_count: number; total: string }>(`SELECT request_count,

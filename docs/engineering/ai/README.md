@@ -6,6 +6,8 @@ Cada cuenta estudiantil dispone de USD 3 y cada cuenta docente de USD 5 por mes 
 
 Antes de una generación paga, PostgreSQL registra una reserva en microdólares en el período de la operación. Al liquidar se libera la reserva y se descuenta el costo conocido hasta el importe reservado. El excedente queda a cargo de FoxMind. Una respuesta sin medición suficiente deja el importe pendiente de confirmación. A las 24 horas vence la reserva y se registra la exposición estimada de la plataforma. Una confirmación posterior al vencimiento ajusta el costo de FoxMind y conserva el saldo ya devuelto al usuario.
 
+Si el usuario cancela un trabajo que ya fue enviado al proveedor (turno de Foxy o imagen/diagrama de Foxy), la cancelación imputa a su cuota mensual el importe reservado completo, porque el proveedor factura la solicitud aunque el resultado se descarte y el trabajo cancelado ya no recibe su costo observado. Cancelar antes del envío no cuesta nada. El vencimiento del lease de un turno enviado, cuyo resultado se desconoce y no fue iniciado por el usuario, conserva el comportamiento anterior: la reserva queda pendiente de confirmación. En Estudio la cancelación sólo cierra el recibo de la conversación; la generación en curso continúa y liquida su costo observado, por lo que no requiere un cargo adicional.
+
 El corte contable comienza con las reservas de esta versión. Para activar en otra instalación, drenar primero las colas antiguas, aplicar las migraciones y arrancar todos los procesos con la misma versión. Conservar la historia diaria previa. La fecha de reserva determina el mes incluso si la respuesta llega después de la renovación.
 
 ### Lectura del saldo
@@ -77,6 +79,10 @@ La implementación de la [propuesta aprobada](runtime-proposal.md) conecta las s
 La base sigue requiriendo la configuración Gemini existente, incluido `AI_BACKEND=gemini-developer`. Para seleccionar Anthropic en una tarea hacen falta `AI_ANTHROPIC_ENABLED=true`, `AI_ANTHROPIC_API_KEY` válida y su entrada de perfil `provider: "anthropic"` con modelo y ambas tarifas. Una clave sola no activa Claude; omitir su configuración permite seguir con Gemini. Campos desconocidos, perfil inválido o proveedor sin credencial habilitada rechazan la configuración; no se redirige el trabajo a otro proveedor.
 
 Las credenciales se resuelven sólo en backend y quedan fuera del perfil persistido. La configuración de un proveedor no autoriza por sí sola nuevas llamadas reales, cambios de tratamiento de datos ni acceso a datos retenidos. Ver [operación local y transición](../local-development/README.md#perfiles-ia-y-transición-de-pendientes).
+
+## Tope diario por usuario
+
+El control operativo diario (UTC) tiene un tope global en dólares, `AI_DAILY_BUDGET_USD`, y un tope de solicitudes por actor y global. Por defecto cada usuario puede consumir hasta el tope global en dólares, de modo que pocas cuentas podrían agotarlo para todos. La variable opcional `AI_DAILY_ACTOR_BUDGET_USD` (decimal positivo, mismo formato que `AI_DAILY_BUDGET_USD`) fija un tope diario en dólares por usuario. Debe ser menor o igual que `AI_DAILY_BUDGET_USD`; de lo contrario la configuración de IA es inválida y la IA queda no disponible al arrancar. Si no se define, el tope por usuario es el global, igual que antes. El tope aplica a texto, Foxy visual e imágenes de Estudio, que comparten el mismo registro diario. Superarlo devuelve `AI_BUDGET_EXCEEDED`; superar el tope global devuelve `AI_GLOBAL_DAILY_BUDGET_EXCEEDED`.
 
 ## Identidad y presupuesto por trabajo
 

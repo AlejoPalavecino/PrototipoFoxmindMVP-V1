@@ -13,7 +13,7 @@ import { recordObservedCost } from '../../../../../platform/ai/observed-cost.ts'
 type GradingAiProcessState = 'READY' | 'FAILED' | 'STALE' | 'PROVIDER_OUTCOME_UNKNOWN' | AiBudgetRejectionCode;
 
 export type GradingAiConfiguration = Pick<ClassroomAiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
-  | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>
+  | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd' | 'dailyActorBudgetUsd'>
   & Partial<Pick<ClassroomAiConfiguration, 'model' | 'maxInputTokens' | 'apiKey' | 'backend' | 'anthropicApiKey'>> & AiExecutionSettings;
 
 export function gradingConfigurationForJob(base: GradingAiConfiguration, snapshot: unknown): GradingAiConfiguration {

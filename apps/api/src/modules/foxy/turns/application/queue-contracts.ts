@@ -4,4 +4,4 @@ export interface FoxyTurnLease {
   queueMs?: number;
 }
 export type FoxyTextBudgetConfiguration = { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
-  dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number } & AiExecutionSettings;
+  dailyBudgetUsd: number; dailyActorBudgetUsd?: number; dailyActorRequests: number; dailyGlobalRequests: number } & AiExecutionSettings;
