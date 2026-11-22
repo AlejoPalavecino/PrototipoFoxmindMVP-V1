@@ -1,9 +1,11 @@
 import { parentPort, workerData } from 'node:worker_threads';
 import { PlanDocumentError } from '../../domain/plan-document-error.ts';
+import { assertPdfInflateBudget } from './pdf-inflate-guard.ts';
 
 async function run() {
   const bytes = Buffer.from(workerData.bytes);
   if (workerData.extension === 'pdf') {
+    assertPdfInflateBudget(bytes);
     const { PDFDocument } = await import('pdf-lib');
     const pdf = await PDFDocument.load(bytes, { ignoreEncryption: false, throwOnInvalidObject: true });
     const pageCount = pdf.getPageCount();
