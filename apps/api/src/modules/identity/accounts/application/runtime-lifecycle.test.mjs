@@ -54,6 +54,36 @@ test('host mail lifecycle keeps failures contained and cancels a pending timer d
   await lifecycle.close(); assert.deepEqual(events, ['sender-close']);
 });
 
+function purgeFixture(run) {
+  const { IdentityControlsPurge } = loadTsModule('apps/api/src/bootstrap/identity-controls-purge.ts');
+  const rateLimits = { login: { ip: { limit: 30, windowSeconds: 900 }, identifier: { limit: 10, windowSeconds: 900 } },
+    registration: { ip: { limit: 30, windowSeconds: 3600 } }, 'recovery-request': { cooldownSeconds: 60 } };
+  return new IdentityControlsPurge({ purgeExpiredControls: run }, { rateLimits }, { intervalMs: 1000 });
+}
+test('controls purge runs bounded batches on a repeating unref timer, never overlaps and stops on close', async t => {
+  t.mock.timers.enable({ apis: ['setInterval'] });
+  const calls = []; let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  const purge = purgeFixture(async (retentionSeconds, limit) => { calls.push([retentionSeconds, limit]); await gate; return 0; });
+  purge.start(); purge.start();
+  t.mock.timers.tick(1000); await settle();
+  t.mock.timers.tick(1000); await settle();
+  assert.deepEqual(calls, [[86400 + 3600, 1000]], 'retention is 24h beyond the longest configured window; one active run');
+  release(); await settle();
+  const stopped = purge.stop(); await stopped;
+  t.mock.timers.tick(5000); await settle();
+  assert.equal(calls.length, 1);
+});
+test('controls purge drains full batches up to a bound and contains failures', async t => {
+  t.mock.timers.enable({ apis: ['setInterval'] });
+  let calls = 0;
+  const purge = purgeFixture(async () => { calls++; return 1000; });
+  purge.start(); t.mock.timers.tick(1000); await settle(); await purge.stop();
+  assert.ok(calls > 1 && calls <= 10, `bounded drain, saw ${calls}`);
+  const failing = purgeFixture(async () => { throw new Error('synthetic private failure'); });
+  failing.start(); t.mock.timers.tick(1000); await settle(); await failing.stop();
+});
+
 test('runtime host preserves public lifecycle entry points and delegates them to its mail lifecycle', async () => {
   const events = [];
   class MailLifecycle {

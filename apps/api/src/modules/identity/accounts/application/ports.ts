@@ -55,6 +55,8 @@ export interface IdentityStorePort {
   consumeToken(tx: IdentityTransactionPort, snapshot: AccountTokenRecord, digest: string, purpose: AccountTokenPurpose): Promise<{ id: string }[]>;
   recoveryMarker(tx: IdentityTransactionPort, id: string, action: string, key: string): Promise<{ last_requested_at: Date; request_count: number }>;
   acceptRecovery(tx: IdentityTransactionPort, now: Date, action: string, key: string): Promise<number>;
+  /** Clears the account's per-identifier attempt buckets; only after proof of ownership, in the caller's transaction. */
+  releaseIdentifierBuckets(tx: IdentityTransactionPort, config: IdentitySecurityConfiguration, actions: readonly RateAction[], canonical: string): Promise<void>;
 }
 export interface AccountMailInput { jobId: string; tokenId: string; userId: string; purpose: AccountTokenPurpose; expiresAt: string; rawToken: string }
 export interface AccountMailOutbox {

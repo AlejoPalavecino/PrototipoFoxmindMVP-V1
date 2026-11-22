@@ -61,6 +61,8 @@ export class IdentityRuntime {
       const expiresAt = new Date(newSessionWindow(now.getTime()).absoluteExpiresAt);
       // Never retarget an existing row. The verifier is digested before persistence.
       await tx.session.create({ data: { user_id: user.id, token_hash: this.dependencies.tokens.sessionTokenDigest(verifier), created_at: now, last_seen_at: now, expires_at: expiresAt } });
+      // Ownership proven: release the targeted-lockout bucket so failures by others do not outlive a real login.
+      await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login'], canonical);
       return { state: { authenticated: true as const, user: publicUser(user) }, verifier, expiresAt, now };
     });
   }
@@ -234,6 +236,9 @@ export class IdentityRuntime {
         consumed_at: null, invalidated_at: null }, orderBy: { id: 'asc' } });
       for (const token of previous) await tx.accountToken.update({ where: { id: token.id }, data: { invalidated_at: now } });
       for (const tokenId of [snapshot.id, ...previous.map(token => token.id)].sort()) await this.dependencies.mailOutbox.cancel(tx, tokenId);
+      // The reset proves mailbox ownership: release login/recovery identifier buckets that an outsider may have exhausted.
+      const owner = await tx.user.findUnique({ where: { id: snapshot.user_id } });
+      if (owner) await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login', 'recovery-request'], owner.email_normalized);
       // The successful-request marker and verification-purpose state deliberately remain untouched.
     });
   }

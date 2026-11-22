@@ -26,6 +26,7 @@ export function createIdentityStoreAdapter(store: IdentityStore) {
     consumeToken: (tx, snapshot, digest, purpose) => store.consumeToken(transactionOf(tx), snapshot, digest, purpose),
     recoveryMarker: (tx, id, action, key) => store.recoveryMarker(transactionOf(tx), id, action, key),
     acceptRecovery: (tx, now, action, key) => store.acceptRecovery(transactionOf(tx), now, action, key),
+    releaseIdentifierBuckets: (tx, config, actions, canonical) => store.releaseIdentifierBuckets(transactionOf(tx), config, actions, canonical),
   };
   return { store: application, transactionOf };
 }
