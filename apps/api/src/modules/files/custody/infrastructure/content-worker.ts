@@ -5,6 +5,7 @@ import { PDFDocument } from 'pdf-lib';
 import sharp from 'sharp';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { fileTypeFromBuffer } from 'file-type';
+import { assertPdfInflateBudget } from './pdf-inflate-guard.ts';
 
 const limits = { expanded: 200_000_000, entry: 100_000_000, entries: 1000, depth: 5, xml: 16_000_000 };
 const office = {
@@ -134,6 +135,7 @@ async function inspect(bytes: Buffer, extension: string): Promise<string> {
   if (!type) reject();
   if (extension === 'pdf') {
     if (type.ext !== 'pdf') reject();
+    assertPdfInflateBudget(bytes);
     const document = await PDFDocument.load(bytes, { updateMetadata: false, throwOnInvalidObject: true });
     if (document.isEncrypted || document.getPageCount() < 1) reject();
     return 'application/pdf';

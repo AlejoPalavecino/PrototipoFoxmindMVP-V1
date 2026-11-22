@@ -3,10 +3,12 @@ import { PDFDocument } from 'pdf-lib';
 import { documentXml } from './docx-archive.ts';
 import { extractDocumentText } from './docx-xml.ts';
 import { PlanDocumentError } from '../../domain/plan-document-error.ts';
+import { assertPdfInflateBudget } from './pdf-inflate-guard.ts';
 
 async function run() {
   const bytes = Buffer.from(workerData.bytes);
   if (workerData.extension === 'pdf') {
+    assertPdfInflateBudget(bytes);
     const pdf = await PDFDocument.load(bytes, { ignoreEncryption: false, throwOnInvalidObject: true });
     if (pdf.getPageCount() < 1 || pdf.getPageCount() > 100) throw new PlanDocumentError('AI_INPUT_LIMIT');
     return { kind: 'pdf', bytes };

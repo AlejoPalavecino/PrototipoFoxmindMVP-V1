@@ -44,6 +44,13 @@ export function createStudyFiles(ports:StudyFilePorts) {
       });
     },
     async status(request:unknown,folder:string,id:string) {return transaction(request,folder,false,async(tx,owner)=>status(await load(tx,owner,folder,id)));},
+    async authorizeReceive(request:unknown,folder:string,id:string) {
+      return transaction(request,folder,true,async(tx,owner)=>{
+        const row=await load(tx,owner,folder,id);
+        if(!studyFileReady(row)&&row.phase!=='STARTED')return studyFileError('CONFLICT');
+        return {expectedBytes:Number(row.size_bytes)};
+      });
+    },
     async receive(request:unknown,folder:string,id:string,input:unknown) {
       if(active>=2)return studyFileError('SERVICE_UNAVAILABLE');
       if(!Buffer.isBuffer(input)||input.length<1||input.length>50_000_000)return studyFileError('INVALID_UPLOAD');

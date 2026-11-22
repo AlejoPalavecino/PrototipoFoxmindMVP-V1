@@ -1,14 +1,25 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
 import type { StudyUploadOperations } from '../../application/read-ports.ts';
 
-export async function readStudyBody(request:IncomingMessage,limit:number):Promise<Buffer> {
-  const chunks:Buffer[]=[];let total=0;
-  for await(const chunk of request){total+=chunk.length;if(total>limit)throw Object.assign(new Error('INVALID_INPUT'),{code:'INVALID_INPUT'});chunks.push(Buffer.from(chunk));}
-  return Buffer.concat(chunks);
+const STUDY_UPLOAD_LIMIT=50_000_000;
+const bodyError=(code:string)=>Object.assign(new Error(code),{code});
+/** Reads a bounded body; fails on overflow, declared-length mismatch or a stalled client (default 15 s overall). */
+export function readStudyBody(request:IncomingMessage,limit:number,timeoutMs=15_000):Promise<Buffer> {
+  return new Promise((resolve,reject)=>{
+    const chunks:Buffer[]=[];let total=0,done=false;
+    const finish=(error?:{code:string})=>{
+      if(done)return;done=true;clearTimeout(timer);request.off('data',onData);request.off('end',onEnd);request.off('error',onError);request.off('aborted',onAbort);
+      if(error){request.pause();reject(bodyError(error.code));}else resolve(Buffer.concat(chunks));
+    };
+    const onData=(chunk:Buffer|string)=>{const buffer=Buffer.from(chunk);total+=buffer.length;if(total>limit)finish({code:'INVALID_INPUT'});else chunks.push(buffer);};
+    const onEnd=()=>finish();const onError=()=>finish({code:'INVALID_INPUT'});const onAbort=()=>finish({code:'INVALID_INPUT'});
+    const timer=setTimeout(()=>finish({code:'REQUEST_TIMEOUT'}),timeoutMs);
+    request.on('data',onData);request.once('end',onEnd);request.once('error',onError);request.once('aborted',onAbort);
+  });
 }
 export function studyJson(response:ServerResponse,status:number,value:unknown){if(response.writableEnded||response.destroyed)return;response.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});response.end(JSON.stringify(value));}
 export function studyReject(response:ServerResponse,error:unknown){
-  const codes:Record<string,number>={AUTH_REQUIRED:401,EMAIL_VERIFICATION_REQUIRED:403,CSRF_INVALID:403,ORIGIN_NOT_ALLOWED:403,FORBIDDEN:403,INVALID_INPUT:400,INVALID_UPLOAD:400,FILE_REJECTED:422,FILE_NOT_READY:409,CONFLICT:409,QUOTA_EXCEEDED:409,RATE_LIMITED:429};
+  const codes:Record<string,number>={AUTH_REQUIRED:401,EMAIL_VERIFICATION_REQUIRED:403,CSRF_INVALID:403,ORIGIN_NOT_ALLOWED:403,FORBIDDEN:403,INVALID_INPUT:400,INVALID_UPLOAD:400,FILE_REJECTED:422,FILE_NOT_READY:409,CONFLICT:409,QUOTA_EXCEEDED:409,RATE_LIMITED:429,REQUEST_TIMEOUT:408};
   const candidate=error&&typeof error==='object'&&'code'in error?String(error.code):'';
   const code=Object.hasOwn(codes,candidate)?candidate:'SERVICE_UNAVAILABLE';studyJson(response,codes[code]??503,{error:{code}});
 }
@@ -29,7 +40,13 @@ export function installStudyUploads(app:{use(path:string,handler:(request:Incomi
         if(!request.headers['content-type']?.startsWith('application/json'))throw {code:'INVALID_INPUT'};
         const body=JSON.parse((await readStudyBody(request,4096)).toString('utf8'));
         studyJson(response,201,await files.begin(request,folder!,body));
-      }else if(id&&!file&&method==='PUT')studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,50_000_000)));
+      }else if(id&&!file&&method==='PUT') {
+        // Authenticate and authorize before buffering anything; early rejections must not drain the body.
+        response.setHeader('Connection','close');
+        const {expectedBytes}=await files.authorizeReceive(request,folder!,id),declared=request.headers['content-length'];
+        if(request.headers['transfer-encoding']||!/^\d+$/u.test(declared??'')||Number(declared)!==expectedBytes||expectedBytes<1||expectedBytes>STUDY_UPLOAD_LIMIT)throw {code:'INVALID_UPLOAD'};
+        studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,expectedBytes,120_000)));
+      }
       else if(id&&!file&&method==='GET')studyJson(response,200,await files.status(request,folder!,id));
       else if(id&&file&&method==='GET') {
         const mode=url.searchParams.get('mode')??'download';if(!['preview','download'].includes(mode))throw {code:'INVALID_INPUT'};

@@ -48,6 +48,10 @@ export interface StudyUploadOperations {
         scan: string;
         rejectionCode: string | null;
     }>;
+    /** Authenticates and authorizes a pending upload before its body is read; returns the declared size. */
+    authorizeReceive(request: unknown, folder: string, id: string): Promise<{
+        expectedBytes: number;
+    }>;
     read(request: unknown, folder: string, id: string): Promise<{
         bytes: Uint8Array;
         mime: string;
