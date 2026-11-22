@@ -7,6 +7,8 @@ export type RateLimits = Readonly<Record<RateAction, RateRule>>;
 export interface IdentitySecurityConfiguration {
   readonly origin: string; readonly secureCookies: boolean; readonly trustedProxyCidrs: readonly string[];
   readonly rateLimits: RateLimits;
+  /** Client address for per-IP limits: the proxy-signed address when valid, otherwise the socket address. */
+  clientAddress(request: { readonly socket: { readonly remoteAddress?: string }; readonly headers: Readonly<Record<string, string | string[] | undefined>> }): string | undefined;
   assertOrigin(origin: unknown): void;
   csrfToken(sessionVerifier: unknown): string;
   validateCsrf(sessionVerifier: unknown, submitted: unknown): boolean;

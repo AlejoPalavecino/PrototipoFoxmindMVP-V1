@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { parseHomeQuery, parseHomePageQuery, parseHomeResponse, parseHomeModuleResponse } from '../../../../../src/core/domain/home/validation.ts';
@@ -55,6 +56,7 @@ function forward(request:IncomingMessage,response:ServerResponse,origin:string,u
   return new Promise(resolve=>{
     const headers:Record<string,string>={};
     for(const key of ['cookie','origin']){const value=request.headers[key];if(typeof value==='string')headers[key]=value;}
+    Object.assign(headers,clientAddressHeaders(request));
     const upstream=(origin.startsWith('https:')?httpsRequest:httpRequest)(origin+url.pathname+url.search,{method:'GET',headers});
     let incoming:IncomingMessage|undefined,settled=false;
     const finish=()=>{if(settled)return;settled=true;clearTimeout(timer);request.off('aborted',finish);response.off('close',finish);incoming?.destroy();upstream.destroy();resolve();};

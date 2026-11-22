@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { Transform } from 'node:stream';
@@ -114,6 +115,7 @@ export async function proxyFileRequest(request: IncomingMessage, response: Serve
   if (response.destroyed) return;
   await new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
+    Object.assign(headers, clientAddressHeaders(request));
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }

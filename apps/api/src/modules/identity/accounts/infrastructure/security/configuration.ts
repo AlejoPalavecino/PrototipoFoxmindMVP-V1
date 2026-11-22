@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { isIP } from 'node:net';
 import { IdentitySecurityError } from '../../../domain/security/errors.ts';
+import { clientAddress, readClientAddressKey } from '../../../../../platform/http/client-address.ts';
 import { parseVerifier } from './verifiers.ts';
 
 import type { Budget, RateRule, RateAction, RateLimits, IdentitySecurityConfiguration as IdentityConfiguration } from '../../application/ports.ts';
@@ -94,10 +95,12 @@ export function readIdentityConfiguration(
     if (csrfKey.length === abuseKey.length && timingSafeEqual(csrfKey, abuseKey)) invalid();
     const trustedProxyCidrs = readProxyCidrs(env.AUTH_TRUSTED_PROXY_CIDRS);
     const rateLimits = readRates(env.AUTH_RATE_LIMITS_JSON);
+    const clientAddressKey = readClientAddressKey(env.FOXMIND_PROXY_CLIENT_KEY);
     const csrfToken = (session: unknown): string => createHmac('sha256', csrfKey)
       .update(`foxmind.csrf.v1\0${parseVerifier(session)}`).digest('base64url');
     return Object.freeze({
       origin, secureCookies: !localHttp, trustedProxyCidrs, rateLimits,
+      clientAddress: (request: Parameters<typeof clientAddress>[0]) => clientAddress(request, clientAddressKey),
       assertOrigin(submitted: unknown): void {
         if (submitted !== origin) throw new IdentitySecurityError('ORIGIN_NOT_ALLOWED');
       },

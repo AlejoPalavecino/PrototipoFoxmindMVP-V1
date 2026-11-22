@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { Transform } from 'node:stream';
@@ -76,7 +77,7 @@ async function metadata(request: IncomingMessage, method: string, upload=false, 
   if (request.headers['content-encoding'] !== undefined) throw new Error();
   if ((expected ?? 0) > (upload?uploadLimit:requestLimit)) throw new RangeError();
   if (method === 'GET' || method === 'DELETE') { if ((expected ?? 0) || request.headers['transfer-encoding']) throw new Error(); return undefined; }
-  if(upload){if(!/^application\/octet-stream(?:\s*;|$)/iu.test(request.headers['content-type']??''))throw new Error();return read(request,uploadLimit);}
+  if(upload){if(!/^application\/octet-stream(?:\s*;|$)/iu.test(request.headers['content-type']??'')||expected===undefined)throw new Error();return undefined;}
   if (!/^application\/json(?:\s*;\s*charset=utf-8)?\s*$/iu.test(request.headers['content-type'] ?? '')) throw new Error();
   const content = await read(request, requestLimit);
   if (expected !== undefined && content.length !== expected) throw new Error();
@@ -85,7 +86,7 @@ async function metadata(request: IncomingMessage, method: string, upload=false, 
 function counter(max: number, expected?: number): Transform {
   let received = 0;
   return new Transform({ transform(chunk: Buffer, _encoding, callback) {
-    received += chunk.length; callback(received > max || (expected !== undefined && received > expected) ? new Error() : null, chunk);
+    received += chunk.length; callback(received > max ? new RangeError() : expected !== undefined && received > expected ? new Error() : null, chunk);
   }, flush(callback) { callback(expected !== undefined && received !== expected ? new Error() : undefined); } });
 }
 function responseHeaders(result: IncomingMessage): Record<string, string> {
@@ -129,35 +130,53 @@ async function receive(result: IncomingMessage, response: ServerResponse, binary
   });
 }
 function forward(request: IncomingMessage, response: ServerResponse, origin: string,
-  selected: ReturnType<typeof select>, content?: Buffer): Promise<void> {
+  selected: ReturnType<typeof select>, content?: Buffer, stream?: { limit: number; expected: number }): Promise<void> {
   return new Promise(resolve => {
     const headers: Record<string, string> = {};
+    Object.assign(headers, clientAddressHeaders(request));
     for (const key of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[key]; if (typeof value === 'string') headers[key] = value;
     }
     if (content) headers['content-length'] = String(content.length);
+    else if (stream) headers['content-length'] = String(stream.expected);
     const transport = origin.startsWith('https:') ? httpsRequest : httpRequest;
     const upstream = transport(origin + selected.url.pathname + selected.url.search, { method: selected.method, headers });
-    let incoming: IncomingMessage | undefined, settled = false;
+    let incoming: IncomingMessage | undefined, settled = false, limiter: Transform | undefined;
     const finish = () => { if (settled) return; settled = true; clearTimeout(timer);
-      request.off('aborted', finish); response.off('close', finish); incoming?.destroy(); upstream.destroy(); resolve(); };
+      request.off('aborted', finish); response.off('close', finish); incoming?.destroy(); upstream.destroy();
+      if (limiter) { request.unpipe(limiter); limiter.destroy(); }
+      if (!request.complete) { if (response.writableFinished) request.destroy(); else response.once('finish', () => request.destroy()); }
+      resolve(); };
     const unavailable = () => { if (!settled) fail(response, 503, 'SERVICE_UNAVAILABLE'); finish(); };
     const timer = setTimeout(unavailable, selected.binary || selected.upload ? 65000 : 150000);
     request.once('aborted', finish); response.once('close', finish); upstream.once('error', unavailable);
     const privateImage = selected.binary && selected.url.pathname.startsWith(`${root}/`) && selected.url.pathname.includes('/images/');
     upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary, privateImage).then(finish, unavailable); });
-    upstream.end(content);
+    if (stream) {
+      // Bytes flow to the API as they arrive; nothing unauthenticated is buffered in this process.
+      const counted = limiter = counter(stream.limit, stream.expected);
+      counted.once('error', error => {
+        if (settled) return;
+        if (!response.headersSent) response.setHeader('Connection', 'close');
+        const tooLarge = error instanceof RangeError;
+        fail(response, tooLarge ? 413 : 400, tooLarge ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); finish();
+      });
+      request.once('error', finish);
+      request.pipe(counted).pipe(upstream);
+    } else upstream.end(content);
   });
 }
 export async function proxyStudyRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin?: string): Promise<void> {
-  let selected: ReturnType<typeof select>, content: Buffer | undefined, origin: string;
-  try { selected = select(request); content = await metadata(request, selected.method,selected.upload,
-    selected.url.pathname.startsWith('/api/v1/chat-attachments/') ? 20_000_000 : binaryLimit); }
+  let selected: ReturnType<typeof select>, content: Buffer | undefined, origin: string, stream: { limit: number; expected: number } | undefined;
+  try { selected = select(request);
+    const uploadLimit = selected.url.pathname.startsWith('/api/v1/chat-attachments/') ? 20_000_000 : binaryLimit;
+    content = await metadata(request, selected.method, selected.upload, uploadLimit);
+    if (selected.upload) stream = { limit: uploadLimit, expected: length(request.headers['content-length'])! }; }
   catch (error) {
     const status = error instanceof RangeError ? 413 : (error as { status?: number }).status ?? 400;
     if (!request.complete) { response.setHeader('Connection', 'close'); request.resume(); }
     fail(response, status, status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT'); return;
   }
   try { origin = destination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }
-  await forward(request, response, origin, selected, content);
+  await forward(request, response, origin, selected, content, stream);
 }

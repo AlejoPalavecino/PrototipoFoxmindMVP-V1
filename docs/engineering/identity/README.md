@@ -36,3 +36,13 @@ La configuración agregada, composición, hooks Nest y temporizador de correo pe
 La migración conserva comportamiento, campos, mensajes, avatar, estilos y garantías de seguridad. La evidencia del corte y límites de QA sintético están en el [registro](../../work-log/2026-11-10-root-identity-frontend.md); no representan pruebas con datos reales, correo enviado o nueva validación DB.
 
 La reorganización backend y su evidencia sintética se registran en [TASK-013](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-backend-identity-capabilities.md). No acredita entrega real de correo ni verificación sobre datos retenidos.
+
+## Dirección del cliente en los límites por IP
+
+Los navegadores llegan a la API sólo a través de los proxies de Next. Sin más información, la API vería siempre la dirección del servidor web y todos los usuarios compartirían un único cupo por IP (`general-identity`, inicio de sesión y demás acciones). Para evitarlo, el proxy firma la dirección que observa en su conexión TCP y la API la acepta sólo si la firma es válida.
+
+- La variable `FOXMIND_PROXY_CLIENT_KEY` es un secreto de servidor (base64url, al menos 32 bytes) que comparten web y API. No se expone al navegador ni se registra. Si falta en ambos lados, la API usa la dirección del socket, como antes.
+- El proxy envía `x-foxmind-client-address` y `x-foxmind-client-proof` (`<segundos>.<HMAC-SHA256>` sobre `foxmind-client-address-v1`, segundos y dirección). La dirección sale de `socket.remoteAddress` de la petición entrante; los encabezados `x-foxmind-client-*` que envíe un cliente nunca se reenvían.
+- La API (`platform/http/client-address.ts`) usa la dirección firmada sólo si el par TCP es loopback, la firma coincide (comparación en tiempo constante), la marca de tiempo difiere como máximo 60 s y la dirección es una IP válida. En cualquier otro caso usa la dirección del socket. Una clave inválida impide el arranque.
+- No se interpreta `X-Forwarded-For` y `AUTH_TRUSTED_PROXY_CIDRS` sigue rechazándose. Con un balanceador delante del servidor web, la dirección vista por el proxy será la del balanceador; ese caso requiere un diseño propio.
+- Los tamaños de cupo no cambian.

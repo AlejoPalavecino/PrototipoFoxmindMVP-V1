@@ -50,7 +50,8 @@ async function boundedBody(body: ReadableStream<Uint8Array> | null): Promise<Uin
     reader.releaseLock();
   }
 }
-export async function proxyAccountRequest(request: Request, configuredOrigin: string | undefined, upstream: typeof fetch = fetch): Promise<Response> {
+export async function proxyAccountRequest(request: Request, configuredOrigin: string | undefined, upstream: typeof fetch = fetch,
+  clientHeaders: Readonly<Record<string, string>> = {}): Promise<Response> {
   const url = new URL(request.url);
   const path = url.pathname.slice('/api/v1'.length);
   const methods = paths[path];
@@ -64,6 +65,9 @@ export async function proxyAccountRequest(request: Request, configuredOrigin: st
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type', 'content-encoding']) {
       const value = request.headers.get(name);
       if (value !== null) headers.set(name, value);
+    }
+    for (const name of ['x-foxmind-client-address', 'x-foxmind-client-proof']) {
+      const value = clientHeaders[name]; if (value !== undefined) headers.set(name, value);
     }
     const body = await boundedBody(request.body);
     const result = await upstream(`${destination}/api/v1${path}`, {

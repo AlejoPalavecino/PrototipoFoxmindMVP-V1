@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
@@ -150,6 +151,7 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
   selected: ReturnType<typeof select>, content?: Buffer): Promise<void> {
   return new Promise(resolve => {
     const headers: Record<string, string> = {};
+    Object.assign(headers, clientAddressHeaders(request));
     for (const key of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[key]; if (typeof value === 'string') headers[key] = value;
     }

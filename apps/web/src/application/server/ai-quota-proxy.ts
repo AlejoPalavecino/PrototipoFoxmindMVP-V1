@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { aiQuotaEventsPath, aiQuotaPath } from '../../../../../src/core/contracts/ai-quota.ts';
@@ -35,7 +36,7 @@ export async function proxyAiQuotaRequest(request: IncomingMessage, response: Se
 
   await new Promise<void>(resolve => {
     const transport = origin.protocol === 'https:' ? httpsRequest : httpRequest;
-    const upstream = transport(new URL(path, origin), { headers: { cookie: request.headers.cookie ?? '' } });
+    const upstream = transport(new URL(path, origin), { headers: { cookie: request.headers.cookie ?? '', ...clientAddressHeaders(request) } });
     const unavailable = () => { reject(503, 'SERVICE_UNAVAILABLE'); upstream.destroy(); };
     response.once('close', () => { upstream.destroy(); resolve(); });
     upstream.setTimeout(22_000, unavailable);

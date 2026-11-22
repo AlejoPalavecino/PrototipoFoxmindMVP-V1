@@ -1,3 +1,4 @@
+import { clientAddressHeaders } from './client-address.ts';
 import { parseTeacherSupportQuery } from '../../../../../src/core/domain/grading/teacher-support-query.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
@@ -333,6 +334,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if (response.destroyed) return;
   await new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
+    Object.assign(headers, clientAddressHeaders(request));
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
