@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { IdentityRuntime as ApplicationRuntime, type IdentityRuntimePorts } from '../modules/identity/accounts/application/runtime.ts';
 import { IdentityMailLifecycle } from './identity-mail-lifecycle.ts';
+import { IdentityControlsPurge } from './identity-controls-purge.ts';
 import { createIdentityStoreAdapter } from '../modules/identity/accounts/infrastructure/store-adapter.ts';
 import type { IdentityStore } from '../modules/identity/accounts/infrastructure/persistence.ts';
 import type { IdentityRuntimeConfiguration } from './identity-configuration.ts';
@@ -12,6 +13,7 @@ import { validateMailbox } from '../modules/identity/mail-delivery/infrastructur
 /** Compatibility constructor and explicit host composition; all account decisions live in application. */
 export class IdentityRuntime extends ApplicationRuntime {
   private readonly mail: IdentityMailLifecycle;
+  private readonly purge: IdentityControlsPurge;
   constructor(readonly configuration: IdentityRuntimeConfiguration, store: IdentityStore,
     passwords: PasswordService, ports: IdentityRuntimePorts = {}) {
     const adapter = createIdentityStoreAdapter(store);
@@ -24,10 +26,11 @@ export class IdentityRuntime extends ApplicationRuntime {
       },
     }, ports);
     this.mail = new IdentityMailLifecycle(configuration, store);
+    this.purge = new IdentityControlsPurge(store, configuration.security);
   }
-  onApplicationBootstrap(): void { this.mail.start(); }
+  onApplicationBootstrap(): void { this.mail.start(); this.purge.start(); }
   stopMail(): Promise<void> { return this.mail.stop(); }
   shutdownMail(): Promise<void> { return this.mail.close(); }
-  onModuleDestroy(): Promise<void> { return this.shutdownMail(); }
+  async onModuleDestroy(): Promise<void> { await this.purge.stop(); await this.shutdownMail(); }
 }
 export { publicUser, type IdentityRuntimePorts } from '../modules/identity/accounts/application/runtime.ts';

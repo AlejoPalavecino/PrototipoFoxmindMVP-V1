@@ -83,6 +83,25 @@ export class IdentityStore {
     });
     if (retry) throw new IdentityHttpError('RATE_LIMITED', retry);
   }
+  /** Deletes the per-identifier attempt buckets of one account inside the caller's transaction (fresh bucket on next use).
+   * Only called after proof of ownership (successful password check or completed reset); IP/session buckets and the
+   * recovery success marker (separate action key) are never touched.
+   */
+  async releaseIdentifierBuckets(tx: IdentityTransaction, config: IdentityConfiguration, actions: readonly RateAction[], canonical: string): Promise<void> {
+    for (const action of actions) {
+      await tx.$executeRaw`DELETE FROM account_action_controls
+        WHERE action=${`identity.v1:${action}:identifier`} AND subject_key=${config.abuseDigest(action, `identifier\0${canonical}`)}`;
+    }
+  }
+  /** Bounded retention: removes at most `limit` rows whose window/cooldown ended more than `retentionSeconds` ago. */
+  async purgeExpiredControls(retentionSeconds: number, limit: number): Promise<number> {
+    try {
+      return await this.database.$executeRaw`DELETE FROM account_action_controls WHERE id IN (
+        SELECT id FROM account_action_controls
+        WHERE greatest(window_started_at, last_requested_at) < clock_timestamp() - ${retentionSeconds}::int * interval '1 second'
+        LIMIT ${limit}::int FOR UPDATE SKIP LOCKED)`;
+    } catch { throw new IdentityHttpError('SERVICE_UNAVAILABLE'); }
+  }
   async insertRegistration(tx: IdentityTransaction, input: { userId: string; email: string; canonical: string; firstName: string; lastName: string; hash: string; accountRole: 'teacher' | 'student' }) {
     const { userId, email, canonical, firstName, lastName, hash, accountRole } = input;
     return await tx.$queryRaw<{ id: string }[]>`INSERT INTO users

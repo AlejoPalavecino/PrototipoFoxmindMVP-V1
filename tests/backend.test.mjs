@@ -122,6 +122,59 @@ test('unrelated unknown-route JSON parsing behavior is preserved', async () => {
   assert.equal(response.status, 400);
   assert.equal(response.headers.get('x-request-id'), null);
 });
+async function identityFixture(db, email, secret) {
+  const { createPasswordService } = await import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/passwords.js");
+  const { generateVerifier, accountTokenDigest } = await import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/verifiers.js");
+  const { randomUUID } = await import("node:crypto");
+  const id = randomUUID(), token = generateVerifier();
+  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,$2,lower($2),'Lock','Out',$3,clock_timestamp(),'student')`, [id, email, await (await createPasswordService()).hash(secret)]);
+  await db.query(`INSERT INTO account_tokens(id,user_id,purpose,token_hash,created_at,expires_at)
+    VALUES($1,$2,'PASSWORD_RESET',$3,clock_timestamp()-interval '61 seconds',clock_timestamp()+interval '900 seconds')`,
+  [randomUUID(), id, accountTokenDigest('PASSWORD_RESET', token)]);
+  return { token };
+}
+const authPost = (path, body) => fetch(`${origin}/api/v1${path}`, { method: 'POST', signal: AbortSignal.timeout(8000),
+  headers: { Origin: process.env.APP_ORIGIN, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+test("login identifier lockout is released by a completed password reset and by a successful login", async () => {
+  const db = new pg.Client({ connectionString: process.env.DATABASE_URL }); await db.connect();
+  try {
+    const secret = "A fixture password for lockout 1", replacement = "A replacement password for lockout 2";
+    const email = "lockout-victim@example.test", other = "lockout-other@example.test";
+    const { token } = await identityFixture(db, email, secret);
+    await identityFixture(db, other, secret);
+    const login = (address, password) => authPost("/auth/login", { email: address, password });
+    for (let i = 0; i < 10; i++) assert.equal((await login(email, "wrong password number " + i + " fixture")).status, 401);
+    assert.equal((await login(email, secret)).status, 429, "11th attempt is locked even with the right password");
+    const confirm = await authPost("/auth/password-recovery/confirm", { token, newPassword: replacement });
+    assert.equal(confirm.status, 204);
+    assert.equal((await login(email, replacement)).status, 200, "owner is admitted right after completing reset");
+    // Successful login clears the identifier bucket: failures before it do not accumulate toward the next lockout.
+    for (let i = 0; i < 5; i++) assert.equal((await login(other, "wrong password number " + i + " fixture")).status, 401);
+    assert.equal((await login(other, secret)).status, 200);
+    const { rows } = await db.query("SELECT count(*)::int AS n FROM account_action_controls WHERE action='identity.v1:login:identifier'");
+    assert.equal(rows[0].n, 0, "no identifier bucket remains after the successful logins");
+  } finally { await db.end(); }
+});
+test("expired admission controls are purged in bounded batches while active ones remain", async () => {
+  const { IdentityStore } = await import("../.build/api/apps/api/src/modules/identity/accounts/infrastructure/persistence.js");
+  const { PrismaService } = await import("../.build/api/apps/api/src/platform/database/prisma.service.js");
+  const db = new pg.Client({ connectionString: process.env.DATABASE_URL }); await db.connect();
+  const store = new IdentityStore(app.get(PrismaService));
+  try {
+    await db.query("DELETE FROM account_action_controls WHERE action LIKE 'purge.test:%'");
+    const insert = (action, key, age) => db.query(`INSERT INTO account_action_controls(id,action,subject_key,last_requested_at,window_started_at,request_count)
+      VALUES(gen_random_uuid(),$1,$2,clock_timestamp()-$3*interval '1 second',clock_timestamp()-$3*interval '1 second',1)`, [action, key, age]);
+    for (let i = 0; i < 5; i++) await insert('purge.test:old', 'k' + i, 90000);
+    await insert('purge.test:recent', 'recent', 80000);
+    await insert('purge.test:active', 'active', 1);
+    assert.equal(await store.purgeExpiredControls(86400, 2), 2, "one batch never exceeds its limit");
+    assert.equal(await store.purgeExpiredControls(86400, 1000), 3);
+    assert.equal(await store.purgeExpiredControls(86400, 1000), 0);
+    const { rows } = await db.query("SELECT action FROM account_action_controls WHERE action LIKE 'purge.test:%' ORDER BY action");
+    assert.deepEqual(rows.map(row => row.action), ['purge.test:active', 'purge.test:recent']);
+  } finally { await db.query("DELETE FROM account_action_controls WHERE action LIKE 'purge.test:%'"); await db.end(); }
+});
 test("application close releases the HTTP listener and owned Prisma pool", async () => {
   const monitor = new pg.Client({ connectionString: process.env.DATABASE_URL, application_name: "foxmind-api-lifecycle-monitor" });
   await monitor.connect();
