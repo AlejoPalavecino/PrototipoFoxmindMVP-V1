@@ -12,7 +12,7 @@ function fixture(t) {
     timers.push(timer); return timer;
   });
   t.mock.method(globalThis, 'clearInterval', timer => { timer.active = false; calls.push('clear'); });
-  const database = {}, security = {}, actor = { sessionId: 'synthetic-session' }, authenticate = async () => 'synthetic-owner';
+  const database = {}, security = { clientAddress: request => request.socket.remoteAddress }, actor = { sessionId: 'synthetic-session' }, authenticate = async () => 'synthetic-owner';
   const files = { storage: {}, scanner: { async scan(bytes) { captures.scan = bytes; return 'CLEAN'; } } };
   const identity = { configuration: { security }, store: { async authenticate(verifier) { calls.push(['authenticate', verifier]); return actor; } },
     async generalAdmission(ip, context) { calls.push(['admit', ip, context]); } };

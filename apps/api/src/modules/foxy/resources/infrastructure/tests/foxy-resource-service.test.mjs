@@ -91,13 +91,13 @@ test('teacher resources use the queued profile and reach the existing private ed
       const current = await createTurn('En clase usamos la cortina como ejemplo. Conservá «la luz que llega».');
       const teachingTools = [
         ['LESSON_PLAN', 'Planificá una clase para investigar cuánto cambia la luz que llega.', /formative check/],
-        ['RUBRIC', 'Prepará una rúbrica de comparación fotográfica.', /heading for each criterion/],
+        ['RUBRIC', 'Prepará una rúbrica de comparación fotográfica.', /heading for each criterion|encabezado por criterio/],
         ['SUMMARY', 'Resumí el texto sobre apertura.', /essential relationships/],
       ];
       const toolTurns = [];
       for (const [purpose, message] of teachingTools) toolTurns.push(await createTurn(message, purpose));
       for (const [pending, version] of [[legacy, 'foxy-chat-v2'], [previous, 'foxy-chat-v3'], [attributed, 'foxy-chat-v4'],
-        [historicalRubric, 'foxy-chat-v5'], ...[current, ...toolTurns].map(pending => [pending, 'foxy-chat-v6'])]) {
+        [historicalRubric, 'foxy-chat-v5'], ...[current, ...toolTurns].map(pending => [pending, 'foxy-chat-v7'])]) {
         const [row] = await query('SELECT metadata,execution_profile FROM foxy_turns WHERE id=$1::uuid', pending.turn.id);
         assert.equal(row.metadata.promptVersion, version);
         assert.equal(row.execution_profile.promptVersion, version);
@@ -114,7 +114,7 @@ test('teacher resources use the queued profile and reach the existing private ed
       assert.match(calls[2].config.systemInstruction, /shared experiences/);
       assert.doesNotMatch(calls[2].config.systemInstruction, /essential relationships/);
       assert.match(calls[3].config.systemInstruction, /observable evidence/);
-      assert.doesNotMatch(calls[3].config.systemInstruction, /heading for each criterion/);
+      assert.doesNotMatch(calls[3].config.systemInstruction, /heading for each criterion|encabezado por criterio/);
       assert.equal(JSON.parse(calls[4].contents[0].parts[0].text).message, current.text);
       teachingTools.forEach(([, , rule], index) => assert.match(calls[index + 5].config.systemInstruction, rule));
       const { resource } = await runtime.services.resources.fromTurn(owner, current.conversation.id, current.turn.id);

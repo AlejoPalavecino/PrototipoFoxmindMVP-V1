@@ -251,6 +251,7 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       });
       const runtime = { configuration: { security: {
         abuseDigest: hash, assertOrigin() {}, validateCsrf: (_, csrf) => csrf === 'valid',
+        clientAddress: request => request.socket.remoteAddress,
       } }, store, async generalAdmission() {} };
       const app = createRequire(import.meta.url)('express')();
       let reached = 0;
@@ -296,6 +297,7 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       let general = 0, reached = 0;
       const runtime = { configuration: { security: {
         abuseDigest: hash, assertOrigin() {}, validateCsrf: (_, csrf) => csrf === 'valid',
+        clientAddress: request => request.socket.remoteAddress,
       } }, store, async generalAdmission() {
         if (++general > 240) throw new IdentityHttpError('RATE_LIMITED', 60);
       } };
