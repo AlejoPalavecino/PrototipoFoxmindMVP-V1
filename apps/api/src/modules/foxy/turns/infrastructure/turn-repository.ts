@@ -130,7 +130,7 @@ export function createFoxyTurnRepository() {
         FOR UPDATE OF t`, owner, conversationId, turnId);
       if (!row) return null;
       if (row.state !== 'QUEUED' && row.state !== 'RUNNING') return readView(row);
-      if (row.state === 'RUNNING') await settleUnobservedFoxyTurn(tx, row);
+      if (row.state === 'RUNNING') await settleUnobservedFoxyTurn(tx, row, true);
       const [updated] = await tx.query<ReadRow>(`UPDATE foxy_turns SET state='CANCELLED',lease_nonce=NULL,lease_until=NULL,
         reserved_microusd=0,updated_at=clock_timestamp() WHERE owner_id=$1::uuid AND conversation_id=$2::uuid
         AND id=$3::uuid AND state IN ('QUEUED','RUNNING') RETURNING *`,owner,conversationId,turnId);

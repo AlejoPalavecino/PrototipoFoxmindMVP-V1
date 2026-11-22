@@ -57,9 +57,10 @@ export interface ApplicationOptions extends StudyRuntimeOptions { readonly ident
 function foxyConfiguration(ai: ApiConfiguration['ai']) {
   if (!ai) return null;
   const { model, maxInputTokens, maxOutputTokens, maxConcurrency, deadlineMs, maxJobAgeMs,
-    dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd } = ai;
+    dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd, dailyActorBudgetUsd } = ai;
   return { model, maxInputTokens, maxOutputTokens, maxConcurrency, deadlineMs, maxJobAgeMs,
     dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd,
+    ...(dailyActorBudgetUsd === undefined ? {} : { dailyActorBudgetUsd }),
     ...(ai.executionProfiles ? { executionProfiles: ai.executionProfiles } : {}),
     ...(ai.legacyExecutionProfiles ? { legacyExecutionProfiles: ai.legacyExecutionProfiles } : {}) };
 }
@@ -117,7 +118,7 @@ class AppModule implements OnModuleDestroy {
             providerForExecution: configuration.ai && options.ai === undefined && !Object.hasOwn(options.foxy ?? {}, 'textProvider')
               ? pinned => createGeminiFoxyTextAdapter({ ...configuration.ai!, ...pinned }) : undefined,
             visualConfiguration: configuration.foxyVisual?.configuration, visualProviders: visualProviders(configuration,options),
-            visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
+            visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, ...(configuration.ai.dailyActorBudgetUsd === undefined ? {} : { dailyActorBudgetUsd: configuration.ai.dailyActorBudgetUsd }), dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
         { provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => createHomeService(
           createHomeUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }, { provide: AgendaService, inject: [PrismaService, IdentityRuntime],

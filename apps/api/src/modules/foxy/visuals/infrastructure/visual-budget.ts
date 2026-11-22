@@ -4,12 +4,13 @@ import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql
 import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
 import { describedOpeningImageProfileVersion, exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
 import { maxOpeningCaptionTokens } from '../application/visual-runtime-contracts.ts';
-type Limits = { dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
+type Limits = { dailyBudgetUsd: number; dailyActorBudgetUsd?: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type Row = { id: string; owner_id: string; dispatch_count: number; reserved_microusd: bigint; profile: VisualProfile };
 const invalid = (): never => { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); };
 function configuration(profile: VisualProfile, limits: Limits) {
   const validRate = (v: unknown): v is string => typeof v === 'string' && /^(?:0|[1-9][0-9]{0,5})(?:\.[0-9]{1,6})?$/u.test(v) && Number(v) > 0;
-  if (!limits || !Number.isFinite(limits.dailyBudgetUsd) || limits.dailyBudgetUsd <= 0 || !Number.isSafeInteger(limits.dailyActorRequests)
+  if (!limits || !Number.isFinite(limits.dailyBudgetUsd) || limits.dailyBudgetUsd <= 0
+    || (limits.dailyActorBudgetUsd !== undefined && (!Number.isFinite(limits.dailyActorBudgetUsd) || limits.dailyActorBudgetUsd <= 0 || limits.dailyActorBudgetUsd > limits.dailyBudgetUsd)) || !Number.isSafeInteger(limits.dailyActorRequests)
     || limits.dailyActorRequests < 1 || !Number.isSafeInteger(limits.dailyGlobalRequests) || limits.dailyGlobalRequests < 1
     || !profile || !Number.isSafeInteger(profile.maxInputTokens) || profile.maxInputTokens < 1 || profile.maxInputTokens > 65536
     || !Number.isSafeInteger(profile.maxOutputTokens) || profile.maxOutputTokens < 1 || profile.maxOutputTokens > 4096
@@ -56,11 +57,12 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
     })) return 'NO_BUDGET';
     await tx.query('UPDATE foxy_visual_jobs SET preflight_tokens=$2,input_tokens=NULL WHERE id=$1::uuid',row.id,preflightTokens); return 'RESERVED';
   }
-  async function settleRow(tx: SqlTransaction, row: Row, usage?: VisualUsage | null): Promise<boolean> {
+  async function settleRow(tx: SqlTransaction, row: Row, usage?: VisualUsage | null, chargeReserved = false): Promise<boolean> {
     if (BigInt(row.reserved_microusd) === 0n) return false; const config = configuration(row.profile,options.limits);
     const safe = usage && Number.isSafeInteger(usage.inputTokens) && usage.inputTokens! >= 0
       && Number.isSafeInteger(usage.outputTokens) && usage.outputTokens! >= 0 ? usage : undefined;
-    const pricedUsage = row.profile.kind === 'IMAGE' ? priceFoxyImageUsage(row.profile, safe) : undefined;
+    const pricedUsage = chargeReserved ? BigInt(row.reserved_microusd)
+      : row.profile.kind === 'IMAGE' ? priceFoxyImageUsage(row.profile, safe) : undefined;
     await settleAiTextBudget(tx,row,config,safe,'foxy_visual_jobs',pricedUsage);
     if (safe) await tx.query('UPDATE foxy_visual_jobs SET input_tokens=$2 WHERE id=$1::uuid',row.id,safe.inputTokens); return true;
   }
@@ -76,7 +78,9 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
   async function settleCancelled(tx: SqlTransaction, jobId: string) {
     const [row] = await tx.query<Row>("SELECT * FROM foxy_visual_jobs WHERE id=$1::uuid AND state='RUNNING' FOR UPDATE",jobId);
     if (!row) return false;
-    return BigInt(row.reserved_microusd) === 0n || settleRow(tx,row);
+    // The user stopped a request already sent to the provider, which bills it: charge the full quote. The cancelled job
+    // can no longer be settled by its worker (settle requires RUNNING), so no observed cost can arrive later.
+    return BigInt(row.reserved_microusd) === 0n || settleRow(tx,row,undefined,true);
   }
   return { reserve, settle, settleExpired, settleCancelled };
 }

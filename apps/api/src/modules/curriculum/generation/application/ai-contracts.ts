@@ -8,7 +8,7 @@ import type { ExtractedCurriculum } from '../../../../../../../src/core/domain/c
 export interface ClassroomAiConfiguration extends AiExecutionSettings {
  model: string; maxConcurrency: number; maxDispatches: number; deadlineMs: number; maxJobAgeMs: number;
  maxInputTokens: number; maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
- dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number;
+ dailyBudgetUsd: number; dailyActorBudgetUsd?: number; dailyActorRequests: number; dailyGlobalRequests: number;
 }
 export interface ApprovedPlanSnapshot { fileId: string; digest: string; extension: DocumentExtension; sizeBytes: number }
 export interface AiPlanSource extends ApprovedPlanReader {
