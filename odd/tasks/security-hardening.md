@@ -47,7 +47,7 @@ Base `main` at 666adbf5. One commit per unit (dependencies, then each fix with i
 - **Verification:** reviewer reports verified by the coordinator against the code
 - **Acceptance:** Each reported finding is classified as confirmed (with file and attack scenario) or discarded (with a reason).
 - **Scope:** ["docs/work-log/2026-11-22-root-security-hardening.md"]
-- **Evidence:** {"command":"5 read-only quality_reviewer audits on 666adbf5 + coordinator code verification of cited lines","result":"Findings recorded in the work-log audit table: F1 high (shared per-IP bucket), F2/F3/F9 medium (F9 reproduced), F4-F8 low; CSP unsafe-inline not addressed. Scope moved from the audited source files to the work-log because TASK-003..007 legitimately rewrote those files","candidate":"sha256:9972d4e24b062a08de6a0ac16efd0f580b6bc858c6cd2d723811d12b0cd97604"}
+- **Evidence:** {"command": "5 read-only quality_reviewer audits on 666adbf5 + coordinator code verification of cited lines", "result": "Findings recorded in the work-log audit table: F1 high (shared per-IP bucket), F2/F3/F9 medium (F9 reproduced), F4-F8 low; CSP unsafe-inline not addressed. Scope moved from the audited source files to the work-log because TASK-003..007 legitimately rewrote those files. Re-fingerprinted 2026-11-23: the work-log gained the continuation section (grading test alignment, CSP F10); prior content unchanged except the two open items now marked resolved; docs:check 0 issues", "candidate": "sha256:9d5a6344bc6f68ab780abd9fc00b473d912f1cf9140e14b7e44e3aae90b6b9a8"}
 - **Blocker:** none
 
 ### TASK-003 — Sign the client address between the web and the API (F1, F2)
@@ -113,5 +113,27 @@ Base `main` at 666adbf5. One commit per unit (dependencies, then each fix with i
 - **Verification:** api:build, web:build, lint:boundaries, fast and owned-db groups, docs:check, npm audit
 - **Acceptance:** Everything green on the integrated main; commits per unit; push to origin/main.
 - **Scope:** ["package.json", "package-lock.json", "docs/work-log/2026-11-22-root-security-hardening.md", "scripts/complete-suite-routes.json"]
-- **Evidence:** {"command":"npm run test:complete -- --group fast; npm run test:complete -- --group owned-db; targeted node --test runs; api/web build, lint, docs:check, npm audit","result":"Integrated main: api:build 0, web:build 0, lint 0, docs:check 0, npm audit 0 vulnerabilities, fast 3090 passed 0 failed, owned-db 748 passed 3 failed + 30 remaining files 206 passed 0 failed. The 3 grading-ai-sql failures reproduce identically on clean 666adbf5 (pre-existing, flagged)","candidate":"sha256:8369d9d51555641f81ebd609eb77dd83a067f1f888ecc05b7fa0c3961e70a76f"}
+- **Evidence:** {"command": "npm run test:complete -- --group fast; npm run test:complete -- --group owned-db; targeted node --test runs; api/web build, lint, docs:check, npm audit", "result": "Integrated main: api:build 0, web:build 0, lint 0, docs:check 0, npm audit 0 vulnerabilities, fast 3090 passed 0 failed, owned-db 748 passed 3 failed + 30 remaining files 206 passed 0 failed. The 3 grading-ai-sql failures reproduce identically on clean 666adbf5 (pre-existing, flagged). Re-fingerprinted 2026-11-23: the work-log gained the continuation section (grading test alignment, CSP F10); prior content unchanged except the two open items now marked resolved; docs:check 0 issues", "candidate": "sha256:1195973303684949320800b95c3449003fc92cf877afad9375c1eefe1dfd5e97"}
+- **Blocker:** none
+
+### TASK-009 — Align the grading AI budget test with the approved rejection contract
+- **State:** DONE
+- **Depends on:** TASK-008
+- **Owner:** orchestrator
+- **Requirements:** REQ-003
+- **Verification:** node --test tests/grading-ai-sql.test.mjs
+- **Acceptance:** A reservation over the global daily budget rejects with AI_GLOBAL_DAILY_BUDGET_EXCEEDED (decision recorded in docs/work-log/2026-11-18-ledger-presupuesto-ia.md) and still dispatches and reserves nothing; the file passes 7/7.
+- **Scope:** ["tests/grading-ai-sql.test.mjs"]
+- **Evidence:** {"command":"node --test --experimental-strip-types tests/grading-ai-sql.test.mjs; npm run test:complete -- --group fast","result":"Before: 3 failures (1 real: reserve rejects with AI_GLOBAL_DAILY_BUDGET_EXCEEDED per the 2026-11-18 decision; 2 cascaded because cleanup was skipped). After aligning the expectation (still asserts no dispatch and no reservation): 7/7; fast 3091/0","candidate":"sha256:b81082952d190ad526f4bafb83ce306c0ca4ea8abcc1f38f6373baf84faac303"}
+- **Blocker:** none
+
+### TASK-010 — Page CSP without script 'unsafe-inline'
+- **State:** DONE
+- **Depends on:** TASK-008
+- **Owner:** orchestrator
+- **Requirements:** REQ-002, REQ-003
+- **Verification:** node --test tests/p3-web-proxy.test.mjs; web:build; Chromium check on next start; fast suite
+- **Acceptance:** Pages send a CSP whose script-src is 'self' plus a fresh per-request nonce; a client-sent x-nonce is ignored; every page hydrates with no CSP violation; API and static routes keep a policy without 'unsafe-inline' for scripts.
+- **Scope:** ["apps/web/proxy.ts", "apps/web/src/application/server/content-security-policy.ts", "apps/web/pages/_document.tsx", "apps/web/pages/_app.tsx", "apps/web/next.config.mjs", "tests/p3-web-proxy.test.mjs"]
+- **Evidence:** {"command":"node --test tests/p3-web-proxy.test.mjs; npm run web:build; Chromium (Playwright) on next start over 7 routes; npm run test:complete -- --group fast; lint:boundaries; docs:check; login-inicio-integration x3; p9-mail-recovery-integration","result":"RED: content-security-policy module missing; GREEN 11/11. Static-hash attempt rejected: Turbopack per-build inline bootstrap blocked, no hydration. Nonce: 7 routes hydrate, all inline scripts nonced, 0 CSP violations, token capture clears hash, nonce fresh per request, forged x-nonce ignored, /api CSP script-src 'self'. fast 3091/0; lint 0; docs 0 issues; p9-mail-recovery 1/1; login-inicio 4/6 then 6/6 then 6/6 (intermittent API 503 after classroom.query UNEXPECTED; clean main 6/6). next dev not browser-verified","candidate":"sha256:7498453330b43230c37611ff33bac1e643c2265770fce4e335be18f4912894f8"}
 - **Blocker:** none

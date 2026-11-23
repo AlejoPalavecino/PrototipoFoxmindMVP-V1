@@ -27,7 +27,7 @@ Dependencias: `npm audit` informaba 10 hallazgos (4 altos). La corrección que s
 
 Superficies revisadas sin hallazgos: sesiones, CSRF, tokens, enumeración, SQL, ZIP/XML/imágenes, antivirus, aislamiento entre aulas, contexto de Foxy, XSS y SSRF.
 
-Hallazgo sin corregir en esta entrega: la CSP de la web conserva `script-src 'unsafe-inline'` (baja). No se encontró ningún sink XSS explotable.
+Hallazgo F10 (baja): la CSP de la web incluía `script-src 'unsafe-inline'`. No se encontró ningún sink XSS explotable. Se corrigió en la continuación del 23/11 (ver [Continuación](#continuación-23112026)).
 
 ## Implementación y verificación
 
@@ -54,7 +54,7 @@ La integración descubrió tres dobles de seguridad armados a mano a los que les
 Fallas previas, comprobadas sobre un checkout limpio de 666adbf5:
 
 - `foxy-resource-service` esperaba `foxy-chat-v6` y una regla de rúbrica en inglés. 666adbf5 volvió vigente `v7` y redactó la regla en español. Se actualizaron las expectativas, que siguen comprobando la misma presencia y ausencia de la regla. Esta falla cortaba el grupo owned-db antes de ejecutar más de 100 archivos.
-- `grading-ai-sql`: 3 subpruebas fallan igual en 666adbf5. La prueba espera que `reserve` devuelva `false` al agotarse el presupuesto global, pero el código lanza `AI_GLOBAL_DAILY_BUDGET_EXCEEDED`. No se modificó: la divergencia entre la prueba y el código queda señalada para una decisión del producto.
+- `grading-ai-sql`: 3 subpruebas fallan igual en 666adbf5. La prueba espera que `reserve` devuelva `false` al agotarse el presupuesto global, pero el código lanza `AI_GLOBAL_DAILY_BUDGET_EXCEEDED`. Se resolvió en la continuación del 23/11.
 
 ## Límites
 
@@ -62,3 +62,14 @@ Fallas previas, comprobadas sobre un checkout limpio de 666adbf5:
 - El límite global de códigos de aula permite que muchas cuentas coordinadas demoren los ingresos por código de otros usuarios durante la ventana. Las invitaciones por email no se ven afectadas.
 - Para usar la variable nueva hay que agregar `AI_DAILY_ACTOR_BUDGET_USD` al `.env`; sin ella se mantiene el comportamiento anterior. `FOXMIND_PROXY_CLIENT_KEY` se genera en el próximo `npm run local:up`.
 - No hubo verificación en navegador del diálogo de ingreso por código ni un recorrido real Next→API con la clave configurada; las pruebas usan servidores sintéticos.
+
+## Continuación (23/11/2026)
+
+El usuario pidió resolver las dos cuestiones abiertas. Para la CSP eligió el nonce por request, en lugar de aceptar el riesgo.
+
+- **`grading-ai-sql`.** La decisión del 18/11 ([ledger de presupuesto IA](2026-11-18-ledger-presupuesto-ia.md)) establece que el rechazo diario se identifica con `AI_GLOBAL_DAILY_BUDGET_EXCEEDED` y que el motivo se persiste. El runtime de corrección captura ese código y lo guarda como error reintentable. La prueba era anterior a esa decisión, así que se alineó la expectativa y se mantuvieron las comprobaciones de que no hay despacho ni reserva. De las 3 fallas, sólo una era propia. Las otras dos eran consecuencia: la prueba cortaba antes de limpiar y el trabajo quedaba tomado. Resultado: 7/7.
+- **CSP (F10).** Un hash fijo no alcanza. En Chromium, Turbopack agrega en cada página un script inline de arranque cuyo contenido cambia en cada build, y la página quedaba sin hidratar. Ahora `apps/web/proxy.ts` genera un nonce por request, lo informa en la CSP de la respuesta y lo pasa a `_document` mediante `x-nonce`. Cualquier `x-nonce` que envíe el cliente se sobrescribe. `_app.getInitialProps` desactiva la optimización estática, porque el nonce sólo existe si la página se renderiza por request. Afecta a seis páginas, que ya se servían con `no-store`. `/api` y `/_next` reciben desde `next.config.mjs` una política con `script-src 'self'`. En desarrollo se suma `'unsafe-eval'`.
+- **Verificación de la CSP.** La prueba nueva de `tests/p3-web-proxy.test.mjs` primero dio RED porque faltaba el módulo y después GREEN, con 11/11 en el archivo. Se hizo `web:build` y se probó con Chromium sobre `next start`. Las siete rutas (`/sign-in`, `/register`, `/forgot-password`, `/inicio`, `/agenda`, un 404 y `/verify-email` con token) se hidratan, todos sus scripts inline llevan nonce y hay 0 violaciones de CSP. La captura del token sigue limpiando el hash de la URL. El nonce cambia en cada request y un `x-nonce` falsificado no aparece en el HTML.
+- **Suites.** `test:complete --group fast`: 3091 pasan y 0 fallan. `lint:boundaries` y `docs:check` dan 0. Recorridos reales con el build candidato: `p9-mail-recovery-integration` 1/1. `login-inicio-integration` dio 4/6 en la primera corrida y 6/6 en las dos siguientes; `main` limpio (8c858edc) dio 6/6. La falla fue un 503 de la API en `/home` después de un `classroom.query` UNEXPECTED, en una página que ya se había hidratado. Se registra como intermitente del backend, no atribuida a la CSP, sin una causa confirmada.
+- **Tablero.** Este registro está en el alcance de TASK-002 y TASK-008, por lo que la continuación cambió su huella. Se volvió a verificar (`docs:check` sin problemas; el contenido anterior sólo cambió en los dos pendientes, que ahora figuran resueltos) y se actualizó su evidencia sin reabrir en cascada las tareas 003 a 010.
+- **Límites.** El modo desarrollo (`next dev`) no se verificó en un navegador; `local:up` usa `next start`. `style-src` conserva `'unsafe-inline'`, que queda fuera de este hallazgo.
