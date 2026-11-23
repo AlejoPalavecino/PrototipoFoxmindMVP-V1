@@ -156,3 +156,31 @@ test('aborted, oversized and timed-out bodies handle rejected cancellation witho
   assert.equal(run.status, 0, run.stderr);
   assert.match(run.stdout, /Three bounded body failures handled/);
 });
+
+test('page CSP authorizes inline scripts only by a fresh per-request nonce', async () => {
+  const { pageContentSecurityPolicy, readNonce } = await import('../apps/web/src/application/server/content-security-policy.ts');
+  const { loadTsModule } = await import('./helpers/load-ts-module.mjs');
+  const { proxy, config: proxyConfig } = loadTsModule('apps/web/proxy.ts');
+  const directives = policy => Object.fromEntries(policy.split(';').map(part => part.trim().split(/\s+/)).map(([name, ...values]) => [name, values]));
+  const nonceOf = response => /'nonce-([^']+)'/.exec(response.headers.get('content-security-policy'))?.[1];
+  const first = proxy(new Request('http://127.0.0.1:3000/sign-in', { headers: { 'x-nonce': 'attacker' } }));
+  const second = proxy(new Request('http://127.0.0.1:3000/sign-in'));
+  const nonce = nonceOf(first);
+  assert.equal(readNonce(nonce), nonce);
+  assert.notEqual(nonce, nonceOf(second));
+  assert.equal(first.headers.get('x-middleware-request-x-nonce'), nonce);
+  assert.equal(first.headers.get('x-middleware-request-content-security-policy'), first.headers.get('content-security-policy'));
+  const page = directives(first.headers.get('content-security-policy'));
+  assert.deepEqual(page['script-src'], ["'self'", `'nonce-${nonce}'`]);
+  assert.deepEqual(page['object-src'], ["'none'"]);
+  assert.deepEqual(page['frame-ancestors'], ["'none'"]);
+  assert.ok(directives(pageContentSecurityPolicy(nonce, true))['script-src'].includes("'unsafe-eval'"));
+  for (const forged of ['attacker', '"><script>', undefined, ['a', 'b']]) assert.equal(readNonce(forged), undefined);
+  assert.deepEqual(proxyConfig.matcher, ['/((?!api/|_next/static/|_next/image|favicon\\.ico).*)']);
+
+  const { default: nextConfig } = await import('../apps/web/next.config.mjs');
+  const rules = await nextConfig.headers();
+  const csp = rules.filter(rule => rule.headers.some(header => header.key === 'Content-Security-Policy'));
+  assert.deepEqual(csp.map(rule => rule.source), ['/api/:path*', '/_next/:path*']);
+  for (const rule of csp) assert.deepEqual(directives(rule.headers.find(header => header.key === 'Content-Security-Policy').value)['script-src'], ["'self'"]);
+});
