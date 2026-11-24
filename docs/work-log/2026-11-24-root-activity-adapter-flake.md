@@ -29,4 +29,4 @@ Sólo en `tests/activity-ai-adapter.test.mjs`, sin cambios de producto:
 
 - Si en el caso colgado el conteo tarda más de 300 ms, la prueba todavía puede fallar.
 
-**Primer paso pendiente:** ninguno propio. Sigue pendiente `owned-db` con Docker activo, del [registro de admisión de Estudio](2026-11-24-root-study-admission-flake.md).
+**Primer paso pendiente:** ninguno. `owned-db` se completó en 957/0 (ver [registro de admisión de Estudio](2026-11-24-root-study-admission-flake.md)).

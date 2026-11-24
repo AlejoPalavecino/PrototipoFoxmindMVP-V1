@@ -26,10 +26,13 @@ En el job `verify` de la corrida 45321699327 (`220820b9`) falló `tests/study-ai
 | `npm run test:complete -- --group fast`, segunda pasada | 3100 pasan y 0 fallan (línea base 3098 + test nuevo). |
 | `docs:check` | 0 problemas. |
 
+| Más tarde, con Docker activo (sobre `c1eeb1c0`): `tests/ai-study-reservation-database.test.mjs` | 2/2 contra PostgreSQL, incluida la devolución que espera cupo y despacha una vez. |
+| `npm run test:complete -- --group owned-db` | 957 pasan y 0 fallan, en los 158 archivos. No quedaron contenedores de prueba. |
+
 ## Límites
 
-- `tests/ai-study-reservation-database.test.mjs` (grupo `owned-db`), que cubre la espera de la devolución contra PostgreSQL, no se corrió: Docker Desktop no estaba activo. Sus fallas locales son de entorno ("Agenda database cleanup inspection unavailable"). CI tampoco lo corre en los push a `main`.
+- La primera sesión no pudo correr `owned-db` porque Docker Desktop no estaba activo. Se completó después, con los resultados de la tabla. CI no corre este grupo en los push a `main`.
 - `pdf-inflate-bomb` también depende del tiempo y puede fallar con la máquina cargada. No se tocó.
 - Las tres corridas de PR fallidas anteriores (`02b7395e`, `ae045cfc`, `d50b651a`) no se revisaron.
 
-**Primer paso pendiente:** con Docker activo, correr `npm run test:complete -- --group owned-db`.
+**Primer paso pendiente:** ninguno.
