@@ -79,7 +79,7 @@ Los contadores conservan su significado actual de total por estado; los resultad
 | Sin coincidencias | «No encontramos aulas con estos filtros» + Limpiar filtros |
 | Cargando | Esqueleto estable con etiqueta accesible; no mostrar cero antes de resolver |
 | Error | «No pudimos cargar tus aulas» + Reintentar, conservando criterios |
-| Pendiente existente | Nombre o «Aula sin nombre», resumen disponible, Continuar creación y Eliminar pendiente con confirmación |
+| Borrador existente | Nombre o «Aula sin nombre», resumen disponible, Continuar creación y Eliminar borrador con confirmación |
 
 ## 3. Crear o continuar aula
 

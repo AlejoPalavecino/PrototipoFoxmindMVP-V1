@@ -723,7 +723,8 @@
     "tests/teacher-writing-backend-db.test.mjs",
     "tests/expedition-access.test.mjs",
     "tests/expedition-home.test.mjs",
-    "tests/expedition-navigation.test.mjs"
+    "tests/expedition-navigation.test.mjs",
+    "tests/expedition-classrooms.test.mjs"
   ],
   "exclusions": [
     {
