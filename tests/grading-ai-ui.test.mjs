@@ -23,7 +23,7 @@ async function roomView(role) {
   return { view, calls };
 }
 
-test('guardar los datos del aula conserva la configuración de corrección IA sin añadir controles ajenos a la maqueta', async () => {
+test('guardar los datos del aula conserva la configuración de corrección asistida y muestra su interruptor con el estado actual', async () => {
   const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   for (const aiGradingEnabled of [false, true]) {
     const calls = [];
@@ -37,7 +37,9 @@ test('guardar los datos del aula conserva la configuración de corrección IA si
     });
     try {
       await view.flush();
-      assert.equal(field(view.tree, /correcci[oó]n.*IA/i, 'input'), undefined);
+      const toggle = descendants(view.tree, n => n.props?.role === 'switch')[0];
+      assert.ok(toggle, 'decisión del 2026-11-24: la corrección asistida tiene un interruptor visible en Ajustes');
+      assert.equal(toggle.props['aria-checked'], aiGradingEnabled);
       const form = descendants(view.tree, n => n.type === 'form')[0]; assert.ok(form);
       form.props.onSubmit({ preventDefault() {} }); await view.flush();
       assert.deepEqual(calls, [[`/${id}/settings`, 'PATCH', {
@@ -50,7 +52,7 @@ test('guardar los datos del aula conserva la configuración de corrección IA si
 
 test('alumno no puede acceder al interruptor docente', async () => {
   const { view } = await roomView('student');
-  try { assert.equal(button(view, 'Configuración'), undefined); assert.equal(field(view.tree, /correcci[oó]n.*IA/i, 'input'), undefined); }
+  try { assert.equal(button(view, 'Configuración'), undefined); assert.equal(descendants(view.tree, n => n.props?.role === 'switch').length, 0); }
   finally { view.close(); }
 });
 

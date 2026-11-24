@@ -27,9 +27,10 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
   const [saved, setSaved] = useState(false);
   useEffect(() => { setSavedSettings(persistedSettings); }, [id, persistedSettings]);
   const dirty = (Object.keys(settings) as (keyof Settings)[]).some(key => settings[key] !== savedSettings[key]);
-  const referenceCovers = ['literature', 'biology', 'math'];
-  const covers = referenceCovers.map(key => coverOptions().find(option => option.key === key)!)
-    .concat(referenceCovers.includes(room.coverKey) ? [] : coverOptions(room.coverKey).filter(option => option.key === room.coverKey));
+  const covers = coverOptions(room.coverKey);
+  // The service may be unavailable: then it can still be turned off, never on.
+  const aiLocked = room.aiGradingAvailable === false && !settings.aiGradingEnabled;
+  const aiTitle = `classroom-ai-grading-${id}`;
   return (
     <>
                 {settingsConflict ? <Notice error>La configuración cambió. Tu borrador se conserva. <button onClick={() => void reloadSettings()}>Recargar configuración</button></Notice> : null}
@@ -78,6 +79,15 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                         </label>
                       ))}
                     </div>
+                    <p className="classroom-settings-readonly"><span>Ciclo lectivo</span><b>{room.academicYear}</b><small>Se define al crear el aula.</small></p>
+                    </section>
+                    <section className="classroom-settings-ai" aria-labelledby={aiTitle}>
+                      <div><h3 id={aiTitle}>Corrección asistida</h3>
+                        <p>Con cada entrega nueva, Foxy prepara una propuesta privada de corrección. Vos la revisás, la usás o la descartás antes de publicar. Cada propuesta usa tu saldo de IA.</p>
+                        {aiLocked ? <p className="classroom-settings-ai-note">La corrección asistida no está disponible en este momento, así que todavía no se puede activar.</p> : null}</div>
+                      <button type="button" role="switch" aria-checked={settings.aiGradingEnabled} aria-labelledby={aiTitle} disabled={aiLocked}
+                        onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: !previous.aiGradingEnabled }))}>
+                        <span aria-hidden="true"/><b>{settings.aiGradingEnabled ? 'Activada' : 'Desactivada'}</b></button>
                     </section>
                     <section className="brujula-settings-covers" aria-label="Portada"><h3>Portada</h3><div>{covers.map(cover => <label key={cover.key}><input type="radio" name="classroom-cover" value={cover.key} checked={settings.coverKey === cover.key} onChange={() => setSettings(previous => ({...previous,coverKey:cover.key}))}/><Cover kind={cover.key}/><span>{cover.label}</span></label>)}</div></section>
                   </fieldset>

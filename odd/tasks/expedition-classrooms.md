@@ -50,9 +50,9 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-002
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador a 1440 y 390 px
-- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "tests/classroom-workspace-shell.test.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md"]
+- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "tests/classroom-workspace-shell.test.mjs"]
 - **Acceptance:** Docente y estudiante ven el banner, las pestañas con contador centrado, la búsqueda, las tarjetas con portada y «X de Y temas dados», los borradores con «Paso N de 4», las invitaciones y los estados vacíos, sin desborde a 390 px. No queda ninguna aparición de «Eliminar pendiente».
-- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/expedition-classrooms.test.mjs", "result": "fast 3126 pass, 0 fail; el alcance pasó los archivos de registro de suites a TASK-008 sin cambiar el contenido verificado; navegador docente 1440 y 390, estudiante 1440", "candidate": "sha256:f140c390fc2eb8a7211dd07f0967a363f7bad241cf8933eb684fd63ed08cf79f"}
+- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/expedition-classrooms.test.mjs", "result": "fast 3126 pass, 0 fail; el alcance pasó registros de suites y documentación a TASK-008 sin cambiar el contenido verificado; navegador docente 1440 y 390, estudiante 1440", "candidate": "sha256:4f0bef64ac500edd606b3b79ffe7a95c2f3df69d01308d17c74d96a1fa2a034c"}
 - **Blocker:** none
 
 ### TASK-002 — Asistente de creación con sendero y catálogo completo
@@ -100,14 +100,14 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Blocker:** none
 
 ### TASK-006 — Progreso, Estudiantes, Historial y Ajustes con interruptor de IA
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** orchestrator
 - **Requirements:** REQ-003, REQ-004, REQ-006
 - **Verification:** tests/expedition-classrooms.test.mjs; tests/grading-ai-ui.test.mjs
-- **Scope:** ["apps/web/src/features/classrooms/settings/ClassroomSettings.tsx", "apps/web/src/features/classrooms/members/ClassroomMembers.tsx", "apps/web/src/features/classrooms/members/ClassroomRoster.tsx", "apps/shared-ui/academic-cover.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/grading-ai-ui.test.mjs", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/features/classrooms/settings/ClassroomSettings.tsx", "apps/web/src/features/classrooms/styles/expedition-settings.css", "tests/expedition-settings.test.mjs", "tests/grading-ai-ui.test.mjs"]
 - **Acceptance:** Ajustes muestra el interruptor de corrección asistida, que envía `aiGradingEnabled`, queda bloqueado con explicación si no está disponible y no aparece para estudiantes. Muestra también las 7 portadas y el ciclo lectivo como sólo lectura.
-- **Evidence:** none
+- **Evidence:** {"command": "node --test tests/expedition-settings.test.mjs tests/grading-ai-ui.test.mjs; tsc; eslint; navegador Ajustes 1440 y 390", "result": "8/8; interruptor visible con estado escrito, se enciende y apaga, bloqueado con explicación si el servicio no está disponible, apagado se guarda igual, invisible para estudiantes; 7 portadas con nombre; ciclo de sólo lectura; sin desborde", "candidate": "sha256:711cedc29ca495ab5c5c51bbce2b3a8449d48c3e939900adcd9869d7d2480a4d"}
 - **Blocker:** none
 
 ### TASK-007 — Retiro de código y contratos sin uso
@@ -127,7 +127,7 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** node scripts/check-documentation.mjs
-- **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md"]
+- **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md", "docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md"]
 - **Acceptance:** La guía de diseño, la matriz de flujos y la galería reflejan Mis aulas Expedición con capturas nuevas.
 - **Evidence:** none
 - **Blocker:** none
