@@ -34,14 +34,21 @@ test('PDF con object stream de ~1 GiB descomprimido se rechaza rápido y sin inf
   const warm = await normalPdf();
   await inspectContent(warm, 'pdf');
   for (const file of ['plan-document-worker.ts', 'activity-document-worker.ts']) await runWorker(file, { bytes: warm, extension: 'pdf' });
+  // Cada consumidor levanta un Worker (~1 s en reposo, varios bajo carga). El tiempo se compara contra el mismo
+  // consumidor con un PDF normal medido justo antes, así el arranque y la carga de la máquina se cancelan.
+  // Sin la guarda, inflar la bomba suma más de 7 s y ~2 GiB de RSS.
+  const SLACK_MS = 3000;
+  const baseline = await measured(() => inspectContent(warm, 'pdf'));
   const result = await measured(() => inspectContent(bomb, 'pdf'));
   assert.equal(result.value.error?.code, 'FILE_REJECTED');
-  assert.ok(result.ms < 3000, `tardó ${result.ms} ms`);
+  assert.ok(result.ms < baseline.ms + SLACK_MS, `tardó ${result.ms} ms (PDF normal: ${baseline.ms} ms)`);
   assert.ok(result.growthMiB < 256, `RSS creció ${result.growthMiB.toFixed(0)} MiB`);
   for (const file of ['plan-document-worker.ts', 'activity-document-worker.ts']) {
+    const reference = await measured(() => runWorker(file, { bytes: warm, extension: 'pdf' }));
     const outcome = await measured(() => runWorker(file, { bytes: bomb, extension: 'pdf' }));
     assert.deepEqual({ ok: outcome.value.value.ok, code: outcome.value.value.code }, { ok: false, code: 'FILE_NOT_READY' }, file);
-    assert.ok(outcome.ms < 3000 && outcome.growthMiB < 256, `${file}: ${outcome.ms} ms, ${outcome.growthMiB.toFixed(0)} MiB`);
+    assert.ok(outcome.ms < reference.ms + SLACK_MS && outcome.growthMiB < 256,
+      `${file}: ${outcome.ms} ms (PDF normal: ${reference.ms} ms), ${outcome.growthMiB.toFixed(0)} MiB`);
   }
 });
 
