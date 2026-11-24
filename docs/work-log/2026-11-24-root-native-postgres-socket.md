@@ -23,10 +23,12 @@ En CI, `tests/study-shared-strategy-db.test.mjs` falló con `pg_ctl failed (1): 
 | Contenedor descartable `postgres:17.10-bookworm`, con `/var/run/postgresql` en 755 y un usuario sin privilegios (como el runner) | Con las opciones anteriores: `pg_ctl` sale con 1 y el log dice `could not create lock file "/var/run/postgresql/.s.PGSQL.55432.lock": Permission denied`. Con `-k` a la carpeta temporal arranca y `select 1` responde. |
 | Windows, PostgreSQL nativo: `study-shared-strategy-db`, `teacher-support-backend-db`, `teacher-writing-backend-db` | 9/0. |
 | Windows: `teacher-support-flow`, `teacher-support-sharing-flow` (usan el mismo runtime; están en `owned-browser`) | 12/0. |
+| CI, `workflow_dispatch` 45462128910 sobre `cd66bbfe` (commit y push autorizados por el usuario): `complete-suite (owned-db)` | 957 pasan y 0 fallan, incluidos `study-shared-strategy-db`, `teacher-support-backend-db` y `teacher-writing-backend-db`. |
+| Misma corrida, resto de jobs | `verify`, `fast` y `owned-services` en verde. Fallan, por causas ajenas a este cambio: `integration-owned` (`p6-wall-integration` subtest 5, `429 !== 200`, igual que en 45449025234), `owned-browser` (`brujula-browser`, ahora por un `waitForResponse` de 12 s) y `wrappers` (`p3-browser` cancelado a los 210 s). |
 
 ## Límites
 
-- La reproducción en Linux usó `pg_ctl` directo con las mismas opciones que arma `postgresServerOptions`, no el runtime completo con Node. La confirmación final es volver a correr `owned-db` en CI.
-- Las otras fallas de esa corrida (429 en `p6-wall-integration`, Inicio ausente en `brujula-browser`, cuelgue de `p3-browser`) siguen abiertas.
+- `teacher-support-flow` y `teacher-support-sharing-flow` todavía no corrieron en CI, porque `owned-browser` se corta antes, en `brujula-browser`.
+- Las otras fallas de la corrida siguen abiertas.
 
-**Primer paso pendiente:** con push autorizado, lanzar `workflow_dispatch` y confirmar `complete-suite (owned-db)`.
+**Primer paso pendiente:** investigar el 429 de `p6-wall-integration`.
