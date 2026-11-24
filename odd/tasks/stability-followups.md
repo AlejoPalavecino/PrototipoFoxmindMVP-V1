@@ -83,12 +83,12 @@ Excluded: real provider calls, retained data, deployment, and product behaviour 
 - **Blocker:** none
 
 ### TASK-006 — CI runs on pushes to main
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-004
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** node --test tests/issue2-ci-workflow.test.mjs; YAML parse; observe the push-triggered run on GitHub
 - **Acceptance:** The workflow triggers on pull_request (any base), push to main and workflow_dispatch; on push only `verify` runs and `integration-owned` / `complete-suite` are skipped.
 - **Scope:** [".github/workflows/issue2-ci.yml", "tests/issue2-ci-workflow.test.mjs", "docs/engineering/testing/README.md"]
-- **Evidence:** pending
+- **Evidence:** {"command": "node --test tests/issue2-ci-workflow.test.mjs; python yaml.safe_load; gh run view 45321055965 (push of f0ce4a8f to main)", "result": "RED: new trigger test failed before the workflow change; GREEN 16/16. YAML parses with triggers pull_request, push, workflow_dispatch. GitHub run 45321055965 (event push): verify success; integration-owned and complete-suite skipped", "candidate": "sha256:4f3792ddae3c3bed16ad1c1e0ed75649b1b31a84ad8cdba585e0884bb4c21e0b"}
 - **Blocker:** none
