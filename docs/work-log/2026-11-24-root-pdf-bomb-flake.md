@@ -31,4 +31,4 @@ La primera pasada local de `npm run test:complete -- --group fast` se cortó en 
 
 - `activity-ai-adapter.test.mjs` ("A2 unreliable and excessive token counts…") también depende del tiempo, por su plazo de 50 ms. No se tocó.
 
-**Primer paso pendiente:** arreglar el flake de `activity-ai-adapter` y repetir el grupo `fast` completo. Sigue pendiente `owned-db` con Docker activo, del registro de admisión de Estudio.
+**Primer paso pendiente:** ninguno. El flake de `activity-ai-adapter` se resolvió en el [registro propio](2026-11-24-root-activity-adapter-flake.md), con `fast` completo en 3100/0, y `owned-db` se completó en 957/0 (ver [registro de admisión de Estudio](2026-11-24-root-study-admission-flake.md)).

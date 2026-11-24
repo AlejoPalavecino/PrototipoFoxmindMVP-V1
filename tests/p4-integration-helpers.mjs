@@ -5,13 +5,24 @@ import { setTimeout as delay } from 'node:timers/promises';
 export const password = 'Integration private files password 😀';
 export const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 export async function account(page, origin, inbox, email, beforeVerification, role) {
+  // If the form never becomes editable, say why: the page text and identity responses tell a missing session
+  // from a cooldown or a disabled form, which a bare locator timeout cannot.
+  const responses = []; const record = response => {
+    if (response.status() >= 400 || response.url().includes('/auth/')) responses.push(`${response.status()} ${response.request().method()} ${new URL(response.url()).pathname}`);
+  };
+  page.on('response', record);
   await page.goto(`${origin}/register`);
-  // Registration is three stops: role, then data, then the sent notice.
-  if (role) await page.getByRole('radio', { name: role === 'teacher' ? 'Docente' : 'Estudiante', exact: true }).check();
-  await page.getByRole('button', { name: 'Continuar', exact: true }).click();
-  for (const [label, value] of Object.entries({ Nombre: 'Files', Apellido: 'Fixture', 'Correo electrónico': email, 'Contraseña': password })) {
-    await page.getByLabel(label, { exact: true }).fill(value);
-  }
+  try {
+    // Registration is three stops: role, then data, then the sent notice.
+    if (role) await page.getByRole('radio', { name: role === 'teacher' ? 'Docente' : 'Estudiante', exact: true }).check();
+    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+    for (const [label, value] of Object.entries({ Nombre: 'Files', Apellido: 'Fixture', 'Correo electrónico': email, 'Contraseña': password })) {
+      await page.getByLabel(label, { exact: true }).fill(value);
+    }
+  } catch (error) {
+    const text = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 600);
+    throw new Error(`${error.message}\nRegistration page ${page.url()}: ${text}\nResponses: ${responses.slice(-12).join('; ') || 'none'}`, { cause: error });
+  } finally { page.off('response', record); }
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await page.getByText('recibir un correo de verificación', { exact: false }).waitFor();
   await page.goto(`${origin}/sign-in`);

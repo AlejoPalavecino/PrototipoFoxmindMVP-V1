@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { activityGenerationResponseSchemaV1 } from '../src/core/domain/index.ts';
 import { activitySystemInstruction } from '../apps/api/src/modules/activities/generation/infrastructure/providers/activity-prompt.ts';
-const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384, deadlineMs: 50 };
+const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384, deadlineMs: 5000 };
 const input = () => ({ schemaVersion: 'activity-proposal-v1', type: 'ASSIGNMENT', unit: { id: 'u', name: 'Luz' },
   topics: [{ id: 't', name: 'Exposición' }], objective: 'Relacionar conceptos', groupLevel: 'Segundo año', difficulty: 'BASIC',
   durationMinutes: 40, context: 'Luz acumulada durante un intervalo.', counts: { assignment: 1, development: 0, singleChoice: 0, multipleChoice: 0 },
@@ -13,7 +13,7 @@ const proposal = { schemaVersion: 'activity-proposal-v1', type: 'ASSIGNMENT', ti
 const json = { status: 'READY', proposal };
 const success = () => ({ text: JSON.stringify(json), candidates: [{ finishReason: 'STOP' }],
   usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 30, thoughtsTokenCount: 5 } });
-async function fixture({ count = { totalTokens: 20 }, response = success(), generationError, deadlineMs = 50 } = {}) {
+async function fixture({ count = { totalTokens: 20 }, response = success(), generationError, deadlineMs = configuration.deadlineMs } = {}) {
   const { GeminiActivityGenerationAdapter } = await Promise.all([import("../apps/api/src/platform/ai/errors.ts"),import("../apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts"),import("../apps/api/src/platform/ai/configuration.ts"),import("../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts"),import("../apps/api/src/platform/ai/text-budget.ts"),import("../apps/api/src/modules/foxy/visuals/infrastructure/providers/foxy-image-budget.ts"),import("../apps/api/src/modules/foxy/turns/infrastructure/providers/foxy-adapter.ts"),import("../apps/api/src/modules/foxy/visuals/infrastructure/providers/foxy-image-adapter.ts"),import("../apps/api/src/modules/foxy/visuals/infrastructure/providers/foxy-diagram-adapter.ts")]).then(([m0,m1,m2,m3,m4,m5,m6,m7,m8,m9]) => Object.freeze({AiError: m0.AiError,createGeminiStudyProvider: m1.createGeminiStudyProvider,GeminiActivityGenerationAdapter: m2.GeminiActivityGenerationAdapter,createGeminiActivityGenerationAdapter: m2.createGeminiActivityGenerationAdapter,readAiConfiguration: m3.readAiConfiguration,GeminiExtractionAdapter: m4.GeminiExtractionAdapter,createGeminiExtractionAdapter: m4.createGeminiExtractionAdapter,reserveAiTextBudget: m5.reserveAiTextBudget,settleAiTextBudget: m5.settleAiTextBudget,tokenCost: m5.tokenCost,quoteFoxyImageBudget: m6.quoteFoxyImageBudget,GeminiFoxyTextAdapter: m7.GeminiFoxyTextAdapter,createGeminiFoxyTextAdapter: m7.createGeminiFoxyTextAdapter,GeminiFoxyImageAdapter: m8.GeminiFoxyImageAdapter,createGeminiFoxyImageAdapter: m8.createGeminiFoxyImageAdapter,GeminiFoxyDiagramAdapter: m9.GeminiFoxyDiagramAdapter,createGeminiFoxyDiagramAdapter: m9.createGeminiFoxyDiagramAdapter}));
   assert.equal(typeof GeminiActivityGenerationAdapter, 'function');
   const calls = [], client = { models: {
@@ -80,7 +80,7 @@ test('A2 blocked, truncated, malformed and oversized outputs never become usable
 });
 
 test('A2 unknown dispatch outcome is explicit, sanitized and never automatically resent', async () => {
-  for (const options of [{ generationError: new Error('synthetic private provider detail') }, { deadlineMs: 10, response: () => new Promise(() => {}) }]) {
+  for (const options of [{ generationError: new Error('synthetic private provider detail') }, { deadlineMs: 300, response: () => new Promise(() => {}) }]) {
     const { adapter, calls } = await fixture(options), began = Date.now();
     await assert.rejects(adapter.generateActivity(input()), { code: 'PROVIDER_OUTCOME_UNKNOWN', message: 'PROVIDER_OUTCOME_UNKNOWN' });
     assert.ok(Date.now() - began < 1000); assert.equal(calls.filter(([kind]) => kind === 'generate').length, 1);
