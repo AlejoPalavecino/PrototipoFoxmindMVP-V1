@@ -78,7 +78,8 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
       auth.on('pageerror', error => authErrors.push(error.message));
       for (const path of ['sign-in', 'register', 'forgot-password']) {
         await auth.goto(`${runtime.origin}/${path}`);
-        await auth.getByLabel('Correo electrónico', { exact: true }).waitFor();
+        // Registration opens on its first stop (choose the role); the data fields come after «Continuar».
+        await (path === 'register' ? auth.getByRole('radio', { name: 'Docente', exact: true }) : auth.getByLabel('Correo electrónico', { exact: true })).waitFor();
         for (const width of [390, 768, 1280, 1440]) {
           await auth.setViewportSize({ width, height: 900 });
           await auth.evaluate(() => document.fonts.ready);
