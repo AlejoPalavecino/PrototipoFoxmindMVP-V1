@@ -2,6 +2,10 @@ name: FoxMind checks
 
 on:
   pull_request:
+  # Direct pushes to main get the light verify job; the full suites run on PRs or by hand.
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -102,6 +106,7 @@ jobs:
 
   integration-owned:
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     timeout-minutes: 50
     strategy:
       fail-fast: true
@@ -127,6 +132,7 @@ jobs:
 
   complete-suite:
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     timeout-minutes: 300
     strategy:
       fail-fast: false

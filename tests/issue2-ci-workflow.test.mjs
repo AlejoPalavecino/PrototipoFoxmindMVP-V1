@@ -10,8 +10,22 @@ const area = (source, begin, end) => { const a = source.search(begin); assert.ok
 test('PR event observes any target branch, including feature bases in stacked PRs', async () => {
   const text = await workflow(), event = area(text, /^on\s*:/m, /^jobs\s*:/m);
   assert.match(event, /^\s{2}pull_request\s*:/m);
-  assert.doesNotMatch(event, /^\s+(?:branches|branches-ignore|paths|paths-ignore)\s*:/m);
-  assert.doesNotMatch(event, /^\s+types\s*:/m, 'default PR lifecycle must include synchronize');
+  const pr = area(event, /^ {2}pull_request\s*:/m, /\n {2}[a-z_]+\s*:/);
+  assert.doesNotMatch(pr, /^\s+(?:branches|branches-ignore|paths|paths-ignore)\s*:/m);
+  assert.doesNotMatch(pr, /^\s+types\s*:/m, 'default PR lifecycle must include synchronize');
+});
+
+test('pushes to main run only the light verify job; the full suites stay on PRs and manual runs', async () => {
+  const text = await workflow(), event = area(text, /^on\s*:/m, /^jobs\s*:/m);
+  const push = area(event, /^ {2}push\s*:/m, /\n {2}[a-z_]+\s*:/);
+  assert.match(push, /branches\s*:\s*\[\s*main\s*\]/, 'push trigger limited to main');
+  assert.match(event, /^ {2}workflow_dispatch\s*:/m, 'manual runs of the whole workflow');
+  for (const job of ['integration-owned', 'complete-suite']) {
+    const block = area(text, new RegExp(`^ {2}${job}\s*:`, 'm'), /\n {2}[a-z-]+\s*:\s*\n {4}runs-on/);
+    assert.match(block, /^ {4}if\s*:\s*github\.event_name\s*!=\s*'push'\s*$/m, `${job} must not run on push`);
+  }
+  const verify = area(text, /^ {2}verify\s*:/m, /\n {2}integration-owned\s*:/);
+  assert.doesNotMatch(verify, /^ {4}if\s*:/m, 'verify runs on every event');
 });
 
 test('checkout, supported Node 24 and lockfile install precede API and web checks', async () => {

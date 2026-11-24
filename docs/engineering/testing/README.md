@@ -18,6 +18,8 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 | Selección de suites | scripts/ci-suites.mjs y scripts/complete-suite-inventory.json |
 | Suite completa | npm run test:complete; leer admisión, grupos y recursos antes de ejecutarla |
 
+En GitHub, el workflow `FoxMind checks` (`.github/workflows/issue2-ci.yml`) tiene tres disparadores. Cada push a `main` corre sólo el job liviano `verify` (build, typecheck, lint, docs y suites puras). Los pull requests y las corridas manuales desde la pestaña Actions (`workflow_dispatch`) corren además `integration-owned` y `complete-suite`, que incluyen los recorridos con navegador como `p5-integration`.
+
 Los runners pueden crear PostgreSQL/S3/escáner/correo propios; otros requieren activación explícita de entorno/proveedor. Revisar el inventario y los guards antes de ejecutar. No descubrir secretos ni usar una base persistente como fixture.
 
 El helper de fuentes `tests/helpers/load-ts-module.mjs` pasa el nombre real del archivo a TypeScript para distinguir genéricos `.ts` de JSX `.tsx`. Las pruebas de inventario mantienen una lista explícita de [las migraciones versionadas](../../../tests/helpers/migration-inventory.mjs) y un conjunto de hashes históricos; agregar una migración exige actualizar la fixture deliberadamente, sin sustituirla por descubrimiento dinámico ni reescribir SQL.
