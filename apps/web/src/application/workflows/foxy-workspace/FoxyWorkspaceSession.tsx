@@ -223,7 +223,7 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
   const resourceWorkspace = state.resource && (state.resource.status !== 'closed' || ui.openingResource) &&
     state.preparation && state.history && state.confirmation && <FoxyResourceWorkspace
       resource={state.resource} creationLabel={resourceKind?resourceLabels[resourceKind]:undefined} preparation={state.preparation}
-      history={state.history} confirmation={state.confirmation} management={state.management} inlineQuiz={inlineQuiz} onOpenQuizSources={openQuizSources}
+      history={state.history} confirmation={state.confirmation} management={state.management} panel onOpenQuizSources={openQuizSources}
       availableIllustrations={[...resourceImages].map(([id, caption]) => ({url:runtime.assetFileUrl(id,'preview'),caption}))}
       classrooms={state.classrooms} ui={ui} actions={actions} handoffRuntime={runtime} handoffState={state.activityHandoff}
       initialHandoffMode={handoffStart?.turnId === sourceTurnId ? handoffStart?.mode : undefined} publicationFileUrl={runtime.publicationFileUrl} />;
@@ -236,7 +236,7 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
         if (inlineDiagram && typeof requestAnimationFrame === 'function')
           requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('.parity-ai-chat textarea')?.focus());
       }}
-      inline={inlineDiagram} sourceAction={inlineDiagram && visualChat?.context.kind === 'CLASSROOM' && visualSourceIds.length > 0
+      inline={inlineDiagram} panel={inlineDiagram} sourceAction={inlineDiagram && visualChat?.context.kind === 'CLASSROOM' && visualSourceIds.length > 0
         ? <DiagramSourceLinks classroomId={visualChat.context.classroomId} sourceIds={visualSourceIds} load={previewContext} /> : undefined}
       onRepeat={selectedVisual.prompt ? () => {
         runtime.visual.setKind(selectedVisual.kind);
@@ -253,8 +253,8 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&
       <PendingLeaveDialog reason={ui.leave.reason} cancel={() => actions.cancelLeave()} proceed={() => { void actions.discardAndContinue(); }} />}
-    <FoxyWorkspace inlineReader={inlineDiagram ? visualWorkspace : inlineQuiz ? resourceWorkspace : undefined}
-      onCloseReader={() => {
+    <FoxyWorkspace panel={(inlineDiagram ? visualWorkspace : resourceWorkspace) || undefined}
+      onClosePanel={() => {
         if (inlineDiagram) {
           if (state.visualEditor?.dirty || state.visualEditor?.busy || state.visualEditor?.pending || visualSharing?.busy || visualSharing?.pending) return false;
           setVisualConversation(null);
@@ -299,7 +299,7 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
           void actions.resource.openCreation(item.conversationId, item.turnId);
         }
         else if (item.visualJobId) {
-          if (inlineQuiz && !actions.resource.close()) return;
+          if (resourceWorkspace && !actions.resource.close()) return;
           void actions.openVisualCreation(item.conversationId, item.visualJobId,
             () => {setVisualCreating(false);setVisualConversation(item.conversationId);});
         }
@@ -344,7 +344,6 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
         actions={{...runtime.visual,start:topicIds=>void generateVisual(topicIds)}} assetFileUrl={runtime.assetFileUrl}
         />}
     </FoxyDialog>}
-    {!inlineQuiz && resourceWorkspace}
     {inlineQuiz && quizSource && quizSource.turnId === sourceTurnId && renderFoxySourceReport({
       conversationId: quizSource.conversationId, turnId: quizSource.turnId, status: quizSource.status,
       scopeReport: state.chat.turns.find(turn => turn.id === sourceTurnId)?.classroomSources,

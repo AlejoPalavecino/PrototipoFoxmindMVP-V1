@@ -1,21 +1,29 @@
 import { materialsInConversation } from '../../../../../shared-ui/creation-presentation';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { foxyQuizBrief, foxyQuizQuestionCount, foxyQuizRequest } from '../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 
 const assignmentInstructions = 'Incluí un objetivo observable, consignas para estudiantes, qué deben entregar y criterios concretos para revisar su trabajo.';
+const kickers: Record<string, string> = {
+  'Preparar un apunte': 'Nuevo apunte', 'Crear una actividad': 'Nueva actividad', 'Planificar una clase': 'Nuevo plan de clase', 'Pensar una rúbrica': 'Nueva rúbrica',
+};
 
-export function FoxyToolDialog({ title, contextName, materialCount, topics, initialBrief = '', initialTopicIds, busy, error, onPrepare, onClose }: {
-  title:string; contextName:string; materialCount:number; topics:{id:string;name:string}[]; initialBrief?: string; initialTopicIds?: string[]; busy?:boolean; error?:string|null;
+export function FoxyToolDialog({ title, contextName, materialCount, topics, initialBrief = '', initialTopicIds, initialQuiz = false, inline = false, busy, error, onPrepare, onClose }: {
+  title:string; contextName:string; materialCount:number; topics:{id:string;name:string}[]; initialBrief?: string; initialTopicIds?: string[];
+  /** Opens the activity form already set to the Quiz format. */
+  initialQuiz?: boolean;
+  /** Card above the composer instead of a modal dialog. */
+  inline?: boolean; busy?:boolean; error?:string|null;
   onPrepare:(brief:string,topicIds:string[])=>Promise<boolean>; onClose:()=>void;
 }) {
   const activity = /^Crear (una )?actividad$/iu.test(title);
   const initialCount = activity ? foxyQuizQuestionCount(initialBrief) : null;
+  const uid = useId();
   const [brief,setBrief]=useState(() => initialCount ? foxyQuizBrief(initialBrief) : activity && initialBrief.endsWith(assignmentInstructions)
     ? initialBrief.slice(0, -assignmentInstructions.length).trimEnd() : initialBrief);
   const [selected,setSelected]=useState(initialTopicIds ?? topics.map(topic=>topic.id)),[localError,setLocalError]=useState(''),[submitting,setSubmitting]=useState(false);
-  const [activityKind, setActivityKind] = useState(initialCount ? 'QUIZ' : 'ASSIGNMENT');
+  const [activityKind, setActivityKind] = useState(initialCount || initialQuiz ? 'QUIZ' : 'ASSIGNMENT');
   const [questionCount, setQuestionCount] = useState(initialCount ?? 3);
   const quiz = activity && activityKind === 'QUIZ';
   async function prepare(){
@@ -36,24 +44,45 @@ export function FoxyToolDialog({ title, contextName, materialCount, topics, init
     'Crear una actividad': quiz ? `Prepará preguntas sobre ${topic} con distractores que permitan identificar confusiones frecuentes.` : `Prepará una actividad en parejas sobre ${topic}, con una entrega que pueda revisar al final de la clase.`,
   };
   const example = examples[title] ?? `Prepará un apunte para mi grupo sobre ${topic}, con una explicación sencilla y dos ejemplos.`;
-  return <FoxyDialog title={title} description="Contale a Foxy qué necesitás. Después podés revisar y editar." className="parity-foxy-toolDialog" onClose={()=>{if(!submitting)onClose();}}
-    footer={<><button type="button" disabled={submitting} onClick={onClose}>Cancelar</button><button type="button" className="p5-primary" disabled={submitting||busy} onClick={()=>void prepare()}><FoxmindIcon name="spark"/>{submitting?'Preparando…':'Preparar propuesta'}</button></>}>
-    <form onSubmit={event=>{event.preventDefault();void prepare();}} className="parity-foxy-toolForm">
-      <div className="parity-foxy-scopeBanner"><FoxmindIcon name="book"/><div><strong>{contextName}</strong><p>{materialsInConversation(materialCount)}</p></div></div>
-      {activity && <fieldset className="parity-foxy-choiceGroup" disabled={submitting}>
+  const kicker = quiz ? 'Nuevo quiz' : kickers[title] ?? title;
+  const close = () => { if (!submitting) onClose(); };
+  const form = <form onSubmit={event=>{event.preventDefault();void prepare();}} className="parity-foxy-toolForm">
+    {!inline && <div className="parity-foxy-scopeBanner"><FoxmindIcon name="book"/><div><strong>{contextName}</strong><p>{materialsInConversation(materialCount)}</p></div></div>}
+    {activity && <>
+      <fieldset className="parity-foxy-choiceGroup parity-foxy-formatGroup" disabled={submitting}>
         <legend>Formato</legend>
-        <div>
-          <label><input type="radio" name="foxy-activity-kind" checked={!quiz} onChange={() => setActivityKind('ASSIGNMENT')} />Trabajo práctico</label>
-          <label><input type="radio" name="foxy-activity-kind" checked={quiz} onChange={() => setActivityKind('QUIZ')} />Quiz</label>
+        <div className="parity-foxy-seg">
+          <span><input type="radio" id={`${uid}-assignment`} name={`${uid}-kind`} value="ASSIGNMENT" checked={!quiz} onChange={() => setActivityKind('ASSIGNMENT')} /><label htmlFor={`${uid}-assignment`}>Trabajo práctico</label></span>
+          <span><input type="radio" id={`${uid}-quiz`} name={`${uid}-kind`} value="QUIZ" checked={quiz} onChange={() => setActivityKind('QUIZ')} /><label htmlFor={`${uid}-quiz`}>Quiz</label></span>
         </div>
-        {quiz && <label>Cantidad de preguntas<select value={questionCount} onChange={(event) => setQuestionCount(Number(event.currentTarget.value))}>
-          {Array.from({ length: 10 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}</option>)}
-        </select></label>}
-      </fieldset>}
-      <label>¿Qué te gustaría preparar?<textarea autoFocus rows={5} maxLength={1500} disabled={submitting} value={brief} onChange={event=>{setBrief(event.target.value);setLocalError('');}} placeholder={example}/></label>
-      <button type="button" className="parity-foxy-example" onClick={()=>setBrief(example)}><FoxmindIcon name="spark"/>Usar una idea para empezar</button>
-      {topics.length>0&&<fieldset className="parity-foxy-choiceGroup"><legend>Temas que querés incluir</legend><div>{topics.map(topic=><label key={topic.id}><input type="checkbox" checked={selected.includes(topic.id)} onChange={()=>setSelected(values=>values.includes(topic.id)?values.filter(id=>id!==topic.id):[...values,topic.id])}/>{topic.name}</label>)}</div></fieldset>}
-      {(localError||error)&&<p role="alert">{localError||error}</p>}
-    </form>
+      </fieldset>
+      {quiz && <div className="parity-foxy-countGroup" role="group" aria-labelledby={`${uid}-count`}>
+        <span id={`${uid}-count`} className="parity-foxy-fieldLabel">Cantidad de preguntas</span>
+        <div className="parity-foxy-stepper">
+          <button type="button" aria-label="Una pregunta menos" disabled={submitting || questionCount <= 1} onClick={() => setQuestionCount(count => Math.max(1, count - 1))}>−</button>
+          <output aria-live="polite">{questionCount}</output>
+          <button type="button" aria-label="Una pregunta más" disabled={submitting || questionCount >= 10} onClick={() => setQuestionCount(count => Math.min(10, count + 1))}>+</button>
+        </div>
+      </div>}
+    </>}
+    <label>¿Qué te gustaría preparar?<textarea autoFocus rows={inline ? 3 : 5} maxLength={1500} disabled={submitting} value={brief} onChange={event=>{setBrief(event.target.value);setLocalError('');}} placeholder={example}/></label>
+    <button type="button" className="parity-foxy-example" onClick={()=>setBrief(example)}><FoxmindIcon name="spark"/>Usar una idea para empezar</button>
+    {topics.length>0&&<fieldset className="parity-foxy-choiceGroup"><legend>Temas que querés incluir</legend><div>{topics.map(topic=><label key={topic.id}><input type="checkbox" checked={selected.includes(topic.id)} onChange={()=>setSelected(values=>values.includes(topic.id)?values.filter(id=>id!==topic.id):[...values,topic.id])}/>{topic.name}</label>)}</div></fieldset>}
+    {(localError||error)&&<p role="alert">{localError||error}</p>}
+    {inline && <div className="parity-foxy-inlineActions">
+      <button type="submit" className="p5-primary" disabled={submitting||busy}><FoxmindIcon name="spark"/>{submitting?'Preparando…':quiz?'Crear quiz':'Preparar propuesta'}</button>
+    </div>}
+  </form>;
+  if (inline) return <section className="parity-foxy-inlineTool" aria-label={kicker} onKeyDown={event => { if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); } }}>
+    <header>
+      <strong>{kicker}</strong>
+      <span>usa el contexto {contextName} · {materialsInConversation(materialCount)}</span>
+      <button type="button" aria-label="Cerrar herramienta" disabled={submitting} onClick={close}>Cerrar</button>
+    </header>
+    {form}
+  </section>;
+  return <FoxyDialog title={title} description="Contale a Foxy qué necesitás. Después podés revisar y editar." className="parity-foxy-toolDialog" onClose={close}
+    footer={<><button type="button" disabled={submitting} onClick={onClose}>Cancelar</button><button type="button" className="p5-primary" disabled={submitting||busy} onClick={()=>void prepare()}><FoxmindIcon name="spark"/>{submitting?'Preparando…':'Preparar propuesta'}</button></>}>
+    {form}
   </FoxyDialog>;
 }

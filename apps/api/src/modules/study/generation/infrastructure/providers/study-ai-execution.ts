@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
-import type { AiTextRequest, AiTextTransport, AiTextUsage } from '../../../../../platform/ai/text-contract.ts';
+import type { AiTextPreview, AiTextRequest, AiTextTransport, AiTextUsage } from '../../../../../platform/ai/text-contract.ts';
 import { executeAiText, type AiTextMetric } from '../../../../../platform/ai/text-execution.ts';
 import { bounded } from '../../../../../platform/ai/execution.ts';
 import { createDefaultTextProfile, textProfileForSnapshot } from '../../../../../platform/ai/text-profiles.ts';
@@ -25,6 +25,8 @@ export async function executeStudyAiText(input: {
   waitForAdmission?: boolean;
   capability?: StudyTextCapability;
   timing?: AiChatTimings;
+  /** Private partial text for the caller; only chat requests publish one. */
+  preview?: AiTextPreview;
 }) {
   const { configuration, database, ownerId, requestId, authorize, transport, request } = input;
   const timing = input.timing ?? createAiChatTimings('study', input.waitForAdmission ? 'feedback' : 'chat');
@@ -86,7 +88,12 @@ export async function executeStudyAiText(input: {
         const result = await selected.generate(value);
         usage = result.usage;
         return result;
-      } },
+      }, ...(selected.stream ? { async stream(value, preview) {
+        const result = await selected.stream!(value, preview);
+        usage = result.usage;
+        return result;
+      } } : {}) },
+      ...(input.preview ? { preview: () => input.preview } : {}),
       async reserve(tokens) {
         await database.$transaction(async raw => {
           const tx = { query: <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values) };

@@ -3,6 +3,8 @@ import type { FoxySourceKind, FoxySourceCursor } from '../../../../../../src/cor
 import type { WebFoxyClient, FoxyCapabilities, FoxyConversation, FoxyConversationCursor, FoxyTurn, FoxyCurriculum, FoxySource, FoxyCitation } from '../api/foxy-client.ts';
 import { clearChatTiming, startChatTiming, trackChatTiming } from '../../../shared/chat-timing.ts';
 
+const FIRST_POLL_MS = 1000, RUNNING_POLL_MS = 1000, QUEUED_POLL_MS = 2000;
+
 type SourcePage = { items: FoxySource[]; next: FoxySourceCursor | null };
 type State = { curriculum: FoxyCurriculum | null; selection: SendFoxyMessage['selection']; sources: Record<FoxySourceKind, SourcePage>; citations: Record<string, FoxyCitation[]>; capabilities: FoxyCapabilities | null; conversations: FoxyConversation[]; nextConversationCursor: FoxyConversationCursor | null; current: FoxyConversation | null;
   turns: FoxyTurn[]; activeTurn: { id: string; sequence: number; state: FoxyTurn['state'] } | null; nextAfterSequence: number | null; pending: SendFoxyMessage | null; error: string | null; pollError: string | null; busy: boolean };
@@ -37,7 +39,7 @@ export function createFoxyChatController(options: Options) {
     if (timedTurnId === turn.id && ['FAILED', 'STALE', 'CANCELLED'].includes(turn.state)) clearTiming();
     update({ turns: mergeTurns(state.turns, [turn]) });
   }
-  function poll(conversationId: string, turnId: string, version: number, delay = 2000): void {
+  function poll(conversationId: string, turnId: string, version: number, delay = FIRST_POLL_MS): void {
     if (!valid(version)) return;
     if (timer !== undefined || polling) return;
     timer = schedule(async () => {
@@ -51,7 +53,8 @@ export function createFoxyChatController(options: Options) {
         pollAttempts = 0;
         update({ activeTurn: active ? { id: active.id, sequence: active.sequence, state: active.state } : null, pollError: null });
         polling = false;
-        if (active) poll(conversationId, active.id, version);
+        // A running turn may be streaming partial text: check it more often than a queued one.
+        if (active) poll(conversationId, active.id, version, active.state === 'RUNNING' ? RUNNING_POLL_MS : QUEUED_POLL_MS);
       } catch (error) {
         if (!valid(version)) return;
         polling = false;

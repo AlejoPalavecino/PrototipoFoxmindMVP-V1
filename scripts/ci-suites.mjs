@@ -22,6 +22,9 @@ export const suites = {
     'apps/api/src/modules/study/folders/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/choice-order.test.mjs',
+    'tests/ai-text-tuning.test.mjs',
+    'tests/study-chat-preview.test.mjs',
     'tests/study-shared-strategy-policy.test.mjs',
     'tests/teacher-writing-policy.test.mjs',
     'tests/teacher-support-extension-ui.test.mjs',
@@ -69,6 +72,7 @@ export const suites = {
     'apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs',
     'tests/backend-authoring-repository.test.mjs',
     'tests/frontend-study-workspace-views.test.mjs',
+    'tests/study-tool-drafts-ui.test.mjs',
     'tests/frontend-study-step-views.test.mjs',
     "tests/frontend-boundaries.test.mjs",
     "tests/frontend-participation-cases.test.mjs",

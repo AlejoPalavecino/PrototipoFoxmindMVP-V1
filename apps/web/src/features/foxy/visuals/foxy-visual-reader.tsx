@@ -5,6 +5,7 @@ import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import type { ReactNode } from 'react';
 import { InteractiveDiagram, VisualCreationCover, VisualFocusPage } from '../../../../../shared-ui/interactive-diagram';
 import styles from '../../../../../shared-ui/interactive-diagram.module.css';
+import { FoxyCreationPanelFrame } from '../workspace/foxy-creation-panel';
 
 export type FoxyVisualReaderProps = {
   assetId: string;
@@ -21,6 +22,8 @@ export type FoxyVisualReaderProps = {
   locked?: boolean;
   editLocked?: boolean;
   inline?: boolean;
+  /** Shown beside the chat with its own header instead of replacing it. */
+  panel?: boolean;
   sourceAction?: ReactNode;
 };
 
@@ -74,6 +77,8 @@ export function FoxyVisualReader(props: FoxyVisualReaderProps) {
         </button>
       </>}
   </>;
+  if (props.panel) return <FoxyCreationPanelFrame tag="Esquema" kind="diagram" status={props.published ? 'Privado · con versiones compartidas' : 'Privado · guardado'}
+    onClose={props.onClose} closeDisabled={props.locked} footer={info ? <footer className="parity-foxy-panelFooter">{actions}</footer> : undefined}>{body}</FoxyCreationPanelFrame>;
   if (props.inline) return <VisualFocusPage onClose={props.onClose} disabled={props.locked}>
     {body}
     {info && <footer className={styles.focusFooter}>{actions}</footer>}

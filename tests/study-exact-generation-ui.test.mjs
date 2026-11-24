@@ -111,9 +111,11 @@ test('un esquema guardado abre su chat original y ocupa el espacio de lectura', 
   descendants(layout().props.creations, node => node.type === 'button' && node.props.className === 'study-exact-creation-item')[0].props.onClick();
   await view.flush();
   assert.deepEqual(selected, ['original']);
-  assert.match(renderToStaticMarkup(layout().props.children), /Navegación del esquema/);
-  assert.doesNotMatch(renderToStaticMarkup(layout().props.children), /<dialog|¿Qué te gustaría entender mejor/);
-  layout().props.children.props.onClose();
+  // The diagram opens in the workbench panel and the original chat stays beside it.
+  assert.match(renderToStaticMarkup(layout().props.panel), /Navegación del esquema/);
+  assert.doesNotMatch(renderToStaticMarkup(layout().props.panel), /<dialog|¿Qué te gustaría entender mejor/);
+  assert.equal(layout().props.children.type.name, 'StudyConversation');
+  layout().props.panel.props.onClose();
   await view.flush();
   assert.equal(layout().props.children.type.name, 'StudyConversation');
   assert.equal(layout().props.children.props.current.id, 'original');

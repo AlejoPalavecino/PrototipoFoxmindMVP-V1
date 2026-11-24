@@ -144,6 +144,11 @@
  #foxmind-product.fm3d-theme .parity-ai-chat>header>.parity-ai-shortcuts{grid-column:1;grid-row:2}
  #foxmind-product.fm3d-theme .parity-ai-chat>header>.parity-ai-newChat{grid-column:2;grid-row:2}
 }
+/* Phones: one compact row (context · icon shortcuts · new chat); labels stay as accessible names. */
+@media(max-width:650px){
+ #foxmind-product.fm3d-theme .parity-ai-chat>header{display:flex;flex-wrap:nowrap;align-items:center}
+ #foxmind-product.fm3d-theme .parity-ai-chat>header>.parity-ai-compactContext{flex:1 1 auto;min-width:0}
+}
 @media(max-width:680px){
  #foxmind-product.fm3d-theme:has(.fm-navbar-private) .p5-app .p5-main:has(.parity-ai-chat){padding:7px 6px}
  #foxmind-product.fm3d-theme .parity-ai-chat>header .parity-ai-contextLaunch{gap:7px}
@@ -570,3 +575,108 @@
 #foxmind-product.fm3d-theme dialog.parity-foxy-dialog.parity-ai-tray:not(.parity-foxy-libraryDialog) > header p { max-width: none; }
 #foxmind-product.fm3d-theme dialog.parity-foxy-dialog.parity-ai-tray:not(.parity-foxy-libraryDialog) > .parity-foxy-dialogFooter > button { width: auto; }
 #foxmind-product.fm3d-theme .parity-ai-tray .creation-repeat { min-height: 44px; }
+
+/* Foxy "Mesa de trabajo": creation beside the chat, tool chips, inline tool card, honest wait and creation card. */
+#foxmind-product.fm3d-theme .parity-foxy-panel{display:flex;flex-direction:column;min-height:100%;background:#fff;color:#202c3d}
+#foxmind-product.fm3d-theme .parity-foxy-panelHead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;flex:none;padding:12px 14px 12px 20px;background:#fff;border-bottom:1px solid #eef1f4}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:#f1f3f6;color:#3c4a5c;font-size:12px;font-weight:800;white-space:nowrap}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=plan],#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=activity]{background:#fff0e1;color:#8a3a0c}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=note]{background:#e6f0fb;color:#1f4f7a}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=quiz]{background:#edf8f1;color:#235d38}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=rubric]{background:#f3eefc;color:#5a3d99}
+#foxmind-product.fm3d-theme .parity-foxy-panelTag[data-kind=diagram]{background:#e0efe7;color:#31604a}
+#foxmind-product.fm3d-theme .parity-foxy-panelStatus{font-size:12px;color:#5b6675;min-width:0}
+#foxmind-product.fm3d-theme .parity-foxy-panelHeadActions{display:flex;align-items:center;gap:6px;margin-left:auto}
+#foxmind-product.fm3d-theme .parity-foxy-panelClose,#foxmind-product.fm3d-theme .parity-foxy-panelSource{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border:1px solid transparent;border-radius:12px;background:transparent;color:#3c4a5c;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-panelClose{width:44px;padding:0}
+#foxmind-product.fm3d-theme .parity-foxy-panelSource{padding:0 12px;border-color:#d5dbe3;background:#fff}
+#foxmind-product.fm3d-theme .parity-foxy-panelClose:hover,#foxmind-product.fm3d-theme .parity-foxy-panelSource:hover{background:#f1f3f6}
+#foxmind-product.fm3d-theme .parity-foxy-panelClose svg,#foxmind-product.fm3d-theme .parity-foxy-panelSource svg{width:20px;height:20px}
+#foxmind-product.fm3d-theme .parity-foxy-panelBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;padding:20px 20px 24px;overflow-wrap:anywhere}
+#foxmind-product.fm3d-theme .parity-foxy-panelTitle{margin:0;font-size:clamp(20px,2.2vw,26px);line-height:1.25;font-weight:800;color:#202c3d}
+#foxmind-product.fm3d-theme .parity-foxy-panelTitle:focus{outline:none}
+#foxmind-product.fm3d-theme .parity-foxy-panelTitle:focus-visible{outline:2px solid #256082;outline-offset:3px;border-radius:6px}
+#foxmind-product.fm3d-theme .parity-foxy-panelModes{display:flex;gap:4px;padding:4px;border-radius:10px;background:#f1f3f6;width:max-content;max-width:100%}
+#foxmind-product.fm3d-theme .parity-foxy-panelModes>button{min-height:44px;padding:0 16px;border:0;border-radius:8px;background:transparent;color:#3c4a5c;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-panelModes>button[aria-pressed=true]{background:#fff;color:#202c3d;font-weight:800;box-shadow:0 1px 2px #0002}
+#foxmind-product.fm3d-theme .parity-foxy-panelModes>button:disabled{opacity:.55;cursor:default}
+#foxmind-product.fm3d-theme .parity-foxy-panel .parity-foxy-sharing>section{padding:14px;border:1px solid #e6eaef;border-radius:14px;background:#fff}
+#foxmind-product.fm3d-theme .parity-foxy-panel .parity-foxy-sharing label:not(:has(input[type=checkbox])){display:grid;gap:4px;margin-top:9px}
+#foxmind-product.fm3d-theme .parity-foxy-panel :is(input:not([type=checkbox]),select,textarea){max-width:100%}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex:none;padding:12px 20px 14px;background:#fff;border-top:1px solid #eef1f4}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter>:is(button,a){display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font:inherit;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;box-shadow:none}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter>:is(button,a) svg{width:18px;height:18px;flex:none}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter>button.p5-primary{margin-left:auto;border-color:#b74710;background:#b74710;color:#fff;font-weight:800}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter>button.parity-foxy-danger{border-color:#b3261e;color:#8c1d18}
+#foxmind-product.fm3d-theme .parity-foxy-panelFooter>:is(button,a):disabled{opacity:.55;cursor:default}
+#foxmind-product.fm3d-theme .parity-foxy-panel :is(button,a,input,select,textarea,summary):focus-visible,#foxmind-product.fm3d-theme .parity-foxy-chips button:focus-visible,#foxmind-product.fm3d-theme .parity-foxy-inlineTool :is(button,a,input,select,textarea):focus-visible,#foxmind-product.fm3d-theme .parity-foxy-creationOpen:focus-visible{outline:2px solid #256082;outline-offset:2px}
+@media(max-width:560px){#foxmind-product.fm3d-theme .parity-foxy-panelHead{padding-left:14px}#foxmind-product.fm3d-theme .parity-foxy-panelBody{padding:16px 14px 20px}#foxmind-product.fm3d-theme .parity-foxy-panelFooter{padding:10px 14px 12px}#foxmind-product.fm3d-theme .parity-foxy-panelFooter>:is(button,a){flex:1 1 auto}#foxmind-product.fm3d-theme .parity-foxy-panelFooter>button.p5-primary{margin-left:0;flex-basis:100%}#foxmind-product.fm3d-theme .parity-foxy-panelStatus{display:none}}
+
+/* Tool chips and the inline tool card sit on the composer's column. */
+#foxmind-product.fm3d-theme .parity-ai-chat :is(.parity-foxy-chips,.parity-foxy-inlineTool){width:min(calc(100% - 60px),1000px);max-width:1000px;margin:8px auto 0;box-sizing:border-box;flex:none}
+#foxmind-product.fm3d-theme .parity-foxy-chips{display:flex;flex-wrap:wrap;gap:8px}
+#foxmind-product.fm3d-theme .parity-foxy-chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid #d5dbe3;border-radius:999px;background:#fff;color:#202c3d;font:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:none;white-space:nowrap}
+#foxmind-product.fm3d-theme .parity-foxy-chip svg{width:16px;height:16px;flex:none}
+#foxmind-product.fm3d-theme .parity-foxy-chip:hover:not(:disabled){border-color:#b74710;background:#fff7ef}
+#foxmind-product.fm3d-theme .parity-foxy-chip[aria-pressed=true]{border-color:#b74710;background:#fff0e1;color:#8a3a0c}
+#foxmind-product.fm3d-theme .parity-foxy-chip:disabled{opacity:.55;cursor:default}
+@media(pointer:coarse){#foxmind-product.fm3d-theme .parity-foxy-chip{min-height:44px}}
+@media(max-width:650px){#foxmind-product.fm3d-theme .parity-ai-chat :is(.parity-foxy-chips,.parity-foxy-inlineTool){width:calc(100% - 16px)}#foxmind-product.fm3d-theme .parity-foxy-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool{display:flex;flex-direction:column;gap:12px;padding:16px 18px;border:2px solid #b74710;border-radius:16px;background:#fff;max-height:min(60dvh,520px);overflow-y:auto}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool>header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool>header strong{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#8a3a0c}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool>header span{font-size:13px;color:#5b6675;min-width:0}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool>header button{margin-left:auto;min-height:44px;padding:0 14px;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool .parity-foxy-toolForm{display:flex;flex-direction:column;gap:12px}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool .parity-foxy-toolForm>label{margin:0;gap:6px;font-size:14px}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool .parity-foxy-toolForm textarea{height:auto;min-height:72px!important}
+#foxmind-product.fm3d-theme .parity-foxy-inlineTool .parity-foxy-toolForm .parity-foxy-example{margin:0}
+#foxmind-product.fm3d-theme .parity-foxy-inlineActions{display:flex;justify-content:flex-end}
+#foxmind-product.fm3d-theme .parity-foxy-inlineActions>button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#b74710;color:#fff;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-inlineActions>button:disabled{opacity:.6;cursor:default}
+#foxmind-product.fm3d-theme .parity-foxy-inlineActions svg{width:18px;height:18px}
+
+/* Format and question count: native radios with visible labels, drawn as a segmented control. */
+#foxmind-product.fm3d-theme .parity-foxy-formatGroup .parity-foxy-seg{display:flex;flex-wrap:nowrap;gap:0}
+#foxmind-product.fm3d-theme .parity-foxy-seg>span{position:relative;display:flex}
+#foxmind-product.fm3d-theme .parity-foxy-seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-seg label{display:flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid #d5dbe3;background:#fff;color:#3c4a5c;font-size:14px;font-weight:700;border-radius:0;margin:0 0 0 -1px}
+#foxmind-product.fm3d-theme .parity-foxy-seg>span:first-child label{border-radius:10px 0 0 10px;margin-left:0}
+#foxmind-product.fm3d-theme .parity-foxy-seg>span:last-child label{border-radius:0 10px 10px 0}
+#foxmind-product.fm3d-theme .parity-foxy-seg input:checked+label{background:#202c3d;border-color:#202c3d;color:#fff}
+#foxmind-product.fm3d-theme .parity-foxy-seg input:focus-visible+label{outline:2px solid #256082;outline-offset:2px;position:relative}
+#foxmind-product.fm3d-theme .parity-foxy-countGroup{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+#foxmind-product.fm3d-theme .parity-foxy-fieldLabel{font-size:13px;font-weight:800;color:#31495f}
+#foxmind-product.fm3d-theme .parity-foxy-stepper{display:flex;align-items:center;gap:6px}
+#foxmind-product.fm3d-theme .parity-foxy-stepper>button{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font:inherit;font-size:20px;font-weight:700;cursor:pointer}
+#foxmind-product.fm3d-theme .parity-foxy-stepper>button:disabled{opacity:.45;cursor:default}
+#foxmind-product.fm3d-theme .parity-foxy-stepper output{min-width:32px;text-align:center;font-size:17px;font-weight:800}
+
+/* Honest wait: stages come from the turn state, elapsed time from the clock, never a percentage. */
+#foxmind-product.fm3d-theme .parity-foxy-steps{list-style:none;display:flex;flex-direction:column;gap:6px;margin:10px 0;padding:0}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li{position:relative;padding-left:26px;font-size:13px;line-height:1.5;color:#5b6675}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li:before{content:'';position:absolute;left:0;top:3px;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:2px solid #d5dbe3;background:#fff}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li[data-state=done]{color:#3c4a5c}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li[data-state=done]:before{border-color:#2f7a4b;background:#2f7a4b}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li[data-state=current]{color:#202c3d;font-weight:800}
+#foxmind-product.fm3d-theme .parity-foxy-steps>li[data-state=current]:before{border-color:#b74710;background:radial-gradient(circle,#b74710 0 3px,#fff 3.5px)}
+#foxmind-product.fm3d-theme .parity-foxy-elapsed{align-self:flex-start;font-size:12px;font-weight:700;color:#5b6675;white-space:nowrap}
+#foxmind-product.fm3d-theme .parity-foxy-wait.generation{background:#fff;border:1px solid #dce3de;color:#202c3d}
+#foxmind-product.fm3d-theme .parity-foxy-wait.generation>button{min-height:44px;padding:0 14px;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font-weight:700}
+
+/* Creation card in the transcript: the whole card is one button that opens the panel. */
+#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-creationCard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+#foxmind-product.fm3d-theme .parity-foxy-creationOpen{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border:2px solid #d5dbe3;border-radius:14px;background:#fff;color:#202c3d;text-align:left;font:inherit;cursor:pointer;box-shadow:none}
+#foxmind-product.fm3d-theme .parity-foxy-creationOpen:hover{border-color:#b74710}
+#foxmind-product.fm3d-theme .parity-foxy-creationIcon{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:12px;background:#fff0e1;color:#b74710}
+#foxmind-product.fm3d-theme .parity-foxy-creationIcon svg{width:22px;height:22px}
+#foxmind-product.fm3d-theme .parity-foxy-creationText{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+#foxmind-product.fm3d-theme .parity-foxy-creationText>small{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#8a3a0c}
+#foxmind-product.fm3d-theme .parity-foxy-creationText>strong{font-size:16px;line-height:1.35;font-weight:800;overflow-wrap:anywhere}
+#foxmind-product.fm3d-theme .parity-foxy-creationText>span{font-size:13px;color:#5b6675}
+#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-creationCard>button:not(.parity-foxy-creationOpen){min-height:44px;padding:0 14px;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+
+/* With the creation open beside the chat the transcript uses the narrower column. */
+@media(min-width:1101px){#foxmind-product.fm3d-theme .parity-ai-workbench[data-panel=open] .parity-ai-transcript{padding-inline:20px}}
+#foxmind-product.fm3d-theme .parity-foxy-panel .parity-foxy-sharing form{display:grid;gap:12px}
+#foxmind-product.fm3d-theme .parity-foxy-panel .parity-foxy-sharing fieldset{min-inline-size:0}

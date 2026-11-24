@@ -78,3 +78,12 @@
   inline-size: 100%;
   min-width: 0;
 }
+
+.timeBar { display: grid; gap: 6px; margin-bottom: 14px; }
+.timeTitle { font-size: 13px; font-weight: 800; color: #4c6276; }
+.timeTrack { display: flex; height: 30px; margin: 0; padding: 0; list-style: none; border-radius: 8px; overflow: hidden; font-size: 12px; font-weight: 800; }
+.timeTrack > li { flex-basis: 0; min-width: 0; display: flex; align-items: center; padding-inline: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.timeTrack > li[data-phase='0'] { background: #ffe4cc; color: #8a3a0c; }
+.timeTrack > li[data-phase='1'] { background: #d9ecf7; color: #1f4f7a; }
+.timeTrack > li[data-phase='2'] { background: #dff3e7; color: #235d38; }
+.timeTrack > li[data-phase='3'] { background: #f3eefc; color: #5a3d99; }

@@ -20,6 +20,8 @@ export function StudyMessageList({
   onExam,
   onSources,
   onReload,
+  sourceCount = 1,
+  onAddMaterial,
 }: {
   identity?: ChatIdentity;
   detail: Pick<StudyDetail, 'creations' | 'practices' | 'exams'>;
@@ -32,7 +34,11 @@ export function StudyMessageList({
   onExam: (id: string) => void;
   onSources: (refs: NonNullable<StudyTurn['sourceRefs']>) => void;
   onReload: () => void;
+  sourceCount?: number;
+  onAddMaterial?: (launcher: HTMLButtonElement) => void;
 }) {
+  const requestIndexes = messages.flatMap((message, index) => (message.generation ? [index] : []));
+  const lastRequestIndex = requestIndexes.at(-1) ?? -1;
   return (
     <>
       {messages.map((message, index) => {
@@ -109,6 +115,9 @@ export function StudyMessageList({
                 cancelling={generation.cancelling === request.requestId}
                 onStop={() => void generation.stop(request.requestId)}
                 onRetry={() => void generation.retry(request)}
+                superseded={index < lastRequestIndex}
+                needsMaterial={sourceCount === 0}
+                onAddMaterial={onAddMaterial}
               />
             )}
           </Fragment>

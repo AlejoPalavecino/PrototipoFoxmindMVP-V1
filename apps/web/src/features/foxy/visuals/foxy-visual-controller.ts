@@ -18,6 +18,7 @@ export function createFoxyVisualController(options: Options) {
   }
   async function refresh() {
     const id=conversationId, version=epoch; if (!id || !valid(version) || state.busy || state.pending) return;
+    const {enabled}=options.current(); if (!enabled.IMAGE && !enabled.DIAGRAM) return;
     const list=++listVersion;
     try {
       const result=await options.client.listVisuals(id,{limit:50,afterId:null},abort.signal); if (!valid(version) || list!==listVersion) return;

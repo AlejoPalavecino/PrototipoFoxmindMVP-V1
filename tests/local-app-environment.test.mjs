@@ -4,7 +4,7 @@ import {parseEnv} from 'node:util';
 import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency} from '../scripts/local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts} from '../scripts/local-app-environment.mjs';
 
 const localOwner={project:'foxmind-local-0123456789abcdef',ports:{database:54321,storage:54322,scanner:54323,smtp:54324,inbox:54325}};
 
@@ -78,4 +78,14 @@ test('ambiguous environment updates and foreign resource owners are rejected',()
   const owner={project:'foxmind-local-0123456789abcdef',ports:{database:54321,storage:54322,scanner:54323,smtp:54324,inbox:54325}};
   assert.equal(requireLocalOwner(owner),owner);assert.throws(()=>requireLocalOwner({...owner,project:'foxmind-p4-files'}));
   assert.throws(()=>requireLocalOwner({...owner,ports:{...owner.ports,database:0}}));
+});
+
+test('a checkout can keep its own web and API ports while older owners keep 3000/3001',()=>{
+  assert.deepEqual(localAppPorts(localOwner),{web:3000,api:3001});
+  assert.deepEqual(localAppPorts({...localOwner,ports:{...localOwner.ports,web:3100,api:3101}}),{web:3100,api:3101});
+  assert.throws(()=>localAppPorts({...localOwner,ports:{...localOwner.ports,web:3100,api:3100}}));
+  assert.throws(()=>requireLocalOwner({...localOwner,ports:{...localOwner.ports,web:80}}));
+  assert.deepEqual(chooseLocalAppPorts({LOCAL_WEB_PORT:'3100',LOCAL_API_PORT:'3101'}),{web:3100,api:3101});
+  assert.deepEqual(chooseLocalAppPorts({}),{web:3000,api:3001});
+  assert.throws(()=>chooseLocalAppPorts({LOCAL_WEB_PORT:'abc'}));
 });

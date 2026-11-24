@@ -3,6 +3,7 @@ import s from '../../ui/study.module.css';
 import { ChatByline, type ChatIdentity } from '../../../../../../shared-ui/FoxyChatLayout';
 import { Notice } from '../../../../../../shared-ui/feedback';
 import { AsyncFeedback } from '../../../../../../shared-ui/AsyncFeedback';
+import { FoxyMarkdown } from '../../../../../../shared-ui/markdown';
 import type {
   StudyGenerationPresentation,
   StudyChatPresentation,
@@ -22,7 +23,7 @@ export function StudyChatProgress({
   active: boolean;
   chat: StudyChatPresentation;
 }) {
-  const { pending, operation, cancelling, canStop, stop } = chat;
+  const { pending, partial, operation, cancelling, canStop, stop } = chat;
   return (
     <>
       {' '}
@@ -85,12 +86,19 @@ export function StudyChatProgress({
             <ChatByline user identity={identity} />
             <div className={`${s.prose} parity-ai-prose`}>{pending}</div>
           </article>
-          <AsyncFeedback
-            compact
-            showDelay
-            title={operation === 'CHAT' ? 'Procesando tu solicitud' : 'Abriendo tu conversación'}
-            detail={operation === 'CHAT' ? 'Tu respuesta va a quedar en este chat.' : undefined}
-          />
+          {partial ? (
+            <article className={`${s.foxyMessage} parity-ai-foxyMessage study-partial-answer`} aria-live="polite" aria-busy="true">
+              <ChatByline />
+              <div className={`${s.prose} parity-ai-prose`}><FoxyMarkdown markdown={partial} /></div>
+            </article>
+          ) : (
+            <AsyncFeedback
+              compact
+              showDelay
+              title={operation === 'CHAT' ? 'Foxy está pensando' : 'Abriendo tu conversación'}
+              detail={operation === 'CHAT' ? 'La respuesta aparece acá a medida que se escribe.' : undefined}
+            />
+          )}
           <button
             className={`${s.stop} parity-ai-stop`}
             type="button"

@@ -1,4 +1,4 @@
-import { GoogleGenAI, type Content, type GenerateContentParameters } from '@google/genai';
+import { GoogleGenAI, ThinkingLevel, type Content, type GenerateContentParameters } from '@google/genai';
 import type { GeminiClient } from './gemini-client.ts';
 import type { AiTextTransport, AiTransportRequest, AiTextResult } from './text-contract.ts';
 import { geminiUsage } from './usage.ts';
@@ -12,6 +12,10 @@ function contents(input: AiTransportRequest): Content[] {
     }),
   }));
 }
+
+const thinkingLevels = { minimal: ThinkingLevel.MINIMAL, low: ThinkingLevel.LOW, medium: ThinkingLevel.MEDIUM, high: ThinkingLevel.HIGH };
+// Only the Gemini 3 family accepts thinkingLevel; older models keep their provider defaults.
+const supportsThinkingLevel = (model: string) => /^gemini-3(?:[.-]|$)/u.test(model);
 
 function finish(reason: string | undefined, blocked: boolean): AiTextResult['finish'] {
   if (blocked || ['SAFETY', 'BLOCKLIST', 'PROHIBITED_CONTENT', 'SPII', 'RECITATION', 'IMAGE_SAFETY'].includes(reason ?? '')) return 'blocked';
@@ -29,7 +33,9 @@ export function createGeminiTextTransport(options: {
   const client: GeminiClient = options.client ?? new GoogleGenAI({ apiKey: options.apiKey, vertexai: false, httpOptions });
   const generation = (input: AiTransportRequest): GenerateContentParameters => ({
     model: input.model, contents: contents(input), config: {
-      systemInstruction: input.system, maxOutputTokens: input.maxOutputTokens, candidateCount: 1, temperature: 0,
+      systemInstruction: input.system, maxOutputTokens: input.maxOutputTokens, candidateCount: 1, temperature: input.tuning?.temperature ?? 0,
+      ...(input.tuning?.thinking && supportsThinkingLevel(input.model)
+        ? { thinkingConfig: { thinkingLevel: thinkingLevels[input.tuning.thinking], includeThoughts: false } } : {}),
       ...(input.schema ? { responseMimeType: 'application/json', responseJsonSchema: input.schema } : {}),
       abortSignal: input.signal, httpOptions, automaticContinuation: false,
     },

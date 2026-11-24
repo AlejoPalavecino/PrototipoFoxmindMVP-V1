@@ -8,7 +8,7 @@ import {createServer} from 'node:net';
 import {setTimeout as delay} from 'node:timers/promises';
 import {P4_IMAGES,P4_SCANNER_START} from './p4-services.mjs';
 import {MAILPIT_IMAGE} from './mailpit-test-runtime.mjs';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency} from './local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts} from './local-app-environment.mjs';
 import {runLocalApiBuild} from './local-api-build.mjs';
 
 const root=resolve(import.meta.dirname,'..'),folder=resolve(root,'.test-artifacts/local-app'),execute=promisify(execFile);
@@ -42,16 +42,17 @@ async function up(){
   if(await command('git',['check-ignore','.env'])!=='.env')throw Error('Root .env must remain ignored');
   let owner=await json('owner.json').catch(error=>{if(error.code!=='ENOENT')throw error;return null;});
   if(owner)requireLocalOwner(owner);
-  await stop();await available(3000);await available(3001);
   if(!owner){
-    owner={project:'foxmind-local-'+randomBytes(8).toString('hex'),ports:{}};
+    owner={project:'foxmind-local-'+randomBytes(8).toString('hex'),ports:{...chooseLocalAppPorts(process.env)}};
     for(const service of ['database','storage','scanner','smtp','inbox'])owner.ports[service]=await available();
     await save('owner.json',owner);
   }
+  const app=localAppPorts(owner);
+  await stop();await available(app.web);await available(app.api);
   const environment={...existing};
   const defaults={LOCAL_POSTGRES_PASSWORD:randomBytes(32).toString('hex'),FILES_S3_ACCESS_KEY_ID:randomBytes(16).toString('hex'),FILES_S3_SECRET_ACCESS_KEY:randomBytes(32).toString('hex'),AUTH_CSRF_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_ABUSE_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_OUTBOX_KEYS_JSON:JSON.stringify({local:randomBytes(32).toString('base64')}),AUTH_OUTBOX_ACTIVE_KEY_ID:'local',CLASSROOMS_SIGNING_KEY:randomBytes(32).toString('base64url'),CLASSROOMS_DELIVERY_KEY:randomBytes(32).toString('base64url'),FOXMIND_PROXY_CLIENT_KEY:randomBytes(32).toString('base64url')};
   for(const [key,value]of Object.entries(defaults))if(!environment[key])environment[key]=value;
-  const updates={...Object.fromEntries(Object.keys(defaults).map(k=>[k,environment[k]])),DATABASE_URL:`postgresql://postgres:${environment.LOCAL_POSTGRES_PASSWORD}@127.0.0.1:${owner.ports.database}/foxmind_local`,NODE_ENV:'development',API_PORT:'3001',APP_ORIGIN:'http://127.0.0.1:3000',AUTH_LOCAL_HTTP:'true',AUTH_TRUSTED_PROXY_CIDRS:'',MAIL_SMTP_PORT:String(owner.ports.smtp),FILES_ENABLED:'1',FILES_S3_ENDPOINT:`http://127.0.0.1:${owner.ports.storage}`,FILES_S3_REGION:'us-east-1',FILES_S3_BUCKET:'foxmind-private',FILES_SCANNER_HOST:'127.0.0.1',FILES_SCANNER_PORT:String(owner.ports.scanner),FILES_DRAFT_QUOTA_BYTES:'200000000',CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'1000000000',FOXMIND_API_ORIGIN:'http://127.0.0.1:3001'};
+  const updates={...Object.fromEntries(Object.keys(defaults).map(k=>[k,environment[k]])),DATABASE_URL:`postgresql://postgres:${environment.LOCAL_POSTGRES_PASSWORD}@127.0.0.1:${owner.ports.database}/foxmind_local`,NODE_ENV:'development',API_PORT:String(app.api),APP_ORIGIN:`http://127.0.0.1:${app.web}`,AUTH_LOCAL_HTTP:'true',AUTH_TRUSTED_PROXY_CIDRS:'',MAIL_SMTP_PORT:String(owner.ports.smtp),FILES_ENABLED:'1',FILES_S3_ENDPOINT:`http://127.0.0.1:${owner.ports.storage}`,FILES_S3_REGION:'us-east-1',FILES_S3_BUCKET:'foxmind-private',FILES_SCANNER_HOST:'127.0.0.1',FILES_SCANNER_PORT:String(owner.ports.scanner),FILES_DRAFT_QUOTA_BYTES:'200000000',CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'1000000000',FOXMIND_API_ORIGIN:`http://127.0.0.1:${app.api}`};
   if(existing.DATABASE_URL&&existing.DATABASE_URL!==updates.DATABASE_URL)throw Error('Root .env points to another database; refusing to replace it');
   await writeFile('.env',updateEnvironment(original,updates));Object.assign(environment,updates);
   await save('s3.json',{identities:[{name:'local-backend',credentials:[{accessKey:environment.FILES_S3_ACCESS_KEY_ID,secretKey:environment.FILES_S3_SECRET_ACCESS_KEY}],actions:['Admin','Read','Write','List']}]});
@@ -95,6 +96,6 @@ try{
     await stopLocalContainers(owner,command);
     console.log('Owned API/web and Docker containers stopped; volumes and data retained');
   }
-  else if(action==='status'){const state=await json('status.json');console.log(JSON.stringify({state:state.state,origin:'http://127.0.0.1:3000',apiOrigin:'http://127.0.0.1:3001'}));}
+  else if(action==='status'){const state=await json('status.json'),app=localAppPorts(await json('owner.json'));console.log(JSON.stringify({state:state.state,origin:`http://127.0.0.1:${app.web}`,apiOrigin:`http://127.0.0.1:${app.api}`}));}
   else throw Error('Usage: local-app.mjs up|restart|stop|status');
 }catch(error){console.error(error.message);process.exitCode=1;}
