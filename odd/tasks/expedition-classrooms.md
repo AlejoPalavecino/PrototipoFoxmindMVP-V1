@@ -50,9 +50,9 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-002
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador a 1440 y 390 px
-- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "tests/classroom-workspace-shell.test.mjs", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md"]
+- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "tests/classroom-workspace-shell.test.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md"]
 - **Acceptance:** Docente y estudiante ven el banner, las pestañas con contador centrado, la búsqueda, las tarjetas con portada y «X de Y temas dados», los borradores con «Paso N de 4», las invitaciones y los estados vacíos, sin desborde a 390 px. No queda ninguna aparición de «Eliminar pendiente».
-- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast (reverificación tras mover product.css a TASK-003 y corregir la ruta de portada en classroom-workspace-shell)", "result": "3126 pass, 0 fail; navegador docente 1440 y 390 sin desborde, estudiante 1440 con invitación", "candidate": "sha256:a6fd68985b199cc6cb732408847087154c5d4defafae3c487234f3f27b95b12b"}
+- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/expedition-classrooms.test.mjs", "result": "fast 3126 pass, 0 fail; el alcance pasó los archivos de registro de suites a TASK-008 sin cambiar el contenido verificado; navegador docente 1440 y 390, estudiante 1440", "candidate": "sha256:f140c390fc2eb8a7211dd07f0967a363f7bad241cf8933eb684fd63ed08cf79f"}
 - **Blocker:** none
 
 ### TASK-002 — Asistente de creación con sendero y catálogo completo
@@ -72,20 +72,20 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-004
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/features/classrooms/styles/expedition-room.css", "apps/web/src/application/shell/styles/product.css", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
 - **Acceptance:** El encabezado muestra la portada, los accesos «por revisar» o «por hacer» y «temas trabajados», y la acción por rol. Las pestañas siguen el estilo de la maqueta. Plan muestra las unidades como recorrido y Muro el compositor y las publicaciones.
-- **Evidence:** {"command": "node --test tests/expedition-classrooms.test.mjs (7); node scripts/run-complete-suite.mjs --group fast; navegador por pestaña", "result": "7/7 y fast 3126 pass; encabezado como banner con portada, accesos y acción por rol; pestañas como paradas; Plan como sendero con tema en tarjeta; Muro conservado; las 8 secciones docentes sin desborde a 1440 y 390", "candidate": "sha256:419f50b4996dc0991f73ad4f201ae0795d25f4381daf1fc540c9d887c0602f15"}
+- **Evidence:** {"command": "node --test tests/expedition-classrooms.test.mjs (7); node scripts/run-complete-suite.mjs --group fast; navegador por pestaña", "result": "7/7 y fast 3126 pass; expedition-room.css y la prueba restauradas idénticas a 71665d55 al separar la Biblioteca; product.css pasó a TASK-008; las 8 secciones sin desborde a 1440 y 390", "candidate": "sha256:37fa9d36b0cc8d075abd0ac0ecbcfb130a323d6dcfead8838d373876cd9dcf81"}
 - **Blocker:** none
 
 ### TASK-004 — Biblioteca con archivo o apunte escrito
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** orchestrator
 - **Requirements:** REQ-004, REQ-005
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/features/materials/publishing/MaterialPublishing.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/features/materials/publishing/MaterialPublishing.tsx", "apps/web/src/features/classrooms/styles/expedition-library.css", "tests/expedition-library.test.mjs"]
 - **Acceptance:** El docente elige entre archivo y apunte. El apunte se publica con título y contenido y el estudiante lo lee. La subida de archivos conserva la revisión de seguridad.
-- **Evidence:** none
+- **Evidence:** {"command": "node --test tests/expedition-library.test.mjs tests/expedition-classrooms.test.mjs; tsc; navegador Biblioteca 1440 y 390", "result": "9/9; apunte TEXT publicado con documento generado y reutilizado, caracteres invisibles frenados antes de subir, archivo sigue como opción inicial; diálogo Escribir un apunte con Contenido, sin desborde", "candidate": "sha256:74f22acf9dd9e9c9bf08025c23b10fefaffdbf9c876568fef8f2dc2772f247fa"}
 - **Blocker:** none
 
 ### TASK-005 — Actividades y editor
@@ -127,7 +127,7 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** node scripts/check-documentation.mjs
-- **Scope:** ["docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md"]
+- **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md"]
 - **Acceptance:** La guía de diseño, la matriz de flujos y la galería reflejan Mis aulas Expedición con capturas nuevas.
 - **Evidence:** none
 - **Blocker:** none

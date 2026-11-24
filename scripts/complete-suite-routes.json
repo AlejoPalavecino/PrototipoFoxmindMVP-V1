@@ -307,6 +307,7 @@
       "tests/entry-glass-polish.test.mjs",
       "tests/expedition-access.test.mjs",
       "tests/expedition-classrooms.test.mjs",
+      "tests/expedition-library.test.mjs",
       "tests/expedition-home.test.mjs",
       "tests/expedition-navigation.test.mjs",
       "tests/folder-platform.test.mjs",
