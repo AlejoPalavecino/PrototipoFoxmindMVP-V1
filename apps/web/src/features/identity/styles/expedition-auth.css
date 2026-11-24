@@ -1,0 +1,140 @@
+/* Expedición · Acceso. The painted landscape is the whole screen; the form is a card in the scene.
+   Own xp- classes anchored on the app root (#foxmind-product): global theme rules such as
+   `.fm3d-theme :is(.button-primary, .p5-app button.primary)` reach (0,3,1) and would otherwise win. */
+#foxmind-product .xp-auth {
+  --wash: 255, 240, 226;
+  position: relative; isolation: isolate; display: flex; flex-direction: column; min-height: 100dvh; overflow: hidden;
+  background: #f8d6b8 url('/brujula/banner-docente.webp') no-repeat 70% 100% / cover;
+  color: var(--xp-ink); font: 400 15px/1.5 var(--xp-font);
+}
+#foxmind-product .xp-auth[data-scene="river"] { --wash: 226, 250, 246; background-color: #9fefe2; background-image: url('/brujula/banner-alumno.webp'); background-position: 62% 100%; }
+#foxmind-product .xp-auth::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(var(--wash), .92) 0, rgba(var(--wash), .58) 38%, rgba(var(--wash), 0) 62%); }
+#foxmind-product .xp-auth :is(h1, h2, h3, p, legend, label, input, button, a, span, strong, small, li) { font-family: var(--xp-font); }
+#foxmind-product .xp-auth :is(a, button, input):focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 3px; }
+#foxmind-product .xp-auth .xp-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Header: brand and the quick switch between signing in and registering */
+#foxmind-product .xp-auth-top { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 32px; }
+#foxmind-product .xp-auth a.xp-auth-brand { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 10px; border-radius: 14px; background: #fff; color: var(--xp-ink); font-weight: 900; font-size: 22px; letter-spacing: -.03em; text-decoration: none; box-shadow: 0 6px 14px -8px rgba(27, 58, 82, .5); }
+#foxmind-product .xp-auth .xp-auth-brand img { width: 34px; height: 37px; object-fit: contain; }
+#foxmind-product .xp-auth .xp-auth-switch { display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 6px 6px 6px 16px; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--xp-muted); font-size: 14px; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(27, 58, 82, .5); }
+#foxmind-product .xp-auth .xp-auth-switch a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--xp-lake); color: #fff; font-weight: 800; font-size: 14px; text-decoration: none; }
+#foxmind-product .xp-auth .xp-auth-switch a:hover { background: #24496a; }
+
+/* Stage: card on the left, guide standing on the path */
+#foxmind-product .xp-auth-stage { position: relative; z-index: 2; flex: 1; display: grid; grid-template-columns: minmax(0, 460px) 1fr; align-items: center; gap: 32px; width: 100%; max-width: none; margin: 0; padding: 8px 32px 48px 8vw; }
+#foxmind-product .xp-auth .xp-auth-panel { position: relative; z-index: 2; width: 100%; max-width: none; margin: 0; padding: 32px 34px 28px; border: 0; border-radius: 28px; background: var(--xp-surface); box-shadow: 0 2px 0 rgba(27, 58, 82, .06), 0 30px 60px -30px rgba(27, 58, 82, .55); }
+#foxmind-product .xp-auth .xp-auth-panel::before, #foxmind-product .xp-auth .xp-auth-panel::after { content: none; }
+#foxmind-product .xp-auth .page-heading { display: block; margin: 0 0 20px; }
+#foxmind-product .xp-auth .page-heading h1 { margin: 0; color: var(--xp-ink); font-weight: 900; font-size: 34px; line-height: 1.08; letter-spacing: -.02em; }
+#foxmind-product .xp-auth .page-heading p { margin: 8px 0 0; color: var(--xp-muted); font-weight: 600; font-size: 16px; }
+#foxmind-product .xp-auth-guide { position: relative; align-self: end; justify-self: start; width: 230px; margin: 0 0 -48px 6%; }
+#foxmind-product .xp-auth-guide img { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 6px rgba(101, 62, 46, .28)); }
+#foxmind-product .xp-auth .xp-auth-say { position: absolute; z-index: 2; left: 200px; top: -6px; width: max-content; max-width: 220px; margin: 0; padding: 12px 16px; border-radius: 18px 18px 18px 4px; background: #fff; color: var(--xp-ink); font-weight: 800; font-size: 16px; line-height: 1.25; box-shadow: 0 12px 24px -12px rgba(27, 58, 82, .55); }
+
+/* Form controls */
+#foxmind-product .xp-auth form { margin: 0; }
+#foxmind-product .xp-auth :is(form, fieldset) { min-width: 0; }
+#foxmind-product .xp-auth form > fieldset { display: grid; gap: 18px; margin: 0; padding: 0; border: 0; }
+#foxmind-product .xp-auth .field-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+#foxmind-product .xp-auth .field { display: grid; gap: 6px; min-width: 0; margin: 0; }
+#foxmind-product .xp-auth .field label { margin: 0; color: var(--xp-ink); font-weight: 800; font-size: 14px; }
+#foxmind-product .xp-auth .auth-reference-input > .entry-icon { display: none; }
+#foxmind-product .xp-auth .password-control { position: relative; }
+#foxmind-product .xp-auth .input { width: 100%; height: 50px; min-height: 50px; margin: 0; padding: 0 14px; border: 1.5px solid var(--xp-line-strong); border-radius: 12px; background: var(--xp-mist); color: var(--xp-ink); font-size: 15px; box-shadow: none; }
+#foxmind-product .xp-auth .input::placeholder { color: #6a7d8b; opacity: 1; }
+#foxmind-product .xp-auth .input:hover { border-color: #94aabb; }
+#foxmind-product .xp-auth .input:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 1px; border-color: var(--xp-lake); background: #fff; }
+#foxmind-product .xp-auth .password-control .input { padding-right: 50px; }
+#foxmind-product .xp-auth .password-toggle { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: grid; place-items: center; width: 38px; min-width: 38px; height: 38px; min-height: 38px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--xp-muted); }
+#foxmind-product .xp-auth .password-toggle:hover { background: #e7eef2; }
+#foxmind-product .xp-auth .password-toggle svg { width: 20px; height: 20px; }
+#foxmind-product .xp-auth .field-help { margin: 0; color: var(--xp-muted); font-size: 13px; font-weight: 600; }
+#foxmind-product .xp-auth .form-link { margin: -8px 0 0; text-align: right; }
+#foxmind-product .xp-auth :is(.form-link, .after-form, .actions, .verification-content, .notice) a:not(.button) { color: var(--xp-orange-ink); font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+#foxmind-product .xp-auth .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 22px; border: 0; border-radius: 14px; font-weight: 800; font-size: 17px; text-decoration: none; cursor: pointer; }
+#foxmind-product .xp-auth .button-primary { background: var(--xp-orange-button); color: #fff; box-shadow: 0 4px 0 #7f3006; }
+#foxmind-product .xp-auth .button-primary:hover:enabled, #foxmind-product .xp-auth a.button-primary:hover { background: var(--xp-orange-button-hover); }
+#foxmind-product .xp-auth .button-primary:active:enabled { transform: translateY(3px); box-shadow: 0 1px 0 #7f3006; }
+#foxmind-product .xp-auth .button-primary .fm3d-icon { display: none; }
+#foxmind-product .xp-auth .button-outline { background: #fff; color: var(--xp-lake); box-shadow: inset 0 0 0 2px var(--xp-lake); }
+#foxmind-product .xp-auth .button-ghost { min-height: 44px; padding: 0 12px; background: transparent; color: var(--xp-lake); box-shadow: none; font-size: 16px; }
+#foxmind-product .xp-auth .button-ghost:hover:enabled { background: #eef3f6; }
+#foxmind-product .xp-auth .button:disabled { opacity: .7; cursor: not-allowed; }
+#foxmind-product .xp-auth .full-width { width: 100%; }
+#foxmind-product .xp-auth .after-form { margin: 18px 0 0; padding-top: 16px; border-top: 1px dashed var(--xp-line); color: var(--xp-muted); font-weight: 600; text-align: center; }
+#foxmind-product .xp-auth :is(.notice, .cooldown, .state, .loading) { margin: 0 0 16px; padding: 12px 14px; border-radius: 14px; font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+#foxmind-product .xp-auth :is(.notice-success, .notice, .cooldown, .loading) { background: var(--xp-sky); color: #1f4560; }
+#foxmind-product .xp-auth .notice-error { background: var(--xp-danger-soft); color: var(--xp-danger); }
+#foxmind-product .xp-auth .state { background: var(--xp-mist); color: var(--xp-ink); display: grid; gap: 10px; }
+#foxmind-product .xp-auth .verification-content h2 { margin: 4px 0 6px; font-weight: 900; font-size: 20px; }
+#foxmind-product .xp-auth .verification-content p { margin: 0 0 8px; color: var(--xp-muted); font-weight: 600; overflow-wrap: anywhere; }
+#foxmind-product .xp-auth .verification-content .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 0; }
+
+/* Registration stops */
+#foxmind-product .xp-auth .xp-trail { display: flex; flex-wrap: wrap; align-items: center; row-gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+#foxmind-product .xp-auth .xp-trail li { display: flex; align-items: center; gap: 8px; color: var(--xp-muted); font-weight: 800; font-size: 13px; white-space: nowrap; }
+#foxmind-product .xp-auth .xp-trail li + li::before { content: ""; width: 28px; border-top: 3px dashed var(--xp-trail); margin: 0 6px; }
+#foxmind-product .xp-auth .xp-trail-mark { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 3px var(--xp-line-strong); color: var(--xp-muted); font-weight: 900; font-size: 12px; }
+#foxmind-product .xp-auth .xp-trail [aria-current="step"] { color: var(--xp-ink); }
+#foxmind-product .xp-auth .xp-trail [aria-current="step"] .xp-trail-mark { box-shadow: inset 0 0 0 3px var(--xp-orange); color: var(--xp-orange-ink); }
+#foxmind-product .xp-auth .xp-trail .is-done { color: var(--xp-pine); }
+#foxmind-product .xp-auth .xp-trail .is-done .xp-trail-mark { background: var(--xp-pine); box-shadow: none; color: #fff; }
+#foxmind-product .xp-auth .xp-step { display: grid; gap: 18px; }
+#foxmind-product .xp-auth .xp-step[hidden] { display: none; }
+#foxmind-product .xp-auth .xp-roles { display: grid; gap: 12px; margin: 0; padding: 0; border: 0; }
+#foxmind-product .xp-auth .xp-roles legend { margin: 0 0 10px; padding: 0; color: var(--xp-ink); font-weight: 900; font-size: 17px; }
+#foxmind-product .xp-auth .xp-role { position: relative; display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 14px; padding: 14px 46px 14px 14px; border: 2px solid var(--xp-line); border-radius: 20px; background: var(--xp-mist); cursor: pointer; }
+#foxmind-product .xp-auth .xp-role:hover { border-color: #94aabb; background: #fff; }
+#foxmind-product .xp-auth .xp-role input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+#foxmind-product .xp-auth .xp-role img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--xp-orange-soft); }
+#foxmind-product .xp-auth .xp-role-student img { background: var(--xp-pine-soft); }
+#foxmind-product .xp-auth .xp-role strong { display: block; font-weight: 900; font-size: 19px; }
+#foxmind-product .xp-auth .xp-role-points { display: block; color: var(--xp-muted); font-weight: 600; font-size: 14px; }
+#foxmind-product .xp-auth .xp-role-check { position: absolute; top: 50%; right: 16px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; border: 2px solid var(--xp-line-strong); background: #fff; }
+#foxmind-product .xp-auth .xp-role:has(input:checked) { border-color: var(--xp-orange-button); background: #fff8f3; }
+#foxmind-product .xp-auth .xp-role:has(input:checked) .xp-role-check { border: 7px solid var(--xp-orange-button); }
+#foxmind-product .xp-auth .xp-role-student:has(input:checked) { border-color: var(--xp-pine); background: #f2faf6; }
+#foxmind-product .xp-auth .xp-role-student:has(input:checked) .xp-role-check { border-color: var(--xp-pine); }
+#foxmind-product .xp-auth .xp-role:has(input:focus-visible) { outline: 3px solid var(--xp-focus); outline-offset: 2px; }
+#foxmind-product .xp-auth .xp-note { margin: 0; color: var(--xp-muted); font-weight: 600; font-size: 13px; }
+#foxmind-product .xp-auth .xp-inline-error { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--xp-danger-soft); color: var(--xp-danger); font-weight: 800; font-size: 14px; }
+#foxmind-product .xp-auth .xp-chosen { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 14px; background: var(--xp-mist); font-weight: 800; font-size: 14px; }
+#foxmind-product .xp-auth .xp-chosen img { width: 36px; height: 36px; border-radius: 50%; background: var(--xp-orange-soft); }
+#foxmind-product .xp-auth .xp-chosen .xp-change { margin-left: auto; min-height: 36px; font-size: 14px; }
+#foxmind-product .xp-auth .xp-step-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+#foxmind-product .xp-auth .xp-register-sent { text-align: center; }
+#foxmind-product .xp-auth .xp-register-sent .xp-trail { justify-content: center; }
+#foxmind-product .xp-auth .xp-sent-icon { display: grid; place-items: center; width: 84px; height: 84px; margin: 0 auto 14px; border-radius: 50%; background: var(--xp-sky); color: var(--xp-lake); }
+#foxmind-product .xp-auth .xp-sent-icon svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#foxmind-product .xp-auth .xp-register-sent h2 { margin: 0 0 8px; font-weight: 900; font-size: 28px; }
+#foxmind-product .xp-auth .xp-register-sent h2:focus { outline: none; }
+#foxmind-product .xp-auth .xp-register-sent p { margin: 0; color: var(--xp-muted); font-weight: 600; }
+#foxmind-product .xp-auth .xp-sent-email { display: inline-block; margin-top: 12px !important; padding: 4px 12px; border-radius: 999px; background: var(--xp-mist); color: var(--xp-ink) !important; font-weight: 800 !important; overflow-wrap: anywhere; }
+#foxmind-product .xp-auth .xp-sent-steps { display: grid; gap: 8px; margin: 18px 0 0; padding: 0 0 0 22px; color: var(--xp-muted); font-weight: 600; text-align: left; }
+
+@media (max-width: 1100px) {
+  #foxmind-product .xp-auth-stage { grid-template-columns: minmax(0, 460px); justify-content: start; padding-left: 6vw; }
+  #foxmind-product .xp-auth-guide { position: absolute; right: 4%; bottom: 0; width: 190px; margin: 0; }
+  #foxmind-product .xp-auth .xp-auth-say { left: auto; right: 150px; top: -20px; border-radius: 18px 18px 4px 18px; }
+}
+@media (max-width: 760px) {
+  #foxmind-product .xp-auth { background-size: auto 300px; background-position: 70% 0; background-color: var(--xp-canvas); }
+  #foxmind-product .xp-auth[data-scene="river"] { background-position: 60% 0; background-color: var(--xp-canvas); }
+  #foxmind-product .xp-auth::before { background: linear-gradient(180deg, rgba(var(--wash), 0) 0, rgba(var(--wash), 0) 200px, var(--xp-canvas) 300px); }
+  #foxmind-product .xp-auth-top { padding: 14px; }
+  #foxmind-product .xp-auth .xp-auth-switch { padding: 4px 4px 4px 12px; font-size: 13px; }
+  #foxmind-product .xp-auth .xp-auth-switch span { display: none; }
+  #foxmind-product .xp-auth .xp-auth-switch:has(span) { padding-left: 4px; }
+  #foxmind-product .xp-auth-stage { display: block; padding: 150px 12px 32px; }
+  #foxmind-product .xp-auth-guide { position: absolute; z-index: 1; left: 14px; right: auto; top: 62px; bottom: auto; width: 104px; margin: 0; }
+  #foxmind-product .xp-auth .xp-auth-say { left: 104px; right: auto; top: 6px; max-width: min(200px, calc(100vw - 140px)); font-size: 14px; border-radius: 18px 18px 18px 4px; }
+  #foxmind-product .xp-auth .xp-auth-panel { padding: 24px 18px 22px; border-radius: 24px; }
+  #foxmind-product .xp-auth .page-heading h1 { font-size: 29px; }
+  #foxmind-product .xp-auth .field-grid { grid-template-columns: 1fr; }
+  #foxmind-product .xp-auth .xp-trail .xp-trail-name { display: none; }
+  #foxmind-product .xp-auth .xp-trail [aria-current="step"] .xp-trail-name { display: inline; }
+  #foxmind-product .xp-auth .xp-role { grid-template-columns: 52px 1fr; }
+  #foxmind-product .xp-auth .xp-role img { width: 52px; height: 52px; }
+}
+@media (prefers-reduced-motion: reduce) { .xp-auth .button-primary:active:enabled { transform: none; } }

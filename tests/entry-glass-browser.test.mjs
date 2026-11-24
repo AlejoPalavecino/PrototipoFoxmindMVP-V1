@@ -37,12 +37,13 @@ test('glass actual account, shared navigation, authorized news and responsive vi
       await t.test('public forms reflow across all required widths and expose complete mobile navigation', async () => {
         for (const route of ['sign-in', 'register']) {
           await page.goto(`${runtime.origin}/${route}`);
-          await page.getByLabel('Correo electrónico', { exact: true }).waitFor();
+          // Registration starts at the role stop; its data fields appear after Continuar.
+          await (route === 'register' ? page.getByRole('radio', { name: 'Docente', exact: true }) : page.getByLabel('Correo electrónico', { exact: true })).waitFor();
           for (const width of [320, 390, 768, 1024, 1440, 1448]) {
             await page.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(page, width);
             await page.screenshot({ path: resolve(artifacts, `${route}-${width}.png`), fullPage: true });
-            const surface = page.locator('.brujula-auth .surface');
+            const surface = page.locator('.xp-auth .xp-auth-panel');
             const target = route === 'register' ? 'Iniciar sesión' : 'Crear cuenta';
             const link = surface.locator('.after-form').getByRole('link', { name: target, exact: true });
             assert.equal(await link.getAttribute('href'), route === 'register' ? '/sign-in' : '/register');
@@ -53,7 +54,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
             await page.keyboard.press('Tab');
             assert.equal(await link.evaluate(node => node === document.activeElement), true);
             if (width >= 1024) {
-              await page.locator('.br-auth-visual').getByRole('link', { name: 'FoxMind', exact: true }).waitFor();
+              await page.locator('.xp-auth-top').getByRole('link', { name: 'FoxMind', exact: true }).waitFor();
             }
           }
         }

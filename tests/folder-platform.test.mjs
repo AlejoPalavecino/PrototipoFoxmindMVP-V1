@@ -40,15 +40,15 @@ test('folder navbar carries the raster identity and preserves destinations/curre
   assert.match(html, /Actual &lt;Learner&gt;/);
 });
 
-test('account SSR preserves loading, Brújula visual and entry navigation after session readiness', () => {
+test('account SSR preserves loading, Expedición scene and entry navigation after session readiness', () => {
   const { AccountScreen } = component('apps/web/src/screens/identity-screen.tsx');
   const html = render(AccountScreen, { view: 'sign-in' });
-  assert.match(html, /<aside[^>]*class="br-auth-visual"[^>]*aria-label="Foxy te da la bienvenida al aula"/);
-  assert.match(html, /class="br-auth-land" aria-hidden="true"/);
+  assert.match(html, /class="xp-auth auth-sign-in" data-scene="sunset"/);
+  assert.match(html, /class="xp-auth-guide" aria-hidden="true"/);
   assert.match(html, /href="#main"/);
   assert.match(html, /id="main"/);
   assert.match(html, /Cargando tu cuenta/);
-  assert.match(html, /class="br-auth-brand" href="\/sign-in"/);
+  assert.match(html, /class="xp-auth-brand" href="\/sign-in"/);
   const { AccountFlowForms } = component('apps/web/src/features/identity/authentication/account-flow-forms.tsx');
   const ready = render(AccountFlowForms, { view: 'sign-in', session: { authenticated: false }, verified: false, classroomNext: null,
     nextAccountHref: target => `/${target}`, locked: false, busy: false, hasToken: false, submit: () => () => {}, signOut: null, load: async () => {}, action: async () => {} });

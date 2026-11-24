@@ -1,0 +1,32 @@
+/* Expedición: paleta de valle que acompaña los paisajes pintados. Conserva Nunito.
+   --xp-orange es decorativo (paradas, barras); detrás de texto blanco usar --xp-orange-button (4,88:1). */
+:root {
+  --xp-ink: #1c2e3b;
+  --xp-muted: #4d6170;
+  --xp-line: #d3dee6;
+  --xp-line-strong: #bfcfda;
+  --xp-canvas: #edf3f0;
+  --xp-surface: #ffffff;
+  --xp-mist: #f4f8f6;
+  --xp-lake: #1b3a52;
+  --xp-lake-soft: #c4d6e4;
+  --xp-lake-muted: #93b0c6;
+  --xp-lake-raised: #22476a;
+  --xp-lake-line: #3d6283;
+  --xp-pine: #1d6b57;
+  --xp-pine-soft: #dcefe7;
+  --xp-sky: #d6ebf7;
+  --xp-sun: #ffc94d;
+  --xp-trail: #d9a66b;
+  --xp-violet: #6d5bd0;
+  --xp-orange: #e8590c;
+  --xp-orange-button: #c4490a;
+  --xp-orange-button-hover: #a93e08;
+  --xp-orange-ink: #b8420a;
+  --xp-orange-soft: #ffe9dc;
+  --xp-danger: #b3261e;
+  --xp-danger-soft: #fdecea;
+  --xp-focus: #2463c9;
+  --xp-font: Nunito, system-ui, sans-serif;
+  --xp-shadow: 0 1px 0 rgba(27, 58, 82, .06), 0 14px 28px -22px rgba(27, 58, 82, .45);
+}

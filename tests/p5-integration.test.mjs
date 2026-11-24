@@ -292,20 +292,23 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
             return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
           });
           await page.goto(`${origin}/register`);
+          await page.getByRole('radio', { name: 'Estudiante', exact: true }).check();
+          await page.getByRole('button', { name: 'Continuar', exact: true }).click();
           await page.getByLabel('Nombre', { exact: true }).fill('Alumno');
           await page.getByLabel('Apellido', { exact: true }).fill('Prueba');
           await page.getByLabel('Correo electrónico', { exact: true }).fill('"Alumno prueba"@mañana.test');
           await page.getByLabel('Contraseña', { exact: true }).fill('Una contraseña de prueba');
-          await page.getByRole('radio', { name: 'Estudiante', exact: true }).check();
           await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
-          await page.getByText(/Podrás volver a intentar en/).waitFor();
+          // The accepted stop replaces the form; its cooldown stays internal and must not reach sign-in.
+          await page.getByRole('heading', { name: 'Revisá tu correo', exact: true }).waitFor();
+          assert.equal(await page.getByText(/Vas a poder volver a intentar en/).count(), 0);
           assert.equal(registerCalls, 1);
           await page.locator('.after-form').getByRole('link', { name: 'Iniciar sesión', exact: true }).click();
           await page.waitForURL('**/sign-in');
           await page.getByLabel('Correo electrónico', { exact: true }).waitFor();
           await page.waitForFunction(() => !document.querySelector('fieldset')?.disabled);
           assert.equal(await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).isEnabled(), true);
-          assert.equal(await page.getByText(/Podrás volver a intentar en/).count(), 0);
+          assert.equal(await page.getByText(/Vas a poder volver a intentar en/).count(), 0);
         } finally { await page.close(); }
       });
 

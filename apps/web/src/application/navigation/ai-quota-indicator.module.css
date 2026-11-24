@@ -19,7 +19,12 @@
 }
 .trigger:hover { background: #e3f1e8; }
 .trigger:focus-visible { outline: 2px solid #375a49; outline-offset: 2px; }
-.prefix, .separator, .available { color: #375a49; }
+.prefix { color: #375a49; }
+/* One row: label and percentage, with a decorative meter below. The accessible name lives on the button. */
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; width: 100%; }
+.value { font-variant-numeric: tabular-nums; }
+.meter { display: block; width: 100%; height: 6px; margin-top: 6px; border-radius: 999px; background: #d6e3dc; overflow: hidden; }
+.meter > span { display: block; height: 100%; border-radius: inherit; background: #3d8a63; }
 .detail { display: grid; gap: 1rem; }
 .detail :is(p, h3, dl, dd) { margin: 0; }
 .detail [role="status"]:empty { display: none; }
