@@ -50,31 +50,31 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-002
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador a 1440 y 390 px
-- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "apps/web/src/application/shell/styles/product.css", "tests/expedition-classrooms.test.mjs", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md"]
+- **Scope:** ["apps/shared-ui/parity-assets.ts", "apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx", "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx", "apps/web/src/features/classrooms/styles/expedition-classrooms.css", "tests/pending-classrooms.test.mjs", "tests/product-parity-invitation-ui.test.mjs", "tests/classroom-workspace-shell.test.mjs", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md"]
 - **Acceptance:** Docente y estudiante ven el banner, las pestañas con contador centrado, la búsqueda, las tarjetas con portada y «X de Y temas dados», los borradores con «Paso N de 4», las invitaciones y los estados vacíos, sin desborde a 390 px. No queda ninguna aparición de «Eliminar pendiente».
-- **Evidence:** {"command": "node --test tests/expedition-classrooms.test.mjs y 14 pruebas de la colección, invitaciones y portadas; tsc; eslint; run-complete-suite --check", "result": "pass 87, fail 0; tsc y eslint limpios; 725 pruebas clasificadas; navegador docente 1440 y 390 sin desborde (lista, Borradores, diálogo Eliminar borrador) y estudiante 1440 con invitación", "candidate": "sha256:870b5806b4d2b3501e9b8e5e942d48c2404411532c7b3a619e9c3c18b85c2151"}
+- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast (reverificación tras mover product.css a TASK-003 y corregir la ruta de portada en classroom-workspace-shell)", "result": "3126 pass, 0 fail; navegador docente 1440 y 390 sin desborde, estudiante 1440 con invitación", "candidate": "sha256:a6fd68985b199cc6cb732408847087154c5d4defafae3c487234f3f27b95b12b"}
 - **Blocker:** none
 
 ### TASK-002 — Asistente de creación con sendero y catálogo completo
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-001
 - **Owner:** orchestrator
 - **Requirements:** REQ-003
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx", "apps/web/src/features/classrooms/creation/WizardGeneral.tsx", "apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx", "apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx", "apps/web/src/features/classrooms/creation/WizardReview.tsx", "apps/web/src/features/classrooms/styles/expedition-wizard.css", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx", "apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx", "apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx", "apps/web/src/features/classrooms/styles/expedition-wizard.css", "tests/classroom-creation-four-steps.test.mjs"]
 - **Acceptance:** El asistente muestra las cuatro paradas con el estado de guardado y la vista previa, y ofrece las 7 portadas con los nombres del catálogo. El procesamiento con Foxy y la revisión conservan su comportamiento.
-- **Evidence:** none
+- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/classroom-creation-four-steps.test.mjs tests/expedition-classrooms.test.mjs; tsc", "result": "fast 3126 pass, 0 fail; asistente 15/15; navegador 1440 y 390: 7 portadas con nombres del catálogo, vista previa en vivo en el riel, paso 2 alcanzado, sin desborde; tilde de la portada sin desplazar el nombre", "candidate": "sha256:3f495af9296f58dd1b17529186cf78e907b0e43bad70b62d2b5ad6babf1486a2"}
 - **Blocker:** none
 
 ### TASK-003 — Encabezado, pestañas, Plan y Muro
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-001
 - **Owner:** orchestrator
 - **Requirements:** REQ-004
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/features/classrooms/workspace/ClassroomHeader.tsx", "apps/web/src/features/classrooms/workspace/ClassroomNavigation.tsx", "apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/features/classrooms/styles/expedition-room.css", "apps/web/src/application/shell/styles/product.css", "tests/expedition-classrooms.test.mjs"]
 - **Acceptance:** El encabezado muestra la portada, los accesos «por revisar» o «por hacer» y «temas trabajados», y la acción por rol. Las pestañas siguen el estilo de la maqueta. Plan muestra las unidades como recorrido y Muro el compositor y las publicaciones.
-- **Evidence:** none
+- **Evidence:** {"command": "node --test tests/expedition-classrooms.test.mjs (7); node scripts/run-complete-suite.mjs --group fast; navegador por pestaña", "result": "7/7 y fast 3126 pass; encabezado como banner con portada, accesos y acción por rol; pestañas como paradas; Plan como sendero con tema en tarjeta; Muro conservado; las 8 secciones docentes sin desborde a 1440 y 390", "candidate": "sha256:419f50b4996dc0991f73ad4f201ae0795d25f4381daf1fc540c9d887c0602f15"}
 - **Blocker:** none
 
 ### TASK-004 — Biblioteca con archivo o apunte escrito

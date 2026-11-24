@@ -19,7 +19,7 @@ test('Classroom header keeps course identity, real counts and role-specific acti
       onNavigate: value => destinations.push(value), onInvite: () => { invites++; },
     };
     const html = renderToStaticMarkup(createElement(ClassroomHeader, props));
-    assert.match(html, /<img[^>]+src="\/foxmind\/biology\.webp"[^>]+alt=""/);
+    assert.match(html, /<img[^>]+src="\/foxmind-3d\/covers\/biology-640\.webp"[^>]+alt=""/);
     assert.match(html, /<h1>Ciencias Naturales<\/h1>/);
     assert.match(html, /<b>Biología<\/b><span>A · 2026<\/span>/);
     assert.match(html, /3 estudiantes.*Docente Demo/);

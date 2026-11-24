@@ -59,3 +59,28 @@ test('borradores: un solo nombre, «Borrador», con el paso visible y sin «pend
   const leftovers = sources('apps/web/src').filter(path => /Eliminar pendiente|eliminar el pendiente|Pendiente de creación/.test(readFileSync(path, 'utf8')));
   assert.deepEqual(leftovers, []);
 });
+
+test('asistente: la hoja Expedición está en la cascada, anclada, y el tilde de la portada elegida no desplaza su nombre', () => {
+  const css = sheet('expedition-wizard.css');
+  assertAnchored(css);
+  assert.match(css, /\.class-cover-option:has\(input:checked\) svg \{[^}]*position: absolute/);
+});
+
+test('interior del aula: la hoja está en la cascada y suma #classroom-main al anclaje para ganarle a las hojas del aula', () => {
+  const css = sheet('expedition-room.css');
+  assertAnchored(css);
+  for (const selector of selectorsOf(css)) assert.match(selector, /^#foxmind-product#foxmind-product\.fm3d-theme #classroom-main /, selector);
+  // Una regla heredada oculta el ::before del encabezado; el banner necesita mostrarlo para oscurecer la portada.
+  assert.match(css, /\.parity-room-header::before \{[^}]*display: block/);
+});
+
+test('interior del aula: el encabezado conserva identidad, accesos y acción por rol sobre la portada', () => {
+  const { ClassroomHeader } = loadTsModule('apps/web/src/features/classrooms/workspace/ClassroomHeader.tsx');
+  const room = role => ({ id: 'r', name: 'Biología 3.° B', subject: 'Biología', division: '3.° B', academicYear: 2026, timezone: 'UTC', coverKey: 'biology', archived: false,
+    teacher: 'Lucía Demo', role, revision: '1', studentCount: 24, units: [{ name: 'La célula', topics: [{ name: 'A', status: 'TAUGHT' }, { name: 'B', status: 'PENDING' }] }], plans: [] });
+  const teacher = ClassroomHeader({ room: room('teacher'), pendingCount: 5 });
+  assert.equal(descendants(teacher, node => node.type === 'img')[0].props.src, '/foxmind-3d/covers/biology-640.webp');
+  assert.match(textOf(teacher), /5por revisar/); assert.match(textOf(teacher), /1 \/ 2temas trabajados/);
+  assert.ok(descendants(teacher, node => node.props?.['aria-label'] === 'Invitar estudiantes').length);
+  assert.ok(descendants(ClassroomHeader({ room: room('student') }), node => node.props?.['aria-label'] === 'Mi progreso').length);
+});

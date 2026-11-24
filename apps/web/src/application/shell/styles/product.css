@@ -24,3 +24,5 @@
 @import "../../navigation/styles/expedition-navigation.css";
 @import "../../../features/home/dashboard/styles/expedition-home.css";
 @import "../../../features/classrooms/styles/expedition-classrooms.css";
+@import "../../../features/classrooms/styles/expedition-wizard.css";
+@import "../../../features/classrooms/styles/expedition-room.css";
