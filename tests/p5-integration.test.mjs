@@ -242,6 +242,12 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
       });
 
       await check('actual responsive classroom views, profile navigation and logout keep P3 boundaries', async () => {
+        // The scripted API calls above can fill the teacher session's general-identity budget (120 per minute) and nearly
+        // fill the shared 127.0.0.1 one (240). Real limits stay unchanged: wait for the busy windows to reset before browsing.
+        const [busiest] = (await db.query(`SELECT GREATEST(0, EXTRACT(EPOCH FROM window_started_at + interval '61 seconds' - clock_timestamp()))::float AS wait
+          FROM account_action_controls WHERE action IN ('identity.v1:general-identity:session', 'identity.v1:general-identity:ip') AND request_count >= 60
+          ORDER BY window_started_at DESC LIMIT 1`)).rows;
+        if (busiest) await delay(Math.ceil(busiest.wait * 1000));
         await openClassroom(page, origin, 'Integrated photography');
         await selectClassroomSection(page, 'history', 'Historial');
         await page.locator('#classroom-section-title').filter({ hasText: 'Historial' }).waitFor();
