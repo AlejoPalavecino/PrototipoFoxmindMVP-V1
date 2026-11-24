@@ -4,7 +4,7 @@ import { learningCover } from '../../../../../shared-ui/parity-assets.ts';
 export function HomeClassCards({data,classrooms=[],onAction,onClassrooms,onRetry}:{data:HomeResponse;classrooms?:{id:string;studentCount?:number}[];onAction:(v:HomeTarget)=>void;onClassrooms:()=>void;onRetry:()=>void}) {
  const page=data.modules.classrooms;
  return <section className="parity-home-rooms">
-  <header className="section-head"><h2>Tus aulas</h2><button className="text-button" onClick={onClassrooms}><FoxmindIcon name="arrow-right"/>Ver mis aulas</button></header>
+  <header className="section-head"><h2>Tus aulas</h2><button className="text-button" onClick={onClassrooms}>Ver mis aulas<FoxmindIcon name="arrow-right"/></button></header>
   {page.status==='error'?<div role="alert"><p>No pudimos cargar tus aulas.</p><button onClick={onRetry}>Reintentar</button></div>:page.status==='ready'?<div className="class-grid parity-class-grid">{page.items.filter(r=>!r.classroom.archived).slice(0,3).map(({classroom:room,planProgress,target})=>{
    const studentCount=classrooms.find(item=>item.id===room.id)?.studentCount;
    const percent=planProgress?.total?Math.round(planProgress.taught/planProgress.total*100):0;

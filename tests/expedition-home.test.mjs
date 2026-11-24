@@ -92,6 +92,30 @@ test('saludo: paisaje y zorro decorativos, recorrido de hoy y burbuja con lo má
   assert.equal(descendants(quiet, node => node.props?.className === 'home-route').length, 0, 'sin eventos hoy no hay recorrido');
 });
 
+test('Inicio: el contador de cada pestaña centra su número dentro del círculo', () => {
+  const path = appStylesheets().find(item => item.endsWith('expedition-home.css'));
+  const css = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = css.match(/\.home-queue-tabs > button > span \{([^}]*)\}/)?.[1] ?? '';
+  for (const declaration of [/display:\s*inline-grid/, /place-items:\s*center/, /line-height:\s*1\b/, /height:\s*24px/])
+    assert.match(rule, declaration, `el contador necesita ${declaration} para no quedar corrido hacia arriba`);
+});
+
+test('Inicio: los enlaces «Ver …» llevan la flecha después del texto, todos del mismo lado', () => {
+  const sources = ['dashboard/HomeClassCards.tsx', 'dashboard/HomeMiniagenda.tsx', 'queue/HomePriorities.tsx']
+    .map(file => readFileSync(`apps/web/src/features/home/${file}`, 'utf8'));
+  const links = sources.flatMap(source => [...source.matchAll(/className="text-button"[^>]*>(.*?)<\/button>/g)].map(match => match[1]))
+    .filter(body => body.includes('arrow-right'));
+  assert.ok(links.length >= 3);
+  for (const body of links) assert.match(body, /^[^<]+<FoxmindIcon name="arrow-right"\/>$/, body);
+});
+
+test('Inicio estudiante: la fecha de entrega cae en la misma línea con o sin barra de avance', () => {
+  const path = appStylesheets().find(item => item.endsWith('expedition-home.css'));
+  const css = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.match(css, /\.home-student-queue \.home-progress \{[^}]*margin: auto 0 0/);
+  assert.match(css, /\.learning-body:has\(\.home-progress\) \.learning-deadline \{[^}]*order: 2/);
+});
+
 test('Inicio: la hoja Expedición está en la cascada y cada regla se ancla con el id raíz duplicado', () => {
   const path = appStylesheets().find(item => item.endsWith('expedition-home.css'));
   assert.ok(path, 'expedition-home.css debe formar parte de la cascada real');

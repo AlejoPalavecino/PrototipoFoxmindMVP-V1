@@ -112,6 +112,19 @@ Los errores de consola observados son del modo desarrollo: la conexión de recar
 - **Comprobación:** `node scripts/check-documentation.mjs` revisó 239 archivos y 1068 enlaces, sin problemas. Suite afectada: 169/169. Tablero: TASK-001 a TASK-005 DONE y `check --current` válido.
 - **Roadmap:** `docs/implementation-roadmap.md` no se modificó, porque describe lo integrado en `main` y este piloto todavía no lo está.
 
+## Auditoría de simetría (posterior al PR 18)
+
+- **Pedido:** la persona usuaria vio los números de «Entregas» y «Consultas» corridos hacia arriba y pidió revisar la alineación de todo el piloto.
+- **Método:** se midió en el navegador cada píldora, botón e ícono con texto de Inicio (docente y estudiante), la barra lateral y Acceso. Para confirmar, se usaron recortes a 4× con Playwright que cuentan las filas de tinta arriba y abajo del texto.
+- **Defectos corregidos en `expedition-home.css` y `HomeClassCards.tsx`:**
+  - El contador de las pestañas era `display: block` con 24 px de alto: el número quedaba a 4,5 px del borde superior y a 12 del inferior. Ahora usa grilla centrada con interlineado 1, y queda a 8,5 y 8 px.
+  - Las iniciales de los avatares quedaban 1 px altas, porque Nunito dibuja las mayúsculas por encima del centro de la línea. Se compensaron con 2 px de relleno superior.
+  - En las tarjetas de estudiante, la fecha de entrega quedaba a distinta altura según hubiera barra de avance. Ahora el bloque de avance absorbe el espacio y la fecha coincide (769 / 769 px).
+  - «Ver mis aulas» tenía la flecha a la izquierda; ahora va a la derecha, como los demás enlaces «Ver …».
+- **Sin defecto:** botón «Revisar», píldora de entregas, barra lateral, recorrido del banner y botones de Acceso, con menos de 1 px de diferencia.
+- **Guardas:** tres pruebas nuevas en `tests/expedition-home.test.mjs`. La suite afectada pasa 59/59, y TypeScript y lint están limpios.
+- **Límite:** las capturas de la galería (`docs/design/current/`) todavía muestran el contador anterior; se renuevan con la próxima tanda de capturas.
+
 ## Fallos, omisiones y límites
 
 - **No ejecutadas:** `p3-browser`, `p4-integration-helpers` (con sus consumidores), `p5-integration` y `entry-glass-browser`. Se adaptaron al flujo por paradas, pero necesitan el entorno de integración con base de datos, correo y Docker. `tests/exclusive-account-role.test.mjs` necesita la API compilada en `.build/`.
@@ -122,6 +135,6 @@ Los errores de consola observados son del modo desarrollo: la conexión de recar
 
 ## Primer paso pendiente
 
-1. Commits autorizados el 2026-11-24, sólo en esta rama: `46d22a08` (código y pruebas) y el commit siguiente (documentación, capturas, tablero, registro y las maquetas aprobadas `design/auth-home-refresh/expedicion.html` y `acceso.html`). Quedan sin versionar `.claude/launch.json`, que es configuración local, y las maquetas descartadas (`maqueta.html`, `direcciones.html` y `direcciones-2.html`). Push, PR e integración a `main` siguen pendientes de autorización.
+1. Commits autorizados el 2026-11-24, sólo en esta rama: `46d22a08` (código y pruebas) y el commit siguiente (documentación, capturas, tablero, registro y las maquetas aprobadas `design/auth-home-refresh/expedicion.html` y `acceso.html`). Quedan sin versionar `.claude/launch.json`, que es configuración local, y las maquetas descartadas (`maqueta.html`, `direcciones.html` y `direcciones-2.html`). Después se autorizaron el push y el PR 18 hacia `main`; la integración sigue pendiente. Los fallos de CI que comparte con `main` (`p3-browser`, Muro 429, `study-shared-strategy-db` y la región Inicio de `brujula-browser`) se registran aparte de este piloto.
 2. Correr en el entorno completo las suites de integración adaptadas (`p3-browser`, `p4`, `p5` y `entry-glass-browser`).
 3. Si el piloto convence, planificar la migración de Mis aulas, Agenda, Foxy, Mi estudio, Notificaciones y Perfil, y retirar las hojas Brújula para quitar el anclaje con id duplicado.

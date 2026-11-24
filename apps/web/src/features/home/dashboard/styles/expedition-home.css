@@ -54,7 +54,9 @@
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 16px; border: 0; border-radius: 12px; background: #dde7ee; color: #3b5163; font: 800 15px var(--xp-font); box-shadow: none; }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button::after { content: none; }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button[aria-pressed=true] { background: var(--xp-lake); color: #fff; }
-#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button > span { min-width: 24px; height: 24px; padding: 0 7px; border-radius: 99px; background: #fff; color: var(--xp-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button > span { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 99px; background: #fff; color: var(--xp-ink); line-height: 1; font-variant-numeric: tabular-nums; }
+/* Nunito draws its capitals slightly above the line box centre; 2px restores the optical centre of the initials. */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-priorities .avatar { padding-top: 2px; }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button[aria-pressed=true] > span { background: var(--xp-orange-button); color: #fff; }
 
 /* Teacher: each activity is a stop on the trail */
@@ -75,7 +77,12 @@
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress { display: flex; align-items: center; gap: 10px; margin: 10px 0 8px 66px; color: var(--xp-muted); font: 700 12px var(--xp-font); }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress-track { display: block; flex: 0 1 200px; height: 10px; border-radius: 99px; background: #e3ebef; overflow: hidden; }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress-track > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f39a55, var(--xp-orange)); }
-#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress { margin: 10px 0 0; }
+/* Student tiles: the label sits above a full-width bar, and the progress block takes the free space so the
+   deadline lands on the same line in every tile, with or without progress. */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress { display: grid; gap: 6px; margin: auto 0 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-text { order: -1; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-track { width: 100%; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .learning-body:has(.home-progress) .learning-deadline { order: 2; margin-top: 12px; }
 #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-track > i { background: linear-gradient(90deg, #5fbf97, var(--xp-pine)); }
 
 /* Student tiles */
