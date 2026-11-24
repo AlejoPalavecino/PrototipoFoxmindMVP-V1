@@ -9,4 +9,3 @@ export { Plan } from './plan/Plan.tsx';
 export { WizardPlan, WizardPlanSource, WizardCurriculum } from './plan/WizardPlan.tsx';
 export { WizardSuggestions } from './extraction/WizardSuggestions.tsx';
 export { classroomZones } from './model/classroom-zones.ts';
-export { formatClassroomPlan, parseClassroomPlan, prepareClassroomPlan } from './plan/WizardPlanText.ts';

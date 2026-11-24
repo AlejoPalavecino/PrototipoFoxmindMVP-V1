@@ -61,9 +61,9 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-003
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx", "apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx", "apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx", "apps/web/src/features/classrooms/styles/expedition-wizard.css", "tests/classroom-creation-four-steps.test.mjs"]
+- **Scope:** ["apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx", "apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx", "apps/web/src/features/classrooms/styles/expedition-wizard.css", "tests/classroom-creation-four-steps.test.mjs"]
 - **Acceptance:** El asistente muestra las cuatro paradas con el estado de guardado y la vista previa, y ofrece las 7 portadas con los nombres del catálogo. El procesamiento con Foxy y la revisión conservan su comportamiento.
-- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/classroom-creation-four-steps.test.mjs tests/expedition-classrooms.test.mjs; tsc", "result": "fast 3126 pass, 0 fail; asistente 15/15; navegador 1440 y 390: 7 portadas con nombres del catálogo, vista previa en vivo en el riel, paso 2 alcanzado, sin desborde; tilde de la portada sin desplazar el nombre", "candidate": "sha256:3f495af9296f58dd1b17529186cf78e907b0e43bad70b62d2b5ad6babf1486a2"}
+- **Evidence:** {"command": "node scripts/run-complete-suite.mjs --group fast; node --test tests/classroom-creation-four-steps.test.mjs tests/expedition-classrooms.test.mjs; tsc", "result": "fast 3126 pass, 0 fail; asistente 15/15; ClassroomWizard.tsx pasó a TASK-007, que lo modificó después; 7 portadas, vista previa en el riel, paso 2 alcanzado, sin desborde a 1440 y 390", "candidate": "sha256:addac407dbf4b0bde7f7450f3b1e506f4e1c0726cbfbc51d59af5053b258528e"}
 - **Blocker:** none
 
 ### TASK-003 — Encabezado, pestañas, Plan y Muro
@@ -111,14 +111,14 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Blocker:** none
 
 ### TASK-007 — Retiro de código y contratos sin uso
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-002, TASK-004, TASK-005, TASK-006
 - **Owner:** orchestrator
 - **Requirements:** REQ-008
 - **Verification:** tsc, eslint, check-boundaries, suite completa rápida
-- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts", "apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx", "apps/web/src/features/curriculum/plan/WizardPlan.tsx"]
+- **Scope:** ["apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx", "apps/web/src/features/curriculum/plan/WizardPlan.tsx", "apps/web/src/features/curriculum/index.ts", "apps/web/src/features/classrooms/styles/brujula-wizard.css", "apps/web/src/application/shell/styles/brujula-parity.css", "tests/brujula-wizard-parity.test.mjs", "tests/helpers/wizard-reference/component-harness.mjs"]
 - **Acceptance:** Cada pieza eliminada tiene evidencia de que no tiene consumidores. Las suites pasan y los contratos protegidos siguen intactos.
-- **Evidence:** none
+- **Evidence:** {"command": "grep sin referencias restantes; tsc; eslint; check-boundaries; check-frontend-architecture; run-complete-suite --check; node --test (8 archivos del asistente y currículo)", "result": "retirados WizardPlanText.ts, el diálogo Editar el plan como texto, el estado planText/pastedText/extractingText, la prop classroomLayout y sus ramas, la prueba brujula-wizard-roundtrip, el bloque de parser en brujula-wizard-parity, los ayudantes openPlanText/preparePlanText y los selectores .brujula-wizard-extract; 48/48; endpoints submissions/receipt conservados: los usan pruebas de integración como chequeo de autorización", "candidate": "sha256:2e6af88d98b41d4f819335e923c0a1bdfed82397284f01fb9cdb4bd2b7f4c173"}
 - **Blocker:** none
 
 ### TASK-008 — Documentación y capturas

@@ -61,18 +61,6 @@ export const button = (view, label) => nodes(view, n => n.type === 'button').fin
 export async function advance(view) { nodes(view, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); }
 export const toggles = view => nodes(view, n => n.type === 'button' && typeof n.props['aria-expanded'] === 'boolean' && /unidad/i.test(`${n.props['aria-label'] ?? ''} ${text(n)}`));
 
-export async function openPlanText(view) {
-  button(view, 'Editar el plan como texto').props.onClick();
-  await view.flush();
-  return nodes(view, node => node.type === 'textarea')[0];
-}
-
-export async function preparePlanText(view, value) {
-  const editor = await openPlanText(view);
-  editor.props.onChange({ target: { value } });
-  await view.flush();
-  await advance(view);
-}
 
 export async function manualPlan(f) { await advance(f.view); nodes(f.view, n => n.type === "input" && n.props.name === "plan-method" && n.props.value === "manual")[0].props.onChange(); await f.view.flush(); await advance(f.view); }
 

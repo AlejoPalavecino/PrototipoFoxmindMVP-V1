@@ -20,7 +20,6 @@ import { WizardPlan, WizardPlanSource } from '../../../features/curriculum/index
 import { WizardSuggestions } from '../../../features/curriculum/index.ts';
 import { usePlanExtraction } from '../../../features/curriculum/index.ts';
 import { classroomZones } from '../../../features/curriculum/index.ts';
-import { formatClassroomPlan, parseClassroomPlan, prepareClassroomPlan } from '../../../features/curriculum/index.ts';
 import { AiProgress, FoxmindIcon } from '../../../../../shared-ui/index.ts';
 
 
@@ -56,12 +55,10 @@ export function Wizard({
   const zones = useMemo(() => classroomZones(payload.timezone ?? 'UTC'), [payload.timezone]);
   const [publishing, setPublishing] = useState(false);
   const [removedUnits, setRemovedUnits] = useState<Payload['units']>();
-  const [planText, setPlanText] = useState(() => formatClassroomPlan(draft.payload.units));
   const [method, setMethod] = useState<'ai' | 'manual' | null>(draft.payload.wizardMethod ?? null);
   const [analyze, setAnalyze] = useState(false), [navigating, setNavigating] = useState(false);
   const [processDismissed, setProcessDismissed] = useState(false);
   const actionLock = useRef(false), heading = useRef<HTMLHeadingElement>(null);
-  const [extractingText, setExtractingText] = useState(false), [pastedText, setPastedText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const latest = useRef(payload);
   const mounted = useRef(true);
@@ -102,10 +99,8 @@ export function Wizard({
       latest.current = result.draft.payload;
       persistence.current.accept(result.draft);
       setPayload(result.draft.payload);
-      setPlanText(formatClassroomPlan(result.draft.payload.units));
       setRemovedUnits(undefined);
       setStatus('Borrador guardado');
-      setExtractingText(false);
     },
   });
   const blocked = uploading || publishing || navigating || extraction.busy;
@@ -143,7 +138,7 @@ export function Wizard({
       if (step === 0 || step === 2) {
         const normalized = { ...latest.current, name: latest.current.name?.trim(), subject: latest.current.subject?.trim(), division: latest.current.division?.trim(),
           units: latest.current.units?.map(unit => ({ name: unit.name.trim(), topics: unit.topics.map(topic => ({ name: topic.name.trim() })) })) };
-        latest.current = normalized; setPayload(normalized); setPlanText(formatClassroomPlan(normalized.units));
+        latest.current = normalized; setPayload(normalized);
       }
       const progressing = { ...latest.current, wizardStep: (step + 1) as 0 | 1 | 2 | 3, wizardMethod: method };
       if (step === 1 && method === 'manual' && !progressing.units?.length) progressing.units = [{ name: '', topics: [{ name: '' }] }];
@@ -179,13 +174,12 @@ export function Wizard({
     void save().then(onExit).catch(e => setError(e.message)).finally(() => { actionLock.current = false; setNavigating(false); });
   };
   const updateUnits = (units: NonNullable<Payload['units']>) => {
-    setRemovedUnits(undefined); update('units', units); setPlanText(formatClassroomPlan(units));
+    setRemovedUnits(undefined); update('units', units);
   };
-  const planOptions={classroomLayout:true,file,uploading,disabled:blocked,inputRef:fileInputRef,units:payload.units,
+  const planOptions={file,uploading,disabled:blocked,inputRef:fileInputRef,units:payload.units,
     onUnits: updateUnits,
     onRemoveUnits: (units: NonNullable<Payload['units']>) => { updateUnits(units); setRemovedUnits(payload.units); },
     onUndoRemove: removedUnits ? () => updateUnits(removedUnits) : undefined,
-    onExtractText:()=>{setPastedText(planText);setExtractingText(true);},
     onRemoveFile:()=>{planFile.remove();setAnalyze(false);update('planFileId',undefined);},fileUrl:(id:string)=>api.fileUrl(id),onFile:upload,onError:setError,
     onRefresh: async () => { if (!blocked) await planFile.refresh(); },
   };
@@ -207,22 +201,6 @@ export function Wizard({
     onManual={processStage === 'analysis-error' ? () => { extraction.cancel(); setAnalyze(false); setMethod('manual'); setProcessDismissed(true); setStep(2); setError('');
       const manual = { ...latest.current, wizardMethod: 'manual' as const, wizardStep: 2 as const }; latest.current = manual; setPayload(manual);
     } : undefined} />;
-  if (extractingText) return <Dialog title="Editar el plan como texto" className="brujula-wizard-dialog" onClose={() => setExtractingText(false)}>
-    <div className="brujula-wizard"><p>Editá el texto o pegá otro plan. Usá «Unidad: nombre» y un «- tema» por línea. Podés revisar el resultado antes de crear el aula.</p>
-      <form onSubmit={event => {
-        event.preventDefault();
-        const prepared = prepareClassroomPlan(pastedText), parsed = parseClassroomPlan(prepared);
-        const outline = (units: typeof parsed) => units.map(unit => ({ name: unit.name, topics: unit.topics.map(topic => topic.name) }));
-        const current = latest.current.units ?? [];
-        setRemovedUnits(undefined); setPlanText(prepared);
-        if (JSON.stringify(outline(current)) !== JSON.stringify(outline(parsed))) update('units', parsed);
-        setExtractingText(false);
-      }}>
-        <label>Texto del plan<textarea autoFocus required rows={7} value={pastedText} onChange={event => setPastedText(event.target.value)} /></label>
-        <footer className="brujula-wizard-foot"><button type="button" onClick={() => setExtractingText(false)}>Volver</button><button className="primary" type="submit">Preparar esquema</button></footer>
-      </form>
-    </div>
-  </Dialog>;
   const goTo = (target: number) => { if (!blocked) { setError(''); setStep(target); const moved = { ...latest.current, wizardStep: target as 0 | 1 | 2 | 3, wizardMethod: method }; latest.current = moved; setPayload(moved); } };
   const action = step === 3 ? 'Crear mi aula' : step === 1 ? method === 'ai' ? 'Preparar con Foxy' : method === 'manual' ? 'Armar mi recorrido' : 'Continuar' : 'Continuar';
   const continueManually = () => { extraction.cancel(); setMethod('manual'); update('wizardMethod', 'manual'); setAnalyze(false); setError(''); };

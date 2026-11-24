@@ -262,7 +262,6 @@
       "tests/brujula-search-transport.test.mjs",
       "tests/brujula-search-ui.test.mjs",
       "tests/brujula-wizard-parity.test.mjs",
-      "tests/brujula-wizard-roundtrip.test.mjs",
       "tests/classroom-activities-exact.test.mjs",
       "tests/classroom-activity-redesign.test.mjs",
       "tests/classroom-activity-workflow.test.mjs",

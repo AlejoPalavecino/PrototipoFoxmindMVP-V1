@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { wizard, advance, nodes, button, text, initialDraft, manualPlan, readStructuredPlan, editStructuredPlan } from './helpers/wizard-reference/component-harness.mjs';
 import { draftPayload } from '../apps/api/src/modules/classrooms/access/infrastructure/policy.ts';
-import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/web/src/features/curriculum/plan/WizardPlanText.ts';
 
 test('Crear aula presenta los cuatro pasos aprobados', async () => {
   const f = await wizard();
@@ -71,11 +70,3 @@ test('archivo seleccionado pendiente bloquea creación aunque haya un plan escri
   } finally { f.close(); }
 });
 
-test('extracción de texto prepara un esquema revisable sin inventar temas', () => {
-  const plan = prepareClassroomPlan('Unidad 1 · Vida. Células. Ecosistemas. Unidad 2 · Ambiente. Energía');
-  const units = parseClassroomPlan(plan);
-  assert.equal(units.length, 2); assert.equal(units[0].topics.length, 2); assert.equal(units[1].topics[0].name, 'Energía');
-  assert.deepEqual(parseClassroomPlan(formatClassroomPlan(units)), units);
-  assert.deepEqual(parseClassroomPlan(''), []);
-  assert.deepEqual(parseClassroomPlan('Unidad 1'), [{ name: 'Unidad 1', topics: [] }]);
-});

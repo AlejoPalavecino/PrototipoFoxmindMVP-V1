@@ -1,28 +1,24 @@
-import { WizardCurriculum, WizardPlanSource as SharedSource, type PlanSourceProps } from '../../../../../shared-ui/academic-plan';
+import { type PlanSourceProps } from '../../../../../shared-ui/academic-plan';
 export { WizardCurriculum } from '../../../../../shared-ui/academic-plan';
 import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
 import type { CurriculumUnit } from '../../../../../../src/core/domain/curriculum/plan.ts';
 
-interface Props extends PlanSourceProps {
-  classroomLayout?: boolean;
+interface Props {
   units?: CurriculumUnit[];
   onUnits?: (units: CurriculumUnit[]) => void;
   onRemoveUnits?: (units: CurriculumUnit[]) => void;
   onUndoRemove?: () => void;
-  onExtractText: () => void;
 }
 
+/** Classroom wizard plan editor: units and topics in the classroom layout. */
 export function WizardPlan(props: Props) {
-  const { disabled } = props;
-  const Curriculum = props.classroomLayout ? ClassroomCurriculum : WizardCurriculum;
   return <div className="brujula-wizard-plan">
-    {props.onUnits ? <Curriculum units={props.units ?? []} onUnits={props.onUnits} onRemove={props.onRemoveUnits} onUndo={props.onUndoRemove} /> : null}
-    {!props.classroomLayout ? <button className="brujula-wizard-extract" type="button" disabled={disabled} onClick={props.onExtractText}><FoxmindIcon name="edit" />Editar el plan como texto</button> : null}
+    {props.onUnits ? <ClassroomCurriculum units={props.units ?? []} onUnits={props.onUnits} onRemove={props.onRemoveUnits} onUndo={props.onUndoRemove} /> : null}
   </div>;
 }
 
-export function WizardPlanSource(props: PlanSourceProps & { classroomLayout?: boolean }) {
-  if (!props.classroomLayout) return <SharedSource {...props}/>;
+/** Classroom wizard program upload (the study folders use the shared source directly). */
+export function WizardPlanSource(props: PlanSourceProps) {
   const { file, disabled } = props;
   return <section aria-label="Archivo del plan de estudio" aria-busy={props.uploading} className={`program-file${file?.ready ? ' ready' : ''}`}
     onDragOver={event => { if (event.dataTransfer.types.includes('Files')) event.preventDefault(); }}
