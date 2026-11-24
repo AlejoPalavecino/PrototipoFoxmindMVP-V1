@@ -25,4 +25,6 @@ En CI (corridas 45449025234, 45462128910 y 45480172736), el job `wrappers` fall�
 
 - Mientras se verificaba, otro proceso que no era de esta sesión corría pruebas de Estudio en la misma máquina (con contenedores `foxmind-agenda-*`). No se tocó.
 
-**Primer paso pendiente:** confirmar `wrappers` en CI.
+| CI, `workflow_dispatch` 45505468221 sobre `0d9c2483` | `wrappers` en verde. |
+
+**Primer paso pendiente:** ninguno propio.

@@ -32,4 +32,6 @@ Los runtimes de identidad P33 (`p33-recovery`, `p33-verification`, `p33-password
 
 - En estos recorridos ya no se ejercita el límite general por IP o sesión. Ese comportamiento sigue cubierto por `p33-identity-http`.
 
-**Primer paso pendiente:** confirmar `owned-browser` e `integration-owned` en la corrida manual de CI.
+| CI, `workflow_dispatch` 45505468221 sobre `0d9c2483` | `integration-owned` en verde. `owned-browser` pasó Brújula y P7 y avanzó 48 tests, hasta `p6-mobile-navigation`, que se sigue en el [diagnóstico del registro](2026-11-24-root-registration-diagnostics.md). |
+
+**Primer paso pendiente:** ninguno propio.
