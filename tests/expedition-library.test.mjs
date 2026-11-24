@@ -30,6 +30,7 @@ test('Biblioteca: el docente elige escribir un apunte y se publica como TEXT con
     radio('TEXT').props.onChange(); await view.flush();
     assert.equal(form().kind, 'TEXT');
     assert.ok(descendants(view.tree, node => node.type?.name === 'Dialog' && node.props.title === 'Escribir un apunte').length);
+    assert.ok(descendants(view.tree, node => node.type === 'li' && node.props.children === '1. Apunte y detalles').length, 'el primer paso nombra el apunte');
     await form().onContinue({ title: 'Apunte', body: 'Hola\u0007', description: null, unitId: null, topicId: null, activityIds: [] }); await view.flush();
     assert.equal(uploads.length, 0, 'un cuerpo con caracteres invisibles no sube el documento');
     await form().onContinue({ title: 'Apunte', body: 'Cortá una cebolla.\n\nMirá su piel.', description: null, unitId: null, topicId: null, activityIds: [] }); await view.flush();

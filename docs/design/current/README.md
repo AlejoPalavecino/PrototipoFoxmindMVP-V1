@@ -4,6 +4,8 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 
 **Piloto Expedición (24 de noviembre de 2026).** Iniciar sesión, Crear cuenta, Inicio de ambos roles y los menús móviles se volvieron a capturar con la app del worktree del piloto. Se usó `next dev` contra una API sintética local, sin base de datos ni proveedores, y Chromium de Playwright. Esas entradas del catálogo llevan su propio candidato y entorno. Las imágenes anteriores de esas rutas se conservan en el commit `32c93a9c`. El resto de las capturas privadas es anterior al piloto y muestra la barra lateral Brújula. [Registro del piloto](../../work-log/2026-11-24-expedition-access.md)
 
+**Mis aulas Expedición (24 de noviembre de 2026).** La lista, Crear aula, el interior con el Plan, Ajustes con la corrección asistida, el apunte escrito de la Biblioteca, el ingreso por código e Inicio de ambos roles se volvieron a capturar en la rama `claude/classrooms-expedition`. Se usó `next dev` contra una API sintética local que responde aulas, borradores, invitaciones, el detalle del aula, integrantes, actividades, biblioteca, muro y progreso, sin base de datos ni proveedores. El catálogo registra la fecha, el candidato, el entorno y el sha256 de cada captura.
+
 ## Cuenta y acceso
 
 [Iniciar sesión en escritorio](vigente-acceso-publico-1440.png) · [Crear cuenta, parada del rol](vigente-registro-publico-1440.png) · [Crear cuenta, parada de datos en móvil](vigente-registro-datos-publico-390.png)
@@ -27,10 +29,12 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 |---|---|---|
 | Catálogo | [Escritorio](vigente-aulas-docente-1440.png) · [Móvil](vigente-aulas-docente-390.png) | [Escritorio](vigente-aulas-estudiante-1440.png) · [Móvil](vigente-aulas-estudiante-390.png) |
 | Plan | [Escritorio](vigente-plan-aula-docente-1440.png) · [Móvil](vigente-plan-aula-docente-390.png) | [Escritorio](vigente-plan-aula-estudiante-1440.png) · [Móvil](vigente-plan-aula-estudiante-390.png) |
+| Ajustes con corrección asistida | [Escritorio](vigente-ajustes-aula-docente-1440.png) | — |
+| Biblioteca: escribir un apunte | [Escritorio](vigente-apunte-biblioteca-docente-1440.png) | — |
 
 ### Creación e ingreso
 
-[Crear aula](vigente-crear-aula-docente-390.png) · [Unirse por código](vigente-ingresar-aula-estudiante-390.png) · [Crear carpeta de estudio](vigente-crear-carpeta-estudiante-390.png)
+[Crear aula en escritorio](vigente-crear-aula-docente-1440.png) · [Crear aula en móvil](vigente-crear-aula-docente-390.png) · [Unirse por código](vigente-ingresar-aula-estudiante-390.png) · [Crear carpeta de estudio](vigente-crear-carpeta-estudiante-390.png)
 
 ## Foxy y Carpetas de estudio
 

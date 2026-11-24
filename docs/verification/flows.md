@@ -2,6 +2,19 @@
 
 Los resultados de esta matriz corresponden a los candidatos, fechas y entornos indicados en cada bloque. La galería del 18 de noviembre documenta su propio recorrido de la aplicación. [Galería vigente](../design/current/README.md) · [Índice de verificación](README.md).
 
+## Mis aulas en dirección Expedición · 24 de noviembre
+
+Resultado: **PASS local UI, sin integrar**. Candidato: rama `claude/classrooms-expedition`, apilada sobre el PR 18.
+
+- **Pruebas:** la suite `fast` completa pasa 3133/3133. Las guardas nuevas (`expedition-classrooms`, `expedition-library`, `expedition-settings` y `expedition-activities`) cubren el anclaje de cada hoja, las 7 portadas, «Eliminar borrador», el apunte publicado como `TEXT` y el interruptor de corrección asistida. `tsc`, eslint, `check-boundaries`, `check-frontend-architecture` y la documentación están limpios.
+- **Navegador real:** `next dev` del worktree contra una API sintética local, con ambos roles a 1440 y 390 px.
+  - **Lista y asistente:** pestañas, borradores, diálogo «Eliminar borrador», las cuatro paradas, la vista previa y las 7 portadas.
+  - **Interior:** las ocho secciones docentes y las seis del estudiante, sin desborde.
+  - **Biblioteca y Ajustes:** el apunte abre con «Contenido»; el interruptor pasa a «Activada» y avisa cambios sin guardar.
+- **No ensayado:** las suites de integración con PostgreSQL, correo y Docker, ni la publicación real de un apunte contra la API.
+
+[Registro](../work-log/2026-11-24-expedition-classrooms.md) · [Tablero](../../odd/tasks/expedition-classrooms.md) · [Capturas](../design/current/README.md)
+
 ## Piloto Expedición: acceso, barra lateral e Inicio · 24 de noviembre
 
 Resultado: **PASS local UI, sin integrar**. Candidato: `32c93a9c` más los cambios sin commit del worktree `auth-home-visual-design-6ba7ad`.

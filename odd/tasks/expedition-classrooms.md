@@ -40,7 +40,7 @@ Las hojas nuevas se anclan como las del piloto. Los cambios de marcado se limita
 
 ## Seguimiento Git
 
-Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claude/auth-home-visual-design-6ba7ad`, PR 18). La respuesta del 2026-11-24 («Rama y PR nuevos») autoriza commits y un PR propio en esta rama.
+Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claude/auth-home-visual-design-6ba7ad`, PR 18). La respuesta del 2026-11-24 («Rama y PR nuevos») autoriza commits y un PR propio en esta rama. Commits: `f7b56877` (lista), `7889a784` (asistente), `71665d55` (interior), `24487ec1` y `fe94b2fa` (Biblioteca), `d5ecbc38` (Ajustes), `a024881e` (Actividades), `bdd908a2` (código retirado) y el commit de documentación y capturas. El PR se abre hacia `main`; no hay despliegue.
 
 ## Tasks
 
@@ -85,7 +85,7 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
 - **Scope:** ["apps/web/src/features/materials/publishing/MaterialPublishing.tsx", "apps/web/src/features/classrooms/styles/expedition-library.css", "tests/expedition-library.test.mjs"]
 - **Acceptance:** El docente elige entre archivo y apunte. El apunte se publica con título y contenido y el estudiante lo lee. La subida de archivos conserva la revisión de seguridad.
-- **Evidence:** {"command": "node --test tests/expedition-library.test.mjs tests/expedition-classrooms.test.mjs; tsc; navegador Biblioteca 1440 y 390", "result": "9/9; apunte TEXT publicado con documento generado y reutilizado, caracteres invisibles frenados antes de subir, archivo sigue como opción inicial; diálogo Escribir un apunte con Contenido, sin desborde", "candidate": "sha256:74f22acf9dd9e9c9bf08025c23b10fefaffdbf9c876568fef8f2dc2772f247fa"}
+- **Evidence:** {"command": "node --test tests/expedition-library.test.mjs tests/frontend-materials-cases.test.mjs; run-complete-suite --group fast; navegador", "result": "8/8 y fast 3133 pass; apunte TEXT publicado con documento generado y reutilizado, caracteres invisibles frenados, primer paso «1. Apunte y detalles», archivo sigue como opción inicial; sin desborde a 1440 y 390", "candidate": "sha256:2eafb172c6f96ee76e3c01e0ae255255856d110654dab1e429059c7cafe3dccf"}
 - **Blocker:** none
 
 ### TASK-005 — Actividades y editor
@@ -105,9 +105,9 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Owner:** orchestrator
 - **Requirements:** REQ-003, REQ-004, REQ-006
 - **Verification:** tests/expedition-classrooms.test.mjs; tests/grading-ai-ui.test.mjs
-- **Scope:** ["apps/web/src/features/classrooms/settings/ClassroomSettings.tsx", "apps/web/src/features/classrooms/styles/expedition-settings.css", "tests/expedition-settings.test.mjs", "tests/grading-ai-ui.test.mjs"]
+- **Scope:** ["apps/web/src/features/classrooms/settings/ClassroomSettings.tsx", "apps/web/src/features/classrooms/styles/expedition-settings.css", "tests/expedition-settings.test.mjs", "tests/grading-ai-ui.test.mjs", "tests/classroom-people-wall-exact.test.mjs"]
 - **Acceptance:** Ajustes muestra el interruptor de corrección asistida, que envía `aiGradingEnabled`, queda bloqueado con explicación si no está disponible y no aparece para estudiantes. Muestra también las 7 portadas y el ciclo lectivo como sólo lectura.
-- **Evidence:** {"command": "node --test tests/expedition-settings.test.mjs tests/grading-ai-ui.test.mjs; tsc; eslint; navegador Ajustes 1440 y 390", "result": "8/8; interruptor visible con estado escrito, se enciende y apaga, bloqueado con explicación si el servicio no está disponible, apagado se guarda igual, invisible para estudiantes; 7 portadas con nombre; ciclo de sólo lectura; sin desborde", "candidate": "sha256:711cedc29ca495ab5c5c51bbce2b3a8449d48c3e939900adcd9869d7d2480a4d"}
+- **Evidence:** {"command": "node --test tests/expedition-settings.test.mjs tests/grading-ai-ui.test.mjs tests/classroom-people-wall-exact.test.mjs; run-complete-suite --group fast; navegador Ajustes", "result": "fast 3133 pass; interruptor visible con estado escrito, se enciende y apaga, bloqueado con explicación sin servicio, apagado se guarda igual, invisible para estudiantes; 7 portadas con nombre (también en classroom-people-wall-exact); ciclo de sólo lectura; sin desborde", "candidate": "sha256:39601e48fa478ae88b94d08ec4f1daf45293bfaaf668596e4cf147703f748ef8"}
 - **Blocker:** none
 
 ### TASK-007 — Retiro de código y contratos sin uso
@@ -122,12 +122,12 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Blocker:** none
 
 ### TASK-008 — Documentación y capturas
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-007
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** node scripts/check-documentation.mjs
-- **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md", "docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md"]
+- **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/engineering/classrooms/README.md", "docs/design/classroom-teacher-redesign.md", "docs/design/README.md", "docs/verification/flows.md", "docs/design/current/catalog.json", "docs/design/current/README.md", "docs/work-log/2026-11-24-expedition-classrooms.md", "design/mis-aulas/index.html", "design/mis-aulas/maqueta.css", "design/mis-aulas/maqueta.js"]
 - **Acceptance:** La guía de diseño, la matriz de flujos y la galería reflejan Mis aulas Expedición con capturas nuevas.
-- **Evidence:** none
+- **Evidence:** {"command": "node scripts/check-documentation.mjs; verificación sha256 del catálogo; run-complete-suite --check y --group fast", "result": "1076 enlaces sin problemas; 47 capturas con sha256 y tamaño coincidentes (17 renovadas o nuevas); 727 pruebas clasificadas; fast 3133 pass, 0 fail; guía de diseño, ingeniería de aulas, matriz de flujos, registro y maqueta aprobada actualizados", "candidate": "sha256:a44fe0f16b5e2f08c6578cc5a7e4ef8c5348ecce047bfd6060476deeb798412e"}
 - **Blocker:** none

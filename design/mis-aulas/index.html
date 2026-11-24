@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mis aulas · maqueta Expedición</title>
+<link rel="stylesheet" href="maqueta.css">
+</head>
+<body>
+<!-- Barra de la maqueta: no forma parte del producto. -->
+<div class="mock-bar" role="region" aria-label="Controles de la maqueta">
+  <strong>Maqueta Mis aulas</strong>
+  <span class="seg" role="group" aria-label="Rol">
+    <button type="button" data-role="teacher" aria-pressed="true">Docente</button>
+    <button type="button" data-role="student" aria-pressed="false">Estudiante</button>
+  </span>
+  <label>Ir a <select data-jump aria-label="Ir a una pantalla o flujo"></select></label>
+  <span class="seg" role="group" aria-label="Estado del aula">
+    <button type="button" data-toggle="archived" aria-pressed="false">Aula archivada</button>
+    <button type="button" data-toggle="empty" aria-pressed="false">Sin datos</button>
+  </span>
+  <button type="button" class="notes-btn" data-notes aria-expanded="false">Decisiones para validar</button>
+</div>
+<aside class="notes" data-notes-panel hidden aria-label="Decisiones para validar">
+  <h2>Decisiones para validar</h2>
+  <ol>
+    <li><b>Portadas:</b> el asistente hoy ofrece 3 y Ajustes otras 3 con nombres distintos. La maqueta usa el catálogo completo de 7 con los mismos nombres en los dos lugares.</li>
+    <li><b>Apunte escrito en Biblioteca:</b> la especificación lo admite, pero la interfaz sólo deja subir archivos. Lo muestro como opción marcada «Por definir».</li>
+    <li><b>Un solo nombre:</b> la tarjeta dice «Eliminar borrador» y el diálogo «Eliminar pendiente». La maqueta usa «Eliminar borrador» en ambos.</li>
+    <li><b>Ajustes:</b> el ciclo lectivo y la corrección asistida no tienen control. La maqueta los muestra como sólo lectura; decidí si se editan.</li>
+    <li><b>Publicación de actividades:</b> se conserva inmediata, sin programar, como hoy.</li>
+    <li><b>Muro:</b> no estaba en tu lista pero existe en el aula; lo incluyo para no dejarlo fuera de la migración.</li>
+    <li><b>Datos:</b> todo sale de lo que la API ya devuelve; no inventé métricas nuevas.</li>
+  </ol>
+</aside>
+<div class="app">
+  <nav class="side" aria-label="Navegación principal">
+    <div class="brand"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</div>
+    <div class="nav" data-nav></div>
+    <div class="side-foot">
+      <div class="me" data-me></div>
+    </div>
+  </nav>
+  <main id="main"><div class="wrap" data-view></div></main>
+</div>
+<div data-overlay></div>
+<script src="maqueta.js"></script>
+</body>
+</html>
