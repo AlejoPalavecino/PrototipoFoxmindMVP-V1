@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expedición</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Nunito;src:url('../../apps/web/public/foxmind/nunito.ttf') format('truetype');font-weight:200 1000;font-display:swap}
+/* ---------- Tokens: paleta de valle ---------- */
+:root{
+  --ink:#1c2e3b;--muted:#4d6170;--line:#d3dee6;--line-strong:#bfcfda;
+  --canvas:#edf3f0;--surface:#ffffff;--mist:#f4f8f6;
+  --lake:#1b3a52;--lake-2:#24496a;--lake-soft:#c4d6e4;
+  --pine:#1d6b57;--pine-soft:#dcefe7;
+  --sky:#d6ebf7;--sun:#ffc94d;--trail:#d9a66b;--violet:#6d5bd0;
+  --orange:#e8590c;--orange-btn:#c4490a;--orange-hover:#a93e08;--orange-ink:#b8420a;--orange-soft:#ffe9dc;
+  --danger:#c0281b;--focus:#2463c9;
+  --shadow:0 1px 0 rgba(27,58,82,.06),0 14px 28px -22px rgba(27,58,82,.45);
+  --display:Grandstander,Nunito,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font:400 15px/1.5 Nunito,system-ui,sans-serif}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{text-wrap:balance}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Barra de la maqueta (no es producto) */
+.mock-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 16px;background:#111d27;color:#dfe6ee;font:600 13px Nunito,sans-serif}
+.mock-bar strong{margin-right:8px}
+.mock-bar button{border:1px solid #4a5a6c;background:transparent;border-radius:999px;padding:4px 12px;color:#dfe6ee;cursor:pointer}
+.mock-bar button[aria-pressed=true]{background:#dfe6ee;color:#111d27}
+.mock-bar .sep{width:1px;height:20px;background:#4a5a6c;margin-inline:6px}
+.view{display:none}.view.on{display:block}
+
+/* ---------- Piezas compartidas ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border:0;border-radius:14px;font:700 17px var(--display);text-decoration:none;cursor:pointer}
+.btn-primary{background:var(--orange-btn);color:#fff;box-shadow:0 4px 0 #7f3006}
+.btn-primary:hover{background:var(--orange-hover)}
+.btn-primary:active{transform:translateY(3px);box-shadow:0 1px 0 #7f3006}
+.btn-quiet{background:#fff;color:var(--ink);box-shadow:0 4px 0 #c5d3dc}
+.btn-quiet:active{transform:translateY(3px);box-shadow:0 1px 0 #c5d3dc}
+.btn-line{min-height:42px;padding:0 16px;background:#fff;border:2px solid var(--lake);color:var(--lake);font-size:15px}
+.btn-line:hover{background:var(--lake);color:#fff}
+.btn-block{width:100%}
+.link{font:700 16px var(--display);color:var(--orange-ink);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.card{background:var(--surface);border-radius:24px;box-shadow:var(--shadow)}
+.brand{display:inline-flex;align-items:center;gap:8px;font:800 24px var(--display);color:var(--ink);text-decoration:none}
+.brand img{width:34px;height:38px;object-fit:contain}
+.tabs{display:flex;gap:8px}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:12px;background:#dde7ee;color:#3b5163;font:700 16px var(--display);text-decoration:none;cursor:pointer}
+.tab:hover{background:#d0dde6}
+.tab[aria-current=page],.tab[aria-selected=true]{background:var(--lake);color:#fff}
+.tab .count{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:#fff;color:var(--ink);font:800 13px Nunito}
+.tab[aria-selected=true] .count{background:var(--orange-btn);color:#fff}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+
+/* =================== ACCESO =================== */
+.auth{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:calc(100vh - 44px)}
+.auth-art{--wash:255,240,226;position:relative;margin:16px 0 16px 16px;border-radius:28px;overflow:hidden;
+  background:#f8d6b8 url('../../apps/web/public/brujula/banner-docente.webp') no-repeat 78% 100%/auto 100%;box-shadow:var(--shadow)}
+#v-register .auth-art{--wash:226,250,246;background-color:#9fefe2;background-image:url('../../apps/web/public/brujula/banner-alumno.webp')}
+.auth-art::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--wash),.94) 0,rgba(var(--wash),.75) 30%,rgba(var(--wash),0) 52%)}
+.auth-art .brand{position:absolute;left:28px;top:26px;padding:8px 14px 8px 10px;background:#fff;border-radius:14px;box-shadow:0 4px 10px -6px rgba(27,58,82,.4)}
+.auth-art .art-copy{position:absolute;left:32px;right:32px;top:104px}
+.auth-art h2{font:800 clamp(32px,3.2vw,44px)/1.05 var(--display);letter-spacing:-.5px;max-width:14ch}
+.auth-art .art-copy p{margin-top:10px;font-size:17px;font-weight:700;color:#2a3e4c;max-width:34ch}
+.auth-art .stops{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-top:18px}
+.auth-art .stops span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#2a3e4c}
+.auth-art .stops i{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--orange)}
+.auth-art .stops span:first-child i{background:var(--orange)}
+.auth-art .stops b{width:28px;border-top:3px dashed var(--trail);margin:0 6px}
+.auth-art .fox{position:absolute;left:50%;bottom:-2%;width:min(46%,300px);transform:translateX(-50%);filter:drop-shadow(0 6px 4px rgba(101,62,46,.25))}
+.auth-main{display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.auth-panel{width:min(100%,470px)}
+.auth-panel .tabs{margin-bottom:14px}
+.auth-panel .card{padding:32px 32px 28px}
+.auth-panel h1{font:800 34px/1.1 var(--display);letter-spacing:-.5px}
+.auth-panel .lead{margin-top:6px;color:var(--muted);font-weight:600}
+.form{display:grid;gap:18px;margin-top:24px}
+.field label{display:block;margin-bottom:6px;font-weight:800;font-size:14px}
+.field .control{position:relative}
+.field input{width:100%;height:50px;padding:0 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--mist)}
+.field input:hover{border-color:#94aabb}
+.field input:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--lake);background:#fff}
+.field .eye{position:absolute;right:6px;top:7px;width:36px;height:36px;display:grid;place-items:center;border:0;background:transparent;border-radius:8px;color:var(--muted);cursor:pointer}
+.row-between{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.row-between .link{font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted);font-weight:600}
+.after{margin-top:20px;text-align:center;color:var(--muted);font-weight:600}
+.roles{border:0;margin:0;padding:0}
+.roles legend{padding:0;margin-bottom:8px;font-weight:800;font-size:14px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.role{position:relative;display:grid;grid-template-columns:52px 1fr;align-items:center;gap:10px;padding:12px;border:2px solid var(--line);border-radius:16px;background:var(--mist);cursor:pointer}
+.role:hover{border-color:#94aabb}
+.role input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.role img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--orange-soft)}
+.role.student img{background:var(--pine-soft)}
+.role strong{display:block;font:700 17px var(--display)}
+.role small{font-size:13px;color:var(--muted);font-weight:600}
+.role .check{position:absolute;right:10px;top:10px;width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);background:#fff}
+.role:has(input:checked){border-color:var(--orange);background:#fff8f3}
+.role:has(input:checked) .check{border:6px solid var(--orange)}
+.role.student:has(input:checked){border-color:var(--pine);background:#f2faf6}
+.role.student:has(input:checked) .check{border-color:var(--pine)}
+.role:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.mail-note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--sky);color:#24435c;font-size:14px;font-weight:600}
+
+/* =================== APP PRIVADA =================== */
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:calc(100vh - 44px)}
+.side{position:sticky;top:44px;height:calc(100vh - 44px);display:flex;flex-direction:column;gap:6px;padding:20px 14px 14px;overflow-y:auto;background:var(--lake);color:#e8f1f7}
+.side .brand{color:#fff;padding:0 6px;margin-bottom:14px}
+.search{display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;margin-bottom:8px;border:1px solid #3d6283;border-radius:12px;background:#22476a;color:#c4d6e4;font-size:14px;cursor:pointer;width:100%;text-align:left}
+.search kbd{margin-left:auto;font:700 11px Nunito;border:1px solid #3d6283;border-radius:6px;padding:1px 6px}
+.nav{display:grid;gap:4px}
+.nav a{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;color:var(--lake-soft);font-weight:800;text-decoration:none}
+.nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav a[aria-current=page]{background:#fff;color:var(--lake);box-shadow:inset 4px 0 0 var(--orange)}
+.nav .badge{margin-left:auto;min-width:22px;height:22px;display:grid;place-items:center;padding:0 6px;border-radius:999px;background:var(--orange-btn);color:#fff;font-size:12px;font-weight:800}
+.side h2{margin:16px 12px 6px;font-size:13px;font-weight:800;color:#93b0c6}
+.rooms-nav a{display:flex;align-items:center;gap:10px;min-height:38px;padding:0 12px;border-radius:10px;color:#e8f1f7;font-weight:700;font-size:14px;text-decoration:none}
+.rooms-nav a:hover{background:rgba(255,255,255,.07)}
+.rooms-nav .pin{width:11px;height:11px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);flex:none}
+.side-foot{margin-top:auto;display:grid;gap:4px;padding-top:12px;border-top:1px dashed #3d6283}
+.quota{display:grid;grid-template-columns:1fr auto;gap:6px 8px;padding:10px 12px;border:0;border-radius:12px;background:transparent;color:#e8f1f7;text-align:left;width:100%;cursor:pointer}
+.quota:hover{background:rgba(255,255,255,.07)}
+.quota span,.quota b{font-size:13px;font-weight:800}
+.quota .bar{grid-column:1/-1;height:8px;border-radius:99px;background:#2c5476;overflow:hidden}
+.quota .bar i{display:block;height:100%;width:82%;border-radius:inherit;background:linear-gradient(90deg,#7fd3b0,#4fb08b)}
+.help{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--lake-soft);font-weight:800;font-size:14px;cursor:pointer;width:100%;text-align:left}
+.help:hover{background:rgba(255,255,255,.07);color:#fff}
+.me{display:flex;align-items:center;gap:10px;padding:8px 6px 2px;border:0;background:transparent;width:100%;text-align:left;color:#fff;cursor:pointer;border-radius:12px}
+.me .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--sun);color:var(--ink);font-weight:800;font-size:14px;flex:none}
+.me strong{display:block;font-size:14px}.me small{display:block;font-size:12px;color:#93b0c6;font-weight:600}
+.me .i{margin-left:auto;color:#93b0c6}
+.topbar{display:none}
+
+.main{padding:32px 36px 56px;min-width:0}
+.home{max-width:1180px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"hero hero" "work day" "rooms rooms";gap:24px}
+
+/* Banner: paisaje pintado del rol */
+.hero{grid-area:hero;--wash:255,240,226;position:relative;overflow:hidden;isolation:isolate;min-height:300px;padding:34px 40px 36px;border-radius:28px;
+  background:#f8d6b8 url('../../apps/web/public/brujula/banner-docente.webp') no-repeat 100% 70%/cover;box-shadow:0 1px 0 rgba(27,58,82,.06),0 18px 36px -22px rgba(27,58,82,.45)}
+.for-student .hero{--wash:226,250,246;background-color:#9fefe2;background-image:url('../../apps/web/public/brujula/banner-alumno.webp')}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(var(--wash),.96) 0,rgba(var(--wash),.88) 36%,rgba(var(--wash),0) 62%)}
+.hero .copy{position:relative;z-index:2;max-width:560px}
+.date{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 8px;border-radius:999px;background:#fff;font-weight:800;font-size:13px;box-shadow:0 2px 6px -3px rgba(27,58,82,.4)}
+.date::before{content:"";width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,var(--sun) 45%,rgba(255,201,77,.35) 46%)}
+.for-student .date::before{background:radial-gradient(circle,#4fb08b 45%,rgba(79,176,139,.3) 46%)}
+.hero h1{margin-top:14px;font:800 clamp(44px,5vw,64px)/1 var(--display);letter-spacing:-1px}
+.hero .summary{margin-top:10px;font-size:19px;font-weight:700;max-width:32ch;color:#2a3e4c}
+.hero .summary strong{color:var(--orange-ink)}
+.for-student .hero .summary strong{color:var(--pine)}
+.route{display:flex;flex-wrap:wrap;align-items:center;row-gap:8px;margin-top:16px}
+.route span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--muted)}
+.route i{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--orange)}
+.route span.done{color:#6c7f8c;text-decoration:line-through;text-decoration-thickness:1.5px}
+.route span.done i{background:var(--orange)}
+.route b{width:34px;border-top:3px dashed var(--trail);margin:0 6px}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.hero .fox{position:absolute;z-index:1;right:30%;bottom:-6px;width:150px;filter:drop-shadow(0 6px 4px rgba(101,62,46,.25))}
+.bubble{position:absolute;z-index:3;right:calc(30% - 170px);top:42px;max-width:200px;padding:10px 14px;background:#fff;border-radius:16px 16px 16px 4px;font:700 15px/1.25 var(--display);box-shadow:0 10px 20px -10px rgba(27,58,82,.5)}
+.bubble small{display:block;font:800 11px Nunito;color:var(--orange-ink)}
+.for-student .bubble small{color:var(--pine)}
+
+/* Trabajo: paradas de un sendero */
+.work{grid-area:work;min-width:0}
+.work .tabs{margin-bottom:10px}
+.work .card{padding:14px 16px}
+.work-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 4px 10px;font-weight:700;font-size:14px;color:var(--muted)}
+.sort{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:13px;font-weight:800;color:var(--muted);cursor:pointer;white-space:nowrap}
+.items{list-style:none;margin:0;padding:0;position:relative}
+.items::before{content:"";position:absolute;left:30px;top:24px;bottom:24px;border-left:4px dashed var(--trail)}
+.item{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 8px;border-radius:16px}
+.item:hover{background:var(--mist)}
+.item .stop{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:var(--orange);color:#fff;border:4px solid #fff;box-shadow:0 0 0 3px var(--orange)}
+.item:nth-child(3n+2) .stop{background:var(--pine);box-shadow:0 0 0 3px var(--pine)}
+.item:nth-child(3n+3) .stop{background:var(--violet);box-shadow:0 0 0 3px var(--violet)}
+.item h3{font:700 18px/1.25 var(--display)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:2px;font-size:13px;color:var(--muted);font-weight:600}
+.meta .room{display:inline-flex;align-items:center;gap:6px}
+.meta .due{font-weight:800}
+.meta .due.soon{color:var(--danger)}
+.progress{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;font-weight:700;color:var(--muted)}
+.progress .track{flex:0 1 180px;height:10px;border-radius:99px;background:#e3ebef;overflow:hidden}
+.progress .track i{display:block;height:100%;width:var(--p);border-radius:inherit;background:linear-gradient(90deg,#f39a55,var(--orange))}
+.for-student .progress .track i{background:linear-gradient(90deg,#5fbf97,var(--pine))}
+.empty{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:14px 8px 16px}
+.empty img{width:96px;height:96px;object-fit:contain}
+.empty h3{font:800 20px var(--display)}
+.empty p{margin-top:4px;color:var(--muted);font-weight:600}
+.empty .btn{margin-top:14px;min-height:42px;font-size:15px}
+
+/* Agenda: tarjeta de cielo */
+.day{grid-area:day;min-width:0;padding:0 0 18px;overflow:hidden}
+.day>*:not(.day-head){margin-inline:20px}
+.day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:18px 20px 16px;background:linear-gradient(180deg,#cfe7f6,#e8f4fb);border-bottom:1px solid #cfe1ec}
+.day-head h2{font:800 26px var(--display);color:var(--lake)}
+.day-head small{display:block;font-weight:700;font-size:13px;color:#3b5f7a}
+.day-head .link{color:var(--lake);font-size:15px}
+.week{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.week button{display:grid;justify-items:center;padding:8px 0;border:0;border-radius:12px;background:#eef3f6;cursor:pointer}
+.week small{font-size:12px;font-weight:700;color:var(--muted)}
+.week b{font:700 18px var(--display)}
+.week i{width:5px;height:5px;margin-top:2px;border-radius:50%;background:transparent}
+.week .has i{background:var(--orange)}
+.week button[aria-pressed=true]{background:var(--lake);color:#fff}
+.week button[aria-pressed=true] small{color:var(--lake-soft)}
+.week button[aria-pressed=true].has i{background:var(--sun)}
+.events{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.ev{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:10px 12px;border-radius:14px;background:var(--mist);border-left:4px solid var(--c,var(--pine))}
+.ev time{font-weight:800;font-size:14px}
+.ev strong{display:block;font-size:14px;line-height:1.3}
+.ev small{font-size:12px;color:var(--muted);font-weight:600}
+.quiet-day{margin-top:14px;padding:14px;border-radius:14px;background:var(--mist);color:var(--muted);font-weight:600;font-size:14px}
+.day-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-weight:700;font-size:14px;color:var(--muted)}
+.day-foot .link{font-size:15px}
+
+/* Aulas: destinos */
+.rooms{grid-area:rooms}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.sec-head h2{font:800 30px var(--display)}
+.room-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.room-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 16px 18px;background:var(--surface);border-radius:24px;box-shadow:var(--shadow);text-decoration:none;color:var(--ink)}
+.room-card:hover{box-shadow:0 0 0 2px var(--lake-soft),var(--shadow)}
+.room-card .cover{width:132px;height:132px;border-radius:50%;overflow:hidden;border:6px solid var(--room);box-shadow:0 0 0 4px #fff,0 0 0 6px #d6e2e9}
+.room-card .cover img{width:100%;height:100%;object-fit:cover;display:block}
+.room-card strong{margin-top:14px;font:800 19px var(--display)}
+.room-card small{color:var(--muted);font-size:13px;font-weight:600}
+.room-card .foot{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--muted);font-weight:600}
+.room-card .tag{padding:3px 10px;border-radius:99px;background:var(--room);color:var(--ink);font-size:12px;font-weight:800}
+
+/* =================== Responsive =================== */
+@media (max-width:1100px){
+  .home{grid-template-columns:1fr;grid-template-areas:"hero" "work" "day" "rooms"}
+  .bubble{display:none}
+  .hero .fox{right:12%}
+}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .topbar{display:flex;position:sticky;top:44px;z-index:20;align-items:center;gap:8px;padding:10px 16px;background:var(--lake)}
+  .topbar .brand{color:#fff;font-size:21px;margin-right:auto}
+  .topbar .brand img{width:28px;height:32px}
+  .icon-btn{position:relative;width:44px;height:44px;display:grid;place-items:center;border:1px solid #3d6283;border-radius:12px;background:#22476a;color:#fff;cursor:pointer}
+  .icon-btn .badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--orange-btn);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
+  .quota-chip{height:44px;display:inline-flex;align-items:center;padding:0 12px;border:1px solid #3d6283;border-radius:12px;background:#22476a;color:#bfe8d5;font-weight:800;font-size:13px}
+  .main{padding:20px 16px 40px}
+  .hero{padding:170px 20px 24px;min-height:0;background-size:auto 210px;background-position:100% 0}
+  .hero::before{background:linear-gradient(180deg,rgba(var(--wash),0) 0,rgba(var(--wash),0) 120px,rgba(var(--wash),.97) 180px)}
+  .hero .fox{right:auto;left:18px;top:34px;bottom:auto;width:100px}
+  .hero h1{font-size:40px}
+  .hero .actions .btn{flex:1 1 auto}
+  .room-grid{grid-template-columns:1fr}
+  .item{grid-template-columns:44px minmax(0,1fr)}
+  .item .btn{grid-column:2;justify-self:start}
+  .tab{padding:0 14px}
+  .tab>svg{display:none}
+  .empty{grid-template-columns:1fr;justify-items:start}
+}
+@media (max-width:760px){
+  .auth{grid-template-columns:1fr;min-height:0}
+  .auth-art{margin:12px 12px 0;height:250px;border-radius:22px;background-size:auto 100%;background-position:85% 100%}
+  .auth-art::before,.auth-art .art-copy{display:none}
+  .auth-art .brand{left:14px;top:14px;font-size:20px}
+  .auth-art .fox{width:120px;left:22%;bottom:-8px}
+  .auth-main{padding:0 12px 32px;margin-top:-26px;position:relative}
+  .auth-panel .tabs{padding-left:10px}
+  .auth-panel .card{padding:24px 18px 22px}
+  .auth-panel h1{font-size:29px}
+  .two,.role-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.btn:active{transform:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.6 4.3 2.7 6.4 7 7-4.3.6-6.4 2.7-7 7-.6-4.3-2.7-6.4-7-7 4.3-.6 6.4-2.7 7-7z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+</svg>
+
+<nav class="mock-bar" aria-label="Pantallas de la maqueta">
+  <strong>Expedición</strong>
+  <button type="button" data-view="login" aria-pressed="true">Iniciar sesión</button>
+  <button type="button" data-view="register" aria-pressed="false">Crear cuenta</button>
+  <button type="button" data-view="teacher" aria-pressed="false">Inicio docente</button>
+  <button type="button" data-view="student" aria-pressed="false">Inicio estudiante</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" id="toggle-empty" aria-pressed="false">Mostrar «al día»</button>
+</nav>
+
+<!-- =================== INICIAR SESIÓN =================== -->
+<section class="view on" id="v-login" aria-label="Iniciar sesión">
+  <div class="auth">
+    <aside class="auth-art" aria-hidden="true">
+      <span class="brand"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</span>
+      <div class="art-copy">
+        <h2>Tu recorrido sigue donde lo dejaste.</h2>
+        <p>Tus aulas, actividades y devoluciones te esperan.</p>
+      </div>
+      <img class="fox" src="../../apps/web/public/brujula/foxy-bienvenida.webp" alt="">
+    </aside>
+    <main class="auth-main">
+      <div class="auth-panel">
+        <nav class="tabs" aria-label="Acceso">
+          <a class="tab" href="#" aria-current="page">Iniciar sesión</a>
+          <a class="tab" href="#" data-goto="register">Crear cuenta</a>
+        </nav>
+        <div class="card">
+          <h1>Volvé a tu espacio</h1>
+          <p class="lead">Ingresá con el correo de tu cuenta.</p>
+          <form class="form" onsubmit="return false">
+            <div class="field"><label for="l-email">Correo electrónico</label><div class="control"><input id="l-email" type="email" autocomplete="username"></div></div>
+            <div class="field">
+              <div class="row-between"><label for="l-pass">Contraseña</label><a class="link" href="#">Olvidé mi contraseña</a></div>
+              <div class="control"><input id="l-pass" type="password" autocomplete="current-password"><button class="eye" type="button" aria-label="Mostrar contraseña"><svg class="i"><use href="#i-eye"/></svg></button></div>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Iniciar sesión</button>
+          </form>
+          <p class="after">¿Todavía no tenés cuenta? <a class="link" href="#" data-goto="register">Crear cuenta</a></p>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- =================== CREAR CUENTA =================== -->
+<section class="view" id="v-register" aria-label="Crear cuenta">
+  <div class="auth">
+    <aside class="auth-art" aria-hidden="true">
+      <span class="brand"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</span>
+      <div class="art-copy">
+        <h2>Empezá tu recorrido.</h2>
+        <div class="stops"><span><i></i>Crear cuenta</span><b></b><span><i></i>Verificar correo</span><b></b><span><i></i>Entrar</span></div>
+      </div>
+      <img class="fox" src="../../apps/web/public/brujula/foxy-bienvenida.webp" alt="">
+    </aside>
+    <main class="auth-main">
+      <div class="auth-panel">
+        <nav class="tabs" aria-label="Acceso">
+          <a class="tab" href="#" data-goto="login">Iniciar sesión</a>
+          <a class="tab" href="#" aria-current="page">Crear cuenta</a>
+        </nav>
+        <div class="card">
+          <h1>Creá tu cuenta</h1>
+          <p class="lead">Te va a llevar menos de un minuto.</p>
+          <form class="form" onsubmit="return false">
+            <fieldset class="roles" aria-describedby="role-help">
+              <legend>¿Cómo vas a usar FoxMind?</legend>
+              <div class="role-grid">
+                <label class="role"><input type="radio" name="role" value="teacher" aria-describedby="r-t"><img src="../../apps/web/public/brujula/avatars/foxy-classic.webp" alt=""><span><strong>Docente</strong><small id="r-t">Creo aulas y actividades</small></span><span class="check" aria-hidden="true"></span></label>
+                <label class="role student"><input type="radio" name="role" value="student" aria-describedby="r-s"><img src="../../apps/web/public/brujula/avatars/foxy-explorer.webp" alt=""><span><strong>Estudiante</strong><small id="r-s">Me uno a aulas con un código</small></span><span class="check" aria-hidden="true"></span></label>
+              </div>
+              <p class="hint" id="role-help"><svg class="i" style="width:16px;height:16px"><use href="#i-lock"/></svg>No vas a poder cambiarlo después.</p>
+            </fieldset>
+            <div class="two">
+              <div class="field"><label for="r-first">Nombre</label><div class="control"><input id="r-first" autocomplete="given-name"></div></div>
+              <div class="field"><label for="r-last">Apellido</label><div class="control"><input id="r-last" autocomplete="family-name"></div></div>
+            </div>
+            <div class="field"><label for="r-email">Correo electrónico</label><div class="control"><input id="r-email" type="email" autocomplete="email"></div></div>
+            <div class="field"><label for="r-pass">Contraseña</label><div class="control"><input id="r-pass" type="password" autocomplete="new-password"><button class="eye" type="button" aria-label="Mostrar contraseña"><svg class="i"><use href="#i-eye"/></svg></button></div></div>
+            <button class="btn btn-primary btn-block" type="submit">Crear cuenta</button>
+            <p class="mail-note"><svg class="i"><use href="#i-mail"/></svg>Después te enviamos un correo para verificar tu cuenta.</p>
+          </form>
+          <p class="after">¿Ya tenés cuenta? <a class="link" href="#" data-goto="login">Iniciar sesión</a></p>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- =================== INICIO (plantilla) =================== -->
+<template id="home-tpl">
+  <div class="app">
+    <aside class="side" aria-label="Navegación principal">
+      <a class="brand" href="#"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</a>
+      <button class="search" type="button"><svg class="i"><use href="#i-search"/></svg>Buscar<kbd>Ctrl K</kbd></button>
+      <nav class="nav">
+        <a href="#" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Inicio</a>
+        <a href="#"><svg class="i"><use href="#i-layers"/></svg>Mis aulas</a>
+        <a href="#" data-role-link></a>
+        <a href="#"><svg class="i"><use href="#i-cal"/></svg>Agenda</a>
+        <a href="#"><svg class="i"><use href="#i-bell"/></svg>Notificaciones<span class="badge" aria-label="2 sin leer">2</span></a>
+      </nav>
+      <h2>Tus aulas</h2>
+      <nav class="rooms-nav" aria-label="Tus aulas" data-rooms-nav></nav>
+      <div class="side-foot">
+        <button class="quota" type="button" aria-label="Saldo de IA: 82 % disponible este mes"><span>Saldo de IA</span><b>82 %</b><span class="bar" aria-hidden="true"><i></i></span></button>
+        <button class="help" type="button"><svg class="i"><use href="#i-help"/></svg>Ayuda</button>
+        <button class="me" type="button"><span class="av" data-av></span><span><strong data-name></strong><small data-rolename></small></span><svg class="i"><use href="#i-gear"/></svg></button>
+      </div>
+    </aside>
+    <div>
+      <header class="topbar">
+        <button class="icon-btn" type="button" aria-label="Abrir menú"><svg class="i"><use href="#i-menu"/></svg></button>
+        <a class="brand" href="#"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</a>
+        <span class="quota-chip" aria-label="Saldo de IA: 82 % disponible">IA 82 %</span>
+        <button class="icon-btn" type="button" aria-label="Notificaciones, 2 sin leer"><svg class="i"><use href="#i-bell"/></svg><span class="badge" aria-hidden="true">2</span></button>
+      </header>
+      <main class="main">
+        <div class="home">
+          <section class="hero" aria-labelledby="hello">
+            <div class="copy">
+              <p class="date">Martes 24 de noviembre</p>
+              <h1 id="hello" data-hello></h1>
+              <p class="summary" data-summary></p>
+              <div class="route" role="list" aria-label="Tu recorrido de hoy" data-route></div>
+              <div class="actions" data-actions></div>
+            </div>
+            <p class="bubble" data-bubble></p>
+            <img class="fox" src="../../apps/web/public/brujula/foxy-bienvenida.webp" alt="">
+          </section>
+
+          <section class="work" aria-labelledby="work-title">
+            <h2 class="sr" id="work-title" data-work-title></h2>
+            <div class="tabs" role="tablist" data-tabs></div>
+            <div class="card" role="tabpanel">
+              <div class="work-head" data-work-head><span data-work-lead></span><button class="sort" type="button"><svg class="i" style="width:16px;height:16px"><use href="#i-sort"/></svg>Más urgentes</button></div>
+              <ul class="items" data-items></ul>
+              <div class="empty" data-empty hidden>
+                <img src="../../apps/web/public/brujula/foxy-bienvenida.webp" alt="">
+                <div><h3 data-empty-title></h3><p data-empty-text></p><a class="btn btn-quiet" href="#" data-empty-cta></a></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="day card" aria-labelledby="day-title">
+            <div class="day-head"><div><h2 id="day-title">Hoy</h2><small data-daycount></small></div><a class="link" href="#">Ver agenda</a></div>
+            <div class="week" role="group" aria-label="Esta semana">
+              <button type="button" aria-pressed="false"><small>Lun</small><b>23</b><i></i></button>
+              <button type="button" aria-pressed="true" class="has"><small>Mar</small><b>24</b><i></i></button>
+              <button type="button" aria-pressed="false" class="has"><small>Mié</small><b>25</b><i></i></button>
+              <button type="button" aria-pressed="false"><small>Jue</small><b>26</b><i></i></button>
+              <button type="button" aria-pressed="false" class="has"><small>Vie</small><b>27</b><i></i></button>
+            </div>
+            <ul class="events" data-events></ul>
+            <p class="quiet-day" data-quiet hidden>No tenés nada agendado para hoy.</p>
+            <div class="day-foot"><span>Mañana: 1 evento</span><a class="link" href="#">Agendar</a></div>
+          </section>
+
+          <section class="rooms" aria-labelledby="rooms-title">
+            <div class="sec-head"><h2 id="rooms-title">Tus aulas</h2><a class="link" href="#">Ver todas</a></div>
+            <div class="room-grid" data-rooms></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
+
+<section class="view for-teacher" id="v-teacher" aria-label="Inicio docente"></section>
+<section class="view for-student" id="v-student" aria-label="Inicio estudiante"></section>
+
+<script>
+const ROOMS=[
+ {name:'Fotografía y luz',unit:'Unidad 2 · La luz natural',color:'#ffb59a',cover:'creative',people:24},
+ {name:'Biología 3.° B',unit:'Unidad 4 · La célula',color:'#a8e3c9',cover:'biology',people:31},
+ {name:'Literatura 5.° A',unit:'Unidad 1 · El cuento',color:'#cfc6ff',cover:'literature',people:28},
+];
+const ROLES={
+ teacher:{
+  name:'Lucía Demo',roleName:'Docente',av:'LD',link:['Foxy AI','#i-spark'],hello:'Hola, Lucía.',
+  summary:n=>n?`Tenés <strong>${n} entregas</strong> para revisar. Vamos de a una.`:'Tus entregas están al día. Buen momento para preparar algo nuevo.',
+  route:n=>n?[['Clase 10:00',1],['Corregir Biología',0],['Reunión 14:30',0]]:[['Clase 10:00',1],['Reunión 14:30',0]],
+  bubble:n=>n?'<small>Lo más urgente</small>Biología cierra hoy a las 23:59':'<small>Todo al día</small>¿Preparamos la próxima clase?',
+  actions:()=>`<a class="btn btn-primary" href="#"><svg class="i"><use href="#i-plus"/></svg>Crear actividad</a><a class="btn btn-quiet" href="#"><svg class="i"><use href="#i-spark"/></svg>Preparar con Foxy</a>`,
+  workTitle:'Por acompañar',tabs:n=>[['Entregas',n,'#i-doc',true],['Consultas',n?2:0,'#i-chat',false]],lead:'Ordenadas por fecha de cierre',
+  items:[
+   ['Informe: la luz en la fotografía',0,'5 sin corregir','Cerró ayer',true,'Corregir',[22,24,'entregaron']],
+   ['Cuestionario: partes de la célula',1,'3 sin corregir','Cierra hoy, 23:59',true,'Corregir',[12,31,'entregaron']],
+   ['Lectura: «El almohadón de plumas»',2,'1 sin corregir','Cierra el viernes',false,'Corregir',[4,28,'entregaron']],
+  ],
+  empty:['Estás al día con las entregas','Cuando tus estudiantes entreguen, las vas a ver acá ordenadas por cierre.','Ver mis aulas'],
+  events:[['10:00','Clase: Biología 3.° B','Aula 12','#1d6b57'],['14:30','Reunión de departamento','Sala de profesores','#6d5bd0']],
+  tags:n=>n?['5 para corregir','3 para corregir','1 para corregir']:['Al día','Al día','Al día'],
+  people:true,
+ },
+ student:{
+  name:'Marina Demo',roleName:'Estudiante',av:'MD',link:['Mi estudio','#i-folder'],hello:'Buen día, Marina.',
+  summary:n=>n?`Tenés <strong>${n} actividades</strong> pendientes. La primera cierra hoy.`:'Estás al día con tus actividades. Podés repasar a tu ritmo en Mi estudio.',
+  route:n=>n?[['Clase de Biología',1],['Cuestionario',0],['Repaso 18:00',0]]:[['Clase de Biología',1],['Repaso 18:00',0]],
+  bubble:n=>n?'<small>Tu próxima parada</small>El cuestionario de Biología cierra hoy':'<small>Todo al día</small>¿Repasamos algo en Mi estudio?',
+  actions:n=>(n?`<a class="btn btn-primary" href="#"><svg class="i"><use href="#i-play"/></svg>Continuar actividad</a>`:'')+`<a class="btn ${n?'btn-quiet':'btn-primary'}" href="#"><svg class="i"><use href="#i-folder"/></svg>Mi estudio</a>`,
+  workTitle:'Tu próximo paso',tabs:n=>[['Pendientes',n,'#i-doc',true],['Devoluciones',1,'#i-chat',false]],lead:'Primero lo que cierra antes',
+  items:[
+   ['Cuestionario: partes de la célula',1,'Sin empezar','Cierra hoy, 23:59',true,'Empezar',[0,10,'preguntas respondidas']],
+   ['Lectura: «El almohadón de plumas»',2,'Borrador guardado','Cierra el viernes',false,'Continuar',[3,5,'preguntas respondidas']],
+  ],
+  empty:['Estás al día','Cuando tu docente publique una actividad, la vas a ver acá.','Abrir Mi estudio'],
+  events:[['08:00','Clase: Biología 3.° B','Aula 12','#1d6b57'],['18:00','Repaso: la célula','Mi estudio · Biología','#e8590c']],
+  tags:n=>n?['Al día','1 pendiente','1 pendiente']:['Al día','Al día','Al día'],
+  people:false,
+ }
+};
+let emptyMode=false;
+function render(role){
+ const c=ROLES[role],host=document.getElementById('v-'+role);
+ host.innerHTML='';host.appendChild(document.getElementById('home-tpl').content.cloneNode(true));
+ const $=s=>host.querySelector(s),n=emptyMode?0:c.items.length;
+ $('[data-name]').textContent=c.name;$('[data-rolename]').textContent=c.roleName;$('[data-av]').textContent=c.av;
+ $('[data-role-link]').innerHTML=`<svg class="i"><use href="${c.link[1]}"/></svg>${c.link[0]}`;
+ $('[data-rooms-nav]').innerHTML=ROOMS.map(r=>`<a href="#"><span class="pin" style="background:${r.color}"></span>${r.name}</a>`).join('');
+ $('[data-hello]').textContent=c.hello;
+ $('[data-summary]').innerHTML=c.summary(n);
+ $('[data-route]').innerHTML=c.route(n).map(([t,done],i)=>(i?'<b aria-hidden="true"></b>':'')+`<span role="listitem" class="${done?'done':''}"><i aria-hidden="true"></i>${t}${done?'<span class="sr"> (hecho)</span>':''}</span>`).join('');
+ $('[data-bubble]').innerHTML=c.bubble(n);
+ $('[data-actions]').innerHTML=c.actions(n);
+ $('[data-work-title]').textContent=c.workTitle;
+ $('[data-tabs]').innerHTML=c.tabs(n).map(([t,k,ic,sel])=>`<button class="tab" role="tab" aria-selected="${sel}"><svg class="i"><use href="${ic}"/></svg>${t}<span class="count">${k}</span></button>`).join('');
+ $('[data-work-lead]').textContent=c.lead;
+ if(n){
+  $('[data-items]').innerHTML=c.items.map(([t,ri,status,due,soon,cta,[a,b,what]])=>{const r=ROOMS[ri];return `<li class="item"><span class="stop" aria-hidden="true"><svg class="i"><use href="#i-doc"/></svg></span><div><h3>${t}</h3><div class="meta"><span class="room"><span class="dot" style="background:${r.color}"></span>${r.name}</span><span>${status}</span><span class="due ${soon?'soon':''}">${due}</span></div><div class="progress"><span class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${b}" aria-valuenow="${a}" aria-label="${a} de ${b} ${what}"><i style="--p:${Math.round(a/b*100)}%"></i></span>${a} de ${b} ${what}</div></div><a class="btn btn-line" href="#">${cta}</a></li>`}).join('');
+ }else{
+  $('[data-items]').hidden=true;$('[data-work-head]').hidden=true;$('[data-empty]').hidden=false;
+  $('[data-empty-title]').textContent=c.empty[0];$('[data-empty-text]').textContent=c.empty[1];$('[data-empty-cta]').textContent=c.empty[2];
+ }
+ const ev=emptyMode?[]:c.events;
+ $('[data-daycount]').textContent=ev.length?`${ev.length} ${ev.length===1?'evento':'eventos'}`:'Sin eventos';
+ if(ev.length)$('[data-events]').innerHTML=ev.map(([h,t,s,col])=>`<li class="ev" style="--c:${col}"><time>${h}</time><span><strong>${t}</strong><small>${s}</small></span></li>`).join('');
+ else{$('[data-events]').hidden=true;$('[data-quiet]').hidden=false;}
+ const tags=c.tags(n);
+ $('[data-rooms]').innerHTML=ROOMS.map((r,i)=>`<a class="room-card" href="#" style="--room:${r.color}"><span class="cover"><img src="../../apps/web/public/foxmind-3d/covers/${r.cover}-320.webp" alt=""></span><strong>${r.name}</strong><small>${r.unit}</small><span class="foot">${c.people?`<span>${r.people} estudiantes</span>`:''}<span class="tag">${tags[i]}</span></span></a>`).join('');
+}
+function show(v){
+ document.querySelectorAll('.view').forEach(el=>el.classList.toggle('on',el.id==='v-'+v));
+ document.querySelectorAll('.mock-bar [data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===v));
+}
+document.querySelectorAll('.mock-bar [data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+document.addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){e.preventDefault();show(g.dataset.goto);}});
+document.getElementById('toggle-empty').addEventListener('click',e=>{emptyMode=!emptyMode;e.currentTarget.setAttribute('aria-pressed',emptyMode);render('teacher');render('student');});
+render('teacher');render('student');
+show(new URLSearchParams(location.search).get('v')||'login');
+</script>
+</body>
+</html>

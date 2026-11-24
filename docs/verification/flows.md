@@ -2,6 +2,19 @@
 
 Los resultados de esta matriz corresponden a los candidatos, fechas y entornos indicados en cada bloque. La galería del 18 de noviembre documenta su propio recorrido de la aplicación. [Galería vigente](../design/current/README.md) · [Índice de verificación](README.md).
 
+## Piloto Expedición: acceso, barra lateral e Inicio · 24 de noviembre
+
+Resultado: **PASS local UI, sin integrar**. Candidato: `32c93a9c` más los cambios sin commit del worktree `auth-home-visual-design-6ba7ad`.
+
+- **Pruebas:** 169/169 entre las nuevas (`expedition-access`, `expedition-navigation` y `expedition-home`) y las existentes de Inicio, navegación, cuenta, cuota y documentación. `tsc`, eslint y los controles de arquitectura sin errores.
+- **Navegador real:** `next dev` del worktree contra una API sintética local, sin base de datos ni proveedores, en escritorio, plegado y 375–390 px.
+  - **Acceso:** aviso sin rol, teclado entre paradas, foco al pasar de parada, volver conservando datos, `POST /auth/register` con 202 y «Revisá tu correo», error de ingreso con foco.
+  - **Barra lateral:** lago en Inicio y Agenda, foco sol, «Saldo de IA», Ayuda con su diálogo, modo plegado y menú móvil.
+  - **Inicio de ambos roles:** respuestas sintéticas validadas con `parseHomeResponse`, banner, recorrido de hoy, burbuja, avance de corrección y de preguntas, y aulas con el avance del plan.
+- **No ensayado:** las suites de integración `p3-browser`, `p4`, `p5` y `entry-glass-browser`, adaptadas al registro por paradas, que requieren PostgreSQL, correo y Docker. Tampoco la agenda con eventos en el navegador.
+
+[Registro](../work-log/2026-11-24-expedition-access.md) · [Tablero](../../odd/tasks/expedition-visual.md) · [Capturas](../design/current/README.md)
+
 ## Cuota mensual y acceso a imágenes privadas · 18 de noviembre
 
 La cuota mensual se comprobó con cuentas y proveedores sintéticos. PostgreSQL y Nest cubrieron aislamiento, dos conexiones docentes, cambios de reserva y liquidación y revocación de sesión. Ego Lite ejercitó el shell de ambos roles en escritorio y móvil con un servicio de saldo sintético. Para Mi Estudio, el proxy y PostgreSQL verificaron persistencia y permisos de la imagen; el navegador ejercitó creación, apertura y descarga con datos sintéticos. [Indicador](../work-log/2026-11-18-indicator-monthly-ai-quota.md) · [Imágenes](../work-log/2026-11-18-student-study-images.md).

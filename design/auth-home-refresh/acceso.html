@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acceso · Expedición</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Nunito;src:url('../../apps/web/public/foxmind/nunito.ttf') format('truetype');font-weight:200 1000;font-display:swap}
+:root{
+  --ink:#1c2e3b;--muted:#4d6170;--line:#d3dee6;--line-strong:#bfcfda;
+  --canvas:#edf3f0;--surface:#ffffff;--mist:#f4f8f6;
+  --lake:#1b3a52;--lake-soft:#c4d6e4;--pine:#1d6b57;--pine-soft:#dcefe7;
+  --sky:#d6ebf7;--sun:#ffc94d;--trail:#d9a66b;
+  --orange:#e8590c;--orange-btn:#c4490a;--orange-hover:#a93e08;--orange-ink:#b8420a;--orange-soft:#ffe9dc;
+  --danger:#b3261e;--danger-soft:#fdecea;--focus:#2463c9;
+  --display:Grandstander,Nunito,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font:400 15px/1.5 Nunito,system-ui,sans-serif}
+h1,h2,h3,p{margin:0}
+h1,h2{text-wrap:balance}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.mock-bar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 16px;background:#111d27;color:#dfe6ee;font:600 13px Nunito,sans-serif}
+.mock-bar strong{margin-right:8px}
+.mock-bar button{border:1px solid #4a5a6c;background:transparent;border-radius:999px;padding:4px 12px;color:#dfe6ee;cursor:pointer}
+.mock-bar button[aria-pressed=true]{background:#dfe6ee;color:#111d27}
+.mock-bar .sep{width:1px;height:20px;background:#4a5a6c;margin-inline:4px}
+
+/* ---------- Escena: el paisaje es toda la pantalla ---------- */
+.scene{--wash:255,240,226;position:relative;min-height:calc(100vh - 44px);overflow:hidden;isolation:isolate;
+  background:#f8d6b8 url('../../apps/web/public/brujula/banner-docente.webp') no-repeat 70% 100%/cover}
+.scene.river{--wash:226,250,246;background-color:#9fefe2;background-image:url('../../apps/web/public/brujula/banner-alumno.webp');background-position:62% 100%}
+.scene::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(var(--wash),.9) 0,rgba(var(--wash),.55) 38%,rgba(var(--wash),0) 62%)}
+.top{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 32px}
+.brand{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 10px;border-radius:14px;background:#fff;font:800 22px var(--display);color:var(--ink);text-decoration:none;box-shadow:0 6px 14px -8px rgba(27,58,82,.5)}
+.brand img{width:30px;height:34px;object-fit:contain}
+.switch{display:inline-flex;align-items:center;gap:10px;padding:6px 6px 6px 16px;border-radius:999px;background:rgba(255,255,255,.92);font-weight:700;font-size:14px;color:var(--muted);box-shadow:0 6px 14px -8px rgba(27,58,82,.5)}
+.switch a{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--lake);color:#fff;font:700 14px var(--display);text-decoration:none}
+.switch a:hover{background:#24496a}
+
+.stage{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,460px) 1fr;align-items:center;gap:32px;padding:8px 32px 48px 8vw;min-height:calc(100vh - 44px - 82px)}
+.panel{background:var(--surface);border-radius:28px;padding:32px 34px 28px;box-shadow:0 2px 0 rgba(27,58,82,.06),0 30px 60px -30px rgba(27,58,82,.55)}
+.panel h1{font:800 36px/1.05 var(--display);letter-spacing:-.5px}
+.panel .lead{margin-top:8px;color:var(--muted);font-weight:600;font-size:16px}
+
+/* Zorro en el camino, con su cartel */
+.guide{position:relative;align-self:end;justify-self:start;margin-left:6%;margin-bottom:-48px;width:230px}
+.guide img{display:block;width:100%;filter:drop-shadow(0 8px 6px rgba(101,62,46,.28))}
+.say{position:absolute;z-index:2;left:200px;top:-6px;width:max-content;max-width:220px;padding:12px 16px;border-radius:18px 18px 18px 4px;background:#fff;font:700 16px/1.25 var(--display);box-shadow:0 12px 24px -12px rgba(27,58,82,.55)}
+
+/* Formulario */
+.form{display:grid;gap:18px;margin-top:24px}
+.field label{display:block;margin-bottom:6px;font-weight:800;font-size:14px}
+.field .control{position:relative}
+.field input{width:100%;height:50px;padding:0 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--mist)}
+.field input:hover{border-color:#94aabb}
+.field input:focus-visible{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--lake);background:#fff}
+.field input[aria-invalid=true]{border-color:var(--danger);background:#fff}
+.field .eye{position:absolute;right:6px;top:7px;width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.field .eye:hover{background:#e7eef2}
+.field .help{margin-top:6px;font-size:13px;color:var(--muted);font-weight:600}
+.row-between{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.link{font:700 15px var(--display);color:var(--orange-ink);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--danger-soft);color:var(--danger);font-weight:700;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border:0;border-radius:14px;font:700 18px var(--display);text-decoration:none;cursor:pointer}
+.btn-primary{background:var(--orange-btn);color:#fff;box-shadow:0 4px 0 #7f3006}
+.btn-primary:hover{background:var(--orange-hover)}
+.btn-primary:active{transform:translateY(3px);box-shadow:0 1px 0 #7f3006}
+.btn-primary[aria-busy=true]{opacity:.85;cursor:progress}
+.btn-ghost{background:transparent;color:var(--lake);min-height:44px;padding:0 10px;font-size:16px}
+.btn-ghost:hover{background:#eef3f6}
+.btn-block{width:100%}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.panel-foot{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);text-align:center;color:var(--muted);font-weight:600}
+
+/* Recorrido de registro */
+.trail{display:flex;align-items:center;margin:0 0 22px;padding:0;list-style:none}
+.trail li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted);white-space:nowrap}
+.trail li+li::before{content:"";width:30px;border-top:3px dashed var(--trail);margin:0 8px}
+.trail .mark{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--line-strong);font:800 12px var(--display);color:var(--muted)}
+.trail [aria-current=step]{color:var(--ink)}
+.trail [aria-current=step] .mark{box-shadow:inset 0 0 0 3px var(--orange);color:var(--orange-ink)}
+.trail .done .mark{background:var(--pine);box-shadow:none;color:#fff}
+.trail .done{color:var(--pine)}
+
+/* Elegir rol: dos tarjetas grandes */
+.roles{border:0;margin:0;padding:0;display:grid;gap:12px}
+.roles legend{padding:0;margin-bottom:10px;font-weight:800;font-size:15px}
+.role{position:relative;display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center;padding:14px 46px 14px 14px;border:2px solid var(--line);border-radius:20px;background:var(--mist);cursor:pointer}
+.role:hover{border-color:#94aabb;background:#fff}
+.role input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.role img{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--orange-soft)}
+.role.student img{background:var(--pine-soft)}
+.role strong{display:block;font:800 20px var(--display)}
+.role ul{margin:4px 0 0;padding:0;list-style:none;color:var(--muted);font-size:14px;font-weight:600}
+.role li::before{content:"· "}
+.role .check{position:absolute;right:16px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;border:2px solid var(--line-strong);background:#fff}
+.role:has(input:checked){border-color:var(--orange-btn);background:#fff8f3}
+.role:has(input:checked) .check{border:7px solid var(--orange-btn)}
+.role.student:has(input:checked){border-color:var(--pine);background:#f2faf6}
+.role.student:has(input:checked) .check{border-color:var(--pine)}
+.role:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.note{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);font-weight:600}
+.chosen{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:14px;background:var(--mist);font-weight:700;font-size:14px}
+.chosen img{width:36px;height:36px;border-radius:50%;background:var(--orange-soft)}
+.chosen .btn-ghost{margin-left:auto;min-height:34px;font-size:14px}
+.actions{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.meter{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.meter i{height:6px;border-radius:99px;background:#e3ebef}
+.meter.l1 i:nth-child(1){background:#d9822b}
+.meter.l2 i:nth-child(-n+2){background:#c2a12b}
+.meter.l3 i{background:var(--pine)}
+
+/* Correo enviado */
+.sent{text-align:center}
+.sent .env{display:grid;place-items:center;width:84px;height:84px;margin:0 auto 14px;border-radius:50%;background:var(--sky);color:var(--lake)}
+.sent .env svg{width:40px;height:40px}
+.sent .email{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:99px;background:var(--mist);font-weight:800}
+.sent .steps{margin:18px 0 0;padding:0;list-style:none;text-align:left;display:grid;gap:8px;color:var(--muted);font-weight:600}
+.sent .steps li{display:flex;gap:10px}
+.sent .steps b{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;background:var(--pine-soft);color:var(--pine);font-size:13px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1100px){
+  .stage{grid-template-columns:minmax(0,460px);justify-content:start;padding-left:6vw}
+  .guide{position:absolute;right:4%;bottom:0;margin:0;width:190px}
+  .say{left:auto;right:150px;top:-20px;border-radius:18px 18px 4px 18px}
+}
+@media (max-width:760px){
+  .scene{background-size:auto 300px;background-position:70% 0;min-height:auto}
+  .scene::before{background:linear-gradient(180deg,rgba(var(--wash),0) 0,rgba(var(--wash),0) 200px,var(--canvas) 300px)}
+  .scene.river{background-position:60% 0}
+  .top{padding:14px 14px}
+  .switch{padding:4px 4px 4px 12px;font-size:13px}
+  .switch span{display:none}
+  .stage{display:block;padding:150px 12px 32px;min-height:0}
+  .panel{position:relative;z-index:2}
+  .guide{position:absolute;z-index:1;left:14px;right:auto;top:62px;bottom:auto;width:104px;margin:0}
+  .say{left:104px;right:auto;top:6px;border-radius:18px 18px 18px 4px;max-width:min(200px,calc(100vw - 140px));font-size:14px}
+  .panel{padding:24px 18px 22px;border-radius:24px}
+  .panel h1{font-size:30px}
+  .two{grid-template-columns:1fr}
+  .trail li span.t{display:none}
+  .trail [aria-current=step] span.t{display:inline}
+  .role{grid-template-columns:56px 1fr}
+  .role img{width:56px;height:56px}
+}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}.btn:active{transform:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+</svg>
+
+<nav class="mock-bar" aria-label="Estados de la maqueta">
+  <strong>Acceso</strong>
+  <button type="button" data-v="login" aria-pressed="true">Iniciar sesión</button>
+  <button type="button" data-v="login-error" aria-pressed="false">… con error</button>
+  <button type="button" data-v="login-busy" aria-pressed="false">… ingresando</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" data-v="reg1" aria-pressed="false">Crear cuenta · rol</button>
+  <button type="button" data-v="reg2" aria-pressed="false">· tus datos</button>
+  <button type="button" data-v="reg3" aria-pressed="false">· correo enviado</button>
+</nav>
+
+<div class="scene" id="scene">
+  <header class="top">
+    <a class="brand" href="#"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</a>
+    <p class="switch" data-switch></p>
+  </header>
+
+  <div class="stage">
+    <main class="panel" data-panel aria-live="polite"></main>
+    <div class="guide" aria-hidden="true">
+      <p class="say" data-say></p>
+      <img src="../../apps/web/public/brujula/foxy-bienvenida.webp" alt="">
+    </div>
+  </div>
+</div>
+
+<script>
+const eye='<button class="eye" type="button" aria-label="Mostrar contraseña" data-eye><svg class="i"><use href="#i-eye"/></svg></button>';
+const trail=(step)=>{const s=['Tu rol','Tus datos','Tu correo'];return `<ol class="trail" aria-label="Pasos para crear tu cuenta">${s.map((t,i)=>`<li class="${i<step?'done':''}" ${i===step?'aria-current="step"':''}><span class="mark">${i<step?'<svg class="i" style="width:14px;height:14px"><use href="#i-check"/></svg>':i+1}</span><span class="t">${t}</span></li>`).join('')}</ol>`};
+const login=(state)=>`
+  <h1>Volvé a tu espacio</h1>
+  <p class="lead">Ingresá con el correo de tu cuenta.</p>
+  <form class="form" novalidate onsubmit="return false">
+    ${state==='error'?'<p class="alert" role="alert"><svg class="i"><use href="#i-alert"/></svg>El correo o la contraseña no coinciden. Revisalos y probá de nuevo.</p>':''}
+    <div class="field"><label for="l-email">Correo electrónico</label><div class="control"><input id="l-email" type="email" autocomplete="username" value="${state?'lucia@escuela.edu.ar':''}" ${state==='error'?'aria-invalid="true"':''}></div></div>
+    <div class="field">
+      <div class="row-between"><label for="l-pass">Contraseña</label><a class="link" href="#">Olvidé mi contraseña</a></div>
+      <div class="control"><input id="l-pass" type="password" autocomplete="current-password" value="${state?'contrasena':''}" ${state==='error'?'aria-invalid="true"':''}>${eye}</div>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit" ${state==='busy'?'aria-busy="true" disabled':''}>${state==='busy'?'<span class="spin" aria-hidden="true"></span>Ingresando…':'Iniciar sesión'}</button>
+  </form>
+  <p class="panel-foot">¿Primera vez? <a class="link" href="#" data-go="reg1">Creá tu cuenta</a></p>`;
+const reg1=()=>`
+  ${trail(0)}
+  <h1>¿Cómo vas a usar FoxMind?</h1>
+  <p class="lead">Elegí tu rol. Define qué vas a ver al entrar.</p>
+  <form class="form" novalidate onsubmit="return false">
+    <fieldset class="roles">
+      <legend class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Rol de la cuenta</legend>
+      <label class="role"><input type="radio" name="role" value="teacher" checked><img src="../../apps/web/public/brujula/avatars/foxy-classic.webp" alt=""><span><strong>Docente</strong><ul><li>Creás aulas y actividades</li><li>Corregís y das devoluciones</li></ul></span><span class="check" aria-hidden="true"></span></label>
+      <label class="role student"><input type="radio" name="role" value="student"><img src="../../apps/web/public/brujula/avatars/foxy-explorer.webp" alt=""><span><strong>Estudiante</strong><ul><li>Te unís a aulas con un código</li><li>Resolvés actividades y repasás</li></ul></span><span class="check" aria-hidden="true"></span></label>
+    </fieldset>
+    <p class="note"><svg class="i" style="width:16px;height:16px"><use href="#i-lock"/></svg>No vas a poder cambiar el rol después.</p>
+    <button class="btn btn-primary btn-block" type="button" data-go="reg2">Continuar<svg class="i"><use href="#i-arrow"/></svg></button>
+  </form>
+  <p class="panel-foot">¿Ya tenés cuenta? <a class="link" href="#" data-go="login">Iniciá sesión</a></p>`;
+const reg2=()=>`
+  ${trail(1)}
+  <h1>Contanos quién sos</h1>
+  <p class="lead">Así te van a ver en tus aulas.</p>
+  <form class="form" novalidate onsubmit="return false">
+    <div class="chosen"><img src="../../apps/web/public/brujula/avatars/foxy-classic.webp" alt="">Cuenta docente<button class="btn btn-ghost" type="button" data-go="reg1">Cambiar</button></div>
+    <div class="two">
+      <div class="field"><label for="r-first">Nombre</label><div class="control"><input id="r-first" autocomplete="given-name" value="Lucía"></div></div>
+      <div class="field"><label for="r-last">Apellido</label><div class="control"><input id="r-last" autocomplete="family-name" value="Pérez"></div></div>
+    </div>
+    <div class="field"><label for="r-email">Correo electrónico</label><div class="control"><input id="r-email" type="email" autocomplete="email" value="lucia@escuela.edu.ar"></div></div>
+    <div class="field"><label for="r-pass">Contraseña</label><div class="control"><input id="r-pass" type="password" autocomplete="new-password" aria-describedby="r-pass-help" value="montaña24">${eye}</div>
+      <div class="meter l2" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="help" id="r-pass-help">Usá al menos 8 caracteres. Sumá un número o un símbolo para hacerla más segura.</p></div>
+    <div class="actions">
+      <button class="btn btn-ghost" type="button" data-go="reg1"><svg class="i"><use href="#i-back"/></svg>Volver</button>
+      <button class="btn btn-primary" type="button" data-go="reg3">Crear cuenta</button>
+    </div>
+  </form>`;
+const reg3=()=>`
+  ${trail(2)}
+  <div class="sent">
+    <span class="env" aria-hidden="true"><svg class="i"><use href="#i-mail"/></svg></span>
+    <h1>Revisá tu correo</h1>
+    <p class="lead">Te mandamos un enlace para verificar tu cuenta.</p>
+    <span class="email">lucia@escuela.edu.ar</span>
+    <ol class="steps">
+      <li><b>1</b>Abrí el mensaje de FoxMind. Si no aparece, mirá en correo no deseado.</li>
+      <li><b>2</b>Tocá el enlace dentro de la próxima hora.</li>
+      <li><b>3</b>Listo: entrás directo a tu Inicio.</li>
+    </ol>
+  </div>
+  <p class="panel-foot">¿No te llegó? <a class="link" href="#">Reenviar correo</a></p>`;
+const V={
+ login:{html:()=>login(''),say:'¡Qué bueno verte de nuevo!',river:false,sw:['¿Todavía no tenés cuenta?','Crear cuenta','reg1']},
+ 'login-error':{html:()=>login('error'),say:'Uy, algo no coincide. Probemos otra vez.',river:false,sw:['¿Todavía no tenés cuenta?','Crear cuenta','reg1']},
+ 'login-busy':{html:()=>login('busy'),say:'Preparando tu espacio…',river:false,sw:['¿Todavía no tenés cuenta?','Crear cuenta','reg1']},
+ reg1:{html:reg1,say:'¡Arranquemos! Primero, contame tu rol.',river:true,sw:['¿Ya tenés cuenta?','Iniciar sesión','login']},
+ reg2:{html:reg2,say:'Ya casi. Un paso más.',river:true,sw:['¿Ya tenés cuenta?','Iniciar sesión','login']},
+ reg3:{html:reg3,say:'¡Te espero del otro lado!',river:true,sw:['¿Ya tenés cuenta?','Iniciar sesión','login']},
+};
+function show(k){
+ const v=V[k];document.getElementById('scene').classList.toggle('river',v.river);
+ document.querySelector('[data-panel]').innerHTML=v.html();
+ document.querySelector('[data-say]').textContent=v.say;
+ document.querySelector('[data-switch]').innerHTML=`<span>${v.sw[0]}</span><a href="#" data-go="${v.sw[2]}">${v.sw[1]}</a>`;
+ document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===k));
+ document.title=(k.startsWith('reg')?'Crear cuenta':'Iniciar sesión')+' · FoxMind';
+}
+document.addEventListener('click',e=>{
+ const g=e.target.closest('[data-go]');if(g){e.preventDefault();show(g.dataset.go);const h=document.querySelector('[data-panel] h1');if(h){h.tabIndex=-1;h.focus();}return;}
+ const b=e.target.closest('[data-v]');if(b){show(b.dataset.v);return;}
+ const eb=e.target.closest('[data-eye]');if(eb){const i=eb.previousElementSibling;const on=i.type==='password';i.type=on?'text':'password';eb.setAttribute('aria-label',on?'Ocultar contraseña':'Mostrar contraseña');}
+});
+show(new URLSearchParams(location.search).get('v')||'login');
+</script>
+</body>
+</html>
