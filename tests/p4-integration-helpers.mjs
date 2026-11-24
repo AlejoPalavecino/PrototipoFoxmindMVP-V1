@@ -63,17 +63,6 @@ export async function api(page, method, path, body, headers = {}, options = {}) 
     }
   }, { method, path, body, headers, options });
 }
-/**
- * Scripted journeys share 127.0.0.1 and can fill the general-identity budgets (240/min per IP, 120/min per session).
- * Real limits stay unchanged: wait for any busy window to reset before a step that needs fresh capacity.
- */
-export async function waitForIdentityWindows(db, busy = 60) {
-  const [busiest] = (await db.query(`SELECT GREATEST(0, EXTRACT(EPOCH FROM window_started_at + interval '61 seconds' - clock_timestamp()))::float AS wait
-    FROM account_action_controls WHERE action IN ('identity.v1:general-identity:session', 'identity.v1:general-identity:ip') AND request_count >= $1
-    ORDER BY window_started_at DESC LIMIT 1`, [busy])).rows;
-  if (busiest) await delay(Math.ceil(busiest.wait * 1000));
-}
-
 export async function fileSnapshot(db) {
   const rows = [];
   for (const [table, key] of [['files', 'id'], ['uploads', 'id'], ['file_custodies', 'file_id']]) {

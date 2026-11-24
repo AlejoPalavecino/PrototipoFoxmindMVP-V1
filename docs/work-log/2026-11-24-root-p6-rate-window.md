@@ -1,5 +1,7 @@
 # 429 de `p6-wall-integration` por la ventana de identidad compartida (24/11/2026)
 
+> **Reemplazado el mismo día.** La espera por test de este registro se retiró. La causa resultó común a todos los recorridos del runtime de P4 y se resolvió ajustando ese runtime: ver [cupo de identidad de los recorridos integrados](2026-11-24-root-journey-identity-budget.md).
+
 - **Alcance autorizado:** el 24/11 el usuario pidió seguir con el 429 de P6, que hacía fallar `integration-owned` en las corridas manuales 45449025234 y 45462128910. Commit y push, sólo si los pide. No incluye despliegue.
 - **Rol:** coordinador, único escritor. Rama `main`, worktree raíz, commit inicial `9a11039c`. La sesión no expone su identificador.
 
@@ -31,4 +33,6 @@ Sólo pruebas:
 - La espera depende de la consulta a `account_action_controls`. Si cambia el nombre de las acciones de identidad, el helper deja de esperar y el 429 vuelve a aparecer.
 - Agrega hasta unos 60 s al recorrido de P6.
 
-**Primer paso pendiente:** confirmar `integration-owned` en CI con `workflow_dispatch`.
+| CI, `workflow_dispatch` 45480172736 sobre `92c310e1` | `integration-owned` en verde por primera vez desde el 16/11. `owned-db`, `verify`, `fast` y `owned-services` también en verde. Siguen en rojo `owned-browser` (`brujula-browser`) y `wrappers` (`p3-browser`), que se tratan en otros registros. |
+
+**Primer paso pendiente:** ninguno propio.

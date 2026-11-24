@@ -7,7 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
-import { account, api, digest, waitForIdentityWindows } from './p4-integration-helpers.mjs';
+import { account, api, digest } from './p4-integration-helpers.mjs';
 import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
 import { openClassroom } from './p6-integration-helpers.mjs';
 
@@ -242,8 +242,6 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
       });
 
       await check('actual responsive classroom views, profile navigation and logout keep P3 boundaries', async () => {
-        // The scripted API calls above can fill the teacher session's general-identity budget and nearly fill the IP one.
-        await waitForIdentityWindows(db);
         await openClassroom(page, origin, 'Integrated photography');
         await selectClassroomSection(page, 'history', 'Historial');
         await page.locator('#classroom-section-title').filter({ hasText: 'Historial' }).waitFor();
