@@ -22,6 +22,8 @@ En GitHub, el workflow `FoxMind checks` (`.github/workflows/issue2-ci.yml`) tien
 
 Los runners pueden crear PostgreSQL/S3/escáner/correo propios; otros requieren activación explícita de entorno/proveedor. Revisar el inventario y los guards antes de ejecutar. No descubrir secretos ni usar una base persistente como fixture.
 
+Las pruebas de acompañamiento docente, escritura y estrategias compartidas no usan Docker: [`teacher-support-test-runtime.mjs`](../../../scripts/teacher-support-test-runtime.mjs) levanta un cluster nativo descartable con `initdb` y `pg_ctl` (de `pg_config`, `FOXMIND_TEST_POSTGRES_BIN` o la instalación de Windows). Fuera de Windows, el socket Unix queda en la carpeta temporal del cluster, porque los paquetes de Debian/Ubuntu apuntan a `/var/run/postgresql` y el usuario del runner no puede escribir ahí. Si `pg_ctl` no arranca, el error incluye el final del log de PostgreSQL.
+
 El helper de fuentes `tests/helpers/load-ts-module.mjs` pasa el nombre real del archivo a TypeScript para distinguir genéricos `.ts` de JSX `.tsx`. Las pruebas de inventario mantienen una lista explícita de [las migraciones versionadas](../../../tests/helpers/migration-inventory.mjs) y un conjunto de hashes históricos; agregar una migración exige actualizar la fixture deliberadamente, sin sustituirla por descubrimiento dinámico ni reescribir SQL.
 
 Las fixtures de upgrade siembran únicamente columnas presentes en su baseline histórico. `aiFixture` conserva `account_role='teacher'` por defecto para el esquema actual; sólo el escenario anterior a la migración de rol exclusivo usa `accountRoleColumn: false`. Esto no omite permisos ni altera snapshots o aserciones del upgrade.

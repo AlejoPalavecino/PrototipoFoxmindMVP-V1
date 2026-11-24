@@ -714,6 +714,7 @@
     "tests/teacher-support-backend-db.test.mjs",
     "tests/teacher-support-backend-http.test.mjs",
     "tests/teacher-support-backend-policy.test.mjs",
+    "tests/teacher-support-postgres-options.test.mjs",
     "tests/teacher-support-extension-ui.test.mjs",
     "tests/teacher-support-flow.test.mjs",
     "tests/teacher-support-sharing-flow.test.mjs",
