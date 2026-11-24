@@ -89,14 +89,14 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Blocker:** none
 
 ### TASK-005 — Actividades y editor
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** orchestrator
 - **Requirements:** REQ-004, REQ-007
 - **Verification:** tests/expedition-classrooms.test.mjs; pruebas de autoría existentes
-- **Scope:** ["apps/web/src/application/workflows/activity-session/Activities.tsx", "apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
-- **Acceptance:** La lista y el editor adoptan Expedición sin cambiar los pasos, los campos ni la publicación inmediata.
-- **Evidence:** none
+- **Scope:** ["apps/web/src/features/classrooms/styles/expedition-activities.css", "tests/expedition-activities.test.mjs"]
+- **Acceptance:** La lista y el editor adoptan Expedición sin cambiar los pasos, los campos ni la publicación inmediata: filtro segmentado con contador centrado, paso actual en lago, títulos de recuadros dentro de su tarjeta y nombres de pasos completos en celular.
+- **Evidence:** {"command": "node --test tests/expedition-activities.test.mjs; navegador Actividades y editor 1440 y 390", "result": "2/2; filtro segmentado con contador centrado, paso actual en lago con número en sol, estado de guardado en niebla, modo Temas en lago, títulos de Tipo, Método y unidades dentro de su tarjeta, pasos completos en celular; sin desborde; sin cambios de comportamiento (sólo CSS)", "candidate": "sha256:6b84dfecd5265f56215685630a54e9e673347650d9a42030cd8d0c8b8eff6905"}
 - **Blocker:** none
 
 ### TASK-006 — Progreso, Estudiantes, Historial y Ajustes con interruptor de IA
