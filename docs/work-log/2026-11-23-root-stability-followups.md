@@ -34,7 +34,7 @@ Antes del cambio de presupuesto, `test:complete` se cortaba en su prerrequisito 
 ## Límites
 
 - La causa del 503 sigue sin confirmar. Si se repite, la salida de error de la API va a mostrar `cause`.
-- `p5-integration` está en el grupo `owned-browser` de la suite completa, que CI ejecuta en el job `complete-suite`. Sin embargo, el workflow `issue2-ci.yml` se dispara sólo en `pull_request`, así que los push directos a `main` no lo ejecutan. (Una versión anterior de este registro afirmaba por error que `p5` no estaba en ningún grupo.)
+- `p5-integration` está en el grupo `owned-browser` de la suite completa, que CI ejecuta en el job `complete-suite`. Tras el cambio de disparo de CI, los push directos a `main` corren sólo `verify`. `complete-suite` (y con él `p5-integration`) e `integration-owned` corren en los pull requests y a mano con `workflow_dispatch`, así que un push a `main` no ejecuta `p5`. (Una versión anterior de este registro afirmaba por error que `p5` no estaba en ningún grupo.)
 - `next dev` muestra un rechazo por `nosniff` de `_clientMiddlewareManifest.js`. No es de CSP y no impide la hidratación.
 - No hubo prueba con un Caddy o nginx real; el comportamiento se verificó con pedidos sintéticos.
 - Sin despliegue. Para activar el borde en el VPS hay que definir `WEB_TRUSTED_PROXY_CIDRS` y `FOXMIND_PROXY_CLIENT_KEY` en el servidor.
