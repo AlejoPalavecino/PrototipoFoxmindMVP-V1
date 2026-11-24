@@ -173,6 +173,7 @@
       "tests/activity-parity-contract.test.mjs",
       "tests/agenda-client-http.test.mjs",
       "tests/client-address.test.mjs",
+      "tests/home-diagnostics.test.mjs",
       "tests/monthly-ai-quota-transport.test.mjs",
       "tests/monthly-ai-quota-client.test.mjs",
       "tests/monthly-ai-quota-errors.test.mjs",

@@ -4,6 +4,7 @@ import { ClassroomIdentityError } from './errors.ts';
 import { FileIdentityError } from '../../../files/public.ts';
 import type { Actor, ClassroomPorts, Transaction } from '../application/runtime-ports.ts';
 import { registerTransactionMode } from '../application/transaction-mode.ts';
+import { diagnosticCause } from '../../../../platform/diagnostics.ts';
 
 type RawTransaction = Parameters<Parameters<ClassroomPorts['database']['$transaction']>[0]>[0];
 export class ClassroomTransactionRunner {
@@ -41,7 +42,7 @@ export class ClassroomTransactionRunner {
         this.diagnostic(operation, 'COMPLETED', 'success', performance.now() - start, correlationId);
         return result;
       } catch (error) {
-        this.diagnostic(operation, 'UNEXPECTED', 'failure', performance.now() - start, correlationId);
+        this.diagnostic(operation, 'UNEXPECTED', 'failure', performance.now() - start, correlationId, diagnosticCause(error));
         throw error;
       }
     } };
@@ -51,12 +52,12 @@ export class ClassroomTransactionRunner {
     if (error instanceof FileIdentityError) throw new ClassroomIdentityError(error);
     if (error && typeof error === 'object' && 'code' in error &&
       ['FORBIDDEN', 'QUOTA_EXCEEDED', 'UPLOAD_CONFLICT', 'FILE_NOT_READY'].includes(String(error.code))) fail('CONFLICT');
-    this.diagnostic('classroom.operation', 'UNEXPECTED', 'failure', performance.now() - started, correlationId);
+    this.diagnostic('classroom.operation', 'UNEXPECTED', 'failure', performance.now() - started, correlationId, diagnosticCause(error));
     return fail('SERVICE_UNAVAILABLE');
   }
   private diagnostic(operation: 'classroom.operation' | 'classroom.query' | 'classroom.lock', code: 'COMPLETED' | 'UNEXPECTED',
-    outcome: 'success' | 'failure', durationMs: number, correlationId: string) {
-    try { this.ports.diagnostics?.record({ operation, code, outcome, durationMs, correlationId }); } catch {}
+    outcome: 'success' | 'failure', durationMs: number, correlationId: string, cause?: string) {
+    try { this.ports.diagnostics?.record({ operation, code, outcome, durationMs, correlationId, ...(cause ? { cause } : {}) }); } catch {}
   }
   private async budget(tx: Transaction, id: string, now: Date) {
     const [row] = await tx.query<{ request_count: number }>(`INSERT INTO account_action_controls

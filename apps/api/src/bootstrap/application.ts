@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { createDiagnosticSink } from "../platform/diagnostics.ts";
 import { Inject, Module, Optional, type DynamicModule, type OnModuleDestroy } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import type { ApiConfiguration } from './configuration.ts';
@@ -121,7 +122,8 @@ class AppModule implements OnModuleDestroy {
             visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, ...(configuration.ai.dailyActorBudgetUsd === undefined ? {} : { dailyActorBudgetUsd: configuration.ai.dailyActorBudgetUsd }), dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
         { provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => createHomeService(
-          createHomeUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }, { provide: AgendaService, inject: [PrismaService, IdentityRuntime],
+          createHomeUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security),
+            createDiagnosticSink(line => process.stderr.write(line)))) }, { provide: AgendaService, inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => new AgendaService(
           createAgendaUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }],
     };

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SerialJobScheduler } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/scheduler.ts';
-import { createDiagnosticSink } from '../apps/api/src/platform/diagnostics.ts';
+import { createDiagnosticSink, diagnosticCause } from '../apps/api/src/platform/diagnostics.ts';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -48,4 +48,19 @@ test('diagnostic lines are deduplicated rather than a complete latency series', 
   now += 100;
   sink.record({ ...event, durationMs: 4 });
   assert.deepEqual(lines.map(line => [line.durationMs, line.suppressedCount ?? 0]), [[1, 0], [4, 2]]);
+});
+
+test('diagnostic cause keeps only a database error code, never messages or values', () => {
+  assert.equal(diagnosticCause({ code: 'P2028', message: 'Transaction already closed CANARY' }), 'P2028');
+  assert.equal(diagnosticCause({ code: 'P2010', meta: { code: '40P01', message: 'deadlock CANARY' } }), '40P01');
+  assert.equal(diagnosticCause({ code: 'P2010', meta: { code: 'CANARY private' } }), 'P2010');
+  assert.equal(diagnosticCause({ code: '57014' }), '57014');
+  assert.equal(diagnosticCause(new Error('CANARY_PRIVATE_SQL')), 'other');
+  assert.equal(diagnosticCause(undefined), 'other');
+  const lines = [], sink = createDiagnosticSink(line => lines.push(JSON.parse(line)), { now: () => 100 });
+  const event = { operation: 'classroom.query', code: 'UNEXPECTED', outcome: 'failure', durationMs: 2,
+    correlationId: 'a1111111-1111-4111-8111-111111111111' };
+  sink.record({ ...event, cause: 'P2028' });
+  sink.record({ ...event, operation: 'classroom.lock', cause: 'CANARY private' });
+  assert.deepEqual(lines.map(line => line.cause), ['P2028', undefined]);
 });

@@ -121,7 +121,7 @@ export const suites = {
     'tests/audit-browser-action-observer.test.mjs',
     'tests/audit-shared-contracts.test.mjs', 'tests/audit-notifications-contract.test.mjs',
     'tests/audit-architecture.test.mjs', 'tests/audit-progress-linear.test.mjs',
-    'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
+    'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs', 'tests/home-diagnostics.test.mjs',
   ],
   transport: [
     'tests/teacher-support-backend-http.test.mjs',
