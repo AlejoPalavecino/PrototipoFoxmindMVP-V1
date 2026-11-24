@@ -14,6 +14,7 @@ Requested 2026-11-23: resolve the three open items left by `odd/tasks/security-h
 - **REQ-002:** The intermittent API 503 on `/home` seen in `login-inicio-integration` has an identified cause, and either a fix or diagnostics that make the cause visible next time.
 - **REQ-003:** The page CSP works in `next dev` and the classroom join-code dialog works in a real browser; `style-src` drops `'unsafe-inline'` for `<style>` elements where Next allows it.
 - **REQ-005:** `p5-integration` passes without changing real rate limits, and `npm run test:complete -- --group fast` runs its tests instead of stopping at the API build prerequisite.
+- **REQ-006:** Direct pushes to `main` run the light CI verification; the full suites (including `p5-integration` in `owned-browser`) keep running on pull requests and can be started by hand. Chosen by the user on 2026-11-24.
 - **REQ-004:** API and web build, `lint:boundaries` and `docs:check` pass and the fast suite keeps its baseline (3091/0).
 
 Excluded: real provider calls, retained data, deployment, and product behaviour changes.
@@ -79,4 +80,15 @@ Excluded: real provider calls, retained data, deployment, and product behaviour 
 - **Acceptance:** buildApi defaults to 90 s (same as the local start budget); the complete-suite prerequisites allow it; the official fast group runs to completion.
 - **Scope:** ["scripts/build-api.mjs", "scripts/run-complete-suite.mjs", "tests/local-api-build.test.mjs", "tests/api-build-pipeline.test.mjs", "docs/engineering/local-development/README.md"]
 - **Evidence:** {"command": "node --test tests/local-api-build.test.mjs tests/api-build-pipeline.test.mjs tests/audit-complete-suite.test.mjs; npm run test:complete -- --group fast; lint:boundaries; docs:check", "result": "Before: generation + compilation took ~38 s and test:complete stopped at 'Prerequisite failed or timed out: scripts/build-api.mjs'. After raising buildApi to 90 s and the runner prerequisites to 95 s / 90 s: build/runner tests 31/31; official fast group 3098 passed, 0 failed (631 s); lint 0; docs 0 issues", "candidate": "sha256:474c36959f18960e7a36c4222d4e1dc1b664f22c8d2fe4d3d67d48807b290c56"}
+- **Blocker:** none
+
+### TASK-006 — CI runs on pushes to main
+- **State:** VERIFYING
+- **Depends on:** TASK-004
+- **Owner:** orchestrator
+- **Requirements:** REQ-006
+- **Verification:** node --test tests/issue2-ci-workflow.test.mjs; YAML parse; observe the push-triggered run on GitHub
+- **Acceptance:** The workflow triggers on pull_request (any base), push to main and workflow_dispatch; on push only `verify` runs and `integration-owned` / `complete-suite` are skipped.
+- **Scope:** [".github/workflows/issue2-ci.yml", "tests/issue2-ci-workflow.test.mjs", "docs/engineering/testing/README.md"]
+- **Evidence:** pending
 - **Blocker:** none

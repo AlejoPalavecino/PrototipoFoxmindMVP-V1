@@ -43,7 +43,7 @@ El 2026-11-10 autorizó integrar la migración por dominios y sus correcciones v
 
 El 2026-11-16 el usuario autorizó commits, integración en main y push de la arquitectura IA con SDK oficiales y perfiles persistentes por trabajo. El registro es docs/work-log/2026-11-16-root-ai-runtime-publication.md. Se preservan main y los otros worktrees con sus cambios ajenos. Esta publicación no concede despliegue, migración sobre datos retenidos ni activación real de Claude.
 
-El 2026-11-24 el usuario autorizó commit y push a main de los pendientes de estabilidad (dirección del cliente detrás de un proxy de borde local, diagnóstico del 503 de Inicio, corrección de p5-integration y presupuesto del build de la API). El registro es docs/work-log/2026-11-23-root-stability-followups.md. No concede despliegue.
+El 2026-11-24 el usuario autorizó commit y push a main de los pendientes de estabilidad (dirección del cliente detrás de un proxy de borde local, diagnóstico del 503 de Inicio, corrección de p5-integration, presupuesto del build de la API y disparo de CI en push a main). El registro es docs/work-log/2026-11-23-root-stability-followups.md. No concede despliegue.
 
 ## Pruebas locales con Gemini (preferencia vigente del usuario)
 

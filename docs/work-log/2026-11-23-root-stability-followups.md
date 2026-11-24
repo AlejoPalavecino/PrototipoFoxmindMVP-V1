@@ -11,6 +11,7 @@
 - **503 intermitente en `/home`.** No se reprodujo. El diagnóstico anterior descartaba el error real y `/home` no registraba nada. Ahora el runner de aulas agrega `cause` (código Prisma `Pnnnn` o SQLSTATE; si no, `other`, nunca mensajes ni valores) y `/home` emite `home.read UNEXPECTED` con su causa.
 - **`p5-integration`.** Un sondeo temporal mostró que el test agota su propio cupo: la sesión del docente llega a 120/120 en unos 38 s y el balde compartido de `127.0.0.1` a 233/240, por llamadas de API programadas. Ahora, antes del tramo final, el test espera a que se reinicien esas ventanas. Los límites reales no cambian.
 - **Presupuesto del build de la API.** `buildApi` pasa de 30 s a 90 s, el mismo valor que ya usaba el arranque local. Los prerrequisitos de `test:complete` permiten 95 s para el build y 90 s para cada `tsc`.
+- **CI en `main`.** El workflow sólo se disparaba en pull requests, y como se publica directo a `main`, no corría nunca (última corrida: 16/11, en una rama de PR). El usuario eligió la opción liviana: cada push a `main` corre `verify`, mientras que `integration-owned` y `complete-suite` (que incluye `p5-integration`) corren en los PR y a mano con `workflow_dispatch`. Ver [guía de pruebas](../engineering/testing/README.md).
 - **CSP.** Se verificó en el navegador y no hizo falta cambiar código. `style-src` conserva `'unsafe-inline'`, y la razón quedó en la [guía de frontend](../engineering/frontend/README.md).
 
 ## Verificación
@@ -33,7 +34,7 @@ Antes del cambio de presupuesto, `test:complete` se cortaba en su prerrequisito 
 ## Límites
 
 - La causa del 503 sigue sin confirmar. Si se repite, la salida de error de la API va a mostrar `cause`.
-- `p5-integration` no forma parte de ningún grupo de la suite, así que la integración continua no lo ejecuta.
+- `p5-integration` está en el grupo `owned-browser` de la suite completa, que CI ejecuta en el job `complete-suite`. Sin embargo, el workflow `issue2-ci.yml` se dispara sólo en `pull_request`, así que los push directos a `main` no lo ejecutan. (Una versión anterior de este registro afirmaba por error que `p5` no estaba en ningún grupo.)
 - `next dev` muestra un rechazo por `nosniff` de `_clientMiddlewareManifest.js`. No es de CSP y no impide la hidratación.
 - No hubo prueba con un Caddy o nginx real; el comportamiento se verificó con pedidos sintéticos.
 - Sin despliegue. Para activar el borde en el VPS hay que definir `WEB_TRUSTED_PROXY_CIDRS` y `FOXMIND_PROXY_CLIENT_KEY` en el servidor.
