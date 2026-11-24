@@ -720,7 +720,10 @@
     "tests/teacher-support-transport.test.mjs",
     "tests/teacher-support-ui.test.mjs",
     "tests/teacher-writing-policy.test.mjs",
-    "tests/teacher-writing-backend-db.test.mjs"
+    "tests/teacher-writing-backend-db.test.mjs",
+    "tests/expedition-access.test.mjs",
+    "tests/expedition-home.test.mjs",
+    "tests/expedition-navigation.test.mjs"
   ],
   "exclusions": [
     {
