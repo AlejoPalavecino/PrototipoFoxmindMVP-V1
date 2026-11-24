@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
-import { account, api } from './p4-integration-helpers.mjs';
+import { account, api, waitForIdentityWindows } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, rejectSame } from './p6-integration-helpers.mjs';
 
 test('P6 actual Muro, scoped notifications, moderation and retained history', { timeout: 330000 }, async t => {
@@ -124,6 +124,8 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await rejectSame(runtime.db, () => api(page, 'POST', `/classrooms/${room.id}/wall`, body, { 'x-csrf-token': 'invalid' }), 403);
       });
       await check('exclusive roles retain classroom ownership boundaries; real restart preserves threads and notification reads', async () => {
+        // Steps 1-4 leave the shared 127.0.0.1 general-identity window near its 240/min budget.
+        await waitForIdentityWindows(runtime.db);
         const foreignTeacher = await (await browser.newContext()).newPage();
         await account(foreignTeacher, runtime.origin, runtime.inbox, `p6-wall-foreign-teacher-${suffix}@example.test`, undefined, 'teacher');
         const second = await classroom(foreignTeacher, undefined, 'Second role classroom');
