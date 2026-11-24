@@ -49,7 +49,7 @@ export function Wizard({
       draft.payload.timezone ??
       Intl.DateTimeFormat().resolvedOptions().timeZone,
   }));
-  const [changingZone,setChangingZone]=useState(false),[coversExpanded,setCoversExpanded]=useState(false);
+  const [changingZone,setChangingZone]=useState(false);
   const [step, setStep] = useState<number>(draft.payload.wizardStep ?? 0),
     [status, setStatus] = useState('Borrador guardado'),
     [error, setError] = useState('');
@@ -235,7 +235,7 @@ export function Wizard({
         <div key={step} className="class-step-content"><fieldset disabled={blocked}>
           {step === 0 ? <>
             <WizardGeneral payload={payload} zones={zones} onUpdate={update} changingZone={changingZone} onToggleZone={()=>setChangingZone(value=>!value)} />
-            <ClassroomWizardCover payload={payload} onUpdate={update} expanded={coversExpanded} onToggle={()=>setCoversExpanded(value=>!value)} />
+            <ClassroomWizardCover payload={payload} onUpdate={update} />
           </> : step === 1 ? <>
             <WizardPlanSource {...planOptions} />
             {processDismissed && processStage ? <div className="class-process-background" role="status"><p>{analysisPending ? 'El análisis puede continuar en el servidor. No hace falta volver a enviarlo.' : filePending || uploading ? 'Tu programa se está procesando. No hace falta volver a subirlo.' : 'Podés consultar el resultado del procesamiento.'}</p><button type="button" onClick={() => setProcessDismissed(false)}>Ver estado</button></div> : null}

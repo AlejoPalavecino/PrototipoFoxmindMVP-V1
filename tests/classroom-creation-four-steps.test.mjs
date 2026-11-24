@@ -139,12 +139,12 @@ for (const origin of ['home', 'classrooms']) test(`publicar desde ${origin} regr
 });
 
 
-test('tres portadas aprobadas conservan una selección previa fuera de catálogo',()=>{
- const {ClassroomWizardCover}=loadTsModule('apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx');const changes=[];
- const collapsed=ClassroomWizardCover({payload:{coverKey:'society'},onUpdate:(...args)=>changes.push(args)});
- const radios=descendants(collapsed,n=>n.type==='input');assert.deepEqual(radios.map(n=>n.props.value),['literature','biology','math','society']);assert.equal(radios.find(n=>n.props.value==='society').props.checked,true);assert.deepEqual(changes,[]);
+test('el asistente ofrece el catálogo completo de portadas y conserva una portada heredada como actual',()=>{
+ const {ClassroomWizardCover}=loadTsModule('apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx');const {coverCatalog}=loadTsModule('apps/shared-ui/academic-cover.tsx');const changes=[];
+ const view=ClassroomWizardCover({payload:{coverKey:'society'},onUpdate:(...args)=>changes.push(args)});
+ const radios=descendants(view,n=>n.type==='input');assert.deepEqual(radios.map(n=>n.props.value),coverCatalog.map(cover=>cover.key));assert.equal(radios.length,7);assert.equal(radios.find(n=>n.props.value==='society').props.checked,true);assert.deepEqual(changes,[]);
  radios[0].props.onChange();assert.deepEqual(changes,[['coverKey','literature']]);
- const current=ClassroomWizardCover({payload:{coverKey:'biology'},onUpdate(){}});assert.equal(descendants(current,n=>n.type==='input').length,3);assert.equal(descendants(current,n=>n.type==='button').length,0);
+ const legacy=ClassroomWizardCover({payload:{coverKey:'explore'},onUpdate(){}});const legacyRadios=descendants(legacy,n=>n.type==='input');assert.equal(legacyRadios.length,8);assert.equal(legacyRadios[0].props.value,'explore');assert.equal(legacyRadios[0].props.checked,true);
 });
 
 for (const method of ['ai', 'manual']) for (const step of [2, 3]) test(`reanudar ${method} en paso ${step + 1} conserva el plan y no dispara IA`, async () => {
