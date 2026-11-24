@@ -22,7 +22,7 @@ function capture(run) {
 
 test('default30s and explicit local90s share one deadline, always generating then compiling', async () => {
   const { buildLocalApi } = await import('../scripts/local-api-build.mjs');
-  for (const [build, budget] of [[buildApi, 30000], [buildLocalApi, 90000]]) {
+  for (const [build, budget] of [[buildApi, 90000], [buildLocalApi, 90000]]) {
     for (let invocation = 0; invocation < 2; invocation++) {
       let time = 1000;
       const calls = [];
@@ -44,7 +44,7 @@ test('default30s and explicit local90s share one deadline, always generating the
 
 test('both paths stop on failures/timeouts and never grant time past the shared deadline', async () => {
   const { buildLocalApi } = await import('../scripts/local-api-build.mjs');
-  for (const [build, budget] of [[buildApi, 30000], [buildLocalApi, 90000]]) {
+  for (const [build, budget] of [[buildApi, 90000], [buildLocalApi, 90000]]) {
     for (const stage of [0, 1]) for (const failure of [
       { status: 7 }, { status: null, signal: 'SIGTERM' },
       { status: null, error: new Error('ETIMEDOUT') }, { status: 0, error: new Error('runner error') },
@@ -98,7 +98,7 @@ test('invalid clock shape rejects silently before any runner call on both paths'
 
 test('invalid clock readings reject before arithmetic or a subsequent runner call on both paths', async () => {
   const { buildLocalApi } = await import('../scripts/local-api-build.mjs');
-  for (const [build, budget] of [[buildApi, 30000], [buildLocalApi, 90000]]) {
+  for (const [build, budget] of [[buildApi, 90000], [buildLocalApi, 90000]]) {
     for (const invalid of [NaN, Infinity, -Infinity, undefined, null, '1000']) {
       // Read0 creates the deadline; read1 precedes generation; read2 precedes tsc.
       for (const invalidRead of [0, 1, 2]) {

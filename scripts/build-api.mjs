@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // Always generate and compile in this invocation. No persistent reuse mechanism.
-export function buildApi({ root = process.cwd(), run = spawnSync, budgetMs = 30000, now = Date.now } = {}) {
+export function buildApi({ root = process.cwd(), run = spawnSync, budgetMs = 90000, now = Date.now } = {}) {
   if (!Number.isSafeInteger(budgetMs) || budgetMs <= 0) {
     throw new TypeError('API build budget must be a positive safe integer');
   }

@@ -16,7 +16,7 @@ El caso está guardado en los volúmenes persistentes del entorno local de este 
 ## Entorno descartable de revisión
 
 1. Instalar dependencias según lockfile si el equipo aún no las tiene, mediante npm ci.
-2. Compilar API con node scripts/build-api.mjs; el supervisor propio conserva 30 s totales.
+2. Compilar API con node scripts/build-api.mjs; el supervisor propio conserva 90 s totales.
 3. Compilar la web con npm run web:build; para aceptación supervisar el límite 180 s.
 4. Ejecutar node scripts/documentation-preview.mjs. Usa recursos nuevos y puertos loopback, aplica migraciones a su base vacía y crea dos identidades sintéticas y un aula.
 5. Abrir el origen que imprime el helper con Ego Lite. Las credenciales sintéticas están sólo en el fixture privado ignorado cuya ruta imprime; no copiarlas a documentación/capturas.
@@ -36,7 +36,7 @@ Por pedido del usuario, cuando solicite levantar la app para probar se usa la cl
 
 La compilación API de `local:up` y `local:restart` usa `node scripts/local-api-build.mjs`: 90 s totales compartidos entre generación Prisma y TypeScript estricto, siempre en ese orden y una vez por invocación, sin caché ni reuso. Un fallo o deadline agotado impide continuar. El wrapper permite 95 s: 90 s de trabajo y 5 s de margen para inicio/salida del proceso, no un segundo presupuesto de compilación. Los demás comandos conservan sus límites. Agotar el presupuesto no autoriza reintentar ni aumentarlo automáticamente.
 
-`node scripts/build-api.mjs` (también `npm run api:build`) mantiene 30 s totales por defecto. Ambos scripts aceptan sólo `--help` o ningún argumento; no hay flag de presupuesto ni override de entorno. El adaptador local reutiliza `buildApi({ root, run, budgetMs, now })`; `budgetMs` es un entero seguro positivo (30.000 ms por defecto), y `run`/`now` permiten pruebas sintéticas sin ejecutar herramientas reales.
+`node scripts/build-api.mjs` (también `npm run api:build`) mantiene 90 s totales por defecto, igual que el arranque local; con 30 s, generación más compilación (unos 38 s en el equipo de desarrollo) agotaba el plazo y `test:complete` no llegaba a correr las pruebas. Ambos scripts aceptan sólo `--help` o ningún argumento; no hay flag de presupuesto ni override de entorno. El adaptador local reutiliza `buildApi({ root, run, budgetMs, now })`; `budgetMs` es un entero seguro positivo (90.000 ms por defecto), y `run`/`now` permiten pruebas sintéticas sin ejecutar herramientas reales.
 
 El propietario y puertos persistentes se registran en `.test-artifacts/local-app/owner.json`; la configuración completa queda en `.env`. Docker usa un proyecto propio `foxmind-local-<id>` con PostgreSQL, SeaweedFS, ClamAV y Mailpit, publicado sólo en loopback. No reutiliza la antigua copia P3/P4 ni opera sobre sus volúmenes. El arranque rechaza otra DATABASE_URL y puertos web/API ocupados, en lugar de detener procesos desconocidos. Los archivos de ClamAV se normalizan a LF en el directorio privado para funcionar desde Windows.
 

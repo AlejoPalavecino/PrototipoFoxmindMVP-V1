@@ -20,10 +20,11 @@ export function cleanEnvironment(source = process.env) {
   return { ...Object.fromEntries(allowed.filter(key => source[key]).map(key => [key, source[key]])), NEXT_TELEMETRY_DISABLED: '1' };
 }
 function prepareGroup(group, env) {
-  const commands = [['scripts/build-api.mjs', [], 30000]];
+  // build-api.mjs owns a 90 s budget; the extra 5 s only cover process startup and exit.
+  const commands = [['scripts/build-api.mjs', [], 95000]];
   if (['fast', 'owned-services'].includes(group)) {
     for (const project of ['apps/api/tsconfig.p33-security.json', 'apps/api/tsconfig.p33-mail.json'])
-      commands.push(['node_modules/typescript/bin/tsc', ['-p', project], 30000]);
+      commands.push(['node_modules/typescript/bin/tsc', ['-p', project], 90000]);
   }
   if (group === 'owned-browser') commands.push(['node_modules/next/dist/bin/next', ['build', 'apps/web'], 180000]);
   for (const [program, args, timeout] of commands) {

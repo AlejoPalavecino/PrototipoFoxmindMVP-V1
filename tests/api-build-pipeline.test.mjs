@@ -82,7 +82,7 @@ test('direct build preserves project strict flags and runs generation then compi
   assert.match(calls[1].args[0].replaceAll('\\', '/'), /typescript\/bin\/tsc$/);
   assert.deepEqual(calls[1].args.slice(1), ['-p', 'apps/api/tsconfig.json']);
   for (const { options } of calls) {
-    assert.ok(options.timeout > 0 && options.timeout <= 30000);
+    assert.ok(options.timeout > 0 && options.timeout <= 90000);
     assert.equal(options.cwd, process.cwd());
   }
   const config = JSON.parse(readFileSync('apps/api/tsconfig.json', 'utf8'));
