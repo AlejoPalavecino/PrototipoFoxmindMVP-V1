@@ -78,12 +78,12 @@ Rama `claude/classrooms-expedition`, creada desde `a9554576` (la punta de `claud
 - **Blocker:** none
 
 ### TASK-004 — Biblioteca con archivo o apunte escrito
-- **State:** PLANNED
+- **State:** VERIFYING
 - **Depends on:** TASK-003
 - **Owner:** orchestrator
 - **Requirements:** REQ-004, REQ-005
 - **Verification:** tests/expedition-classrooms.test.mjs; navegador
-- **Scope:** ["apps/web/src/features/materials/catalog/MaterialCatalog.tsx", "apps/web/src/features/materials/publishing/MaterialPublishing.tsx", "apps/web/src/features/materials/publishing/MaterialForm.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
+- **Scope:** ["apps/web/src/features/materials/publishing/MaterialPublishing.tsx", "apps/web/src/features/classrooms/styles/expedition-room.css", "tests/expedition-classrooms.test.mjs"]
 - **Acceptance:** El docente elige entre archivo y apunte. El apunte se publica con título y contenido y el estudiante lo lee. La subida de archivos conserva la revisión de seguridad.
 - **Evidence:** none
 - **Blocker:** none

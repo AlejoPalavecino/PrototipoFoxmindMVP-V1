@@ -157,6 +157,9 @@ export function MaterialPublishing({ api, room, reload, refresh, onPublished, on
         const body = metadata.body ?? '';
         if (!body.trim())
             throw new Error('Escribí el contenido del recurso.');
+        // Same control-character rule the server applies to titles and bodies; failing here avoids uploading a document it would reject.
+        if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(`${metadata.title}${body}`))
+            throw new Error('El apunte tiene caracteres invisibles que no se pueden guardar. Borralos y volvé a intentar.');
         const snapshot = JSON.stringify([metadata.title, body]);
         if (previous?.snapshot === snapshot)
             return previous.file;
@@ -217,7 +220,7 @@ export function MaterialPublishing({ api, room, reload, refresh, onPublished, on
         else
             discardUpload();
     };
-    const uploadDialog = writable && active && uploadExpanded ? <Dialog className={styles.dialog} title={uploadPublished ? 'Material publicado' : confirmDiscard ? 'Descartar el material sin publicar' : 'Subir archivo'} onClose={closeUpload}>
+    const uploadDialog = writable && active && uploadExpanded ? <Dialog className={styles.dialog} title={uploadPublished ? 'Material publicado' : confirmDiscard ? 'Descartar el material sin publicar' : kind === 'TEXT' ? 'Escribir un apunte' : 'Subir archivo'} onClose={closeUpload}>
       {uploadPublished ? <div className={styles.upload}>
         <p role="status">El material ya está publicado en el aula.</p>
         {error ? <Notice error>{error}</Notice> : busy ? <p role="status">Actualizando el Plan…</p> : null}
@@ -232,6 +235,10 @@ export function MaterialPublishing({ api, room, reload, refresh, onPublished, on
       </div> : <div className={styles.upload}>
       {error ? <Notice error>{error}</Notice> : null}
       <ol className={styles.steps} aria-label="Pasos de carga"><li aria-current={uploadStep === 'details' ? 'step' : undefined}>1. Archivo y detalles</li><li aria-current={uploadStep === 'organization' ? 'step' : undefined}>2. Organización</li></ol>
+      {uploadStep === 'details' ? <fieldset className="material-kind-choice" disabled={busy}><legend>¿Qué querés compartir?</legend>
+        {([['FILE', 'upload', 'Subir un archivo', 'PDF, Word, PowerPoint, imágenes, Excel o ZIP.'], ['TEXT', 'edit', 'Escribir un apunte', 'Un texto breve que tu grupo lee en la app.']] as const).map(([value, icon, label, detail]) =>
+          <label key={value}><input type="radio" name="material-kind" value={value} checked={kind === value} onChange={() => { setKind(value); setError(''); }}/><FoxmindIcon name={icon}/><span><b>{label}</b><small>{detail}</small></span></label>)}
+      </fieldset> : null}
       {kind === 'FILE' && uploadStep === 'details' ? <div className={styles.drop} onDragOver={event => {
                     if (event.dataTransfer.types.includes('Files'))
                         event.preventDefault();
