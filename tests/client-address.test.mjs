@@ -38,3 +38,7 @@ test('key must be base64url of at least 32 bytes when set', () => {
     assert.throws(() => readClientAddressKey(bad), bad);
   }
 });
+test('a signed unresolved sentinel from the web yields no address so the API fails closed', () => {
+  assert.equal(clientAddress(request('127.0.0.1', 'unresolved', clientProof(key, 'unresolved', seconds)), key, now), undefined);
+  assert.equal(clientAddress(request('127.0.0.1', 'unresolved', clientProof(randomBytes(32), 'unresolved', seconds)), key, now), '127.0.0.1');
+});

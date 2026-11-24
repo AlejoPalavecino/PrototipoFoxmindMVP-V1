@@ -36,7 +36,7 @@ test('helper signs only the socket address and sends nothing without a valid key
   assert.deepEqual(clientAddressHeaders({ socket: {} }, key), {});
   assert.deepEqual(clientAddressHeaders({ socket: { remoteAddress: 'junk' } }, key), {});
   verify(clientAddressHeaders({ socket: { remoteAddress: '203.0.113.5' }, headers: { 'x-foxmind-client-address': '9.9.9.9' } }, key), '203.0.113.5');
-  verify(clientAddressHeaders({ socket: { remoteAddress: '2001:db8::5' } }, key), '2001:db8::5');
+  verify(clientAddressHeaders({ socket: { remoteAddress: '2001:db8::5' } }, key), '2001:db8:0:0::');
 });
 test('identity proxy forwards given signed headers and drops client-supplied ones', async () => {
   let seen;
@@ -70,3 +70,21 @@ for (const [name, file, exported, path] of proxies) {
     } finally { delete process.env.FOXMIND_PROXY_CLIENT_KEY; await web.close(); await upstream.close(); }
   });
 }
+test('helper reads X-Forwarded-For only from a trusted edge proxy, right to left', () => {
+  const cidrs = '127.0.0.1/32,10.0.0.0/8';
+  const behind = (peer, forwarded) => clientAddressHeaders({ socket: { remoteAddress: peer },
+    headers: forwarded === undefined ? {} : { 'x-forwarded-for': forwarded } }, key, Date.now(), cidrs);
+  verify(behind('127.0.0.1', '203.0.113.9'), '203.0.113.9');
+  verify(behind('::ffff:127.0.0.1', '198.51.100.1, 203.0.113.9, 10.1.2.3'), '203.0.113.9');
+  verify(behind('203.0.113.50', '198.51.100.1'), '203.0.113.50');
+  verify(clientAddressHeaders({ socket: { remoteAddress: '127.0.0.1' }, headers: { 'x-forwarded-for': '203.0.113.9' } }, key, Date.now(), undefined), '127.0.0.1');
+  for (const bad of [undefined, '', 'junk', '203.0.113.9, junk', '10.0.0.1, 127.0.0.1']) verify(behind('127.0.0.1', bad), 'unresolved');
+  verify(behind('127.0.0.1', ['203.0.113.7', '203.0.113.9']), '203.0.113.9');
+});
+test('helper reduces IPv6 clients to their /64 network', () => {
+  verify(clientAddressHeaders({ socket: { remoteAddress: '2001:db8:1:2:aaaa:bbbb:cccc:dddd' } }, key), '2001:db8:1:2::');
+  verify(clientAddressHeaders({ socket: { remoteAddress: '127.0.0.1' }, headers: { 'x-forwarded-for': '2001:db8:1:2::99' } }, key, Date.now(), '127.0.0.1/32'), '2001:db8:1:2::');
+});
+test('helper rejects malformed trusted proxy configuration by sending nothing trusted', () => {
+  verify(clientAddressHeaders({ socket: { remoteAddress: '127.0.0.1' }, headers: { 'x-forwarded-for': '203.0.113.9' } }, key, Date.now(), 'not-a-cidr'), 'unresolved');
+});

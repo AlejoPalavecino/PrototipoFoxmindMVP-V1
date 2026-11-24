@@ -6,6 +6,8 @@ export const clientAddressHeader = 'x-foxmind-client-address';
 export const clientProofHeader = 'x-foxmind-client-proof';
 export const clientProofContext = 'foxmind-client-address-v1';
 const maxSkewSeconds = 60;
+/** Signed by the web when a trusted edge proxy did not identify the client; callers answer 503. */
+export const unresolvedClientAddress = 'unresolved';
 
 /** Optional shared secret between the web proxy and the API. Absent means "use the socket address". */
 export function readClientAddressKey(raw: string | undefined): Buffer | undefined {
@@ -26,7 +28,7 @@ function loopback(address: string | undefined): boolean {
 /**
  * The address used by per-client rate limits. A signed address is honoured only when the TCP peer is
  * loopback (the web server on the same host) and the HMAC proof is fresh; otherwise the socket address wins.
- * Client-controlled headers never choose the address on their own.
+ * Client-controlled headers never choose the address on their own. A signed `unresolved` yields undefined.
  */
 export function clientAddress(
   request: { readonly socket: { readonly remoteAddress?: string }; readonly headers: IncomingHttpHeaders },
@@ -35,10 +37,11 @@ export function clientAddress(
   const socketAddress = request.socket.remoteAddress;
   if (!key || !loopback(socketAddress)) return socketAddress;
   const ip = request.headers[clientAddressHeader], proof = request.headers[clientProofHeader];
-  if (typeof ip !== 'string' || typeof proof !== 'string' || !isIP(ip)) return socketAddress;
+  if (typeof ip !== 'string' || typeof proof !== 'string' || (!isIP(ip) && ip !== unresolvedClientAddress)) return socketAddress;
   const match = /^(\d{1,12})\.([A-Za-z0-9_-]{43})$/.exec(proof);
   if (!match || Math.abs(nowMs / 1000 - Number(match[1])) > maxSkewSeconds) return socketAddress;
   const expected = Buffer.from(clientProof(key, ip, Number(match[1])).split('.')[1]!, 'base64url');
   const actual = Buffer.from(match[2]!, 'base64url');
-  return actual.length === expected.length && timingSafeEqual(actual, expected) ? ip : socketAddress;
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return socketAddress;
+  return ip === unresolvedClientAddress ? undefined : ip;
 }
