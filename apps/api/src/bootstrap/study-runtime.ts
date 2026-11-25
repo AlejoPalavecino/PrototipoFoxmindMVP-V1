@@ -54,10 +54,13 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     provider: options.studyImageProvider,
   });
   const service = createStudyService({ database, authenticate, images, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
-    generate: async (input, context) => {
+    // Provider construction stays synchronous so an unavailable AI still throws before any work starts.
+    generate: (input, context) => {
       const session = input.action === 'CHAT' && context?.folderId ? chatPreviews.open(context.ownerId, context.folderId, context.requestId) : undefined;
-      try { return await executeStudy(input, provider(context, input.action === 'CHAT' ? 'chat' : 'tool', session?.publish)); }
-      finally { session?.close(); }
+      let selected: ReturnType<typeof provider>;
+      try { selected = provider(context, input.action === 'CHAT' ? 'chat' : 'tool', session?.publish); }
+      catch (error) { session?.close(); throw error; }
+      return executeStudy(input, selected).finally(() => session?.close());
     },
     chatPreview: (ownerId, folderId, requestId) => chatPreviews.read(ownerId, folderId, requestId),
     feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources,

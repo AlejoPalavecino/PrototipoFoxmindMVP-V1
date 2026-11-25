@@ -30,4 +30,8 @@ Instancia local propia en el worktree: web 3100, API 3101, base y servicios Dock
 - Sin probar con Gemini real: entender un tema, apunte, ejercicios, simulacro, repaso e imagen de Estudio.
 - El indicador de cuota IA sigue flotando sobre el espacio en teléfonos (marco general, fuera de alcance).
 - Sin matriz Playwright completa ni suites con base de datos de Estudio.
-- Primer paso pendiente: revisión del usuario y decisión sobre commit/integración.
+- Primer paso pendiente: revisión funcional del usuario sobre `main`.
+
+## Integración y publicación (2026-11-25)
+
+El usuario autorizó integrar en `main` y hacer push. El trabajo quedó en el commit `eb03c924`. Se integró `origin/main` (12 commits, hasta `f624e5d6`) en la rama sin conflictos; `50b5ca33` tocaba `study-ai-execution.ts` y convive con la vista previa. La suite `pure` completa detectó dos fallos propios que las pruebas focalizadas no cubrían: `tests/ai-sdk-clients` simula `@google/genai` sin el enum `ThinkingLevel` (el transporte pasó a importarlo sólo como tipo y usar sus valores de texto) y `tests/study-runtime` exige que `generate` lance `AI_UNAVAILABLE` de forma síncrona (el proveedor vuelve a construirse antes de la promesa y la sesión del parcial se cierra en `finally`). Resultado final, equivalente al job `verify`: `docs:check` (239 archivos, 0 problemas), `api:build`, `tsc --noEmit` web, `web:build`, `lint:boundaries`, suite `pure` 1003/1003, suite `transport` 117/117, `issue2-ci-workflow` 16/16 y `p5-web-proxy` 9/9. No se corrieron las regresiones P7/P8 con contenedores: Docker Desktop estaba detenido. La publicación avanza `origin/main` por fast-forward desde esta rama; el checkout raíz conserva su cambio local ajeno sin tocar. La instancia local propia ya estaba detenida. Sin despliegue.

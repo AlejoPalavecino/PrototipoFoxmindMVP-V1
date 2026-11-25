@@ -1,4 +1,4 @@
-import { GoogleGenAI, ThinkingLevel, type Content, type GenerateContentParameters } from '@google/genai';
+import { GoogleGenAI, type Content, type GenerateContentParameters, type ThinkingLevel } from '@google/genai';
 import type { GeminiClient } from './gemini-client.ts';
 import type { AiTextTransport, AiTransportRequest, AiTextResult } from './text-contract.ts';
 import { geminiUsage } from './usage.ts';
@@ -13,7 +13,8 @@ function contents(input: AiTransportRequest): Content[] {
   }));
 }
 
-const thinkingLevels = { minimal: ThinkingLevel.MINIMAL, low: ThinkingLevel.LOW, medium: ThinkingLevel.MEDIUM, high: ThinkingLevel.HIGH };
+// String values of the SDK enum; a type-only import keeps SDK test doubles working.
+const thinkingLevels = { minimal: 'MINIMAL', low: 'LOW', medium: 'MEDIUM', high: 'HIGH' } as Record<string, ThinkingLevel>;
 // Only the Gemini 3 family accepts thinkingLevel; older models keep their provider defaults.
 const supportsThinkingLevel = (model: string) => /^gemini-3(?:[.-]|$)/u.test(model);
 
