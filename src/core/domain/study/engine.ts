@@ -5,7 +5,7 @@ import { interactiveDiagramGuidance } from '../foxy/interactive-diagram.ts';
 import { parseFoxyDiagram } from '../foxy/visual-validation.ts';
 import type { FoxyDiagram } from '../foxy/visual.ts';
 import { studyReviewActivityLimit } from './review.ts';
-import { arrangeChoices } from '../choice-order.ts';
+import { arrangeChoices } from '../activities/choice-order.ts';
 export type SourceRef = { id: string; version: string };
 export type StudyDocument = {kind:'pdf';bytes:Uint8Array}|{kind:'text';text:string};
 export type StudySource = SourceRef & { title: string; text: string; document?:StudyDocument; available?:boolean };
