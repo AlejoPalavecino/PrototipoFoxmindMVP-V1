@@ -8,7 +8,7 @@ Instancia local propia en el worktree: web 3100, API 3101, base y servicios Dock
 
 ## Cambios
 
-- **Opciones de quiz y práctica.** Gemini escribía la correcta siempre primera (5/5 en Foxy, 4/4 en Estudio). Las opciones se reordenan al generarse, de forma reproducible por contenido (`src/core/domain/choice-order.ts`), en Foxy (`arrangeFoxyQuizOptions`) y en Estudio (`parsePractice`). Lo ya guardado conserva su orden.
+- **Opciones de quiz y práctica.** Gemini escribía la correcta siempre primera (5/5 en Foxy, 4/4 en Estudio). Las opciones se reordenan al generarse, de forma reproducible por contenido (`src/core/domain/activities/choice-order.ts`; se movió ahí el 2026-11-25 porque `domain-barrel` no admite archivos sueltos en `src/core/domain/`), en Foxy (`arrangeFoxyQuizOptions`) y en Estudio (`parsePractice`). Lo ya guardado conserva su orden.
 - **Visuales docentes deshabilitadas.** Si `AI_IMAGE_ENABLED`/`AI_DIAGRAM_ENABLED` están apagadas, el cliente no consulta `/visuals` (antes 404 → «No pudimos actualizar los recursos visuales» tras cada turno) y no ofrece «Imágenes y esquemas».
 - **Herramientas de Estudio.** Borrador por herramienta; sin fuentes legibles el envío se bloquea con «Agregar material»; un pedido INSUFFICIENT ofrece agregar material y uno superado deja de ofrecer reintentar.
 - **Pedido de quiz docente.** El mensaje muestra «Quiz · N preguntas» y el texto del docente, sin el prefijo interno.
