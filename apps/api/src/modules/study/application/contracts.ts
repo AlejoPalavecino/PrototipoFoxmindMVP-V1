@@ -49,8 +49,11 @@ export interface StudyOptions {
     generate?: (input: StudyInput, context?: {
         ownerId: string;
         requestId: string;
+        folderId?: string;
         authorize?: () => Promise<void>;
     }) => Promise<StudyResult>;
+    /** Transient partial answer of the owner's running chat request, if any. */
+    chatPreview?(ownerId: string, folderId: string, requestId: string): string | undefined;
     feedback?: (input: StudyFeedbackInput, context?: {
         ownerId: string;
         requestId: string;

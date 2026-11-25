@@ -37,8 +37,24 @@ export function updateEnvironment(original, updates) {
 
 export function requireLocalOwner(value) {
   if(!value||!/^foxmind-local-[a-f0-9]{16}$/.test(value.project))throw Error('Invalid local owner');
-  for(const name of ['database','storage','scanner','smtp','inbox'])if(!Number.isInteger(value.ports?.[name])||value.ports[name]<1024||value.ports[name]>65535)throw Error('Invalid local port');
+  for(const name of ['database','storage','scanner','smtp','inbox'])if(!validPort(value.ports?.[name]))throw Error('Invalid local port');
+  for(const name of ['web','api'])if(value.ports[name]!==undefined&&!validPort(value.ports[name]))throw Error('Invalid local port');
   return value;
+}
+
+const validPort=port=>Number.isInteger(port)&&port>=1024&&port<=65535;
+
+/** Web/API ports of this checkout; owners created before ports were configurable keep 3000/3001. */
+export function localAppPorts(owner) {
+  const ports={web:owner.ports?.web??3000,api:owner.ports?.api??3001};
+  if(!validPort(ports.web)||!validPort(ports.api)||ports.web===ports.api)throw Error('Invalid local port');
+  return ports;
+}
+
+/** Ports for a new owner, from optional LOCAL_WEB_PORT/LOCAL_API_PORT. */
+export function chooseLocalAppPorts(environment) {
+  const read=(name,fallback)=>{const raw=environment[name];if(raw===undefined||raw==='')return fallback;if(!/^\d+$/.test(raw))throw Error('Invalid local port');return Number(raw);};
+  return localAppPorts({ports:{web:read('LOCAL_WEB_PORT',3000),api:read('LOCAL_API_PORT',3001)}});
 }
 
 /** Stop only verified containers; Docker keeps their volumes and configuration. */

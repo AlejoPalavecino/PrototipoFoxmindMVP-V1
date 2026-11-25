@@ -20,6 +20,7 @@ export function renderStudyFolderProgram({ programSource, linked, method, classr
           <input
             type="radio"
             name="study-source"
+            aria-label="Sin aula"
             checked={programSource === 'own'}
             onChange={() => onSource('own')} />
           Sin aula
@@ -28,6 +29,7 @@ export function renderStudyFolderProgram({ programSource, linked, method, classr
           <input
             type="radio"
             name="study-source"
+            aria-label="Vincular a mi aula"
             checked={programSource === 'classroom'}
             onChange={() => onSource('classroom')} />
           Vincular a mi aula
@@ -41,6 +43,7 @@ export function renderStudyFolderProgram({ programSource, linked, method, classr
         <input
           type="radio"
           name="study-classroom"
+          aria-label={item.name}
           checked={linked === item.id}
           onChange={() => onClassroom(item.id)} />
         <img src={learningCover()} alt="" />
@@ -66,6 +69,7 @@ export function renderStudyFolderProgram({ programSource, linked, method, classr
             type="radio"
             name="plan-method"
             value="ai"
+            aria-label="Prepararlo con Foxy"
             checked={method === 'ai'}
             onChange={() => onMethod('ai')} />
           <span className="study-exact-tool-icon peach">
@@ -83,6 +87,7 @@ export function renderStudyFolderProgram({ programSource, linked, method, classr
             type="radio"
             name="plan-method"
             value="manual"
+            aria-label="Armarlo a mano"
             checked={method === 'manual'}
             onChange={() => onMethod('manual')} />
           <span className="study-exact-tool-icon sky">

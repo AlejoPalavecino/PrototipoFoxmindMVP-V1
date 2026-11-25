@@ -5,6 +5,7 @@ import { interactiveDiagramGuidance } from '../foxy/interactive-diagram.ts';
 import { parseFoxyDiagram } from '../foxy/visual-validation.ts';
 import type { FoxyDiagram } from '../foxy/visual.ts';
 import { studyReviewActivityLimit } from './review.ts';
+import { arrangeChoices } from '../choice-order.ts';
 export type SourceRef = { id: string; version: string };
 export type StudyDocument = {kind:'pdf';bytes:Uint8Array}|{kind:'text';text:string};
 export type StudySource = SourceRef & { title: string; text: string; document?:StudyDocument; available?:boolean };
@@ -94,8 +95,9 @@ function parsePractice(value: unknown, topics: StudyTopic[], allowed: Set<string
     });
     if (optionFeedback && new Set(optionFeedback.map((entry) => entry.optionId)).size !== optionFeedback.length)
       return invalid('INVALID_STUDY_OUTPUT');
-    return { id: text(q.id,120), topicId: String(q.topicId), type: type as StudyQuestion['type'], prompt: text(q.prompt,5000),
-      options, correctOptionIds, scoringRule: (q.scoringRule ?? 'EXACT') as 'EXACT' | 'PARTIAL', explanation: text(q.explanation,5000), sourceRefs,
+    const prompt = text(q.prompt,5000);
+    return { id: text(q.id,120), topicId: String(q.topicId), type: type as StudyQuestion['type'], prompt,
+      options: arrangeChoices(options, `${String(q.id)}\u0000${prompt}\u0000${options.map(o => o.id).join('\u0000')}`), correctOptionIds, scoringRule: (q.scoringRule ?? 'EXACT') as 'EXACT' | 'PARTIAL', explanation: text(q.explanation,5000), sourceRefs,
       ...(optionFeedback ? { optionFeedback } : {}) };
   });
   if (questions.length !== count || new Set(questions.map(q => q.id)).size !== questions.length) return invalid('INVALID_STUDY_OUTPUT');

@@ -35,7 +35,7 @@ export function renderStudyPracticeQuestion({ question, index, total, busy, chec
           maxLength={20000}
           value={String(answers[question.id] ?? '')}
           onChange={(event) => change(question.id, event.target.value)} />
-      </label>) : (question.options?.map((option) => (<label className="study-exact-question-option" key={option.id}>
+      </label>) : (question.options?.map((option, optionIndex) => (<label className="study-exact-question-option" key={option.id}>
         <input
           type={question.type === 'MULTIPLE' ? 'checkbox' : 'radio'}
           name={question.id}
@@ -43,7 +43,8 @@ export function renderStudyPracticeQuestion({ question, index, total, busy, chec
             ? (answers[question.id] as string[]).includes(option.id)
             : answers[question.id] === option.id}
           onChange={(event) => change(question.id, studyAnswerValue(question.type, answers[question.id], option.id, event.target.checked))} />
-        <span>{option.text}</span>
+        <span className="study-option-letter" aria-hidden="true">{String.fromCharCode(65 + optionIndex)}</span>
+        <span className="study-option-text">{option.text}</span>
         {checked && question.correctOptionIds?.includes(option.id) && <strong className="study-practice-option-key">Correcta</strong>}
       </label>)))}
     </fieldset>

@@ -323,3 +323,72 @@ dialog.study-exact-library-dialog{width:min(540px,calc(100vw - 32px));max-width:
 .study-practice-source-button{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:8px 12px;border:1px solid #c2cfdb;border-radius:11px;background:#fff;color:#344e64;font:inherit;font-size:13px;font-weight:800;margin-left:auto;flex:none}
 .study-practice-source-button svg{width:18px;height:18px}
 @media(max-width:620px){.study-exact-practice-heading:has(.study-practice-source-button){display:grid;grid-template-columns:auto minmax(0,1fr)}.study-practice-source-button{grid-column:2;justify-self:start;margin-left:0}}
+
+/* Mesa de trabajo: rail de la carpeta, chips de herramientas, panel de práctica y colección. */
+.study-rail{display:grid;gap:18px;align-content:start;color:#202c3d;font-family:Nunito,system-ui,sans-serif}
+.study-rail-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.study-rail-identity>img{width:44px;height:44px;border-radius:12px;object-fit:cover;flex:none;border:1px solid #cbd5df}
+.study-rail-identity>div{min-width:0;display:grid;gap:2px}
+.study-rail-identity strong{font-size:15px;font-weight:850;line-height:1.25;overflow-wrap:anywhere}
+.study-rail-identity small{font-size:12px;color:#52687b}
+.study-rail h3{margin:0 0 6px;font-size:11px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:#52687b;display:flex;align-items:center;gap:6px}
+.study-rail h3 b{font-size:11px;padding:1px 7px;border-radius:999px;background:#e3e9f0;color:#344e64;letter-spacing:0}
+.study-rail ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+#foxmind-product.fm3d-theme .study-rail .study-rail-topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:9px 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#202c3d;font-size:14px;font-weight:700;text-align:left;box-shadow:none}
+#foxmind-product.fm3d-theme .study-rail .study-rail-topic:hover:not(:disabled){background:#fff;border-color:#d5dbe3}
+#foxmind-product.fm3d-theme .study-rail .study-rail-topic[aria-pressed=true]{background:#fff;border-color:#d5dbe3;box-shadow:inset 3px 0 #b74710}
+.study-rail-topic:focus-visible,.study-rail-add:focus-visible,.study-chip:focus-visible{outline:2px solid #256082;outline-offset:2px}
+.study-rail-topic-title{min-width:0;overflow-wrap:anywhere}
+.study-rail-meter{display:inline-flex;gap:3px;flex:none}
+.study-rail-meter i{width:14px;height:6px;border-radius:3px;background:#dfe4ea}
+.study-rail-meter i.on{background:#235d38}
+.study-rail-unpracticed{font-size:11px;font-weight:700;color:#52687b;flex:none}
+#foxmind-product.fm3d-theme .study-rail .study-rail-add{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #d5dbe3;border-radius:10px;background:#fff;color:#202c3d;font-size:14px;font-weight:700}
+.study-rail-add svg{width:16px;height:16px}
+.study-rail-review p{margin:0;display:grid;gap:2px;padding:10px 12px;border-radius:10px;background:#edf8f1;color:#235d38;font-size:13px}
+.study-rail-review b{font-weight:850}
+.study-rail-sheet{margin:0 0 16px;padding:14px;border:1px solid #d5dbe3;border-radius:14px;background:#f7f8fa}
+@media(min-width:1100px){.study-rail-sheet{display:none}}
+
+.study-chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 8px}
+#foxmind-product.fm3d-theme .study-chips .study-chip{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border:1px solid #d5dbe3;border-radius:999px;background:#fff;color:#202c3d;font-size:14px;font-weight:700;box-shadow:none}
+#foxmind-product.fm3d-theme .study-chips .study-chip:hover:not(:disabled){border-color:#b74710;color:#9a3e00}
+.study-chip:disabled{opacity:.55}
+@media(max-width:700px){.study-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;margin-inline:-4px;padding-inline:4px}.study-chip{flex:none}}
+
+/* Práctica y esquema dentro del panel de la mesa de trabajo. */
+.parity-ai-panel .study-exact-practice-shell.study-exact-practice-inline{min-height:100%;padding:18px;gap:12px;background:#fff}
+.parity-ai-panel .study-exact-practice-inline>.study-exact-focus-header>span{display:none}
+.parity-ai-panel .study-exact-practice-heading>h1{font-size:22px}
+.parity-ai-panel .study-exact-practice-progress{border:0;padding:0;background:transparent;display:grid;gap:10px}
+.parity-ai-panel .study-exact-practice-progress progress{height:6px;border-radius:3px;appearance:none;background:#dfe4ea}
+.parity-ai-panel .study-exact-practice-progress progress::-webkit-progress-bar{background:#dfe4ea;border-radius:3px}
+.parity-ai-panel .study-exact-practice-progress progress::-webkit-progress-value{background:#b74710;border-radius:3px}
+.parity-ai-panel .study-exact-practice-question{border:0;padding:0}
+.parity-ai-panel .study-exact-practice-question legend{font-size:19px}
+.study-exact-question-option{align-items:center}
+.study-option-letter{width:28px;height:28px;flex:0 0 28px;border-radius:8px;background:#f1f3f6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#202c3d}
+.study-exact-question-option:has(input:checked) .study-option-letter{background:#b74710;color:#fff}
+.study-exact-question-option input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.study-exact-question-option:has(input:focus-visible){outline:2px solid #256082;outline-offset:2px}
+.study-option-text{min-width:0;flex:1;overflow-wrap:anywhere}
+.study-practice-inline-feedback.is-correct{background:#edf8f1;border-color:#9fcdb0;color:#235d38}
+
+#foxmind-product.fm3d-theme .study-exact-generation-result{width:min(100%,520px);background:#fff;border-color:#d5dbe3;border-radius:14px;padding:14px 16px}
+.study-exact-generation-result>span:nth-child(2) b{display:inline-block;margin-top:6px;color:#b74710;font-size:13px;font-weight:800}
+.study-exact-generation-result:hover{border-color:#b74710}
+.study-exact-generation-result:focus-visible{outline:2px solid #256082;outline-offset:2px}
+
+/* Colección: buscador con el ícono a la izquierda y llamada principal en el estado vacío. */
+#foxmind-product.fm3d-theme .study-exact-collection label.study-exact-search{position:relative;display:block;padding:0;min-height:42px}
+#foxmind-product.fm3d-theme .study-exact-collection label.study-exact-search>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none}
+#foxmind-product.fm3d-theme .study-exact-collection label.study-exact-search>input{width:100%;min-height:40px;padding:0 12px 0 38px;box-sizing:border-box}
+#foxmind-product.fm3d-theme .study-exact-collection label.study-exact-search>.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#foxmind-product.fm3d-theme .study-exact-empty .study-exact-empty-create{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border:0;border-radius:10px;background:#b74710;color:#fff;font-size:15px;font-weight:800}
+.study-exact-empty-create:focus-visible{outline:2px solid #256082;outline-offset:2px}
+
+/* Phones: the navigation menu already leads back to Mis carpetas; give the folder context a real touch target. */
+@media (max-width: 650px) {
+  #foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-backLink { display: none; }
+  #foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-contextLaunch { flex: 1 1 auto; min-width: 44px; overflow: hidden; }
+}

@@ -8,6 +8,8 @@ export function StudyToolDialog({
   title,
   folderName,
   sourceCount,
+  needsMaterial = false,
+  onAddMaterial,
   brief,
   selected,
   count,
@@ -26,6 +28,8 @@ export function StudyToolDialog({
   title: string;
   folderName: string;
   sourceCount: number;
+  needsMaterial?: boolean;
+  onAddMaterial?: () => void;
   brief: string;
   selected: string[];
   count: number;
@@ -101,6 +105,7 @@ export function StudyToolDialog({
                 <label key={topic.id}>
                   <input
                     type="checkbox"
+                    aria-label={topic.title}
                     checked={selected.includes(topic.id)}
                     onChange={(event) =>
                       onSelected(
@@ -131,6 +136,12 @@ export function StudyToolDialog({
                 <option value="HARD">Avanzada</option>
               </select>
             </label>
+          </div>
+        )}
+        {needsMaterial && (
+          <div className="study-exact-needs-material" role="status">
+            <p><b>Sumá un material primero.</b> Foxy arma esta propuesta con tus apuntes o el material del aula, para que sea sobre lo que estudiás.</p>
+            {onAddMaterial && <button type="button" onClick={onAddMaterial}><FoxmindIcon name="book" />Agregar material</button>}
           </div>
         )}
         {error && <Notice error>{error}</Notice>}

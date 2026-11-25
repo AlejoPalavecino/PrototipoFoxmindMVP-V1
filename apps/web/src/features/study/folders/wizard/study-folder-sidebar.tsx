@@ -15,6 +15,7 @@ export function renderStudyFolderSidebar({ step, disabled, banner, name, subject
         <button
           type="button"
           disabled={disabled || index > step}
+          aria-label={`Paso ${index + 1}: ${item.label}`}
           aria-current={index === step ? 'step' : undefined}
           onClick={() => goTo(index)}>
           <span>{index < step ? <FoxmindIcon name="check" /> : index + 1}</span>

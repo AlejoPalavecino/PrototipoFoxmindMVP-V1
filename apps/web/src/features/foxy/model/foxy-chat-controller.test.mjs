@@ -54,13 +54,13 @@ test('failed send retains exact intent and explicit retry reuses request, revisi
   c.dispose();
 });
 
-test('receipt triggers serial 2s polling only while queued or running, then fetches real answer',async()=>{
+test('receipt triggers serial polling (1s while running) only while queued or running, then fetches real answer',async()=>{
   const f=fixture(),gate=deferred();let count=0;
   f.client.getTurn=async()=>{count++;if(count===1)return gate.promise;return {id:f.id,sequence:1,state:'READY',purpose:'CHAT',message:'Hola',answer:{title:'R',markdown:'real',warnings:[],missingInformation:[]},errorCode:null,createdAt:'2026-01-01T00:00:00.000Z'};};
   const c=create(f);await c.init();await c.select(f.a.id);await c.send('CHAT','Hola',{topicIds:[],sourceIds:[]});
-  assert.equal(c.getState().turns.some(t=>t.answer?.markdown==='real'),false);assert.equal(f.timers.at(-1).ms,2000);
+  assert.equal(c.getState().turns.some(t=>t.answer?.markdown==='real'),false);assert.equal(f.timers.at(-1).ms,1000);
   const tick=f.timers.at(-1).fn();await Promise.resolve();assert.equal(count,1);assert.equal(f.timers.length,1);
-  gate.resolve({id:f.id,sequence:1,state:'RUNNING',answer:null});await tick;assert.equal(f.timers.at(-1).ms,2000);
+  gate.resolve({id:f.id,sequence:1,state:'RUNNING',answer:null});await tick;assert.equal(f.timers.at(-1).ms,1000);
   await f.timers.at(-1).fn();assert.equal(count,2);assert.ok(c.getState().turns.some(t=>t.answer?.markdown==='real'));
   assert.equal(f.timers.filter(t=>!t.cleared).length<=1,true);c.dispose();
 });
@@ -93,7 +93,7 @@ test('a queued or running receipt fences another send while polling the acknowle
   for(const status of ['QUEUED','RUNNING']) {
     const f=fixture();f.queue.push({created:true,turn:{id:f.id,sequence:1,state:status},conversationRevision:'1'});
     const c=create(f);await c.init();await c.select(f.a.id);await c.send('CHAT','Primero',{topicIds:[],sourceIds:[]});
-    assert.ok(f.timers.some(t=>!t.cleared && t.ms===2000));
+    assert.ok(f.timers.some(t=>!t.cleared && t.ms===1000));
     await c.send('CHAT','Segundo',{topicIds:[],sourceIds:[]});assert.equal(f.calls.filter(x=>x.name==='send').length,1);
     assert.equal(c.getState().turns.some(t=>t.answer?.markdown),false);c.dispose();
   }
@@ -105,7 +105,7 @@ test('a running turn found on a later page starts polling and never overlaps rea
     :{items:[{id:f.id,sequence:2,state:'RUNNING'}],nextAfterSequence:null};
   f.client.getTurn=async()=>{polls++;return gate.promise;};
   const c=create(f);await c.init();await c.select(f.a.id);await c.loadMore();
-  const timer=f.timers.find(t=>!t.cleared);assert.ok(timer);assert.equal(timer.ms,2000);
+  const timer=f.timers.find(t=>!t.cleared);assert.ok(timer);assert.equal(timer.ms,1000);
   const ongoing=timer.fn();await Promise.resolve();assert.equal(polls,1);assert.equal(f.timers.filter(t=>!t.cleared).length,0);
   gate.resolve({id:f.id,sequence:2,state:'READY',answer:{title:'R',markdown:'Texto'}});await ongoing;
   assert.equal(f.timers.filter(t=>!t.cleared).length,0);c.dispose();
@@ -197,7 +197,7 @@ test('multi-tab page transfers polling to newer running turn after older poll co
   const running=f.timers.at(-1).fn();await Promise.resolve();assert.equal(polls,1);await c.loadMore();
   gate.resolve({id:f.id,sequence:3,state:'READY',answer:{title:'R',markdown:'Listo'}});await running;
   assert.equal(c.getState().activeTurn?.id,id4);assert.equal(c.getState().activeTurn?.state,'RUNNING');
-  assert.equal(f.timers.filter(t=>!t.cleared).length,1);assert.equal(f.timers.find(t=>!t.cleared).ms,2000);
+  assert.equal(f.timers.filter(t=>!t.cleared).length,1);assert.equal(f.timers.find(t=>!t.cleared).ms,1000);
   await c.send('CHAT','Otro',{topicIds:[],sourceIds:[]});assert.equal(f.calls.filter(x=>x.name==='send').length,1);c.dispose();
 });
 

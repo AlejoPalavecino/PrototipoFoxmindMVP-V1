@@ -26,7 +26,7 @@ export function createStudyHandler(service: StudyHttpService, admit: (r: Incomin
 catch {
     json(response, 400, { error: { code: 'INVALID_INPUT' } });
     return;
-} const path = url.pathname.replace(/^\/api\/v1/u, ''), match = /^\/study-folders(?:\/([^/]+)(?:\/(commands)|\/docx-preview\/([^/]+)|\/images\/([^/]+))?)?\/?$/u.exec(path);
+} const path = url.pathname.replace(/^\/api\/v1/u, ''), match = /^\/study-folders(?:\/([^/]+)(?:\/(commands)|\/docx-preview\/([^/]+)|\/images\/([^/]+)|\/chat-previews\/([^/]+))?)?\/?$/u.exec(path);
 const strategyPath = /^\/study-folders\/([^/]+)\/shared-strategy(?:\/([^/]+))?$/u.exec(path);
 if (!match && !strategyPath) {
     next();
@@ -64,11 +64,13 @@ if (!match[1] && request.method === 'GET')
     result = await service.list(request);
 else if (!match[1] && request.method === 'POST')
     result = await service.create(request, await body(request));
+else if (match[1] && match[5] && request.method === 'GET' && !url.search)
+    result = await service.chatPreview(request, match[1], match[5]);
 else if (match[1] && match[3] && request.method === 'GET' && !url.search)
     result = await service.previewDocx(request, match[1], match[3]);
-else if (match[1] && !match[2] && !match[3] && request.method === 'GET')
+else if (match[1] && !match[2] && !match[3] && !match[5] && request.method === 'GET')
     result = await service.get(request, match[1]);
-else if (match[1] && !match[2] && !match[3] && request.method === 'PATCH')
+else if (match[1] && !match[2] && !match[3] && !match[5] && request.method === 'PATCH')
     result = await service.patch(request, match[1], await body(request));
 else if (match[1] && match[2] && request.method === 'POST')
     result = await service.command(request, match[1], await body(request));

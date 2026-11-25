@@ -15,5 +15,5 @@ export type StudyGenerationPresentation = Pick<
 >;
 export type StudyChatPresentation = Pick<
   ReturnType<typeof useStudyChat>,
-  'pending' | 'operation' | 'cancelling' | 'canStop' | 'send' | 'stop'
+  'pending' | 'partial' | 'operation' | 'cancelling' | 'canStop' | 'send' | 'stop'
 >;

@@ -173,6 +173,13 @@ export function createStudyService(options: StudyApplicationPorts) {
                     ...(options.images?.generate ? { imageGenerationAvailable: true } : {}) };
             });
         },
+        async chatPreview(request: unknown, id: string, requestId: string) {
+            const key = studyId(requestId);
+            return run(request, false, async (tx, owner) => {
+                const row = await load(tx, owner, id, false);
+                return { markdown: options.chatPreview?.(owner, row.id, key) ?? null };
+            });
+        },
         async image(request: unknown, id: string, imageId: string) {
             const key = studyId(imageId);
             return run(request, false, async (tx, owner) => {

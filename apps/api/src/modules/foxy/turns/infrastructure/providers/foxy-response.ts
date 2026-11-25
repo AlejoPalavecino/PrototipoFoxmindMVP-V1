@@ -6,7 +6,7 @@ import { type FoxyTextInput, type FoxyTextResponse } from '../../../../../../../
 import { AiError } from '../../../../../platform/ai/errors.ts';
 
 import { resourceMarkdown } from '../../../../../../../../src/core/domain/documents/provider-markdown.ts';
-import { encodeFoxyQuiz, parseFoxyQuiz } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
+import { arrangeFoxyQuizOptions, encodeFoxyQuiz, parseFoxyQuiz } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 
 function text(value: unknown, max: number, empty = false): string {
   if (typeof value !== 'string' || (!empty && !value.trim()) || [...value].length > max
@@ -37,7 +37,7 @@ function parse(value: unknown, input: FoxyTextInput, quizCount: number | null): 
   if (v.schemaVersion !== 'foxy-text-response-v1' || (v.status !== 'READY' && v.status !== 'INSUFFICIENT_CONTENT')) throw new Error();
   const title = text(v.title, 200);
   const raw = text(v.markdown, 50000, v.status === 'INSUFFICIENT_CONTENT');
-  const markdown = quizCount && v.status === 'READY' ? text(encodeFoxyQuiz(parseFoxyQuiz(v.quiz, quizCount)), 50000)
+  const markdown = quizCount && v.status === 'READY' ? text(encodeFoxyQuiz(arrangeFoxyQuizOptions(parseFoxyQuiz(v.quiz, quizCount))), 50000)
     : input.purpose === 'CHAT' ? raw : resourceMarkdown(raw);
   if (quizCount && v.status === 'INSUFFICIENT_CONTENT' && v.quiz !== null) throw new Error();
   if (v.status === 'READY' && !markdown.trim()) throw new Error();

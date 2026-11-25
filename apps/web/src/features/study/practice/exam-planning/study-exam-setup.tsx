@@ -66,7 +66,7 @@ export function renderStudyExamSetup({ title, start, date, time, count, minutes,
         <legend>¿Qué temas querés incluir?</legend>
         <div>
           {allTopics.map((topic) => (<label key={topic.id}>
-            <input type="checkbox" checked={topics.includes(topic.id)} onChange={(event) => setTopics(event.target.checked
+            <input type="checkbox" aria-label={topic.title} checked={topics.includes(topic.id)} onChange={(event) => setTopics(event.target.checked
               ? [...topics, topic.id]
               : topics.filter((id) => id !== topic.id))} />
             {topic.title}

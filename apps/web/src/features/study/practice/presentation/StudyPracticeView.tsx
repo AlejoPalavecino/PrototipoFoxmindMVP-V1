@@ -12,7 +12,7 @@ import { renderStudyPracticeFeedback } from './study-practice-feedback.tsx';
 import { renderStudyPracticeFooter } from './study-practice-footer.tsx';
 import { completedPracticeAttempts } from './study-practice-results.ts';
 import { clearChatTiming, commitChatTiming, startChatTiming, trackChatTiming } from '../../../../shared/chat-timing.ts';
-export function StudyPracticeView({ practice, practices = [], busy, run, onDirtyChange, onNewAttempt, onSelectAttempt, onClose, folderName, inline = false, sources }: {
+export function StudyPracticeView({ practice, practices = [], busy, run, onDirtyChange, onNewAttempt, onSelectAttempt, onClose, folderName, inline = false, sources, closeLabel = 'Volver al chat' }: {
   practice: StudyPractice;
   practices?: StudyPractice[];
   busy: boolean;
@@ -23,6 +23,7 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
   onClose?: () => void;
   folderName?: string;
   inline?: boolean;
+  closeLabel?: string;
   sources?: { folderId: string; items: StudySource[] };
 }) {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>(practice.answers ?? {});
@@ -188,7 +189,7 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
     <header className="study-exact-focus-header">
       <button type="button" aria-label="Volver al chat de la carpeta" onClick={onClose}>
         <FoxmindIcon name="arrow-left" />
-        {inline && 'Volver al chat'}
+        {inline && closeLabel}
       </button>
       {!inline && <div>
         <b>Práctica personal</b>
@@ -277,6 +278,7 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
       index,
       practice,
       inline,
+      closeLabel,
       onClose,
       onNewAttempt,
       setReview,
