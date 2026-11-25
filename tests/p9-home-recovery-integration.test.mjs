@@ -55,19 +55,33 @@ async function assertHomeRecoveryOwners(page) {
 }
 
 function observeReads(page) {
-  const active = new Set(), events = [];
+  const active = new Set(), answered = new WeakSet(), events = [];
   const watched = request => request.method() === 'GET' && [...listPaths, newsPath, homePath].includes(new URL(request.url()).pathname);
-  const started = request => { if (watched(request)) active.add(request); };
+  // The previous document keeps running until a document navigation commits, then is discarded with its reads, which
+  // can no longer race the transport. Playwright reports neither requestfinished nor requestfailed for them, so a read
+  // that document started after page.goto() would stay pending forever. Mark them discarded at that commit.
+  let navigating = false;
+  const started = request => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) navigating = true;
+    if (watched(request)) active.add(request);
+  };
+  const committed = frame => {
+    if (frame !== page.mainFrame() || !navigating) return;
+    navigating = false;
+    for (const previous of active) events.push({ path: new URL(previous.url()).pathname, discarded: 'document-navigation' });
+    active.clear();
+  };
   const ended = request => active.delete(request);
   const failed = request => {
     if (watched(request)) events.push({ path: new URL(request.url()).pathname, failure: request.failure()?.errorText });
     ended(request);
   };
   const responded = response => {
+    answered.add(response.request());
     if (watched(response.request())) events.push({ path: new URL(response.url()).pathname, status: response.status(), retryAfter: response.headers()['retry-after'] });
   };
-  page.on('request', started); page.on('requestfinished', ended); page.on('requestfailed', failed); page.on('response', responded);
-  return { active, events, detach() { page.off('request', started); page.off('requestfinished', ended); page.off('requestfailed', failed); page.off('response', responded); } };
+  page.on('request', started); page.on('framenavigated', committed); page.on('requestfinished', ended); page.on('requestfailed', failed); page.on('response', responded);
+  return { active, answered, events, detach() { page.off('request', started); page.off('framenavigated', committed); page.off('requestfinished', ended); page.off('requestfailed', failed); page.off('response', responded); } };
 }
 
 /** Observe completion only: no extra request, server retry or expanded UI wait budget. */
@@ -75,7 +89,8 @@ async function drainReads(observation, path) {
   const pending = () => [...observation.active].filter(request => new URL(request.url()).pathname === path);
   const deadline = Date.now() + 30000;
   while (pending().length && Date.now() < deadline) await delay(20);
-  assert.equal(pending().length, 0, `Previous reads for ${path} must finish before changing transport`);
+  const left = pending().map(request => observation.answered.has(request) ? 'responded' : 'no response');
+  assert.equal(left.length, 0, `Previous reads for ${path} must finish before changing transport (pending: ${left.join(', ')})`);
 }
 
 async function successfulJson(response, owner) {

@@ -28,10 +28,12 @@ Sólo pruebas:
 | ESLint sobre el helper | Sin errores. |
 | CI 45511454980 sobre `13110f07` | **Regresión propia:** `fast` falló en `p5-integration-controls`, que prueba `account()` con una página falsa sin `on`/`off` (`page.on is not a function`). Antes de publicar se había corrido sólo el recorrido móvil, no las pruebas del helper. |
 | Corrección: `page.on?.` / `page.off?.` | `p5-integration-controls`: RED 7/1, GREEN 8/0. `npm run test:complete -- --group fast`: 3102 pasan, 0 fallan. |
+| CI 45511454980 (`13110f07`), 45516265693 (`7c01ef3b`) y 45525480336 (`234e046c`) | `p6-mobile-navigation` pasó en las tres; no se repitió el fallo. Queda como intermitente sin causa comprobada. |
+| CI, `workflow_dispatch` 45525480336 sobre `234e046c` | Los siete jobs en verde: `verify`, `fast`, `owned-db`, `owned-browser`, `owned-services`, `wrappers` e `integration-owned`. |
 
 ## Límites
 
 - Si en CI el test pasa, el fallo queda como intermitente y sin causa comprobada.
 - Si vuelve a fallar, el diagnóstico debería mostrar la causa.
 
-**Primer paso pendiente:** leer el resultado de `owned-browser` en la corrida manual siguiente.
+**Primer paso pendiente:** ninguno propio. Si `p6-mobile-navigation` vuelve a fallar, el error ya trae el estado de la página.
