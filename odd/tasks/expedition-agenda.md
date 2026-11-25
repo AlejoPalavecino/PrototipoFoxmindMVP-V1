@@ -43,7 +43,8 @@ Rama `claude/agenda-expedition`, creada desde `22b7c743` (punta de `claude/class
 - **Verification:** node scripts/check-documentation.mjs; sha256 del catálogo; run-complete-suite --check
 - **Scope:** ["apps/web/src/application/shell/styles/product.css", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "scripts/ci-suites.mjs", "docs/design/README.md", "docs/design/current/README.md", "docs/design/current/catalog.json", "docs/verification/flows.md", "docs/work-log/2026-11-24-expedition-agenda.md"]
 - **Acceptance:** La guía de diseño, la galería (5 capturas de Agenda) y la matriz de flujos describen la Agenda Expedición; el catálogo coincide en sha256 y la prueba nueva está clasificada en las suites.
-- **Evidence:** {"command":"node scripts/check-documentation.mjs; verificaci\u00f3n sha256 del cat\u00e1logo; run-complete-suite --check","result":"1080 enlaces sin problemas; 48 capturas coincidentes (4 de Agenda renovadas y 1 nueva); 728 pruebas clasificadas. Repetida tras registrar la autorizaci\u00f3n de commit y PR en el registro de trabajo.","candidate":"sha256:cafdbc9e1ff112d9ad072a82245004607ee45a3bce090a46e61f4cf9b3a75614"}
+- **Evidence:** {"command":"node scripts/check-documentation.mjs; verificaci\u00f3n sha256 del cat\u00e1logo; run-complete-suite --check","result":"1082 enlaces sin problemas; 48 capturas coincidentes (4 de Agenda renovadas y 1 nueva); 729 pruebas clasificadas, incluida la que sum\u00f3 main al integrar la punta del PR 19","candidate":"sha256:45249e2772089bec0b64a36394ed2eceb22aa2cc53bee21c1e88b5d29298f872"}
 - **Blocker:** none
 - **Reopen reason:** Registro de trabajo actualizado con la autorización de commit y PR
+- **Reopen reason:** Los merges con la rama del PR 19 sumaron una prueba de main a los registros de suites
 
