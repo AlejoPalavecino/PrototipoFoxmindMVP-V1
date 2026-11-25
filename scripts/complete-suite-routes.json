@@ -310,6 +310,8 @@
       "tests/expedition-settings.test.mjs",
       "tests/expedition-activities.test.mjs",
       "tests/expedition-agenda.test.mjs",
+      "tests/expedition-notifications.test.mjs",
+      "tests/expedition-profile.test.mjs",
       "tests/expedition-home.test.mjs",
       "tests/expedition-navigation.test.mjs",
       "tests/folder-platform.test.mjs",

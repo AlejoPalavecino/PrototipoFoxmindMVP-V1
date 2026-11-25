@@ -728,7 +728,9 @@
     "tests/expedition-library.test.mjs",
     "tests/expedition-settings.test.mjs",
     "tests/expedition-activities.test.mjs",
-    "tests/expedition-agenda.test.mjs"
+    "tests/expedition-agenda.test.mjs",
+    "tests/expedition-notifications.test.mjs",
+    "tests/expedition-profile.test.mjs"
   ],
   "exclusions": [
     {

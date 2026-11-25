@@ -1,0 +1,58 @@
+/* Mi perfil y Configuración en dirección Expedición. Las hojas de cuenta llegan a (0,4,0)
+   (.fm3d-theme:has(.fm-navbar-private) .entry-profile ...), así que esta hoja se ancla con el id raíz duplicado. */
+
+/* Encabezado como banner: Mi perfil con el zorro y su libro, Configuración con el escudo */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: 180px; margin: 0 0 22px; padding: 30px 34px; overflow: hidden; border-radius: 24px; background: #fdeee0 url('/foxmind-3d/scenes/profile-640.webp') right 0 top 34% / auto 200% no-repeat; box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile:has(.password-section) .page-heading { background-image: url('/foxmind-3d/scenes/security-640.webp'); background-position: right 0 top 44%; background-size: auto 170%; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(253,238,224,1) 0%, rgba(253,238,224,.97) 60%, rgba(253,238,224,.8) 72%, rgba(253,238,224,.25) 82%, rgba(253,238,224,0) 92%); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading > div { max-width: 520px; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading h1 { margin: 0 0 6px; color: var(--xp-ink); font: 900 44px/1.05 var(--xp-font); letter-spacing: -.01em; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading p { margin: 0; color: var(--xp-muted); font: 600 16px/1.5 var(--xp-font); }
+
+/* Tarjetas */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-form, .pf-account, .fm3d-account-card) { border: 1px solid var(--xp-line); border-radius: 24px; background: #fff; box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-content, .pf-account, .fm3d-account-card) h2 { color: var(--xp-ink); font: 900 22px/1.2 var(--xp-font); letter-spacing: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-content, .fm3d-account-card) > p { color: var(--xp-muted); font: 600 14px/1.5 var(--xp-font); }
+
+/* Vista previa del perfil en cielo */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-identity { border-bottom: 1px solid var(--xp-line); background: linear-gradient(180deg, var(--xp-sky), #e8f2f8); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-identity > .fm-account-avatar { border: 4px solid #fff; box-shadow: 0 0 0 2px var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-identity small { color: var(--xp-muted); font: 800 13px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-display-name { color: var(--xp-ink); font: 900 28px/1.15 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-identity button { border: 1.5px solid var(--xp-lake); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); }
+
+/* Campos: el mismo borde 3:1 del acceso */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-fields, .password-section) label { color: var(--xp-ink); font: 800 14px/1.3 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-fields, .password-section) input { min-height: 48px; border: 1.5px solid #768ca0; border-radius: 12px; background: #fff; color: var(--xp-ink); font: 600 15px/1.3 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-fields input[readonly] { border-style: dashed; background: var(--xp-mist); color: var(--xp-muted); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-fields, .password-section) input:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 1px; border-color: var(--xp-lake); }
+
+/* Pie y acciones */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-footer { border-top-color: var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-footer p { color: var(--xp-muted); font: 700 13px/1.4 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-actions .button-outline { border: 1.5px solid var(--xp-lake); background: #fff; color: var(--xp-lake); }
+
+/* Configuración de cuenta (Mi perfil): el escudo de la escena reemplaza al ícono */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-account > span:first-child { display: block; width: auto; height: 140px; margin: 0 0 18px; border: 0; border-radius: 16px; background: #fdeee0 url('/foxmind-3d/scenes/security-640.webp') center 46% / cover no-repeat; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-account > span:first-child > .fm3d-icon { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-session a { color: var(--xp-lake); font: 800 14px/1.3 var(--xp-font); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile :is(.pf-session, .br-account-session) button { border: 1.5px solid var(--xp-lake); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); }
+
+/* Selector de avatar: vista previa en cielo y la opción elegida en lago */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) div:has(+ fieldset) { border: 0; border-radius: 16px; background: linear-gradient(180deg, var(--xp-sky), #e8f2f8); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) div:has(+ fieldset) strong { color: var(--xp-ink); font: 900 16px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) fieldset label { border: 1.5px solid var(--xp-line-strong); border-radius: 14px; background: #fff; color: var(--xp-ink); font: 700 14px/1.3 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) fieldset label:has(input:checked) { border-color: var(--xp-lake); background: #f1f6fa; color: var(--xp-lake); box-shadow: inset 0 0 0 1px var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) fieldset input { accent-color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile dialog:has(input[name=profile-preview-avatar]) fieldset label:has(input:focus-visible) { outline: 3px solid var(--xp-focus); outline-offset: 2px; }
+
+/* Configuración: contraseña y sesión */
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .password-section form button[type=submit] { min-height: 44px; border-radius: 12px; font: 800 15px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .entry-profile .password-section :is(button[type=button], .password-toggle) { color: var(--xp-lake); font-weight: 800; }
+
+@media (max-width: 760px) {
+  #foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading { min-height: 0; padding: 22px; background-position: right -40px top 34%; background-size: auto 170%; }
+  #foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading::before { background: linear-gradient(180deg, rgba(255,248,240,.95) 35%, rgba(255,248,240,.6)); }
+  #foxmind-product#foxmind-product.fm3d-theme .entry-profile .page-heading h1 { font-size: 34px; }
+  #foxmind-product#foxmind-product.fm3d-theme .entry-profile .pf-display-name { font-size: 24px; }
+}
