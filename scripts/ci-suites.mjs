@@ -29,6 +29,7 @@ export const suites = {
     'tests/teacher-writing-policy.test.mjs',
     'tests/teacher-support-extension-ui.test.mjs',
     'tests/teacher-support-backend-policy.test.mjs',
+    'tests/teacher-support-postgres-options.test.mjs',
     'tests/teacher-support-ui.test.mjs',
     'tests/ai-cost-reconciliation.test.mjs',
     'tests/monthly-ai-quota-errors.test.mjs',

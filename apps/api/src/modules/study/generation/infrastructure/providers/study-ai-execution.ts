@@ -54,9 +54,12 @@ export async function executeStudyAiText(input: {
     while (row === null) {
       const beforeWait = timeLeft();
       if (!input.waitForAdmission || beforeWait <= 0) fail('AI_BUSY');
+      // A wait that runs to the deadline ends the attempt: timers can return a moment before
+      // performance.now() reaches it, and that leftover is no time to reauthorize and admit.
+      const lastWait = beforeWait <= 1000;
       await delay(Math.min(1000, beforeWait));
       const beforeAuthorization = timeLeft();
-      if (beforeAuthorization <= 0) fail('AI_BUSY');
+      if (lastWait || beforeAuthorization <= 0) fail('AI_BUSY');
       // The preceding transaction has ended. Recheck before claiming a slot.
       if (authorize) await bounded(authorize, AbortSignal.timeout(beforeAuthorization));
       const remaining = timeLeft();

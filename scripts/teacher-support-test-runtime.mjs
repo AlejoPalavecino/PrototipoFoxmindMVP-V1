@@ -42,6 +42,17 @@ function postgresCommand(directory, binary, args) {
   }
 }
 
+/** Server options for the disposable cluster. Outside Windows the Unix socket stays in the cluster's own
+ * scratch directory: Debian/Ubuntu builds default to /var/run/postgresql, which a CI runner cannot write. */
+export function postgresServerOptions({ port, socketDirectory, platform = process.platform }) {
+  const options = `-h 127.0.0.1 -p ${port}`;
+  return platform === 'win32' ? options : `${options} -k "${socketDirectory}"`;
+}
+
+async function logTail(file) {
+  try { return (await readFile(file, 'utf8')).trim().split(/\r?\n/).slice(-20).join('\n'); } catch { return ''; }
+}
+
 export async function withTeacherSupportDatabase(run) {
   // The native cluster and its password file are disposable, owned and independent of DATABASE_URL.
   const postgresBin = findPostgresBin();
@@ -56,8 +67,15 @@ export async function withTeacherSupportDatabase(run) {
     postgresCommand(postgresBin, 'initdb', ['-D', data, '-U', 'postgres', '--auth=scram-sha-256',
       '--pwfile=' + passwordFile, '--encoding=UTF8', '--locale=C']);
     await rm(passwordFile);
-    postgresCommand(postgresBin, 'pg_ctl', ['-D', data, '-l', join(scratch, 'postgres.log'), '-w',
-      '-o', `-h 127.0.0.1 -p ${databasePort}`, 'start']);
+    const serverLog = join(scratch, 'postgres.log');
+    try {
+      postgresCommand(postgresBin, 'pg_ctl', ['-D', data, '-l', serverLog, '-w',
+        '-o', postgresServerOptions({ port: databasePort, socketDirectory: scratch }), 'start']);
+    } catch (error) {
+      // The disposable cluster's log names the cause (permissions, port, locale) that pg_ctl alone hides.
+      const tail = await logTail(serverLog);
+      throw new Error(tail ? `${error.message}\nPostgres log:\n${tail}` : error.message, { cause: error });
+    }
     started = true;
     const databaseUrl = `postgresql://postgres:${password}@127.0.0.1:${databasePort}/postgres`;
     database = new pg.Client({ connectionString: databaseUrl, statement_timeout: 30000 });

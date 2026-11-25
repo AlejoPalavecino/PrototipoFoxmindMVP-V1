@@ -137,6 +137,19 @@ test('Study feedback stops waiting within its deadline and leaves no dispatch or
   assert.deepEqual(f.settlements, []);
 });
 
+test('Study feedback gives up after a wait that reaches its deadline even if the timer returns early', async () => {
+  // Timers may fire slightly before performance.now() reports the deadline; a slow clock makes that deterministic.
+  const realNow = performance.now.bind(performance), origin = realNow();
+  performance.now = () => origin + (realNow() - origin) / 2;
+  try {
+    const f = fixture({ config: { ...configuration, deadlineMs: 40 }, busy: true });
+    await assert.rejects(f.run(true), { code: 'AI_BUSY' });
+    assert.equal(f.admissionChecks, 1);
+    assert.deepEqual(f.events, []);
+    assert.deepEqual(f.settlements, []);
+  } finally { delete performance.now; }
+});
+
 test('Study feedback never claims a slot if reauthorization runs past its deadline', async () => {
   const f = fixture({ config: { ...configuration, deadlineMs: 1300 }, busy: true,
     authorize: () => new Promise(resolve => setTimeout(resolve, 400)) });

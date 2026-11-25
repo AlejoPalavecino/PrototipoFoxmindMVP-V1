@@ -141,7 +141,7 @@ La recepción de un archivo (`PUT /study-folders/:folderId/uploads/:uploadId`) a
 
 La preparación de una generación, una devolución o una vista previa DOCX verifica dueño, vínculo, versión y custodia en la base. Descarga y analiza los bytes fuera de la transacción. Cada operación conserva sólo su propia lectura y vuelve a comprobar la autorización y la versión antes de usar el resultado. Así se puede consultar la carpeta, detener el pedido o revocar una fuente durante una lectura lenta.
 
-Si una generación del alumno ocupa el cupo, la devolución automática espera dentro de su plazo y revalida el acceso antes de reservar o enviar a Gemini. Los errores distinguen ocupación, vencimiento y límite del proveedor. El resultado de la práctica y sus respuestas quedan guardados. [Pruebas de concurrencia y revocación](../../work-log/2026-11-17-ciclo-estudio-concurrencia.md) · [Devolución simultánea con Gemini](../../work-log/2026-11-17-contratos-estudio-admision-feedback.md).
+Si una generación del alumno ocupa el cupo, la devolución automática espera dentro de su plazo y revalida el acceso antes de reservar o enviar a Gemini. Si la espera llega al vencimiento, responde ocupación sin revalidar ni volver a pedir cupo, aunque el timer vuelva un instante antes de que el reloj marque el plazo. Los errores distinguen ocupación, vencimiento y límite del proveedor. El resultado de la práctica y sus respuestas quedan guardados. [Pruebas de concurrencia y revocación](../../work-log/2026-11-17-ciclo-estudio-concurrencia.md) · [Devolución simultánea con Gemini](../../work-log/2026-11-17-contratos-estudio-admision-feedback.md).
 
 ## Estrategias para el aula
 
