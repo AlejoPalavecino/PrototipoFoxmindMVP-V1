@@ -1,6 +1,6 @@
 import { strictObject } from '../curriculum/plan.ts';
 import type { ActivityQuestion } from '../activities/activity-generation.ts';
-import { arrangeChoices } from '../choice-order.ts';
+import { arrangeChoices } from '../activities/choice-order.ts';
 
 export const foxyQuizFence = '~~~foxy-quiz-v1\n';
 const quizRequest = /^Prepará un quiz interactivo de ([1-9]|10) preguntas?\.$/mu;

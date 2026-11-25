@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { arrangeChoices } from '../src/core/domain/choice-order.ts';
+import { arrangeChoices } from '../src/core/domain/activities/choice-order.ts';
 import { arrangeFoxyQuizOptions } from '../src/core/domain/foxy/foxy-quiz.ts';
 import { executeStudy } from '../src/core/domain/study/engine.ts';
 
