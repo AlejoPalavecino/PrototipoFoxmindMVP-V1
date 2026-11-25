@@ -40,7 +40,7 @@
     {
       "id": "vigente-agenda-docente-1440",
       "role": "docente",
-      "result": "Agenda personal en la vista de mes con panel del día a la derecha.",
+      "result": "Agenda en Mes con el banner de Expedición, el día elegido en lago y el panel del día en cielo.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -48,8 +48,7 @@
       "headings": [
         "Mi agenda",
         "Noviembre 2026",
-        "Miércoles 18",
-        "Un espacio para vos"
+        "Martes 24"
       ],
       "alerts": [],
       "typography": {
@@ -59,27 +58,30 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-agenda-docente-1440.png",
       "route": "/agenda",
-      "sha256": "ce41f92964b5dcc1604b52cc39e37593f5531d20e5835a7001598d120bfd0ed3",
-      "bytes": 118562
+      "sha256": "0cf19356b6ebd3f19cad8e76665442804b8c4ef4f2b1224d382f2ccd253dbb69",
+      "bytes": 369927,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-agenda-docente-390",
       "role": "docente",
-      "result": "Agenda personal en el calendario mensual.",
+      "result": "Agenda en Mes en móvil con el banner y las vistas segmentadas.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Mi agenda",
         "Noviembre 2026",
-        "Miércoles 18",
-        "Un espacio para vos"
+        "Martes 24"
       ],
       "alerts": [],
       "typography": {
@@ -89,18 +91,22 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-agenda-docente-390.png",
       "route": "/agenda",
-      "sha256": "3725959240aad78b629e5f2fe7c5d446c40fd23888c21745087a9a2a399af9e1",
-      "bytes": 47433
+      "sha256": "f3778daf842530403bccf922137c0bd4ebed148f6c3f18f93b1a551153454f04",
+      "bytes": 91480,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-agenda-estudiante-1440",
       "role": "estudiante",
-      "result": "Agenda personal del estudiante en el calendario mensual.",
+      "result": "Agenda del estudiante en Mes con el banner de Expedición, entregas del aula y el panel del día.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -108,8 +114,7 @@
       "headings": [
         "Mi agenda",
         "Noviembre 2026",
-        "Miércoles 18",
-        "Un espacio para vos"
+        "Martes 24"
       ],
       "alerts": [],
       "typography": {
@@ -119,27 +124,30 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-agenda-estudiante-1440.png",
       "route": "/agenda",
-      "sha256": "141af00852d7647cea4e1a11131e7cfb5f87436b4244bfce52e1117a5179e4bf",
-      "bytes": 117777
+      "sha256": "69a40e25b54614f4b24232ff16a51ef97d18ee1ed3da816a74522a3679dc057a",
+      "bytes": 369571,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-agenda-estudiante-390",
       "role": "estudiante",
-      "result": "Agenda personal del estudiante en el calendario mensual.",
+      "result": "Agenda del estudiante en Mes en móvil.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Mi agenda",
         "Noviembre 2026",
-        "Miércoles 18",
-        "Un espacio para vos"
+        "Martes 24"
       ],
       "alerts": [],
       "typography": {
@@ -149,13 +157,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-agenda-estudiante-390.png",
       "route": "/agenda",
-      "sha256": "852771ca39e5826367ce66aac6193ee4d30d350c5c0f487bfd09d549815fbe75",
-      "bytes": 47111
+      "sha256": "1c6ce34ff23e6060b3cc6e6aac86559845a04774d6530c439296821519377491",
+      "bytes": 83290,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-aulas-docente-1440",
@@ -1480,8 +1492,40 @@
       "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
       "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-agenda-semana-docente-1440",
+      "role": "docente",
+      "result": "Agenda en Semana: día elegido en lago con su contador y eventos de día completo sin cortes.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Mi agenda",
+        "23 nov — 29 nov"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(237, 240, 244)",
+        "ink": "rgb(32, 44, 61)",
+        "accent": null,
+        "navWidth": 232
+      },
+      "path": "vigente-agenda-semana-docente-1440.png",
+      "route": "/agenda",
+      "sha256": "261107a7f65e62634436d390c7081ff80bf5f9cf1974ee08469f0d4bbb38405c",
+      "bytes": 368030,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     }
   ],
-  "count": 47,
+  "count": 48,
   "note": "Las entradas con date, candidate, environment y browser propios corresponden al piloto Expedición del 2026-11-24 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
 }
