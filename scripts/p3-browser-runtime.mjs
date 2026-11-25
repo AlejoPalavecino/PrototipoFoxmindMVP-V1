@@ -73,7 +73,10 @@ export async function withP3BrowserRuntime(callback) {
       try {
         return await callback({ origin: webOrigin, inbox: httpOrigin, db,
           async restartApi() {
-            await api.close(); api = undefined;
+            // A real process restart drops every connection. Without this, close() waits on the long-lived
+            // streams (such as the AI quota stream) that open browser tabs keep with the API, as in P4.
+            const closing = api.close(); api.getHttpServer().closeAllConnections();
+            await closing; api = undefined;
             api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1');
           },
         });

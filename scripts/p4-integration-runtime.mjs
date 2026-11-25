@@ -54,7 +54,11 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
         const port = await freePort(), origin = `http://127.0.0.1:${port}`, infra = runtime.infrastructure;
         const { createApplication } = await import('../.build/api/apps/api/src/application.js');
         const { readConfiguration } = await import('../.build/api/apps/api/src/configuration.js');
+        // Scripted multi-actor journeys share 127.0.0.1 and send far more requests per minute than a person, so the
+        // general-identity budget (240/min per IP, 120/min per session) starves them. As in the P33 identity suites,
+        // raise only that budget here; p33-identity-http keeps covering the real one, and every other limit stays real.
         const configuration = readConfiguration({ ...identityTestEnvironment(), DATABASE_URL: runtime.databaseUrl,
+          AUTH_RATE_LIMITS_JSON: JSON.stringify({ 'general-identity': { ip: { limit: 1000 }, session: { limit: 1000 } } }),
           APP_ORIGIN: origin, MAIL_SMTP_PORT: String(smtpPort), FILES_ENABLED: '1', FILES_S3_ENDPOINT: infra.endpoint,
           FILES_S3_REGION: infra.region, FILES_S3_BUCKET: infra.bucket, FILES_S3_ACCESS_KEY_ID: infra.accessKeyId,
           FILES_S3_SECRET_ACCESS_KEY: infra.secretAccessKey, FILES_SCANNER_HOST: infra.scannerHost,

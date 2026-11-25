@@ -76,7 +76,7 @@
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-methods legend { margin: 0 0 4px; padding: 0; color: var(--xp-ink); font: 800 15px var(--xp-font); }
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-methods > p { grid-column: 1 / -1; margin: 0 0 4px; color: var(--xp-muted); font: 600 14px var(--xp-font); }
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method { position: relative; display: flex; align-items: flex-start; gap: 12px; margin: 0; padding: 14px; border: 2px solid var(--xp-line, #d3dee6); border-radius: 14px; background: #fff; cursor: pointer; }
-#foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method input { position: absolute; opacity: 0; pointer-events: none; }
+#foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method:has(input:checked) { border-color: var(--xp-lake); background: #f1f6fa; box-shadow: inset 0 0 0 1px var(--xp-lake); }
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method:has(input:focus-visible) { outline: 3px solid var(--xp-focus); outline-offset: 2px; }
 #foxmind-product#foxmind-product.fm3d-theme dialog.parity-classroom-wizard .class-method .method-icon { display: inline-grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #fff3cf; color: #6b4a00; }
