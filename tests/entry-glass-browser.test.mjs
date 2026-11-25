@@ -17,7 +17,7 @@ const rgb = value => value.match(/[\d.]+/g).slice(0, 3).map(Number);
 function contrast(first, second) { const a = luminance(rgb(first)), b = luminance(rgb(second)); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); }
 async function fit(page, width) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Page overflow at${width}`);
-  const boxes = await page.locator('.brujula-auth main, header.fm3d-shell').evaluate(element => {
+  const boxes = await page.locator('.xp-auth .xp-auth-panel, header.fm3d-shell').evaluate(element => {
     const header = element.getBoundingClientRect();
     return { width: header.width, left: header.left, right: header.right, height: header.height };
   });
@@ -192,7 +192,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         await openProfileFromFiles();
         for (const route of ['forgot-password', 'recover-password', 'verify-email']) {
           await page.goto(`${runtime.origin}/${route}`);
-          await page.locator('.entry-page .surface').waitFor(); await fit(page, 390);
+          await page.locator('.xp-auth .xp-auth-panel').waitFor(); await fit(page, 390);
           await page.screenshot({ path: resolve(artifacts, `${route}-390.png`), fullPage: true });
         }
         await openProfileFromFiles();
