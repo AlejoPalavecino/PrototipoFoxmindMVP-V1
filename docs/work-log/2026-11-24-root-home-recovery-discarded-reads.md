@@ -39,9 +39,10 @@ Un primer intento descartaba al *empezar* la navegación. No alcanzaba: la lectu
 | Con el descarte al empezar la navegación | Falló 1 de 5 (`pending: no response`). |
 | Con el descarte en el commit, 8 corridas locales | 8/8 en verde, 6/6 subtests cada una. Con la tasa anterior (alrededor de 1 de 4), pasar 8 seguidas por azar tiene cerca de un 10 % de probabilidad: buena evidencia, no definitiva. |
 | ESLint | Sin errores. |
+| CI, `workflow_dispatch` 45525480336 sobre `234e046c` | Los siete jobs en verde: `verify`, `fast`, `owned-db`, `owned-browser`, `owned-services`, `wrappers` e `integration-owned`. |
 
 ## Límites
 
 - Si una navegación de documento se aborta sin confirmarse, el siguiente `framenavigated` del marco principal (aunque sea una navegación dentro del mismo documento) descartaría lecturas reales. En este test no ocurre.
 
-**Primer paso pendiente:** confirmación en CI.
+**Primer paso pendiente:** ninguno propio.
