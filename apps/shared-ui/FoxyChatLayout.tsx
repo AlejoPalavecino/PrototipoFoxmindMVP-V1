@@ -33,10 +33,13 @@ export function FoxyDialog({ title, description, onClose, children, footer, focu
   </dialog>;
 }
 
-export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenKey, tools, creations, creationsCount, context, onNew, newDisabled, children }: {
+export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenKey, tools, creations, creationsCount, context, onNew, newDisabled, aside, asideLabel, panel, panelLabel, children }: {
   view: ChatView; onView: (view: ChatView) => void; history: ReactNode; historyKey?: string; historyOpenKey?:number;
   tools: ReactNode; creations: ReactNode; creationsCount?: number; context?: ReactNode;
-  onNew?: () => void; newDisabled?: boolean; children: ReactNode;
+  onNew?: () => void; newDisabled?: boolean;
+  /** Workbench: an optional rail beside the chat (wide screens) and an optional panel with the open creation. */
+  aside?: ReactNode; asideLabel?: string; panel?: ReactNode; panelLabel?: string;
+  children: ReactNode;
 }) {
   const [historyVisible, setHistoryVisible] = useState(false);
   useEffect(() => {
@@ -65,7 +68,13 @@ export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenK
         <FoxmindIcon name="plus"/><span>Nuevo chat</span>
       </button>}
     </header>
-    <div className={`${s.compactBody} parity-ai-compactBody`}>{children}</div>
+    {aside || panel
+      ? <div className={`${s.compactBody} ${s.workbench} parity-ai-compactBody parity-ai-workbench`} data-panel={panel ? 'open' : undefined}>
+        {aside && <aside className={`${s.rail} parity-ai-rail`} aria-label={asideLabel ?? 'Tu espacio'}>{aside}</aside>}
+        <div className={`${s.workbenchMain} parity-ai-workbenchMain`}>{children}</div>
+        {panel && <section className={`${s.panel} parity-ai-panel`} aria-label={panelLabel ?? 'Creación abierta'}>{panel}</section>}
+      </div>
+      : <div className={`${s.compactBody} parity-ai-compactBody`}>{children}</div>}
     {tray && <FoxyDialog title={tray === 'history' ? 'Tu historial' : tray === 'tools' ? 'Herramientas de Foxy' : 'Tus creaciones'}
       description={tray === 'history' ? 'Volvé a una conversación o empezá una nueva.' : tray === 'tools' ? 'Elegí qué querés preparar. Lo revisamos juntos.' : 'Ideas guardadas para seguir trabajando.'}
       onClose={close} focusTitle className={`${s.dialog} parity-ai-tray tray-${tray}`}

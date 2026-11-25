@@ -102,6 +102,12 @@ export function StudyCollectionView({
                 : status === 'ARCHIVED' ? 'Cuando archives una carpeta, vas a poder consultarla desde acá.'
                   : 'Creá una carpeta para guardar tu programa y ordenar tus temas.'}
             </p>
+            {!filtering && (
+              <button type="button" className="primary study-exact-empty-create" onClick={onCreate}>
+                <FoxmindIcon name="plus" />
+                Crear carpeta
+              </button>
+            )}
           </div>
         ) : (
           <div className={status === 'DRAFT' ? 'study-exact-draft-grid' : 'study-exact-card-grid'}>

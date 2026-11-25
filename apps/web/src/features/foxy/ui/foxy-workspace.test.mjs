@@ -16,18 +16,18 @@ function fixture(state=base, props={}){
   assert.equal(typeof FoxyWorkspace,'function');return {controller,calls,view:hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],...props})};
 }
 
-test('an inline reader replaces the transcript and preserves the Foxy toolbar', async () => {
+test('an open creation renders beside the chat and keeps the Foxy toolbar and composer', async () => {
   let closed = 0;
   const f = fixture(base, {
-    inlineReader: React.createElement('section', { 'aria-label': 'Revisión del quiz' }, 'Preguntas guardadas'),
-    onCloseReader: () => { closed++; return true; },
+    panel: React.createElement('section', { 'aria-label': 'Revisión del quiz' }, 'Preguntas guardadas'),
+    onClosePanel: () => { closed++; return true; },
   });
   try {
     await f.view.flush();
     const html = renderToStaticMarkup(f.view.tree);
     assert.match(html, /Revisión del quiz/);
     assert.match(html, /aria-label="Herramientas"/);
-    assert.doesNotMatch(html, /<textarea/);
+    assert.match(html, /<textarea/);
     const layout = descendants(f.view.tree, node => node.type?.name === 'FoxyChatLayout')[0];
     layout.props.onNew();
     assert.equal(closed, 1);
@@ -160,7 +160,7 @@ test('READY answer exposes edit resource even when AI generation is disabled',as
   turns:[{id:turnId,sequence:1,state:'READY',purpose:'SUMMARY',message:'Hola',answer:{title:'Resumen',markdown:'Contenido',warnings:[],missingInformation:[]},errorCode:null,createdAt:'2026-01-01T00:00:00.000Z'}]};
  const controller=Object.fromEntries(['init','create','select','send','retry','loadMore','loadMoreConversations','dispose'].map(name=>[name,()=>{}]));
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx",{}),view=hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],onOpenResource:(...args)=>calls.push(args)});
- try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/leer apunte/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
+ try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&n.props.className==='parity-foxy-creationOpen'&&/leer apunte/iu.test(renderToStaticMarkup(n)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
 });
 
 test('non-READY or missing answer never offers resource editing',async()=>{
@@ -173,7 +173,7 @@ test('session binds one subject runtime and guarded actions to chat and material
  const snapshot={subjectId,closed:false,chat:{...base,current:{...conversation,id:cid}},resource:{status:'editing',resource:{id:rid}},preparation:{},history:{},confirmation:{},classrooms:[classroom],classroomsError:null};
  const runtime={resource:{},chat:{},preparation:{},history:{},confirmation:{}},actions={chat:{},resource:{open:(...args)=>calls.push(['open',...args])},preparation:{},history:{},confirmation:{}};
  const {FoxyWorkspaceSession}=componentWithPorts("apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx",{"./foxy-workspace":{useFoxyWorkspace:input=>{calls.push(['hook',input.subjectId]);return {state:snapshot,runtime,initializing:false};}},
-"../../../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions:()=>({actions,ui:{leave:null,openingResource:false,loadingDestinationId:null,error:null}}),FoxyWorkspace:props=>React.createElement('button',{onClick:()=>props.onOpenResource(cid,tid)},'Editar recurso'),createFoxyChatController:()=>({init:async()=>{},getState:()=>({...base}),dispose:()=>{}})},
+"../../../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions:()=>({actions,ui:{leave:null,openingResource:false,loadingDestinationId:null,error:null}}),FoxyWorkspace:props=>React.createElement(React.Fragment,null,React.createElement('button',{onClick:()=>props.onOpenResource(cid,tid)},'Editar recurso'),props.panel),createFoxyChatController:()=>({init:async()=>{},getState:()=>({...base}),dispose:()=>{}})},
 "./FoxyResourceWorkspace":{FoxyResourceWorkspace:()=>React.createElement('div',{'data-testid':'resource-dialog'},'Editor de material')},
 "./academic-classroom-client.ts":{createWebClassroomClient:()=>({call:async()=>({teach:[]})})},
 "../../../features/foxy/api.ts":{createWebFoxyClient:()=>({})}});
@@ -204,7 +204,7 @@ test('session delegates both PDF URLs to the single runtime client without creat
 "../../../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions:()=>({actions,ui:{leave:null,openingResource:false}}),FoxyWorkspace:()=>null},
 "./FoxyResourceWorkspace":{FoxyResourceWorkspace:()=>null},
 "../../../features/foxy/api.ts":{createWebFoxyClient:()=>{calls.push(['extraClient']);return {publicationFileUrl:()=>'/unexpected'};}}});
- const view=hookView(FoxyWorkspaceSession,{subjectId,onIdentityRequired:()=>{}});try{await view.flush();const node=descendants(view.tree,n=>typeof n.props?.publicationFileUrl==='function')[0];assert.ok(node);
+ const view=hookView(FoxyWorkspaceSession,{subjectId,onIdentityRequired:()=>{}});try{await view.flush();const node=descendants(view.tree,n=>typeof n.props?.panel?.props?.publicationFileUrl==='function')[0]?.props.panel;assert.ok(node);
   for(const mode of ['preview','download'])assert.equal(node.props.publicationFileUrl(pid,mode),`/api/v1/foxy-ai/publications/${pid}/file?mode=${mode}`);
   assert.deepEqual(calls,[['runtimeUrl',pid,'preview'],['runtimeUrl',pid,'download']]);
  }finally{view.close();}

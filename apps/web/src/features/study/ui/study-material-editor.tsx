@@ -65,7 +65,7 @@ export function StudyMaterialEditor({ material, units, busy, modal, onClose, onS
       <legend>Temas relacionados</legend>
       <div>{units.flatMap(unit => unit.topics).map(topic => (
         <label className={s.check} key={topic.id}>
-          <input type="checkbox" checked={topicIds.includes(topic.id)} onChange={event => {
+          <input type="checkbox" aria-label={topic.title} checked={topicIds.includes(topic.id)} onChange={event => {
             const selected = event.target.checked;
             setTopicIds(ids => selected ? [...ids, topic.id] : ids.filter(id => id !== topic.id));
           }} />

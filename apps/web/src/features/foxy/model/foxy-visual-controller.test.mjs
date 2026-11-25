@@ -25,3 +25,11 @@ test('definitive input and empty-content errors release the request while uncert
   }finally{f.c.dispose();}
  }
 });
+
+test('a workspace without visual generation does not query visuals nor report a failure',async()=>{
+ let listed=0;const conversation={id:randomUUID(),revision:'0',context:{kind:'GENERAL'}};
+ const client={listVisuals:async()=>{listed++;throw Object.assign(Error('synthetic'),{code:'NOT_FOUND'});},startVisual:async()=>{throw Error('unexpected');},getVisual:async()=>{throw Error('unexpected');},cancelVisual:async()=>{throw Error('unexpected');}};
+ const {createFoxyVisualController}=loadTsModule("apps/web/src/features/foxy/visuals/foxy-visual-controller.ts");
+ const c=createFoxyVisualController({client,onChange:()=>{},onRevision:()=>{},current:()=>({conversation,selection:{topicIds:[],sourceIds:[]},canGenerate:true,busy:false,enabled:{IMAGE:false,DIAGRAM:false}})});
+ try{c.syncContext();await new Promise(r=>setImmediate(r));await c.refresh();assert.equal(listed,0);assert.equal(c.getState().error,null);}finally{c.dispose();}
+});

@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import { FoxyMarkdown } from '../../../../../shared-ui/markdown';
 import { DocumentEditor } from '../../../../../shared-ui/document-editor';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
-import { readTeacherLessonPhase, readTeacherRubric, teacherTextSections, writeTeacherRubric, type TeacherRubric } from './teacher-planning-model';
+import { readTeacherLessonPhase, readTeacherLessonTime, readTeacherRubric, teacherTextSections, writeTeacherRubric, type TeacherRubric } from './teacher-planning-model';
 import styles from './teacher-planning.module.css';
 
 export function TeacherPlanningReader({ purpose, markdown }: { purpose: string; markdown: string }) {
@@ -83,5 +83,17 @@ export function TeacherRubricEditor({ value, onChange, disabled }: {
         </fieldset>)}
       </div>
     </fieldset>)}
+  </div>;
+}
+
+/** Proportional bar of the lesson phases. It only renders when the plan states its minutes. */
+export function TeacherLessonTimeBar({ markdown }: { markdown: string }) {
+  const time = readTeacherLessonTime(markdown);
+  if (!time) return null;
+  return <div className={styles.timeBar}>
+    <div className={styles.timeTitle}>Tiempo de la clase · {time.total} min</div>
+    <ol className={styles.timeTrack} aria-label="Minutos por momento de la clase">
+      {time.segments.map((segment, index) => <li key={index} style={{ flexGrow: segment.minutes }} data-phase={index % 4}>{segment.label} {segment.minutes}'</li>)}
+    </ol>
   </div>;
 }

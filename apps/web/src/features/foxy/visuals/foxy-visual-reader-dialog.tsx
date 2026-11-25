@@ -8,7 +8,7 @@ import {validVisualEditorial,type createFoxyVisualEditorController,type FoxyVisu
 
 type Props={assetId:string;state:FoxyVisualEditorState;actions:ReturnType<typeof createFoxyVisualEditorController>;
   assetFileUrl(id:string,mode:'preview'|'download'):string;onClose():void;onRepeat?():void;sharing:ReactNode;sharingTitle?:string;shareLocked?:boolean;sharePending?:boolean;published?:boolean;
-  inline?:boolean;sourceAction?:ReactNode};
+  inline?:boolean;panel?:boolean;sourceAction?:ReactNode};
 export function FoxyVisualReaderDialog(props:Props){
   const {state,actions}=props,ref=useRef<HTMLDialogElement>(null);
   const [mode,setMode]=useState<'read'|'edit'|'share'|'discard'|'pending'>(state.dirty||state.pending?'edit':props.sharePending?'share':'read');
@@ -33,7 +33,7 @@ export function FoxyVisualReaderDialog(props:Props){
   const heading=mode==='edit'?'Dale tu mirada':mode==='share'?'Directo a tu Biblioteca':mode==='discard'?'¿Descartás tus cambios?':'Antes de salir';
   const subtitle=mode==='edit'?'Los cambios quedan en tu creación privada.':mode==='share'?'Revisá el destino. No necesitás descargar ni volver a subir el archivo.':mode==='discard'?'La versión guardada se conserva.':'La solicitud puede haberse completado.';
   const reader=<FoxyVisualReader assetId={props.assetId} inspection={info} loading={state.loading} error={state.error} assetFileUrl={props.assetFileUrl} onRepeat={props.onRepeat}
-    inline={props.inline} sourceAction={props.sourceAction}
+    inline={props.inline} panel={props.panel} sourceAction={props.sourceAction}
     onClose={()=>leave(true)} onRetry={()=>void actions.refresh()} onEdit={()=>{setNotice('');setMode('edit');}} onShare={()=>{setNotice('');setMode('share');}} published={props.published} locked={locked||!!state.pending} editLocked={!!props.sharePending}/>;
   const dialog=openingModal&&<dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-visual-reader-title" className={`p5-dialog parity-foxy-dialog parity-foxy-readingDialog parity-foxy-visualReader ${mode==='read'?styles.readerDialog:''} ${mode==='discard'?'parity-foxy-discardDialog':''}`}
     onCancel={event=>{if(event.target!==event.currentTarget)return;event.preventDefault();if(mode==='discard')setMode('edit');else if(mode==='pending')setMode(state.pending?'edit':'share');else leave(true);}}>

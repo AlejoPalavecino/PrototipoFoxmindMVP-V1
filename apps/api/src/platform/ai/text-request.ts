@@ -1,4 +1,4 @@
-import type { AiPart, AiTextProfile, AiTextRequest } from './text-contract.ts';
+import type { AiPart, AiTextProfile, AiTextRequest, AiTextTuning } from './text-contract.ts';
 import { executionFailure } from './text-profiles.ts';
 
 function exact(value: unknown, keys: string[]): void {
@@ -6,7 +6,7 @@ function exact(value: unknown, keys: string[]): void {
     || Object.keys(value).some(key => !keys.includes(key))) throw executionFailure('AI_INPUT_LIMIT');
 }
 export function snapshotTextRequest(input: AiTextRequest, profile: AiTextProfile): AiTextRequest {
-  exact(input, ['system', 'messages', 'schema']);
+  exact(input, ['system', 'messages', 'schema', 'tuning']);
   if (typeof input.system !== 'string' || !Array.isArray(input.messages) || !input.messages.length || input.messages.length > 40)
     throw executionFailure('AI_INPUT_LIMIT');
   let documentBytes = 0, documents = 0, textBytes = Buffer.byteLength(input.system);
@@ -44,5 +44,14 @@ export function snapshotTextRequest(input: AiTextRequest, profile: AiTextProfile
       schema = JSON.parse(json);
     } catch { throw executionFailure(); }
   }
-  return { system: input.system, messages, ...(schema ? { schema } : {}) };
+  let tuning: AiTextTuning | undefined;
+  if (input.tuning !== undefined) {
+    exact(input.tuning, ['thinking', 'temperature']);
+    const { thinking, temperature } = input.tuning;
+    if (thinking !== undefined && !['minimal', 'low', 'medium', 'high'].includes(thinking)) throw executionFailure();
+    if (temperature !== undefined && (typeof temperature !== 'number' || !Number.isFinite(temperature) || temperature < 0 || temperature > 2))
+      throw executionFailure();
+    tuning = { ...(thinking ? { thinking } : {}), ...(temperature !== undefined ? { temperature } : {}) };
+  }
+  return { system: input.system, messages, ...(schema ? { schema } : {}), ...(tuning ? { tuning } : {}) };
 }

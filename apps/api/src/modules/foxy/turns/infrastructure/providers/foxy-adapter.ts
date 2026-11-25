@@ -69,7 +69,9 @@ export class GeminiFoxyTextAdapter {
    validate(input);
    const instruction = foxyInstructionFor(input.purpose, this.promptVersion);
    return { system: quizCount ? `${instruction}\n\n${foxyQuizInstruction(quizCount)}` : instruction,
-    messages: foxyMessages(input), schema: quizCount ? foxyQuizResponseSchema(quizCount) : streaming ? streamingSchema : foxyResponseSchema };
+    messages: foxyMessages(input), schema: quizCount ? foxyQuizResponseSchema(quizCount) : streaming ? streamingSchema : foxyResponseSchema,
+    // Conversational replies favour a fast first answer; resources keep the model's default reasoning.
+    ...(input.purpose === 'CHAT' ? { tuning: { thinking: 'low' as const } } : {}) };
   }, ...(streaming && publish ? { preview: createFoxyStreamPreview(publish) } : {}) };
  }
  async countTokens(input: FoxyTextInput): Promise<number> { return this.execution.count(this.call(input)); }

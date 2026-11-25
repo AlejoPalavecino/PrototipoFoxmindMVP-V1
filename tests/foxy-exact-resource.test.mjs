@@ -74,3 +74,12 @@ test('discarding an edited creation requires an explicit choice and restores the
     assert.deepEqual(calls,[{title:saved.title,markdown:saved.markdown}]);
   }finally{view.close();}
 });
+
+test('a bold label with an italic aside renders without stray asterisks', () => {
+  const runs = resourceInlineRuns('**La planta junto a la ventana (*caso imaginario*):** crece verde.');
+  assert.deepEqual(runs, [
+    { text: 'La planta junto a la ventana (caso imaginario):', style: 'bold' },
+    { text: ' crece verde.', style: 'plain' },
+  ]);
+  assert.equal(runs.some(run => run.text.includes('*')), false);
+});

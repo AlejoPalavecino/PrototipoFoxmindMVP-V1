@@ -36,6 +36,7 @@ export function StudyCoverPicker({ value, onChange, }: {
           <input
             type="radio"
             name="coverKey"
+            aria-label={`Portada ${cover.label}`}
             checked={value === cover.key}
             onChange={() => onChange(cover.key)} />
           {cover.label}

@@ -5,7 +5,7 @@ import { DocumentReader } from '../../../../../shared-ui/document-reader';
 import { DocumentDownloads } from '../../../../../shared-ui/document-downloads';
 import { resourceBodyWithoutRepeatedTitle } from '../../../../../../src/core/domain/documents/resource-markdown.ts';
 import type { DocumentIllustration } from '../../../../../shared-ui/document-pdf';
-import { formatFoxyModelMarkdown, TeacherPlanningReader, TeacherRubricEditor } from '../../../features/foxy/index.ts';
+import { formatFoxyModelMarkdown, TeacherPlanningReader, TeacherRubricEditor, TeacherLessonTimeBar, FoxyCreationPanelFrame, foxyCreationTag, focusFoxyChat } from '../../../features/foxy/index.ts';
 import { openDialog } from '../../../../../shared-ui/dialog-focus';
 import type { Classroom } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { createFoxyWorkspaceRuntime } from '../../../features/foxy/index.ts';
@@ -13,7 +13,6 @@ import type { createFoxyWorkspaceActions } from '../../../features/foxy/index.ts
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { FoxyActivityHandoffPanel } from './FoxyActivityHandoffPanel';
 import { FoxyQuizReview } from './FoxyQuizReview';
-import quizStyles from './foxy-quiz-review.module.css';
 import { encodeFoxyQuiz, parseFoxyQuiz, readFoxyQuiz } from '../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 import { FoxyPublicationManagementPanel } from '../../../features/foxy/index.ts';
 import { foxySurface as styles } from '../../../features/foxy/index.ts';
@@ -23,7 +22,7 @@ type Actions = ReturnType<typeof createFoxyWorkspaceActions>;
 type Props = { resource: NonNullable<RuntimeState['resource']>; preparation: NonNullable<RuntimeState['preparation']>;
   history: NonNullable<RuntimeState['history']>; confirmation: NonNullable<RuntimeState['confirmation']>;
   management?: RuntimeState['management'];
-  creationLabel?: string; illustrations?: readonly DocumentIllustration[]; inlineQuiz?: boolean; onOpenQuizSources?: () => void;
+  creationLabel?: string; illustrations?: readonly DocumentIllustration[]; panel?: boolean; onOpenQuizSources?: () => void;
   availableIllustrations?: readonly DocumentIllustration[];
   initialHandoffMode?: 'ACTIVITY' | 'RUBRIC'; handoffRuntime?: ReturnType<typeof createFoxyWorkspaceRuntime>; handoffState?: RuntimeState['activityHandoff'];
   classrooms: Classroom[]; ui: ReturnType<Actions['getState']>; actions: Actions;
@@ -32,7 +31,7 @@ const button = 'p5-action';
 export function FoxyResourceWorkspace(props: Props) {
   const { resource, preparation, history, confirmation, classrooms, ui, actions } = props;
   const ref = useRef<HTMLDialogElement>(null);
-  const inlineHeading = useRef<HTMLHeadingElement>(null);
+  const panelHeading = useRef<HTMLHeadingElement>(null);
   const controlsId = useId();
   const [editingOpen, setEditingOpen] = useState(false);
   const [sharingOpen, setSharingOpen] = useState(!!props.initialHandoffMode);
@@ -54,7 +53,7 @@ export function FoxyResourceWorkspace(props: Props) {
   useEffect(() => { if (conflict) setEditingOpen(true); }, [resourceId, conflict]);
   useEffect(() => { if (props.initialHandoffMode) { setSharingOpen(true); setHandoffOpen(true); } }, [resourceId, props.initialHandoffMode]);
   useEffect(() => {
-    const dialog = ref.current; if (!dialog) return;
+    const dialog = ref.current; if (!dialog || props.panel) return;
     const doc = dialog.ownerDocument, parent = doc.activeElement?.closest('dialog') as HTMLDialogElement | null;
     const close = openDialog(dialog);
     return () => {
@@ -65,10 +64,10 @@ export function FoxyResourceWorkspace(props: Props) {
         }
       });
     };
-  }, []);
+  }, [props.panel]);
   useEffect(() => {
-    if (props.inlineQuiz) queueMicrotask(() => inlineHeading.current?.focus({ preventScroll: true }));
-  }, [props.inlineQuiz, resourceId]);
+    if (props.panel) queueMicrotask(() => panelHeading.current?.focus({ preventScroll: true }));
+  }, [props.panel, resourceId]);
   if (resource.status === 'closed' && !ui.openingResource) return null;
   const draft = resource.draft, destination = preparation.destination;
   const markdown = resource.resource?.revision === '0' ? formatFoxyModelMarkdown(savedMarkdown) : savedMarkdown;
@@ -101,21 +100,8 @@ export function FoxyResourceWorkspace(props: Props) {
   const libraryHref = roomId ? classroomHomeHref(confirmation.receipt?.materialId
     ? {kind:'material',classroomId:roomId,materialId:confirmation.receipt.materialId}
     : {kind:'classroom',classroomId:roomId,section:'library'}) : null;
-  const inline = !!props.inlineQuiz;
-  const Container = inline ? 'section' : 'dialog';
-  return <Container ref={inline ? undefined : ref} role={inline ? undefined : 'dialog'} aria-modal={inline ? undefined : 'true'}
-    aria-labelledby="foxy-resource-title" className={inline ? quizStyles.inline : `p5-dialog parity-foxy-dialog parity-foxy-readingDialog foxy-document-reader ${styles.editor ?? ''}`}
-    onCancel={inline ? undefined : event => { event.preventDefault(); actions.resource.close(); }}>
-    {inline ? <header className={quizStyles.inlineHeader}>
-      <button type="button" className="p5-action" onClick={() => actions.resource.close()}><FoxmindIcon name="arrow-left"/>Volver al chat</button>
-      <div className={quizStyles.cover}>
-        <span className={quizStyles.coverIcon}><FoxmindIcon name="clipboard" /></span>
-        <div><small>Borrador docente</small><h2 id="foxy-resource-title" ref={inlineHeading} tabIndex={-1}>{resource.resource?.title}</h2></div>
-        {props.onOpenQuizSources && <button type="button" className={`p5-action ${quizStyles.sourceButton}`} aria-haspopup="dialog"
-          onClick={props.onOpenQuizSources}><FoxmindIcon name="book" />Ver apunte</button>}
-      </div>
-    </header> : <header><div><h2 id="foxy-resource-title">{discardEdit?'¿Descartás tus cambios?':showEditor?'Editar creación':sharingOpen?(handoffOpen?'Continuar en Actividades':'Llevar a Biblioteca'):'Tu creación'}</h2><p>{discardEdit?'La versión guardada se conserva.':showEditor?'Los cambios quedan en tu creación privada.':sharingOpen&&!handoffOpen?'Elegí el destino. Revisás antes de publicar.':props.creationLabel??'Propuesta para revisar'}</p></div>
-      <button type="button" className="p5-close" aria-label="Cerrar diálogo" onClick={() => actions.resource.close()}><FoxmindIcon name="close"/></button></header>}
+  const inline = !!props.panel;
+  const middle = <>
     {ui.leave ? <section aria-labelledby="foxy-leave-title" className="p5-notice">
       <h3 id="foxy-leave-title">Antes de salir</h3>
       <p>{ui.leave.reason === 'unsaved' ? 'Tenés cambios sin guardar.' : 'La solicitud puede haberse completado. Podés consultar el resultado al volver.'}</p>
@@ -227,20 +213,46 @@ export function FoxyResourceWorkspace(props: Props) {
         </section>
       </section>
     </div>}
-    {resource.resource&&draft&&<footer className="parity-foxy-dialogFooter">
+  </>;
+  const footerEl = resource.resource&&draft&&<footer className={inline ? 'parity-foxy-panelFooter' : 'parity-foxy-dialogFooter'}>
       {discardEdit?<><button type="button" onClick={()=>setDiscardEdit(false)}>Seguir editando</button><button type="button" className="parity-foxy-danger" onClick={()=>{actions.resource.updateDraft({title:resource.resource!.title,markdown:resource.resource!.markdown});setDiscardEdit(false);setEditingOpen(false);}}>Descartar</button></>:showEditor?<><button type="button" disabled={mutationLocked||resource.busy} onClick={cancelEdit}>Cancelar</button>{resource.pending?<button type="button" disabled={mutationLocked} onClick={()=>void actions.resource.retry()}>Reintentar guardado</button>:<button type="button" className="p5-primary" disabled={!resource.dirty||resource.busy||mutationLocked||invalidTitle||invalidText} onClick={()=>{void Promise.resolve(actions.resource.save()).then(result=>{if(result==='saved')setEditingOpen(false);});}}>Guardar cambios</button>}</>:sharingOpen?<button type="button" onClick={()=>setSharingOpen(false)}><FoxmindIcon name="arrow-left"/>Volver a la creación</button>:<>
         {!inline && <button type="button" onClick={()=>actions.resource.close()}>Cerrar</button>}
         {!quiz && <>
-          <button type="button" onClick={()=>{setEditingOpen(true);setSharingOpen(false);}}><FoxmindIcon name="edit"/>Editar</button>
+          {!inline && <button type="button" onClick={()=>{setEditingOpen(true);setSharingOpen(false);}}><FoxmindIcon name="edit"/>Editar</button>}
           <DocumentDownloads title={resource.resource.title} markdown={markdown} kind={props.creationLabel ?? 'Recurso de enseñanza'}
             illustrations={props.illustrations} availableIllustrations={props.availableIllustrations}/>
         </>}
-        {props.handoffRuntime&&props.handoffState&&<button type="button" className={inline ? 'p5-primary' : undefined} disabled={quiz ? resource.dirty || resource.busy || !!resource.pending : undefined}
+        {props.handoffRuntime&&props.handoffState&&<button type="button" className={inline && quiz ? 'p5-primary' : undefined} disabled={quiz ? resource.dirty || resource.busy || !!resource.pending : undefined}
           onClick={()=>{props.handoffRuntime!.activityHandoff.reset();setHandoffOpen(true);setSharingOpen(true);}}>
           {props.creationLabel === 'Pensar una rúbrica' ? 'Usar rúbrica en una actividad' : 'Preparar en Actividades'}
         </button>}
         {!quiz && <button type="button" className="p5-primary" onClick={()=>{setHandoffOpen(false);setSharingOpen(true);}}><FoxmindIcon name="book"/>Llevar a Biblioteca</button>}
       </>}
-    </footer>}
-  </Container>;
+  </footer>;
+  if (inline) {
+    const tag = foxyCreationTag(props.creationLabel, !!quiz);
+    const status = resource.dirty ? 'Cambios sin guardar' : resource.busy ? 'Guardando…' : hasPublishedVersions ? 'Privado · con versiones compartidas' : 'Privado · guardado';
+    const heading = discardEdit ? '¿Descartás tus cambios?' : sharingOpen ? (handoffOpen ? 'Continuar en Actividades' : 'Llevar a Biblioteca') : resource.resource?.title ?? 'Tu creación';
+    const reading = !showEditor && !sharingOpen && !discardEdit;
+    const closePanel = () => { if (actions.resource.close()) focusFoxyChat(); };
+    return <FoxyCreationPanelFrame tag={tag.text} kind={tag.kind} status={status} onClose={closePanel}
+      headerActions={props.onOpenQuizSources && <button type="button" className="parity-foxy-panelSource" aria-haspopup="dialog" onClick={props.onOpenQuizSources}><FoxmindIcon name="book" />Ver apunte</button>}
+      footer={footerEl || undefined}>
+      <h2 id="foxy-resource-title" ref={panelHeading} tabIndex={-1} className="parity-foxy-panelTitle">{heading}</h2>
+      {resource.resource && draft && !quiz && !sharingOpen && !discardEdit && <div role="group" aria-label="Modo de la creación" className="parity-foxy-panelModes">
+        <button type="button" aria-pressed={!showEditor} disabled={mutationLocked || resource.busy || conflict} onClick={() => { if (showEditor) cancelEdit(); }}>Leer</button>
+        <button type="button" aria-pressed={showEditor} onClick={() => { setEditingOpen(true); setSharingOpen(false); }}>Editar</button>
+      </div>}
+      {reading && purpose === 'PLAN' && <TeacherLessonTimeBar markdown={markdown} />}
+      {middle}
+    </FoxyCreationPanelFrame>;
+  }
+  return <dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-resource-title"
+    className={`p5-dialog parity-foxy-dialog parity-foxy-readingDialog foxy-document-reader ${styles.editor ?? ''}`}
+    onCancel={event => { event.preventDefault(); actions.resource.close(); }}>
+    <header><div><h2 id="foxy-resource-title">{discardEdit?'¿Descartás tus cambios?':showEditor?'Editar creación':sharingOpen?(handoffOpen?'Continuar en Actividades':'Llevar a Biblioteca'):'Tu creación'}</h2><p>{discardEdit?'La versión guardada se conserva.':showEditor?'Los cambios quedan en tu creación privada.':sharingOpen&&!handoffOpen?'Elegí el destino. Revisás antes de publicar.':props.creationLabel??'Propuesta para revisar'}</p></div>
+      <button type="button" className="p5-close" aria-label="Cerrar diálogo" onClick={() => actions.resource.close()}><FoxmindIcon name="close"/></button></header>
+    {middle}
+    {footerEl}
+  </dialog>;
 }

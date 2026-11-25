@@ -58,7 +58,7 @@ test('visual tools open a fresh draft even when another conversation is selected
 
 test('approved tool rail maps rubric to explicit editable text and has no redundant purpose selector', async () => {
   const current = { id: randomUUID(), title: 'Clase', context: { kind: 'GENERAL' } };
-  const state = { capabilities: { textGeneration: { enabled: true } }, conversations: [current], current,
+  const state = { capabilities: { textGeneration: { enabled: true }, diagramGeneration: { enabled: true } }, conversations: [current], current,
     turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const calls = [], controller = { async send(...args) { calls.push(args); return 'accepted'; } };
   const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx", {});
@@ -99,7 +99,7 @@ import { loadTsModule } from "../../../../../../tests/helpers/load-ts-module.mjs
 
 for (const resolution of ['discard', 'save', 'cancel', 'creation-failure']) test(`first send through actual unsaved guard resolves once: ${resolution}`, async () => {
   const current = { id: randomUUID(), title: 'Anterior', context: { kind: 'GENERAL' } };
-  const state = { capabilities: { textGeneration: { enabled: true } }, conversations: [current], current,
+  const state = { capabilities: { textGeneration: { enabled: true }, diagramGeneration: { enabled: true } }, conversations: [current], current,
     turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const resource = { dirty: true, busy: false, pending: null, resource: { id: 'resource' }, status: 'ready', draft: { title: 'Editado', markdown: 'Texto' } };
   const calls = []; let refresh = () => {}, ui;
