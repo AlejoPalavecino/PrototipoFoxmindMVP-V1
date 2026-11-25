@@ -209,7 +209,9 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
           await page.screenshot({ path: `.test-artifacts/p3-register-${width}.png`, fullPage: true });
         }
         await page.route('**/api/v1/auth/session', route => route.abort()); await page.reload(); await visible(page, 'No se pudo comprobar tu sesión');
-        await page.unroute('**/api/v1/auth/session'); await submit(page, 'Volver a intentar'); await visible(page, 'Crear cuenta');
+        await page.unroute('**/api/v1/auth/session'); await submit(page, 'Volver a intentar');
+        // Registration opens on the role stop, so the recovered form shows Continuar; Crear cuenta waits on the data stop.
+        await page.getByRole('heading', { name: 'Creá tu cuenta', exact: true }).waitFor(); await page.getByRole('button', { name: 'Continuar', exact: true }).waitFor({ state: 'visible' });
         assert.equal((await state(page)).authenticated, false);
         assert.equal(external.length, 0, 'account documents fetch no third-party resources');
         assert.deepEqual(errors, [], 'no browser runtime exception');

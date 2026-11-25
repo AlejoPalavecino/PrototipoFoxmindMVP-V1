@@ -10,7 +10,7 @@ export async function account(page, origin, inbox, email, beforeVerification, ro
   const responses = []; const record = response => {
     if (response.status() >= 400 || response.url().includes('/auth/')) responses.push(`${response.status()} ${response.request().method()} ${new URL(response.url()).pathname}`);
   };
-  page.on('response', record);
+  page.on?.('response', record);
   await page.goto(`${origin}/register`);
   try {
     // Registration is three stops: role, then data, then the sent notice.
@@ -22,7 +22,7 @@ export async function account(page, origin, inbox, email, beforeVerification, ro
   } catch (error) {
     const text = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 600);
     throw new Error(`${error.message}\nRegistration page ${page.url()}: ${text}\nResponses: ${responses.slice(-12).join('; ') || 'none'}`, { cause: error });
-  } finally { page.off('response', record); }
+  } finally { page.off?.('response', record); }
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await page.getByText('recibir un correo de verificación', { exact: false }).waitFor();
   await page.goto(`${origin}/sign-in`);

@@ -41,9 +41,9 @@
 #foxmind-product .xp-auth .field label { margin: 0; color: var(--xp-ink); font-weight: 800; font-size: 14px; }
 #foxmind-product .xp-auth .auth-reference-input > .entry-icon { display: none; }
 #foxmind-product .xp-auth .password-control { position: relative; }
-#foxmind-product .xp-auth .input { width: 100%; height: 50px; min-height: 50px; margin: 0; padding: 0 14px; border: 1.5px solid var(--xp-line-strong); border-radius: 12px; background: var(--xp-mist); color: var(--xp-ink); font-size: 15px; box-shadow: none; }
+#foxmind-product .xp-auth .input { width: 100%; height: 50px; min-height: 50px; margin: 0; padding: 0 14px; border: 1.5px solid #768ca0; border-radius: 12px; background: var(--xp-mist); color: var(--xp-ink); font-size: 15px; box-shadow: none; }
 #foxmind-product .xp-auth .input::placeholder { color: #6a7d8b; opacity: 1; }
-#foxmind-product .xp-auth .input:hover { border-color: #94aabb; }
+#foxmind-product .xp-auth .input:hover { border-color: #5f7689; }
 #foxmind-product .xp-auth .input:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 1px; border-color: var(--xp-lake); background: #fff; }
 #foxmind-product .xp-auth .password-control .input { padding-right: 50px; }
 #foxmind-product .xp-auth .password-toggle { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: grid; place-items: center; width: 38px; min-width: 38px; height: 38px; min-height: 38px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--xp-muted); }

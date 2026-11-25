@@ -26,6 +26,8 @@ Sólo pruebas:
 | `p6-mobile-navigation` local, 4 corridas | 4/4 en verde; no se reproduce. |
 | Fallo forzado (etiqueta inexistente, temporal y retirada) | El error muestra la página completa del registro y `200 GET /api/v1/auth/session`. |
 | ESLint sobre el helper | Sin errores. |
+| CI 45511454980 sobre `13110f07` | **Regresión propia:** `fast` falló en `p5-integration-controls`, que prueba `account()` con una página falsa sin `on`/`off` (`page.on is not a function`). Antes de publicar se había corrido sólo el recorrido móvil, no las pruebas del helper. |
+| Corrección: `page.on?.` / `page.off?.` | `p5-integration-controls`: RED 7/1, GREEN 8/0. `npm run test:complete -- --group fast`: 3102 pasan, 0 fallan. |
 
 ## Límites
 
