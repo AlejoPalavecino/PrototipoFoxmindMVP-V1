@@ -99,23 +99,24 @@ test('classroom is revalidated before new send and archived context remains read
 test('owner reads complete paginated turn DTOs with exact citations and without private fields', { timeout: 120000 }, async () => {
   await withAgendaDatabase(async ({ pool }) => {
     const { service, owner, other, student, make, query } = await fixture(pool), c = await make({ kind: 'GENERAL' });
-    const sourceId = `activity:${randomUUID()}`, citation = { sourceId, documentKey: 'd2', page: 1 };
+    // Document keys use non-hex letters so the leak check cannot match inside a random UUID of the response.
+    const sourceId = `activity:${randomUUID()}`, citation = { sourceId, documentKey: 'doc-two', page: 1 };
     const answer = { schemaVersion: 'foxy-answer-v1', title: 'Síntesis', markdown: 'Contenido', references: [{ sourceId, page: 1 }], warnings: [], missingInformation: [] };
-    const report = [{ sourceKey: 's1', title: 'Actividad', kind: 'ACTIVITY', documentKeys: ['d1','d2'], citations: [citation] }];
+    const report = [{ sourceKey: 's1', title: 'Actividad', kind: 'ACTIVITY', documentKeys: ['doc-one','doc-two'], citations: [citation] }];
     const ids = [];
     for (let i = 0; i < 4; i++) {
       const sent = await service(true).send(owner, c.id, { ...message(String(i)), text: `Consulta ${i}` }); ids.push(sent.turn.id);
       if (i === 0 || i === 2) {
         const stored = i === 0 ? answer : { ...answer, markdown: 'Falta información', references: [], missingInformation: ['Falta información'] };
         await query("UPDATE foxy_turns SET state='READY',answer=$2::jsonb,reference_map=$3::jsonb,source_report=$4::jsonb WHERE id=$1::uuid",
-          ids[i], JSON.stringify(stored), JSON.stringify(i === 0 ? [{ sourceKey: 's1', sourceId, documentKeys: ['d1','d2'] }] : []), JSON.stringify(i === 0 ? report : []));
+          ids[i], JSON.stringify(stored), JSON.stringify(i === 0 ? [{ sourceKey: 's1', sourceId, documentKeys: ['doc-one','doc-two'] }] : []), JSON.stringify(i === 0 ? report : []));
       } else if (i === 1) await query("UPDATE foxy_turns SET state='FAILED',error_code='AI_UNAVAILABLE' WHERE id=$1::uuid", ids[i]);
     }
     const ready = await service(false).get(owner, c.id, ids[0]); privateFree(ready);
     assert.equal(ready.purpose, 'SUMMARY'); assert.equal(ready.message, 'Consulta 0'); assert.equal(ready.state, 'READY');
     const { references: _privateReferences, ...publicAnswer } = answer;
     assert.deepEqual(ready.answer, publicAnswer); assert.equal(ready.errorCode, null); assert.equal(ready.citations, undefined);
-    assert.equal(JSON.stringify(ready).includes(sourceId), false); assert.equal(JSON.stringify(ready).includes('d2'), false);
+    assert.equal(JSON.stringify(ready).includes(sourceId), false); assert.equal(JSON.stringify(ready).includes('doc-two'), false);
     assert.equal(new Date(ready.createdAt).toISOString(), ready.createdAt);
     const failed = await service(false).get(owner, c.id, ids[1]); privateFree(failed);
     assert.equal(failed.state, 'FAILED'); assert.equal(failed.errorCode, 'AI_UNAVAILABLE'); assert.equal(failed.answer, null); assert.equal(failed.citations, undefined);
