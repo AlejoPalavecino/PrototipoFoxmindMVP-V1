@@ -596,8 +596,8 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
             const focusedEmpty = document.querySelector('.parity-home > .parity-home-empty');
             const headerBox = focusedHeader?.getBoundingClientRect(), emptyBox = focusedEmpty?.getBoundingClientRect();
             const rect = value => ({ left: value.left, right: value.right, top: value.top, bottom: value.bottom, width: value.width, height: value.height });
-            // contain centers the square asset inside its non-square mobile box.
-            // This is its rendered content rectangle, without claiming opaque pixel bounds.
+            // The Expedición fox keeps its own proportions (it is not square); this is its rendered content rectangle,
+            // without claiming opaque pixel bounds.
             const imageStyle = getComputedStyle(img);
             const scale = Math.min(image.width / img.naturalWidth, image.height / img.naturalHeight);
             const paintedWidth = img.naturalWidth * scale, paintedHeight = img.naturalHeight * scale;
@@ -605,10 +605,9 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
               top: image.top + (image.height - paintedHeight) / 2, bottom: image.bottom - (image.height - paintedHeight) / 2 };
             const visible = { left: Math.max(0, hero.left, illustration.left, painted.left), right: Math.min(innerWidth, hero.right, illustration.right, painted.right),
               top: Math.max(0, hero.top, illustration.top, painted.top), bottom: Math.min(innerHeight, hero.bottom, illustration.bottom, painted.bottom) };
-            // The shared max-width:100% constrains the mobile image to its illustration column.
-            const expected = innerWidth <= 360 ? { width: 100, height: 135, visibleWidth: 84, paintedHeight: 100, right: '-16px', bottom: '0px' }
-              : innerWidth <= 520 ? { width: 125, height: 135, visibleWidth: 118, paintedHeight: 125, right: '-7px', bottom: '0px' }
-                : { width: 280, height: 280, visibleWidth: 280, paintedHeight: 280, right: '34px', bottom: '20px' };
+            // The fox must be whole and undistorted: no horizontal clipping, its feet may sink at most 8 px into the
+            // hero edge (the desktop scene grounds it at -6 px), and it keeps a recognizable size at every width.
+            const expected = { minPaintedWidth: 80, groundTolerance: 8, aspect: img.naturalWidth / img.naturalHeight };
             const textRects = [];
             const summary = panel.querySelector('.home-summary');
             for (const element of panel.querySelectorAll('time,h1,p,button,a')) {
@@ -653,12 +652,11 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
               && stacking.summaryLineClamp === 'none' && summaryRects.every(box => box.left >= copy.left && box.right <= copy.right
                 && box.top >= copy.top && box.bottom <= copy.bottom && (disjoint(box) || summaryForeground));
             return { overflow: document.documentElement.scrollWidth > innerWidth,
-              foxInside: img.complete && img.naturalWidth > 0 && image.width === expected.width && image.height === expected.height
-                && imageStyle.right === expected.right && imageStyle.bottom === expected.bottom
-                && imageStyle.objectFit === 'contain' && imageStyle.objectPosition === '50% 50%' && img.naturalWidth === img.naturalHeight
-                && imageStyle.maxWidth === '100%' && getComputedStyle(document.querySelector('.home-illustration')).overflow === 'hidden'
-                && visible.right - visible.left === expected.visibleWidth
-                && visible.bottom - visible.top === expected.paintedHeight,
+              foxInside: img.complete && img.naturalWidth > 0 && img.naturalHeight > 0
+                && Math.abs((painted.right - painted.left) / (painted.bottom - painted.top) - expected.aspect) < 0.02
+                && painted.right - painted.left >= expected.minPaintedWidth
+                && Math.abs((visible.right - visible.left) - (painted.right - painted.left)) < 1
+                && visible.top - painted.top < 1 && painted.bottom - visible.bottom <= expected.groundTolerance,
               textClear: textRects.some(box => !box.summary) && textRects.filter(box => !box.summary).every(disjoint),
               summaryReadable,
               copyInside: copy.top >= hero.top && copy.bottom <= hero.bottom && copy.left >= hero.left && copy.right <= hero.right,
