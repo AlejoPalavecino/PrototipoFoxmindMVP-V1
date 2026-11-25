@@ -1,5 +1,6 @@
 import { strictObject } from '../curriculum/plan.ts';
 import type { ActivityQuestion } from '../activities/activity-generation.ts';
+import { arrangeChoices } from '../choice-order.ts';
 
 export const foxyQuizFence = '~~~foxy-quiz-v1\n';
 const quizRequest = /^Prepará un quiz interactivo de ([1-9]|10) preguntas?\.$/mu;
@@ -47,6 +48,14 @@ export function parseFoxyQuiz(value: unknown, count?: number): FoxyQuiz {
   });
   if (new Set(questions.map((question) => question.prompt.toLocaleLowerCase('es'))).size !== questions.length) throw new Error('INVALID_INPUT');
   return { objective: quizText(quiz.objective, 1400), instructions: quizText(quiz.instructions, 5000), questions };
+}
+
+/** Reorders the options of a freshly generated quiz; saved quizzes keep the order the teacher sees. */
+export function arrangeFoxyQuizOptions(quiz: FoxyQuiz): FoxyQuiz {
+  return { ...quiz, questions: quiz.questions.map((question, index) => ({
+    ...question,
+    options: arrangeChoices(question.options, `${index}\u0000${question.prompt}\u0000${question.options.map(option => option.text).join('\u0000')}`),
+  })) };
 }
 
 export function encodeFoxyQuiz(quiz: FoxyQuiz) {

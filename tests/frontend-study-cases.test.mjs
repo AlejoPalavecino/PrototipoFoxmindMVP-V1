@@ -67,7 +67,8 @@ test('new attempt selects the command practice ID without a second detail fetch'
       (node) => node.type === 'button' && node.props.children === 'Ver orientación',
     )[0].props.onClick();
     await view.flush();
-    const reader = descendants(view.tree, (node) => node.type?.name === 'FoxyChatLayout')[0].props.children;
+    // The practice opens in the workbench panel; the chat stays mounted beside it.
+    const reader = descendants(view.tree, (node) => node.type?.name === 'FoxyChatLayout')[0].props.panel;
     assert.equal(reader.type.name, 'StudyPracticeView');
     assert.equal(reader.props.inline, true);
     assert.deepEqual(reader.props.sources.items.map(source => source.title), ['Apunte citado']);
@@ -76,8 +77,7 @@ test('new attempt selects the command practice ID without a second detail fetch'
     assert.deepEqual(calls, [['NEW_ATTEMPT', { practiceId: 'old' }, undefined]]);
     assert.equal(reads, 0);
     assert.equal(
-      descendants(view.tree, (node) => node.type?.name === 'StudyPracticeView')[0].props.practice
-        .id,
+      descendants(view.tree, (node) => node.type?.name === 'FoxyChatLayout')[0].props.panel.props.practice.id,
       'actual-result',
     );
   } finally {

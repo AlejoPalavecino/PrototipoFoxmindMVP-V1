@@ -9,6 +9,7 @@ import { StudyConversation } from '../conversations/presentation/study-conversat
 import { StudyContextDialog } from '../workspace/study-context-dialog';
 import { StudyLibraryDialog } from '../workspace/study-library-dialog';
 import { StudyFolderOptions } from '../workspace/study-folder-options';
+import { StudyRail } from '../workspace/study-rail';
 import { StudySharedStrategyDialog } from '../workspace/StudySharedStrategyDialog.tsx';
 import { createStudyClient } from '../api.ts';
 import { useStudyChat } from '../conversations/use-study-chat.ts';
@@ -39,6 +40,13 @@ import s from './study.module.css';
 import { startStudyConversation, studyInitialPreferences } from '../model/study-discovery';
 import type { StudyRun } from '../model/study-commands.ts';
 import { useStudyPractice } from '../practice/use-study-practice.ts';
+async function fetchStudyChatPreview(folderId: string, requestId: string, signal: AbortSignal): Promise<string | null> {
+  const response = await fetch(`/api/v1/study-folders/${encodeURIComponent(folderId)}/chat-previews/${encodeURIComponent(requestId)}`,
+    { credentials: 'same-origin', cache: 'no-store', signal });
+  if (!response.ok) return null;
+  const body = await response.json() as { markdown?: unknown };
+  return typeof body.markdown === 'string' && body.markdown.trim() ? body.markdown : null;
+}
 export function StudyWorkspace({
   identity,
   detail,
@@ -48,6 +56,7 @@ export function StudyWorkspace({
   onReload,
   examId,
   cancelGeneration,
+  readChatPreview,
   selectedConversationId,
   onConversationSelect,
 }: {
@@ -56,6 +65,7 @@ export function StudyWorkspace({
   selectedConversationId?: string;
   onConversationSelect?: (id: string) => void;
   cancelGeneration?: (requestId: string) => Promise<'CANCELLED' | 'ALREADY_FINISHED'>;
+  readChatPreview?: (folderId: string, requestId: string, signal: AbortSignal) => Promise<string | null>;
   detail: StudyDetail;
   catalog: StudyCollection;
   busy: boolean;
@@ -147,7 +157,11 @@ export function StudyWorkspace({
   const [repeatPlan, setRepeatPlan] = useState<StudyGenerationInput>();
   const [repeatSources, setRepeatSources] = useState<string[]>();
   const [toolTitle, setToolTitle] = useState('Preparar un apunte');
-  const [toolBrief, setToolBrief] = useState('');
+  const [toolBriefs, setToolBriefs] = useState<Record<string, string>>({});
+  const toolBrief = toolBriefs[kind] ?? '';
+  // Each tool keeps its own draft: a failed request must not leak into another tool.
+  const setToolBrief = (value: string | ((current: string) => string), target: string = kind) =>
+    setToolBriefs((all) => ({ ...all, [target]: typeof value === 'function' ? value(all[target] ?? '') : value }));
   const [toolError, setToolError] = useState('');
 
   const [citedSources, setCitedSources] = useState<
@@ -169,6 +183,7 @@ export function StudyWorkspace({
   });
   const {
     pending,
+    partial,
     operation,
     notice,
     setNotice: NoticeText,
@@ -188,6 +203,7 @@ export function StudyWorkspace({
     blocked: generation.blocked,
     onConversation: selectConversation,
     cancelGeneration,
+    readPreview: (requestId, signal) => (readChatPreview ?? fetchStudyChatPreview)(f.id, requestId, signal),
   });
   const {
     practice,
@@ -237,14 +253,10 @@ export function StudyWorkspace({
     }
   }
   function openChat(id: string) {
-    if (inlinePractice && !closePractice()) return;
-    if (inlineDiagram) Creation(undefined);
     chooseChat(id);
     Tab('chat');
   }
   function prepareAgain(id: string, resourceKind: string, title: string) {
-    if (inlinePractice && !closePractice()) { Tab('chat'); return; }
-    if (inlineDiagram) Creation(undefined);
     let original: StudyGenerationInput | undefined;
     for (const chat of detail.conversations) {
       const turns = chat.messages ?? chat.turns ?? [];
@@ -265,7 +277,7 @@ export function StudyWorkspace({
     Kind(resourceKind);
     const toolTitles: Record<string, string> = { NOTE: 'Preparar un apunte', EXPLANATION: 'Entender un tema', OUTLINE: 'Conectar ideas', IMAGE: 'Crear una imagen', QUIZ: 'Practicar', EXERCISE: 'Crear ejercicios', MOCK_EXAM: 'Preparar una evaluación' };
     setToolTitle(toolTitles[resourceKind] ?? 'Preparar propuesta');
-    setToolBrief(original?.message ?? title);
+    setToolBrief(original?.message ?? title, resourceKind);
     setToolError('');
     setRepeatSources(original?.sourceIds);
     if (original) {
@@ -275,7 +287,27 @@ export function StudyWorkspace({
     }
     Panel('tool');
   }
+  function chooseTool(tool: { kind: string; title: string }) {
+    Tab('chat');
+    setRepeatPlan(undefined);
+    setRepeatSources(undefined);
+    if (tool.kind === 'PLAN') {
+      setSelectedExam(undefined);
+      Panel('exam');
+      return;
+    }
+    Kind(tool.kind);
+    setToolTitle(tool.title);
+    setToolError('');
+    Panel('tool');
+  }
+  function toggleTopic(id: string) {
+    Selected(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
+  }
   const generationIssue = studyGenerationIssue(kind, selected);
+  const toolSourceCount = detail.sources.filter((source) => source.available && source.readable !== false).length + attachments.items.length;
+  // Study answers are grounded in folder materials; only images and review plans work without them.
+  const toolNeedsMaterial = !['IMAGE', 'REVIEW_PLAN', 'PLAN'].includes(kind) && toolSourceCount === 0;
   const openedPractice = detail.practices.find((item) => item.id === practice);
   const inlinePractice = openedPractice?.kind === 'QUIZ';
   const practiceSources = inlinePractice ? detail.sources.filter(source => source.available &&
@@ -330,6 +362,7 @@ export function StudyWorkspace({
       inline={inlinePractice}
       sources={practiceSources.length ? { folderId: f.id, items: practiceSources } : undefined}
       folderName={f.name}
+      closeLabel="Cerrar práctica"
       onClose={closePractice}
       onNewAttempt={newAttempt}
       onSelectAttempt={Practice}
@@ -338,6 +371,17 @@ export function StudyWorkspace({
       practice={openedPractice}
       busy={busy || !active}
       run={run}
+    />
+  );
+  const rail = () => (
+    <StudyRail
+      detail={detail}
+      classroomName={catalog.classrooms.find((room) => room.id === f.linkedClassroomId)?.name}
+      selected={selected}
+      disabled={busy || !active}
+      sourceCount={detail.sources.length + attachments.items.length}
+      onTopic={toggleTopic}
+      onAddMaterial={(launcher) => openPanelFrom('library', launcher)}
     />
   );
   return (
@@ -378,22 +422,7 @@ export function StudyWorkspace({
           <StudyToolsPanel
             disabled={busy || !active || generation.blocked}
             imageGenerationAvailable={detail.imageGenerationAvailable}
-            onChoose={(tool) => {
-              Tab('chat');
-              if (inlinePractice && !closePractice()) return;
-              if (inlineDiagram) Creation(undefined);
-              setRepeatPlan(undefined);
-              setRepeatSources(undefined);
-              if (tool.kind === 'PLAN') {
-                setSelectedExam(undefined);
-                Panel('exam');
-                return;
-              }
-              Kind(tool.kind);
-              setToolTitle(tool.title);
-              setToolError('');
-              Panel('tool');
-            }}
+            onChoose={chooseTool}
           />
         }
         creations={
@@ -410,14 +439,10 @@ export function StudyWorkspace({
             onCreation={openCreation}
             onPractice={(id) => {
               Tab('chat');
-              if (inlinePractice && !closePractice()) return;
-              if (inlineDiagram) Creation(undefined);
               setPracticePreview(id);
             }}
             onExam={(id) => {
               Tab('chat');
-              if (inlinePractice && !closePractice()) return;
-              if (inlineDiagram) Creation(undefined);
               setSelectedExam(id);
               Panel('exam');
             }}
@@ -427,6 +452,10 @@ export function StudyWorkspace({
         creationsCount={detail.creations.length + detail.practices.length + detail.exams.length}
         newDisabled={busy || attachments.busy || !active}
         onNew={() => openChat('new')}
+        aside={rail()}
+        asideLabel="Temas y materiales de la carpeta"
+        panel={inlineDiagram ? creationReader : inlinePractice ? practiceReader : undefined}
+        panelLabel={inlineDiagram ? 'Esquema abierto' : 'Práctica abierta'}
         context={
           <>
             <Link
@@ -466,13 +495,13 @@ export function StudyWorkspace({
           </>
         }
       >
-        {inlineDiagram ? creationReader : inlinePractice ? practiceReader : <StudyConversation
+        <StudyConversation
           identity={identity}
           current={current}
           detail={detail}
           messages={messages}
           generation={generation}
-          chat={{ pending, operation, cancelling, canStop, send, stop }}
+          chat={{ pending, partial, operation, cancelling, canStop, send, stop }}
           busy={busy}
           active={active}
           follow={follow}
@@ -497,7 +526,8 @@ export function StudyWorkspace({
           }
           onLibrary={(launcher) => openPanelFrom('library', launcher)}
           onAttach={attach}
-        />}
+          onTool={chooseTool}
+        />
       </FoxyChatLayout>
       {citedSources.length > 0 && (
         <StudySourcesDialog
@@ -539,6 +569,7 @@ export function StudyWorkspace({
           practice={detail.practices.find((item) => item.id === practicePreview)!}
           onClose={() => setPracticePreview('')}
           onStart={() => {
+            if (inlineDiagram) Creation(undefined);
             Practice(practicePreview);
             setPracticePreview('');
           }}
@@ -556,6 +587,7 @@ export function StudyWorkspace({
           onReload={onReload}
           onClose={closePanel}
           onLibrary={() => Panel('library')}
+          overview={rail()}
         />
       )}
       {(panel === 'library' || panel === 'materials') && (
@@ -583,22 +615,23 @@ export function StudyWorkspace({
           kind={kind}
           title={toolTitle}
           folderName={f.name}
-          sourceCount={
-            detail.sources.filter((source) => source.available && source.readable !== false).length
-          }
+          sourceCount={toolSourceCount}
+          needsMaterial={toolNeedsMaterial}
+          onAddMaterial={() => Panel('library')}
           brief={toolBrief}
           selected={selected}
           count={count}
           difficulty={difficulty}
           topics={topics}
           error={toolError || generationIssue || ''}
-          disabled={busy || !active || generation.blocked || !!generationIssue}
-          onBrief={setToolBrief}
+          disabled={busy || !active || generation.blocked || !!generationIssue || toolNeedsMaterial}
+          onBrief={(value) => setToolBrief(value)}
           onSelected={Selected}
           onCount={Count}
           onDifficulty={Difficulty}
           onClose={closePanel}
           onSubmit={() => {
+            if (toolNeedsMaterial) return;
             if (!toolBrief.trim()) {
               setToolError('Contá qué querés preparar para que Foxy tenga un punto de partida.');
               return;
@@ -607,7 +640,7 @@ export function StudyWorkspace({
               setToolError('Elegí al menos un tema de tu carpeta.');
               return;
             }
-            const submitted = toolBrief;
+            const submitted = toolBrief, submittedKind = kind;
             const data = studyGenerationData(
               kind,
               submitted,
@@ -618,7 +651,7 @@ export function StudyWorkspace({
             dismissPanel(false);
             Tab('chat');
             void generation.submit(repeatSources ? { ...data, sourceIds: repeatSources } : data).then((ok) => {
-              if (ok) setToolBrief((value) => (value === submitted ? '' : value));
+              if (ok) setToolBrief((value) => (value === submitted ? '' : value), submittedKind);
             });
           }}
         />

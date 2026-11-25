@@ -1,4 +1,4 @@
-import { useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import type { StudyRun, StudyAction, StudyCommandData } from '../model/study-commands.ts';
 import { startStudyConversation } from '../model/study-discovery.ts';
 import { startChatTiming, trackChatTiming } from '../../../shared/chat-timing.ts';
@@ -13,6 +13,8 @@ type Options = {
   blocked: boolean;
   onConversation: (id: string) => void;
   cancelGeneration?: (requestId: string) => Promise<'CANCELLED' | 'ALREADY_FINISHED'>;
+  /** Reads Foxy's partial answer for a running chat request; null when none is available yet. */
+  readPreview?: (requestId: string, signal: AbortSignal) => Promise<string | null>;
 };
 export function useStudyChat({
   run,
@@ -25,6 +27,7 @@ export function useStudyChat({
   blocked,
   onConversation: selectConversation,
   cancelGeneration,
+  readPreview,
 }: Options) {
   const [pending, Pending] = useState<string | null>(null);
   const [operation, Operation] = useState('');
@@ -33,6 +36,27 @@ export function useStudyChat({
   const pendingIntents = useRef(new Map<string, string>()),
     inFlight = useRef<string | undefined>(undefined);
   const [cancelling, setCancelling] = useState(false);
+  const [partial, Partial] = useState<string | null>(null);
+  const previewStop = useRef<(() => void) | null>(null);
+  // Leaving the folder must not keep polling a preview whose request is still in flight.
+  useEffect(() => () => { previewStop.current?.(); }, []);
+  // Poll the private partial answer while a chat request is in flight; stop as soon as it ends.
+  function followPreview(requestId: string) {
+    if (!readPreview) return () => {};
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const tick = async () => {
+      try {
+        const markdown = await readPreview(requestId, controller.signal);
+        if (!controller.signal.aborted && markdown) Partial(markdown);
+      } catch { /* The final answer still arrives through the command. */ }
+      if (!controller.signal.aborted) timer = setTimeout(tick, 500);
+    };
+    timer = setTimeout(tick, 400);
+    const stop = () => { controller.abort(); if (timer) clearTimeout(timer); if (previewStop.current === stop) previewStop.current = null; Partial(null); };
+    previewStop.current = stop;
+    return stop;
+  }
   async function command<A extends StudyAction>(
     action: A,
     data: StudyCommandData[A] = {} as StudyCommandData[A],
@@ -45,6 +69,7 @@ export function useStudyChat({
       : undefined;
     if (requestId) pendingIntents.current.set(key, requestId);
     inFlight.current = requestId;
+    const stopPreview = action === 'CHAT' && requestId ? followPreview(requestId) : () => {};
     try {
       const response = await run(action, data, requestId);
       pendingIntents.current.delete(key);
@@ -69,6 +94,7 @@ export function useStudyChat({
         pendingIntents.current.delete(key);
       return false;
     } finally {
+      stopPreview();
       inFlight.current = undefined;
       Operation('');
     }
@@ -119,6 +145,7 @@ export function useStudyChat({
 
   return {
     pending,
+    partial,
     operation,
     notice,
     setNotice: NoticeText,

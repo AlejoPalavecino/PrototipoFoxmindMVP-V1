@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import type { StudyDetail, StudyCollection } from '../model/study-contracts.ts';
@@ -13,6 +14,7 @@ export function StudyContextDialog({
   onReload,
   onClose,
   onLibrary,
+  overview,
 }: {
   detail: StudyDetail;
   catalog: StudyCollection;
@@ -24,6 +26,8 @@ export function StudyContextDialog({
   onReload: () => Promise<void>;
   onClose: () => void;
   onLibrary: () => void;
+  /** Temas, materiales y repaso: on narrow screens the side rail is hidden, so they live here. */
+  overview?: ReactNode;
 }) {
   return (
     <FoxyDialog
@@ -47,6 +51,7 @@ export function StudyContextDialog({
         </>
       }
     >
+      {overview && <section className="study-rail-sheet" aria-label="Temas y materiales">{overview}</section>}
       <StudyContext
         onSaveAvailability={onReady}
         onWorkingChange={onWorking}

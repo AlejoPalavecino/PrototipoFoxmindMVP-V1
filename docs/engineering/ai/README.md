@@ -57,6 +57,8 @@ Fuentes: [extracción](../../../apps/api/src/modules/curriculum/generation/infra
 
 La implementación de la [propuesta aprobada](runtime-proposal.md) conecta las seis tareas textuales a perfiles por trabajo mediante SDK oficiales. Sin configuración adicional, todas conservan Gemini, `AI_MODEL` y los límites y tarifas existentes. Claude queda disponible mediante configuración explícita de backend; esta entrega no acredita su activación real. No hay selección de proveedor en UI ni cambio automático ante un error.
 
+Un pedido textual puede incluir `tuning` opcional con `thinking` (`minimal`, `low`, `medium` o `high`) y `temperature` (0 a 2). El transporte de Gemini aplica `thinkingLevel` sólo a modelos Gemini 3 y conserva temperatura 0 si no se indica otra. Hoy sólo los chats de Foxy y de Estudio piden razonamiento bajo. El texto progresivo es opcional por llamada: lo recibe únicamente quien pasa una vista previa privada (chat general docente y chat de Estudio).
+
 | Superficie | Responsabilidad actual |
 |---|---|
 | Extracción, actividades, análisis, corrección, Foxy y Estudio | Conservan puertos, reglas y validación del dominio. Cada trabajo usa su proveedor/modelo, versiones, límites y tarifas guardados. |

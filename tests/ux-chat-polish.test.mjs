@@ -15,11 +15,11 @@ test('study chat shows outgoing message before response, prevents double send an
   try{await view.flush();area(view).props.onChange({target:{value:'Explicame la célula'}});await view.flush();
     form(view).props.onSubmit({preventDefault(){}});form(view).props.onSubmit({preventDefault(){}});await view.flush();
     assert.equal(calls.length,1);assert.equal(calls[0][0],'CHAT');
-    const html=renderToStaticMarkup(view.tree);assert.match(html,/Procesando tu solicitud/);
+    const html=renderToStaticMarkup(view.tree);assert.match(html,/Foxy está pensando/);
     const outgoing=descendants(view.tree,n=>n.type==='article').find(n=>renderToStaticMarkup(n).includes('Explicame la célula'));
     assert.ok(outgoing,'the draft is shown in the transcript while submitting');
     pending.reject(new Error('offline'));await view.flush();
-    assert.equal(area(view).props.value,'Explicame la célula');assert.doesNotMatch(renderToStaticMarkup(view.tree),/Procesando tu solicitud/);
+    assert.equal(area(view).props.value,'Explicame la célula');assert.doesNotMatch(renderToStaticMarkup(view.tree),/Foxy está pensando/);
     assert.equal(descendants(view.tree,n=>n.type==='article').length,0);
   }finally{view.close();}
 });

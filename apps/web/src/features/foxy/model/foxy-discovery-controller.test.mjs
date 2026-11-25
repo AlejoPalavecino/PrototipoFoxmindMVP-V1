@@ -67,7 +67,7 @@ test('opening an older visual loads its exact job without depending on first pag
   const room = conversation(), job = { id: randomUUID(), conversationId: room.id, state: 'READY', kind: 'DIAGRAM', assetId: randomUUID() };
   const c = loadTsModule("apps/web/src/features/foxy/visuals/foxy-visual-controller.ts").createFoxyVisualController({
     client: { listVisuals: async () => ({ items: [], nextAfterId: null }), getVisual: async () => job },
-    current: () => ({ conversation: room }), onChange() {}, onRevision() {},
+    current: () => ({ conversation: room, enabled: { IMAGE: true, DIAGRAM: true } }), onChange() {}, onRevision() {},
   });
   c.syncContext(); assert.equal(await c.openJob(job.id), true);
   assert.equal(c.getState().selectedId, job.id); assert.equal(c.getState().jobs[0].id, job.id); c.dispose();
@@ -76,7 +76,7 @@ test('background visual refresh cannot strand a direct creation open in busy sta
   const room = conversation(), running = { id: randomUUID(), conversationId: room.id, state: 'RUNNING' }, target = { ...running, id: randomUUID(), state: 'READY', kind: 'DIAGRAM' };
   let resolve; const gate = new Promise(done => resolve = done);
   const c = loadTsModule("apps/web/src/features/foxy/visuals/foxy-visual-controller.ts").createFoxyVisualController({
-    client: { listVisuals: async () => ({ items: [running] }), getVisual: async () => gate }, current: () => ({ conversation: room }), onChange() {}, onRevision() {},
+    client: { listVisuals: async () => ({ items: [running] }), getVisual: async () => gate }, current: () => ({ conversation: room, enabled: { IMAGE: true, DIAGRAM: true } }), onChange() {}, onRevision() {},
   });
   try {
     c.syncContext(); await Promise.resolve(); await Promise.resolve();

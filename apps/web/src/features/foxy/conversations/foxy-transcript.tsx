@@ -13,6 +13,7 @@ import { FoxyWelcome } from './foxy-welcome.tsx';
 import { formatFoxyModelMarkdown } from './foxy-markdown-format';
 import { FoxyVisualTimeline, type FoxyVisualTranscript } from '../visuals/foxy-visual-workspace';
 import styles from '../workspace/foxy-workspace.module.css';
+import { foxyRequestDisplay } from './foxy-request-display.ts';
 
 function failureMessage(turn: FoxyTurn) {
   if (turn.state === 'STALE') return 'El contexto de esta consulta cambió. Revisá los temas y las fuentes antes de enviarla de nuevo.';
@@ -40,11 +41,16 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
   const entries: { key: string; at: string; body: ReactNode }[] = state.turns.map(turn => ({
     key: turn.id, at: turn.createdAt,
     body: <article className={styles.turn + ' parity-ai-turn'}>
-      <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/><p>{turn.message}</p></div>
+      <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/>{(() => { const shown = foxyRequestDisplay(turn.message); return <>{shown.label && <small className="parity-foxy-requestLabel">{shown.label}</small>}<p>{shown.text}</p></>; })()}</div>
       {turn.answer ? <div className={styles.answer + ' parity-ai-answer'}><ChatByline/>
         {turn.state === 'READY' && turn.purpose !== 'CHAT' && onOpenResource && !turn.answer.missingInformation?.length && turn.answer.markdown.trim()
-          ? <div className="parity-foxy-creationReply"><small>{creationPresentation(turn.purpose).label}</small><h3>{catalogItems?.find(item => item.turnId === turn.id)?.title ?? turn.answer.title}</h3>
-            <button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}><FoxmindIcon name={creationPresentation(turn.purpose).icon}/>{creationPresentation(turn.purpose).action}</button>
+          ? <div className="parity-foxy-creationCard" data-kind={turn.purpose}>
+            <button type="button" className="parity-foxy-creationOpen" onClick={() => onOpenResource(state.current!.id, turn.id)}>
+              <span className="parity-foxy-creationIcon" aria-hidden="true"><FoxmindIcon name={creationPresentation(turn.purpose).icon}/></span>
+              <span className="parity-foxy-creationText"><small>{creationPresentation(turn.purpose).label}</small>
+                <strong>{catalogItems?.find(item => item.turnId === turn.id)?.title ?? turn.answer.title}</strong>
+                <span>{creationPresentation(turn.purpose).action} · se abre al lado</span></span>
+            </button>
             {onActivityHandoff && turn.purpose === 'RUBRIC' && <button type="button" onClick={() => onActivityHandoff(state.current!.id, turn.id, 'RUBRIC')}>Usar rúbrica en una actividad</button>}
             {onActivityHandoff && turn.purpose === 'ACTIVITY_IDEAS' && <button type="button" onClick={() => onActivityHandoff(state.current!.id, turn.id, 'ACTIVITY')}>Preparar en Actividades</button>}
           </div>
@@ -54,7 +60,7 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
       </div>
       : turn.state === 'CANCELLED' ? <p role="status">Detuviste la respuesta. <button type="button" onClick={() => setText(turn.message)}>Retomar mensaje</button></p>
       : turn.state === 'FAILED' || turn.state === 'STALE' ? <p role="status">{failureMessage(turn)} <button type="button" onClick={() => setText(turn.message)}>Retomar mensaje</button></p>
-      : !state.pollError && <FoxyWait queued={turn.state === 'QUEUED'} generating={turn.purpose !== 'CHAT'}
+      : !state.pollError && <FoxyWait queued={turn.state === 'QUEUED'} generating={turn.purpose !== 'CHAT'} since={turn.createdAt}
         partialText={turn.state === 'RUNNING' && turn.purpose === 'CHAT' ? turn.partialMarkdown : undefined}
         title={turn.state === 'QUEUED' ? 'Tu solicitud está en cola' : turn.purpose === 'CHAT' ? 'Conectando las ideas' : 'Dándole forma a la propuesta'}
         onStop={() => void controller.cancel?.()} disabled={!canStop}/>}

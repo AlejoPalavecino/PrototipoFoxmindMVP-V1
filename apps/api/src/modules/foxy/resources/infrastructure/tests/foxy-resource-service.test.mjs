@@ -97,7 +97,7 @@ test('teacher resources use the queued profile and reach the existing private ed
       const toolTurns = [];
       for (const [purpose, message] of teachingTools) toolTurns.push(await createTurn(message, purpose));
       for (const [pending, version] of [[legacy, 'foxy-chat-v2'], [previous, 'foxy-chat-v3'], [attributed, 'foxy-chat-v4'],
-        [historicalRubric, 'foxy-chat-v5'], ...[current, ...toolTurns].map(pending => [pending, 'foxy-chat-v7'])]) {
+        [historicalRubric, 'foxy-chat-v5'], ...[current, ...toolTurns].map(pending => [pending, 'foxy-chat-v8'])]) {
         const [row] = await query('SELECT metadata,execution_profile FROM foxy_turns WHERE id=$1::uuid', pending.turn.id);
         assert.equal(row.metadata.promptVersion, version);
         assert.equal(row.execution_profile.promptVersion, version);

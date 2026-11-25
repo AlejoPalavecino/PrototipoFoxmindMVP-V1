@@ -189,10 +189,10 @@ test('both INSERTs snapshot active policy and activities persist the active prom
   }
 });
 
-test('Foxy admits current teaching resources and keeps the five prior text prompt versions', () => {
+test('Foxy admits current teaching resources and keeps the six prior text prompt versions', () => {
   const current = defaultExecutionSnapshot(base(), 'foxy');
-  assert.equal(current.promptVersion, 'foxy-chat-v7');
-  for (const promptVersion of ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4', 'foxy-chat-v5', 'foxy-chat-v6', 'foxy-chat-v7']) {
+  assert.equal(current.promptVersion, 'foxy-chat-v8');
+  for (const promptVersion of ['foxy-chat-v2', 'foxy-chat-v3', 'foxy-chat-v4', 'foxy-chat-v5', 'foxy-chat-v6', 'foxy-chat-v7', 'foxy-chat-v8']) {
     assert.deepEqual(parseExecutionSnapshot({ ...current, promptVersion }, 'foxy'), { ...current, promptVersion });
   }
   assert.throws(() => parseExecutionSnapshot({ ...current, promptVersion: 'foxy-chat-v999' }, 'foxy'), { code: 'AI_UNAVAILABLE' });

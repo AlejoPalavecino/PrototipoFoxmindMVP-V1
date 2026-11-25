@@ -15,6 +15,7 @@ import { createStudyReminderRuntime } from '../modules/study/reviews/infrastruct
 import { executeStudy, generateDevelopmentFeedback } from '../../../../src/core/domain/study/engine.ts';
 import type { StudyProvider } from '../../../../src/core/domain/study/engine.ts';
 import { createGeminiStudyProvider } from '../modules/study/generation/infrastructure/providers/study-adapter.ts';
+import { createStudyChatPreviews } from '../modules/study/generation/infrastructure/study-chat-previews.ts';
 import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
 import { createStudyImages } from './study-images.ts';
 import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
@@ -34,7 +35,7 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     teacher: createFoxyAuthentication(identity.configuration.security), folderQuota: configuration.studyQuotaBytes,
     inspect: inspectContent, scan: bytes => files.scanner.scan(bytes) });
   const provider = (context: { ownerId: string; requestId: string; authorize?: () => Promise<void> } | undefined,
-    flow: 'chat' | 'tool' | 'feedback') => {
+    flow: 'chat' | 'tool' | 'feedback', preview?: (markdown: string | undefined) => void) => {
     if (options.study) return {
       async generate(input: Parameters<StudyProvider['generate']>[0]) {
         await context?.authorize?.();
@@ -45,14 +46,23 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
       throw Object.assign(new Error('AI_UNAVAILABLE'), { code: 'AI_UNAVAILABLE' });
     }
     return createGeminiStudyProvider(configuration.ai, database, context.ownerId, context.requestId, context.authorize, undefined,
-      { waitForAdmission: flow === 'feedback', flow });
+      { waitForAdmission: flow === 'feedback', flow, ...(preview ? { preview } : {}) });
   };
+  const chatPreviews = createStudyChatPreviews();
   const images = createStudyImages(database, files.scanner, configuration, {
     enabled: options.ai !== undefined || options.study !== undefined || Object.hasOwn(options, 'studyImageProvider'),
     provider: options.studyImageProvider,
   });
   const service = createStudyService({ database, authenticate, images, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
-    generate: (input, context) => executeStudy(input, provider(context, input.action === 'CHAT' ? 'chat' : 'tool')),
+    // Provider construction stays synchronous so an unavailable AI still throws before any work starts.
+    generate: (input, context) => {
+      const session = input.action === 'CHAT' && context?.folderId ? chatPreviews.open(context.ownerId, context.folderId, context.requestId) : undefined;
+      let selected: ReturnType<typeof provider>;
+      try { selected = provider(context, input.action === 'CHAT' ? 'chat' : 'tool', session?.publish); }
+      catch (error) { session?.close(); throw error; }
+      return executeStudy(input, selected).finally(() => session?.close());
+    },
+    chatPreview: (ownerId, folderId, requestId) => chatPreviews.read(ownerId, folderId, requestId),
     feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources,
       provider(context, 'feedback'), input.history) });
   const reminders = createStudyReminderRuntime({ database, authenticate });
