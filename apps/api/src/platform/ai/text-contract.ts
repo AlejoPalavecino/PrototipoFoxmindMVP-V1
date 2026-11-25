@@ -14,10 +14,17 @@ export interface AiTextProfile {
   readonly maxDocumentBytes: number;
 }
 export type AiPart = { kind: 'text'; text: string } | { kind: 'pdf'; bytes: Uint8Array };
+export type AiThinking = 'minimal' | 'low' | 'medium' | 'high';
+/** Optional per-request generation hints; providers that cannot honor one ignore it. */
+export interface AiTextTuning {
+  thinking?: AiThinking;
+  temperature?: number;
+}
 export interface AiTextRequest {
   system: string;
   messages: { role: 'user' | 'assistant'; parts: AiPart[] }[];
   schema?: Record<string, unknown>;
+  tuning?: AiTextTuning;
 }
 export interface AiTransportRequest extends AiTextRequest {
   model: string;

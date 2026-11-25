@@ -7,6 +7,7 @@ import { createExecutionTransport } from '../../../../../platform/ai/profile-cli
 import type { StudyAction, StudyProvider } from '../../../../../../../../src/core/domain/study/engine.ts';
 import { executeStudyAiText, type StudyFileDatabase, type StudyTextCapability } from './study-ai-execution.ts';
 import { studySchemaFor } from './study-response-schema.ts';
+import { createStudyChatPreviewDecoder } from './study-chat-preview.ts';
 
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 
@@ -36,7 +37,7 @@ const studyActionCapabilities = {
 export function createGeminiStudyProvider(configuration: AiConfiguration, database: StudyFileDatabase,
   ownerId: string, requestId: string, authorize?: () => Promise<void>,
   clientOverride?: Pick<GoogleGenAI['models'], 'countTokens' | 'generateContent'>,
-  options?: { waitForAdmission?: boolean; flow?: 'chat' | 'tool' | 'feedback' }): StudyProvider {
+  options?: { waitForAdmission?: boolean; flow?: 'chat' | 'tool' | 'feedback'; preview?: (markdown: string | undefined) => void }): StudyProvider {
   const transport = clientOverride ? createGeminiTextTransport({ apiKey: configuration.apiKey, deadlineMs: configuration.deadlineMs,
     client: { models: clientOverride } }) : undefined;
   return { async generate(input) {
@@ -58,8 +59,10 @@ export function createGeminiStudyProvider(configuration: AiConfiguration, databa
       const result = await executeStudyAiText({ configuration, database, ownerId, requestId, authorize, transport,
         timing: createAiChatTimings('study', flow), capability,
         waitForAdmission: options?.waitForAdmission,
+        ...(action === 'CHAT' && options?.preview ? { preview: createStudyChatPreviewDecoder(options.preview) } : {}),
         ...(clientOverride ? {} : { transportForExecution: (pinned: AiConfiguration) => createExecutionTransport(pinned, 'study') }),
-        request: { system, messages: [{ role: 'user', parts }], schema: studySchemaFor(input.context) } });
+        request: { system, messages: [{ role: 'user', parts }], schema: studySchemaFor(input.context),
+          ...(action === 'CHAT' ? { tuning: { thinking: 'low' as const } } : {}) } });
       const output: unknown = JSON.parse(result.text);
       if (action === 'QUIZ' && !quizFeedbackIsComplete(output)) fail('AI_UNAVAILABLE');
       if (capability === 'study_outline' && output && typeof output === 'object'

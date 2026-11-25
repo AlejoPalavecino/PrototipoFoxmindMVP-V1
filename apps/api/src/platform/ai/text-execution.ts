@@ -69,7 +69,8 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
     await bounded(async () => { await options.authorize?.(); });
     check(); options.onDispatch?.(); dispatched = true;
     return await measure('generate', async () => {
-      const preview = profile.task === 'foxy' && profile.provider === 'gemini' ? options.preview?.() : undefined;
+      // Streaming is opt-in: only callers that publish a private preview pass one.
+      const preview = profile.provider === 'gemini' ? options.preview?.() : undefined;
       const result = preview && options.transport.stream
         ? await options.transport.stream(input(), text => { check(); preview(text); })
         : await options.transport.generate(input());

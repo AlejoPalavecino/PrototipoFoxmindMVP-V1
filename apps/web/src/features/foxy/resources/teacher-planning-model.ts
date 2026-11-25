@@ -49,3 +49,18 @@ export function writeTeacherRubric(rubric: TeacherRubric): string {
   });
   return [rubric.introduction, ...criteria].filter(Boolean).join('\n\n');
 }
+
+export type LessonTimeSegment = { label: string; minutes: number };
+/** Minutes per lesson phase, only when at least two phase headings state their minutes. */
+export function readTeacherLessonTime(markdown: string): { total: number; segments: LessonTimeSegment[] } | undefined {
+  const segments: LessonTimeSegment[] = [];
+  for (const { heading } of teacherTextSections(markdown)) {
+    if (!heading) continue;
+    const phase = readTeacherLessonPhase(heading);
+    const minutes = Number(/\d+/u.exec(phase?.minutes ?? '')?.[0]);
+    if (!phase || !Number.isFinite(minutes) || minutes <= 0) continue;
+    segments.push({ label: phase.title.split(' · ')[0].replace(/^\d+[.)]\s*/u, '').trim(), minutes });
+  }
+  const total = segments.reduce((sum, segment) => sum + segment.minutes, 0);
+  return segments.length >= 2 && total > 0 ? { total, segments } : undefined;
+}

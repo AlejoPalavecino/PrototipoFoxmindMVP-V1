@@ -55,9 +55,10 @@ export function resourceBodyWithoutRepeatedTitle(title: string, markdown: string
 }
 
 function plainInlineRuns(text: string): InlineRun[] {
-  return text.split(/(\*\*[^*\n]+\*\*|\*[^*\n]+\*|`[^`\n]+`|!?\[[^\]\n]*\]\([^\n]*?\))/gu).map((part): InlineRun => {
+  // Bold may contain an italic aside (`**Label (*note*):**`); the run keeps one style, so the inner markers are dropped.
+  return text.split(/(\*\*(?:[^*\n]|\*[^*\n]+\*)+\*\*|\*[^*\n]+\*|`[^`\n]+`|!?\[[^\]\n]*\]\([^\n]*?\))/gu).map((part): InlineRun => {
     if (part.startsWith('**') && part.endsWith('**') && part.length > 4)
-      return { text: readableMath(part.slice(2, -2)), style: 'bold' };
+      return { text: readableMath(part.slice(2, -2).replace(/\*([^*\n]+)\*/gu, '$1')), style: 'bold' };
     if (part.startsWith('*') && part.endsWith('*') && part.length > 2)
       return { text: readableMath(part.slice(1, -1)), style: 'italic' };
     if (part.startsWith('`') && part.endsWith('`') && part.length > 2)

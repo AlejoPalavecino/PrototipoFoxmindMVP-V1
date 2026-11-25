@@ -24,6 +24,7 @@ import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxyContextPicker, type FoxyContextPreview } from '../context/foxy-context-picker';
 import { FoxyLibraryPanel } from '../context/foxy-library-panel';
 import { FoxyToolDialog } from '../tools/foxy-tool-dialog';
+import { FoxyToolChips, type FoxyChipId } from '../tools/foxy-tool-chips';
 import { FoxyScopeDialog } from '../context/foxy-scope-dialog';
 import type { FoxyVisualTranscript } from '../visuals/foxy-visual-workspace';
 
@@ -31,7 +32,7 @@ type Controller = ReturnType<typeof createFoxyChatController>;
 type State = ReturnType<Controller['getState']>;
 type Classroom = { id: string; name: string; archived?: boolean; division?: string; coverKey?: string };
 type VisualChatDraft = { context: FoxyContext; onCreated: () => void };
-export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, previewContext, identity, onNewDraft, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { inlineReader?: ReactNode; onCloseReader?: () => boolean; visualTimeline?: FoxyVisualTranscript; previewContext?: (id: string, signal: AbortSignal) => Promise<FoxyContextPreview>; identity?: ChatIdentity; onNewDraft?: () => void; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft,details?:{materialCount:number; repeat?:FoxyCreation}) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
+export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewContext, identity, onNewDraft, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { /** The open creation, shown beside the chat. */ panel?: ReactNode; onClosePanel?: () => boolean; visualTimeline?: FoxyVisualTranscript; previewContext?: (id: string, signal: AbortSignal) => Promise<FoxyContextPreview>; identity?: ChatIdentity; onNewDraft?: () => void; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft,details?:{materialCount:number; repeat?:FoxyCreation}) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
   const [submittedMessage,setSubmittedMessage]=useState<{text:string;after:number;conversationId:string|null}|null>(null);
   const chatFollow=useChatFollow(state.current?.id,JSON.stringify([state.turns.map(t=>[t.id,t.state,t.partialMarkdown?.length]),state.pending?.requestId,state.activeTurn?.state,state.pollError,submittedMessage?.text,visualTimeline?.jobs.map(job=>[job.id,job.state]),visualTimeline?.pending?.prompt]));
   const inCurrentChat=submittedMessage?.conversationId===state.current?.id;
@@ -41,9 +42,9 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
   useEffect(()=>{if(matchedSubmission)setSubmittedMessage(null);},[matchedSubmission]);
   const [newChat, setNewChat] = useState(false);
   const [view, setView] = useState<ChatView>('chat');
-  const showingReader = !!inlineReader;
+  const showingReader = !!panel;
   useEffect(() => { if (showingReader) setView('chat'); }, [showingReader]);
-  const leaveReader = () => !showingReader || !!onCloseReader?.();
+  const leaveReader = () => !showingReader || !!onClosePanel?.();
   const [historyOpenKey,setHistoryOpenKey]=useState(0);
   const composerRef=useRef<HTMLTextAreaElement>(null);
   const chooseExample=(message:string)=>{setText(message);composerRef.current?.focus();};
@@ -53,6 +54,7 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
   const [repeatSelection, setRepeatSelection] = useState<FoxyCreation['selection']>();
   const [initialToolBrief, setInitialToolBrief] = useState('');
   const [toolDialog, setToolDialog] = useState<ToolMode|null>(null);
+  const [toolInline, setToolInline] = useState(false), [toolQuiz, setToolQuiz] = useState(false);
   const [scopeReport, setScopeReport] = useState<State['turns'][number]['classroomSources']>();
   const [sourceTurnId,setSourceTurnId]=useState<string|null>(null);
   const [renameOpen, setRenameOpen] = useState(false), [renameTitle, setRenameTitle] = useState('');
@@ -168,20 +170,25 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
               if(result!=='accepted'&&result!=='uncertain')setSubmittedMessage(null);
               if (result === 'accepted' || result === 'uncertain') { setText(current => current === submitted ? '' : current); setMode(null); }
             })(); };
-  const toolContents = <FoxyToolPicker items={[
-    {value:'NOTE',label:'Preparar un apunte',hint:'Ideas claras para tu grupo.',icon:'book',color:'sky',opensDialog:true},
-    {value:'DIAGRAM',label:'Imágenes y esquemas',hint:'Una explicación que se pueda ver.',icon:'layers',color:'mint',opensDialog:true},
-    {value:'ACTIVITY',label:'Crear una actividad',hint:'Consignas para trabajar en el aula.',icon:'pencil',color:'peach',opensDialog:true},
-    {value:'PLAN',label:'Planificar una clase',hint:'Inicio, desarrollo y cierre.',icon:'calendar',color:'rose',opensDialog:true},
-    {value:'RUBRIC',label:'Pensar una rúbrica',hint:'Criterios para acompañar.',icon:'progress',color:'sky',opensDialog:true},
-  ]} value={null} disabled={preparingContext || !!starting || state.busy || !!state.activeTurn || !!state.pending} onChange={(value:ToolMode) => {
-    if (!leaveReader()) { setView('chat'); return; }
+  const visualsEnabled = Boolean(state.capabilities?.diagramGeneration?.enabled || state.capabilities?.imageGeneration?.enabled);
+  const toolsLocked = preparingContext || !!starting || state.busy || !!state.activeTurn || !!state.pending;
+  // The inline card needs the chat column to be wide enough; the open creation only shares the row on wide screens.
+  const roomForInlineTool = () => typeof window === 'undefined' || typeof window.matchMedia !== 'function' || window.matchMedia(panel ? '(min-width: 1101px)' : '(min-width: 720px)').matches;
+  const openTool = (value: ToolMode, options: { quiz?: boolean; inline?: boolean } = {}) => {
     setView('chat');
     setRepeatSelection(undefined);
     setInitialToolBrief('');
     if(value==='DIAGRAM'&&onOpenVisual) onOpenVisual(draftMode ? {context:draftContext,onCreated:()=>setNewChat(false)} : undefined,{materialCount});
-    else setToolDialog(value);
-  }}/>;
+    else { setToolQuiz(!!options.quiz); setToolInline(!!options.inline && roomForInlineTool()); setToolDialog(value); }
+  };
+  const closeTool = () => { const wasInline = toolInline; setToolDialog(null); setToolInline(false); setToolQuiz(false); if (wasInline) composerRef.current?.focus(); };
+  const toolContents = <FoxyToolPicker items={[
+    {value:'NOTE',label:'Preparar un apunte',hint:'Ideas claras para tu grupo.',icon:'book',color:'sky',opensDialog:true},
+    ...(visualsEnabled ? [{value:'DIAGRAM' as const,label:'Imágenes y esquemas',hint:'Una explicación que se pueda ver.',icon:'layers' as const,color:'mint',opensDialog:true}] : []),
+    {value:'ACTIVITY',label:'Crear una actividad',hint:'Consignas para trabajar en el aula.',icon:'pencil',color:'peach',opensDialog:true},
+    {value:'PLAN',label:'Planificar una clase',hint:'Inicio, desarrollo y cierre.',icon:'calendar',color:'rose',opensDialog:true},
+    {value:'RUBRIC',label:'Pensar una rúbrica',hint:'Criterios para acompañar.',icon:'progress',color:'sky',opensDialog:true},
+  ]} value={null} disabled={toolsLocked} onChange={(value:ToolMode) => openTool(value)}/>;
   const creationContents = <FoxyCollectionPanel page={catalog?.creations ?? { items: [], next: null, loading: false, error: null }} query={catalog?.creationQuery ?? { q: '', context: 'ALL', type: 'ALL', status: 'ALL' }} classrooms={contextClassrooms} onNavigate={onNavigate} destinationHref={destinationHref} onQuery={onCreationQuery} onMore={onMoreCreations} onRefresh={onRefreshCatalog} onTools={()=>setView('tools')} disabled={state.busy || creationBlocked || !onOpenCreation} onRepeat={async item => {
     if (!leaveReader()) { setView('chat'); return; }
     saveDraft();
@@ -194,10 +201,27 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
     }
     setRepeatSelection(item.selection);
     setInitialToolBrief(item.brief ?? item.title);
-    setToolDialog(item.kind);
+    setToolInline(false); setToolQuiz(false); setToolDialog(item.kind);
   }} onOpen={item => { if (showingReader) setView('chat'); onOpenCreation?.(item); }} />;
   const conversationContents = <FoxyConversationPanel page={catalog?.conversations ?? {items:state.conversations,next:state.nextConversationCursor,loading:false,error:null}} query={catalog?.conversationQuery ?? {q:'',context:'ALL'}} classrooms={contextClassrooms} currentId={state.current?.id} disabled={!!starting || state.busy} onQuery={onConversationQuery} onSelect={openConversation} onMore={onMoreConversations ?? (()=>void controller.loadMoreConversations())} onRefresh={onRefreshCatalog} onNew={newConversation}
     onRename={item=>{if (!leaveReader()) return; saveDraft();void Promise.resolve(controller.select(item.id)).then(selected=>{if(selected){setNewChat(false);setRenameTitle(item.title);setRenameOpen(true);}});}} />;
+  const toolDialogElement = toolDialog && <FoxyToolDialog key={toolDialog + String(toolQuiz) + String(toolInline)} inline={toolInline} initialQuiz={toolQuiz} initialBrief={initialToolBrief} title={toolDialog==='NOTE'?'Preparar un apunte':toolDialog==='PLAN'?'Planificar una clase':toolDialog==='RUBRIC'?'Pensar una rúbrica':toolDialog==='ACTIVITY'?'Crear una actividad':'Imágenes y esquemas'} contextName={contextName} materialCount={materialCount} topics={draftMode?[]:state.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={draftMode || (repeatSelection ?? state.selection)?.mode==='ALL_CLASSROOM' ? undefined : (repeatSelection ?? state.selection)?.topicIds.filter(id => state.curriculum?.units.some(unit => unit.topics.some(topic => topic.id === id)))} busy={state.busy} error={state.error} onClose={closeTool} onPrepare={async(brief,topicIds)=>{
+      const chosen=tools.find(item=>item.mode===toolDialog)!;
+      let id=state.current?.id;
+      if(draftMode){const created=await controller.create({requestId:crypto.randomUUID(),title:[...brief].slice(0,120).join(''),context:draftContext});if(typeof created!=='string')return false;id=created;setNewChat(false);}
+      if(toolDialog==='DIAGRAM')return !!await onCreateDiagram?.(brief);
+      const message=brief;
+      const targetContext = draftMode ? draftContext : state.current?.context;
+      const emptySelection = { topicIds: [], sourceIds: [] };
+      const selection = targetContext?.kind !== 'CLASSROOM' ? emptySelection
+        : draftMode ? { ...emptySelection, mode: 'ALL_CLASSROOM' as const }
+        : await controller.resolveToolSelection(topicIds, repeatSelection);
+      if (!selection) return false;
+      setSubmittedMessage({text:message,after:draftMode?0:Math.max(0,...state.turns.map(turn=>turn.sequence)),conversationId:id??null});
+      const result=await controller.send(chosen.purpose,message,selection);
+      if(result!=='accepted'&&result!=='uncertain')setSubmittedMessage(null);
+      return result==='accepted'||result==='uncertain';
+    }}/>;
   return <section className={`${styles.workspace} parity-foxy-workspace`} aria-label="Espacio Foxy AI">
     <h1 className={styles.srOnly}>Foxy AI</h1>
     <FoxyChatLayout view={view} onView={setView} history={conversationContents}
@@ -209,8 +233,8 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
         <FoxmindIcon name="chevron-right"/>
       </button>}
       newDisabled={attachments.busy || preparingContext || !!starting || state.busy}
-      onNew={newConversation}>
-      {inlineReader || <div className={`${styles.chat} parity-ai-conversation`}>
+      onNew={newConversation} panel={panel} panelLabel="Creación abierta">
+      <div className={`${styles.chat} parity-ai-conversation`}>
         <p className={`${styles.srOnly} parity-ai-srOnly`}>{draftMode || state.current?.context.kind === 'GENERAL' ? 'Contexto general' : state.curriculum?.classroomTitle ? `Contexto del aula: ${state.curriculum.classroomTitle}` : 'Contexto del aula no disponible'}</p>
         {contextOpen && <FoxyContextPicker classrooms={contextClassrooms}
           current={draftMode ? context : state.current?.context.kind === 'CLASSROOM' ? state.current.context.classroomId : 'GENERAL'}
@@ -246,11 +270,14 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
           }}/>}
         {preparingContext ? <p role="status" className={`${styles.contextHelp} parity-ai-contextHelp`}>Preparando contexto del aula…</p> : null}
         {!draftMode && state.current ? renderFoxyTranscript({ catalogItems: catalog?.creations?.items, state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity, onOpenResource, controller, attachmentCount: attachments.items.length, pendingText, setText, enabled, mode, onActivityHandoff, onSources: turn => { setScopeReport(turn.classroomSources); setSourceTurnId(turn.id); void controller.loadCitations?.(turn.id); } }) : <div className={`${styles.empty} parity-ai-empty`}>{submittedMessage?<><div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:<FoxyWelcome tool={tool} onExample={chooseExample} />}</div>}
+          {toolDialog && toolInline && toolDialogElement}
+          <FoxyToolChips visuals={visualsEnabled} disabled={toolsLocked} active={toolDialog && toolInline ? (toolDialog === 'ACTIVITY' && toolQuiz ? 'QUIZ' : toolDialog) : null}
+            onPick={(id: FoxyChipId) => id === 'QUIZ' ? openTool('ACTIVITY', { quiz: true, inline: true }) : openTool(id, { inline: true })}/>
           {renderFoxyComposer({ onSubmit: submitMessage, tool, mode, setMode, composerRef, text, setText, validMessage, disabled, libraryOpen, onLibrary: openLibrary, materialCount, attachmentDisabled: !!(attachments.busy || preparingContext || starting || state.busy || state.activeTurn || state.pending || (!draftMode && state.curriculum?.archived)), onUpload: attach })}
           <p className={`${styles.disclosure} parity-ai-disclosure`}>Foxy puede equivocarse. Revisá sus propuestas.</p>
         {state.error ? <div role="alert"><p>{state.error}</p>{state.pending ? <button type="button" disabled={state.busy}
           onClick={() => void controller.retry()}>Reintentar envío</button> : null}</div> : null}
-      </div>}
+      </div>
     </FoxyChatLayout>
     {sourceTurnId && renderFoxySourceReport({ conversationId: state.current!.id, turnId: sourceTurnId, scopeReport, citations: state.citations?.[sourceTurnId] ?? [], onClose: () => { setScopeReport(undefined); setSourceTurnId(null); } })}
     {libraryOpen && <FoxyDialog title="Biblioteca de contexto" description="Tus fuentes, siempre a mano para conversar." className="parity-ai-tray parity-foxy-libraryDialog" onClose={()=>setLibraryOpen(false)} footer={<button type="button" onClick={()=>setLibraryOpen(false)}>Volver al chat</button>}>
@@ -263,23 +290,7 @@ export function FoxyWorkspace({ inlineReader, onCloseReader, visualTimeline, pre
     {scopeOpen && state.curriculum && <FoxyScopeDialog curriculum={state.curriculum} selection={state.selection}
       sources={state.sources} error={state.error} onFull={controller.setFullClassroom} onTopic={controller.selectTopic}
       onSource={controller.selectSource} onLoad={controller.loadSources} onClose={()=>setScopeOpen(false)}/>}
-    {toolDialog&&<FoxyToolDialog initialBrief={initialToolBrief} title={toolDialog==='NOTE'?'Preparar un apunte':toolDialog==='PLAN'?'Planificar una clase':toolDialog==='RUBRIC'?'Pensar una rúbrica':toolDialog==='ACTIVITY'?'Crear una actividad':'Imágenes y esquemas'} contextName={contextName} materialCount={materialCount} topics={draftMode?[]:state.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={draftMode || (repeatSelection ?? state.selection)?.mode==='ALL_CLASSROOM' ? undefined : (repeatSelection ?? state.selection)?.topicIds.filter(id => state.curriculum?.units.some(unit => unit.topics.some(topic => topic.id === id)))} busy={state.busy} error={state.error} onClose={()=>setToolDialog(null)} onPrepare={async(brief,topicIds)=>{
-      const chosen=tools.find(item=>item.mode===toolDialog)!;
-      let id=state.current?.id;
-      if(draftMode){const created=await controller.create({requestId:crypto.randomUUID(),title:[...brief].slice(0,120).join(''),context:draftContext});if(typeof created!=='string')return false;id=created;setNewChat(false);}
-      if(toolDialog==='DIAGRAM')return !!await onCreateDiagram?.(brief);
-      const message=brief;
-      const targetContext = draftMode ? draftContext : state.current?.context;
-      const emptySelection = { topicIds: [], sourceIds: [] };
-      const selection = targetContext?.kind !== 'CLASSROOM' ? emptySelection
-        : draftMode ? { ...emptySelection, mode: 'ALL_CLASSROOM' as const }
-        : await controller.resolveToolSelection(topicIds, repeatSelection);
-      if (!selection) return false;
-      setSubmittedMessage({text:message,after:draftMode?0:Math.max(0,...state.turns.map(turn=>turn.sequence)),conversationId:id??null});
-      const result=await controller.send(chosen.purpose,message,selection);
-      if(result!=='accepted'&&result!=='uncertain')setSubmittedMessage(null);
-      return result==='accepted'||result==='uncertain';
-    }}/>}
+    {toolDialog && !toolInline && toolDialogElement}
     {renameOpen && <FoxyRenameDialog initialTitle={renameTitle} busy={state.busy} error={state.error} onSave={async title => Boolean(await controller.rename(title))} onClose={() => { setRenameOpen(false); setHistoryOpenKey(key => key + 1); }} />}
   </section>;
 }

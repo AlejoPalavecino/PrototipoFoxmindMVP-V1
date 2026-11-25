@@ -17,9 +17,11 @@ export const previousFoxyPromptVersion = 'foxy-chat-v3';
 export const priorFoxyPromptVersion = 'foxy-chat-v4';
 export const previousTeachingFoxyPromptVersion = 'foxy-chat-v5';
 export const previousRubricFoxyPromptVersion = 'foxy-chat-v6';
-export const foxyPromptVersion = 'foxy-chat-v7';
+export const previousPresentationFoxyPromptVersion = 'foxy-chat-v7';
+export const foxyPromptVersion = 'foxy-chat-v8';
 const foxyHistoricalPromptVersions: readonly string[] = [
   legacyFoxyPromptVersion, previousFoxyPromptVersion, priorFoxyPromptVersion, previousTeachingFoxyPromptVersion, previousRubricFoxyPromptVersion,
+  previousPresentationFoxyPromptVersion,
 ];
 
 export function supportsFoxyPromptVersion(promptVersion: string): boolean {

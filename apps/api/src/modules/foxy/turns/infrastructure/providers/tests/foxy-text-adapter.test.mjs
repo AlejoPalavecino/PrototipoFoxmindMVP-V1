@@ -304,3 +304,14 @@ test('lesson plans render provider paragraph and list breaks while preserving co
   const result = await adapter.generate(input({ purpose: 'LESSON_PLAN' }));
   assert.equal(result.json.markdown, 'Inicio\n\n**Desarrollo**\n- Resolver\n- Mostrar `a\\n\\nb`');
 });
+
+test('V8 notes present invented examples as hypotheticals without parenthetical labels and keep V7 intact', async () => {
+  const { foxyInstructionFor } = await import('../foxy-prompt.ts');
+  const current = foxyInstructionFor('STUDY_MATERIAL', 'foxy-chat-v8'), previous = foxyInstructionFor('STUDY_MATERIAL', 'foxy-chat-v7');
+  assert.match(current, /Frame invented examples as hypothetical/);
+  assert.match(current, /without nesting other emphasis/);
+  assert.doesNotMatch(current, /label invented examples as illustrative/);
+  assert.match(previous, /label invented examples as illustrative/);
+  assert.equal(foxyInstructionFor('LESSON_PLAN', 'foxy-chat-v8'), foxyInstructionFor('LESSON_PLAN', 'foxy-chat-v7'));
+  assert.equal(foxyInstructionFor('RUBRIC', 'foxy-chat-v8'), foxyInstructionFor('RUBRIC', 'foxy-chat-v7'));
+});

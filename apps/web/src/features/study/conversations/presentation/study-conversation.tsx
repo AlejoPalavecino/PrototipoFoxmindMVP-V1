@@ -16,6 +16,7 @@ import { StudyChatWelcome } from './study-chat-welcome';
 import { StudyMessageList } from './study-message-list';
 import { StudyChatProgress } from './study-chat-progress';
 import { StudyChatComposer } from './study-chat-composer';
+import { StudyToolChips } from '../../tools/study-tool-chips';
 export function StudyConversation({
   identity,
   current,
@@ -39,10 +40,11 @@ export function StudyConversation({
   onReload,
   onLibrary,
   onAttach,
+  onTool,
 }: {
   identity?: ChatIdentity;
   current?: Pick<Conversation, 'id' | 'sourceUnavailable'>;
-  detail: Pick<StudyDetail, 'creations' | 'practices' | 'exams'>;
+  detail: Pick<StudyDetail, 'creations' | 'practices' | 'exams'> & { imageGenerationAvailable?: boolean };
   messages: StudyTurn[];
   generation: StudyGenerationPresentation;
   chat: StudyChatPresentation;
@@ -62,6 +64,7 @@ export function StudyConversation({
   onReload: () => void;
   onLibrary: (launcher: HTMLButtonElement) => void;
   onAttach: (id: string, file: File, copy: boolean) => Promise<void>;
+  onTool?: (tool: { kind: string; title: string }) => void;
 }) {
   const { pending } = chat;
   return (
@@ -92,6 +95,8 @@ export function StudyConversation({
             onExam={onExam}
             onSources={onSources}
             onReload={onReload}
+            sourceCount={sourceCount}
+            onAddMaterial={onLibrary}
           />
         )}
         <StudyChatProgress
@@ -107,6 +112,13 @@ export function StudyConversation({
         <button type="button" onClick={follow.jump}>
           Ver mensajes nuevos ↓
         </button>
+      )}
+      {onTool && (
+        <StudyToolChips
+          disabled={busy || !active || generation.blocked}
+          imageGenerationAvailable={detail.imageGenerationAvailable}
+          onChoose={onTool}
+        />
       )}
       <StudyChatComposer
         text={text}
