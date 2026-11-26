@@ -4,6 +4,7 @@ import { PassThrough } from 'node:stream';
 import { EventEmitter } from 'node:events';
 import { createFilesHandler } from '../presentation/http.ts';
 import { FileError } from '../../domain/errors.ts';
+import { createTransferGate } from '../../../../platform/http/transfer-gate.ts';
 
 const id = '00000000-0000-0000-0000-000000000001';
 function fixture(service, size = '3') {
@@ -59,4 +60,69 @@ test('HTTP rejects mismatching declared length without consuming bytes or mutati
   assert.equal(request.listenerCount('data'), 0);
   assert.equal(response.statusCode, 400);
   assert.equal(response.body.error.code, 'INVALID_UPLOAD');
+});
+
+function gatedFixture(service, gate, owner, options = {}) {
+  const request = new PassThrough();
+  Object.assign(request, { method: 'PUT', url: `/files/${id}/content`, complete: true, owner,
+    headers: { 'content-type': 'application/octet-stream', 'content-length': '3' } });
+  const response = new EventEmitter(), headers = new Map();
+  const finished = new Promise(resolve => {
+    Object.assign(response, { destroyed: false, headersSent: false,
+      setHeader: (name, value) => headers.set(name, value), getHeader: name => headers.get(name),
+      end: value => { response.body = JSON.parse(value); response.emit('finish'); resolve(); } });
+  });
+  createFilesHandler(service, { gate, owner: incoming => incoming.owner, ...options })(request, response, () => assert.fail('unexpected next'));
+  return { request, response, finished };
+}
+
+test('transfer gate bounds the platform and each owner and releases exactly once', () => {
+  const gate = createTransferGate({ total: 3, perOwner: 2 });
+  const a1 = gate.acquire('a'), a2 = gate.acquire('a');
+  assert.ok(a1 && a2);
+  assert.equal(gate.acquire('a'), undefined, 'an owner cannot take a third slot');
+  const b1 = gate.acquire('b');
+  assert.ok(b1);
+  assert.equal(gate.acquire('c'), undefined, 'the platform ceiling holds');
+  a1(); a1();
+  assert.ok(gate.acquire('c'), 'a released slot is reusable once');
+  assert.equal(gate.acquire('d'), undefined);
+});
+
+test('one account cannot hold every file transfer while another account still transfers', async () => {
+  const gate = createTransferGate({ total: 8, perOwner: 2 }), pending = [], authorized = [];
+  const service = {
+    async authorizeReceive(request) { authorized.push(request.owner); return new Promise(resolve => pending.push(() => resolve({ expectedBytes: 3 }))); },
+    async receive(_request, fileId) { return { id: fileId }; },
+  };
+  const first = gatedFixture(service, gate, 'a'), second = gatedFixture(service, gate, 'a');
+  const third = gatedFixture(service, gate, 'a');
+  await third.finished;
+  assert.equal(third.response.statusCode, 503);
+  const other = gatedFixture(service, gate, 'b');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(authorized, ['a', 'a', 'b']);
+  for (const release of pending) release();
+  await new Promise(resolve => setImmediate(resolve));
+  for (const transfer of [first, second, other]) transfer.request.end(Buffer.from('abc'));
+  await Promise.all([first.finished, second.finished, other.finished]);
+  assert.deepEqual([first, second, other].map(transfer => transfer.response.statusCode), [200, 200, 200]);
+  await new Promise(resolve => setImmediate(resolve));
+  const again = gatedFixture(service, gate, 'a');
+  await new Promise(resolve => setImmediate(resolve));
+  pending.at(-1)(); await new Promise(resolve => setImmediate(resolve));
+  again.request.end(Buffer.from('abc')); await again.finished;
+  assert.equal(again.response.statusCode, 200, 'finished transfers return their slots');
+});
+
+test('a body that stops sending data is cut after the idle window and frees its slot', async () => {
+  const gate = createTransferGate({ total: 1, perOwner: 1 });
+  const service = { async authorizeReceive() { return { expectedBytes: 3 }; }, async receive() { assert.fail('incomplete body'); } };
+  const stalled = gatedFixture(service, gate, 'a', { idleMs: 50 });
+  await new Promise(resolve => setImmediate(resolve));
+  stalled.request.write(Buffer.from('a'));
+  await stalled.finished;
+  assert.equal(stalled.response.statusCode, 503);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.ok(gate.acquire('b'), 'the stalled transfer released its slot');
 });

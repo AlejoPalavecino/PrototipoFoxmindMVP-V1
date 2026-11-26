@@ -48,6 +48,7 @@ import { attachmentIntegration } from './attachment-integration.ts';
 import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './study-runtime.ts';
 import { installStudyTransport } from './study-transport.ts';
 import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
+import { createTransferGate } from '../platform/http/transfer-gate.ts';
 import { installStudyUploads } from '../modules/study/folders/presentation/uploads/http.ts';
 import { installStudyReminders } from '../modules/study/folders/presentation/reminders/http.ts';
 
@@ -145,15 +146,17 @@ export async function createApplication(configuration: ApiConfiguration, options
     installAgendaTransport(app, identity, app.get(AgendaService));
     installHomeTransport(app, identity, app.get<HomeService>('HomeService'));
     installAiQuotaTransport(app, identity, app.get(PrismaService));
-    if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
+    // One process-wide bound for every transport that buffers whole files (memory and fairness).
+    const transfers = createTransferGate();
+    if (configuration.files) installFilesTransport(app, identity, app.get(FileService), transfers);
     if (configuration.classrooms) installClassroomsTransport(app, identity, academicHttpServices(app.get<AcademicRuntime>(ACADEMIC_RUNTIME)),
       { ai: configuration.ai ? app.get(ClassroomAiRuntime).service : undefined,
         activityAi: configuration.ai ? app.get(ActivityAiRuntime).service : undefined });
     if (configuration.classrooms && configuration.files) installFoxyTransport(app, identity, app.get<ReturnType<typeof createFoxyRuntime>>(FOXY_RUNTIME).services);
     if(configuration.classrooms&&configuration.files){
       const study=app.get<ReturnType<typeof createStudyRuntime>>(STUDY_RUNTIME);
-      installChatAttachmentTransport(app,study.attachments,study.admit);
-      installStudyUploads(app,study.uploads,study.admit);
+      installChatAttachmentTransport(app,study.attachments,study.admit,transfers);
+      installStudyUploads(app,study.uploads,study.admit,transfers);
       installStudyReminders(app,study.reminders,study.admit);
       installStudyTransport(app,identity,study.service);
     }

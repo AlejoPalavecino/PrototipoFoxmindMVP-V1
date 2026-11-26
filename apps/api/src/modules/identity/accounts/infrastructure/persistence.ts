@@ -87,10 +87,12 @@ export class IdentityStore {
    * Only called after proof of ownership (successful password check or completed reset); IP/session buckets and the
    * recovery success marker (separate action key) are never touched.
    */
-  async releaseIdentifierBuckets(tx: IdentityTransaction, config: IdentityConfiguration, actions: readonly RateAction[], canonical: string): Promise<void> {
+  async releaseIdentifierBuckets(tx: IdentityTransaction, config: IdentityConfiguration, actions: readonly RateAction[], canonical: string, ip: string): Promise<void> {
     for (const action of actions) {
       await tx.$executeRaw`DELETE FROM account_action_controls
         WHERE action=${`identity.v1:${action}:identifier`} AND subject_key=${config.abuseDigest(action, `identifier\0${canonical}`)}`;
+      await tx.$executeRaw`DELETE FROM account_action_controls
+        WHERE action=${`identity.v1:${action}:identifier-ip`} AND subject_key=${config.abuseDigest(action, `identifier-ip\0${canonical}\0${ip}`)}`;
     }
   }
   /** Bounded retention: removes at most `limit` rows whose window/cooldown ended more than `retentionSeconds` ago. */

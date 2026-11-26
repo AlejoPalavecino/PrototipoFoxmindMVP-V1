@@ -1,7 +1,7 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
 import {studyJson,studyReject,readStudyBody} from '../uploads/http.ts';
 import type { StudyReminderQueries } from '../../application/read-ports.ts';
-export function installStudyReminders(app:{use(path:string,handler:(request:IncomingMessage,response:ServerResponse,next:()=>void)=>void):unknown},runtime:StudyReminderQueries,admit:(request:IncomingMessage,response:ServerResponse)=>Promise<void>){
+export function installStudyReminders(app:{use(path:string,handler:(request:IncomingMessage,response:ServerResponse,next:()=>void)=>void):unknown},runtime:StudyReminderQueries,admit:(request:IncomingMessage,response:ServerResponse)=>Promise<unknown>){
  app.use('/api/v1',(request,response,next)=>{
   const url=new URL(request.url??'/','http://study.invalid'),match=/^\/study-folders\/reminders(?:\/([a-f0-9-]{36})\/read)?$/iu.exec(url.pathname);
   if(!match){next();return;}response.setHeader('Cache-Control','no-store');

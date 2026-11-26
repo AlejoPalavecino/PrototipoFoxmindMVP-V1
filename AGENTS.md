@@ -49,6 +49,8 @@ El 2026-11-25 el usuario autorizó integrar en main y hacer push del pulido de F
 
 El 2026-11-26 el usuario autorizó commit y push a main de los arreglos acotados de la auditoría (B1, B2, S10, S11, D13 y F10). El registro es docs/work-log/2026-11-26-root-audit-bounded-fixes.md. No concede despliegue.
 
+El 2026-11-26 el usuario autorizó commit y push a main de los cupos compartidos S2–S5 de la auditoría, si las suites pasaban. El registro es docs/work-log/2026-11-26-root-audit-shared-limits.md. No concede despliegue.
+
 ## Pruebas locales con Gemini (preferencia vigente del usuario)
 
 El 2026-11-08 el usuario pidió conservar y reutilizar la API key que cargó en `.env` de raíz para nuevas funcionalidades y cuando solicite levantar la app para probar. Usar `npm run local:up` (o `local:restart`): lee ese archivo, prepara sólo el entorno propio registrado en `.test-artifacts/local-app/owner.json` y ejecuta API/web con Gemini real. No reemplazar la clave ni cambiar a mocks sin avisar; si falta, detener la configuración del proveedor y solicitar restaurarla, sin buscar secretos históricos. No escribir la clave en memoria, documentación, código o Git. Las pruebas automatizadas aisladas conservan sus proveedores sintéticos por defecto y no deben gastar API por esta preferencia.

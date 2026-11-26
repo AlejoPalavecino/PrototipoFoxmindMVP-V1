@@ -3,7 +3,7 @@ import { validateBodyShape, validatePassword, validateName } from '../../domain/
 import { newSessionWindow, IDENTITY_POLICY } from '../../domain/session-policy.ts';
 import { IdentityHttpError } from '../../domain/errors.ts';
 import type { IdentityUserRecord as User, AuthenticatedContext } from '../../sessions/public.ts';
-import type { IdentityApplicationConfiguration, IdentityStorePort, PasswordHasher, AdmissionBucket, IdentityApplicationDependencies } from './ports.ts';
+import type { IdentityApplicationConfiguration, IdentityStorePort, PasswordHasher, AdmissionBucket, IdentityApplicationDependencies, RateRule } from './ports.ts';
 
 export interface IdentityRuntimePorts {
   /** Trusted composition-only synchronization/observability seam; never populated from requests/environment. */
@@ -16,6 +16,13 @@ export interface IdentityRuntimePorts {
   readonly beforeRecoveryCommit?: () => Promise<void>;
   /** Trusted post-hash synchronization; persisted authorization is rechecked under the user lock. */
   readonly beforePasswordChangeCommit?: () => Promise<void>;
+}
+/** Address, identifier+address and identifier ceilings. Someone else's attempts only exhaust their own address. */
+function identifierBuckets(action: 'login' | 'recovery-request', rule: RateRule, ip: string, canonical: string): AdmissionBucket[] {
+  const buckets: AdmissionBucket[] = [{ action, namespace: 'ip', subject: ip, budget: rule.ip }];
+  if (rule.identifierPerIp) buckets.push({ action, namespace: 'identifier-ip', subject: `${canonical}\0${ip}`, budget: rule.identifierPerIp });
+  if (rule.identifier) buckets.push({ action, namespace: 'identifier', subject: canonical, budget: rule.identifier });
+  return buckets;
 }
 export function publicUser(user: User) {
   return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, avatarKey: user.avatar_key, emailVerified: user.email_verified_at !== null, accountRole: user.account_role as 'teacher' | 'student' };
@@ -39,10 +46,7 @@ export class IdentityRuntime {
     const deliveryEmail = this.dependencies.validateMailbox(input.email);
     const password = validatePassword(input.password);
     const canonical = await this.store.canonicalEmail(deliveryEmail);
-    const rule = this.configuration.security.rateLimits.login;
-    const buckets: AdmissionBucket[] = [{ action: 'login', namespace: 'ip', subject: ip, budget: rule.ip }];
-    if (rule.identifier) buckets.push({ action: 'login', namespace: 'identifier', subject: canonical, budget: rule.identifier });
-    await this.store.admit(this.configuration.security, buckets);
+    await this.store.admit(this.configuration.security, identifierBuckets('login', this.configuration.security.rateLimits.login, ip, canonical));
     const snapshot = await this.store.findUser(canonical);
     // Both paths do maintained, bounded Argon2 work outside any user transaction.
     const valid = snapshot ? await this.passwords.verify(password, snapshot.password_hash) : await this.passwords.dummyCheck(password);
@@ -62,7 +66,7 @@ export class IdentityRuntime {
       // Never retarget an existing row. The verifier is digested before persistence.
       await tx.session.create({ data: { user_id: user.id, token_hash: this.dependencies.tokens.sessionTokenDigest(verifier), created_at: now, last_seen_at: now, expires_at: expiresAt } });
       // Ownership proven: release the targeted-lockout bucket so failures by others do not outlive a real login.
-      await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login'], canonical);
+      await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login'], canonical, ip);
       return { state: { authenticated: true as const, user: publicUser(user) }, verifier, expiresAt, now };
     });
   }
@@ -172,9 +176,7 @@ export class IdentityRuntime {
     const input = validateBodyShape(body, ['email'], ['email']);
     const email = this.dependencies.validateMailbox(input.email), canonical = await this.store.canonicalEmail(email);
     const rule = this.configuration.security.rateLimits['recovery-request'];
-    const buckets: AdmissionBucket[] = [{ action: 'recovery-request', namespace: 'ip', subject: ip, budget: rule.ip }];
-    if (rule.identifier) buckets.push({ action: 'recovery-request', namespace: 'identifier', subject: canonical, budget: rule.identifier });
-    await this.store.admit(this.configuration.security, buckets);
+    await this.store.admit(this.configuration.security, identifierBuckets('recovery-request', rule, ip, canonical));
     // Comparable maintained work on BOTH paths, outside transactions and before account-dependent work.
     const rawToken = this.dependencies.tokens.generateVerifier();
     await this.passwords.dummyCheck(rawToken);
@@ -238,7 +240,7 @@ export class IdentityRuntime {
       for (const tokenId of [snapshot.id, ...previous.map(token => token.id)].sort()) await this.dependencies.mailOutbox.cancel(tx, tokenId);
       // The reset proves mailbox ownership: release login/recovery identifier buckets that an outsider may have exhausted.
       const owner = await tx.user.findUnique({ where: { id: snapshot.user_id } });
-      if (owner) await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login', 'recovery-request'], owner.email_normalized);
+      if (owner) await this.store.releaseIdentifierBuckets(tx, this.configuration.security, ['login', 'recovery-request'], owner.email_normalized, ip);
       // The successful-request marker and verification-purpose state deliberately remain untouched.
     });
   }

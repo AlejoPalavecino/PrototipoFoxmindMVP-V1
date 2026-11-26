@@ -12,7 +12,7 @@ import * as apiPart5 from "../.build/p33-security/apps/api/src/modules/identity/
 import * as apiPart6 from "../.build/p33-security/apps/api/src/modules/identity/accounts/presentation/session-cookies.js";
 const api = Object.freeze({IdentitySecurityError: apiPart0.IdentitySecurityError,validatePassword: apiPart1.validatePassword,validateName: apiPart1.validateName,validateBodyShape: apiPart1.validateBodyShape,assertBodySize: apiPart1.assertBodySize,generateVerifier: apiPart2.generateVerifier,parseVerifier: apiPart2.parseVerifier,accountTokenDigest: apiPart2.accountTokenDigest,sessionTokenDigest: apiPart2.sessionTokenDigest,readIdentityConfiguration: apiPart3.readIdentityConfiguration,createPasswordService: apiPart4.createPasswordService,IDENTITY_POLICY: apiPart5.IDENTITY_POLICY,newSessionWindow: apiPart5.newSessionWindow,sessionIsActive: apiPart5.sessionIsActive,refreshSessionWindow: apiPart5.refreshSessionWindow,sessionCookie: apiPart6.sessionCookie,clearSessionCookie: apiPart6.clearSessionCookie});
 const key = () => randomBytes(32).toString('base64url');
-const env = () => ({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_CSRF_HMAC_KEY: key(), AUTH_ABUSE_HMAC_KEY: key() });
+const env = () => ({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_CSRF_HMAC_KEY: key(), AUTH_ABUSE_HMAC_KEY: key(), FOXMIND_PROXY_CLIENT_KEY: key() });
 const configuration = (values = env(), host = '127.0.0.1') => api.readIdentityConfiguration(values, host);
 const safeError = (code) => (error) => {
   assert.ok(error instanceof api.IdentitySecurityError);
@@ -39,6 +39,14 @@ test('S2 names count raw scalar points without trimming or normalization', () =>
   for (const value of ['', ' \t\n', ' ' + 'x'.repeat(80), '\udc00', null]) {
     assert.throws(() => api.validateName(value), safeError('VALIDATION_ERROR'));
   }
+});
+
+test('S4 login and recovery limits separate each address from a wider per-identifier ceiling', () => {
+  const limits = configuration().rateLimits, window = limit => ({ limit, windowSeconds: 900 });
+  assert.deepEqual(limits.login, { ip: window(300), identifierPerIp: window(10), identifier: window(100) });
+  assert.deepEqual(limits['recovery-request'], { ip: window(20), identifierPerIp: window(3), identifier: window(10), cooldownSeconds: 60 });
+  const tuned = configuration({ ...env(), AUTH_RATE_LIMITS_JSON: JSON.stringify({ login: { identifierPerIp: { limit: 5 } } }) });
+  assert.deepEqual(tuned.rateLimits.login.identifierPerIp, window(5));
 });
 
 test('S2 names reject control and bidirectional characters but keep regular names', () => {
@@ -71,9 +79,12 @@ test('S4 config fails closed for origin, local HTTP and missing/weak/dependent k
     { AUTH_CSRF_HMAC_KEY: undefined }, { AUTH_CSRF_HMAC_KEY: 'weak' },
     { AUTH_CSRF_HMAC_KEY: Buffer.alloc(32).toString('base64url') },
     { AUTH_ABUSE_HMAC_KEY: base.AUTH_CSRF_HMAC_KEY },
+    // Without the proxy key every client shares the web server's loopback address and its limits.
+    { FOXMIND_PROXY_CLIENT_KEY: undefined }, { FOXMIND_PROXY_CLIENT_KEY: '' }, { AUTH_LOCAL_HTTP: 'false', FOXMIND_PROXY_CLIENT_KEY: undefined },
   ]) assert.throws(() => configuration({ ...base, ...patch }), safeError('IDENTITY_CONFIG_INVALID'));
   const local = { ...base, APP_ORIGIN: 'http://127.0.0.1:3000', AUTH_LOCAL_HTTP: 'true' };
   assert.equal(configuration(local).secureCookies, false);
+  assert.equal(configuration({ ...local, FOXMIND_PROXY_CLIENT_KEY: undefined }).secureCookies, false, 'local development may run without the proxy key');
   assert.throws(() => configuration(local, '0.0.0.0'), safeError('IDENTITY_CONFIG_INVALID'));
   assert.throws(() => configuration({ ...local, NODE_ENV: 'production' }), safeError('IDENTITY_CONFIG_INVALID'));
   assert.equal(configuration().secureCookies, true);
@@ -97,7 +108,8 @@ test('S6 validated proxy/rate config never silently disables controls', () => {
   const config = configuration({ ...env(), AUTH_TRUSTED_PROXY_CIDRS: '127.0.0.1/32,::1/128',
     AUTH_RATE_LIMITS_JSON: JSON.stringify({ login: { ip: { limit: 4, windowSeconds: 60 } } }) });
   assert.equal(config.rateLimits.login.ip.limit, 4);
-  assert.equal(config.rateLimits.login.identifier.limit, 10);
+  assert.equal(config.rateLimits.login.identifierPerIp.limit, 10);
+  assert.equal(config.rateLimits.login.identifier.limit, 100);
   assert.equal(config.trustedProxyCidrs.length, 2);
   assert.equal(configuration().trustedProxyCidrs.length, 0);
   for (const patch of [

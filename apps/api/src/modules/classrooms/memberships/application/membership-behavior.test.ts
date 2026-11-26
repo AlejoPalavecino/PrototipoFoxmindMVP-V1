@@ -40,3 +40,22 @@ test('student member view excludes private email and historical periods', async 
  const capability = { run: async (_: unknown, _write: boolean, action: Function) => action(tx, { id: studentId }), classroom: async () => ({ teacher_id: 'teacher' }) };
  assert.deepEqual(await createMembershipLifecycleOperations(repository as any).membersOperation(capability as any, {}, classroomId), [{ firstName: 'A', lastName: 'B', isSelf: true }]);
 });
+test('code misses limit each student and only legacy 6-digit guesses share the global ceiling', async () => {
+ const windows = new Map<string, number>();
+ const repository = {
+  readCodeFailures: async (_tx: unknown, input: { subject: string }) => [{ failures: windows.get(input.subject) ?? 0, retry_after: 60 }],
+  recordCodeFailure: async (_tx: unknown, input: { subject: string }) => { windows.set(input.subject, (windows.get(input.subject) ?? 0) + 1); return []; },
+  findLiveCode: async () => [],
+ };
+ const capability = (id: string) => ({ run: async (_: unknown, _write: boolean, action: Function) => action({}, { id, account_role: 'student', now: new Date() }) });
+ const operations = createMembershipCodeOperations(repository as any, { digest: value => value });
+ const preview = (id: string, code: string) => operations.previewCodeOperation(capability(id) as any, {}, code);
+ const first = '44444444-4444-4444-8444-444444444444', second = '55555555-5555-4555-8555-555555555555';
+ for (let n = 0; n < 20; n++) await assert.rejects(preview(first, 'ABCD-EFGH'), { code: 'ENROLLMENT_UNAVAILABLE' });
+ await assert.rejects(preview(first, 'ABCD-EFGH'), { code: 'RATE_LIMITED' });
+ await assert.rejects(preview(second, 'ABCD-EFGH'), { code: 'ENROLLMENT_UNAVAILABLE' }, 'another student keeps trying');
+ assert.equal(windows.get('global') ?? 0, 0, 'modern codes cannot exhaust a shared ceiling');
+ windows.set('global', 300);
+ await assert.rejects(preview(second, '123 456'), { code: 'RATE_LIMITED' });
+ await assert.rejects(preview(second, 'ABCD-EFGH'), { code: 'ENROLLMENT_UNAVAILABLE' }, 'the legacy ceiling never blocks modern codes');
+});

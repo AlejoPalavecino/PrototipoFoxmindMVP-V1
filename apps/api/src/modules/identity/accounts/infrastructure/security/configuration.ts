@@ -10,8 +10,9 @@ export type { Budget, RateRule, RateAction, RateLimits, IdentitySecurityConfigur
 const budget = (limit: number, windowSeconds: number): Budget => ({ limit, windowSeconds });
 const defaults = {
   registration: { ip: budget(30, 3600), identifier: budget(1, 60) },
-  login: { ip: budget(30, 900), identifier: budget(10, 900) },
-  'recovery-request': { ip: budget(20, 900), identifier: budget(3, 900), cooldownSeconds: 60 },
+  // A whole school can share one address; the identifier+address bucket stops targeted lockouts.
+  login: { ip: budget(300, 900), identifierPerIp: budget(10, 900), identifier: budget(100, 900) },
+  'recovery-request': { ip: budget(20, 900), identifierPerIp: budget(3, 900), identifier: budget(10, 900), cooldownSeconds: 60 },
   'verification-resend': { ip: budget(60, 3600), identifier: budget(5, 3600), cooldownSeconds: 60 },
   'token-redemption': { ip: budget(30, 900) },
   'password-change': { ip: budget(20, 900), identifier: budget(5, 900) },
@@ -96,6 +97,9 @@ export function readIdentityConfiguration(
     const trustedProxyCidrs = readProxyCidrs(env.AUTH_TRUSTED_PROXY_CIDRS);
     const rateLimits = readRates(env.AUTH_RATE_LIMITS_JSON);
     const clientAddressKey = readClientAddressKey(env.FOXMIND_PROXY_CLIENT_KEY);
+    // Without the key every request arrives from the web server's loopback address, so all
+    // per-client limits would collapse into one bucket shared by every user.
+    if (!clientAddressKey && !localHttp) invalid();
     const csrfToken = (session: unknown): string => createHmac('sha256', csrfKey)
       .update(`foxmind.csrf.v1\0${parseVerifier(session)}`).digest('base64url');
     return Object.freeze({

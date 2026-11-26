@@ -1,7 +1,8 @@
 import type { AuthenticatedContext, IdentityUserRecord } from '../../sessions/public.ts';
 
 export interface Budget { readonly limit: number; readonly windowSeconds: number }
-export interface RateRule { readonly ip: Budget; readonly identifier?: Budget; readonly session?: Budget; readonly cooldownSeconds?: number }
+/** `identifierPerIp` counts one identifier from one address; `identifier` is the wider ceiling for that identifier from any address. */
+export interface RateRule { readonly ip: Budget; readonly identifier?: Budget; readonly identifierPerIp?: Budget; readonly session?: Budget; readonly cooldownSeconds?: number }
 export type RateAction = 'registration' | 'login' | 'recovery-request' | 'verification-resend' | 'token-redemption' | 'password-change' | 'profile-update' | 'general-identity';
 export type RateLimits = Readonly<Record<RateAction, RateRule>>;
 export interface IdentitySecurityConfiguration {
@@ -15,7 +16,7 @@ export interface IdentitySecurityConfiguration {
   abuseDigest(action: RateAction, identifier: string): string;
 }
 export interface IdentityApplicationConfiguration { readonly security: IdentitySecurityConfiguration }
-export interface AdmissionBucket { readonly action: RateAction; readonly namespace: 'ip' | 'identifier' | 'session'; readonly subject: string; readonly budget: Budget }
+export interface AdmissionBucket { readonly action: RateAction; readonly namespace: 'ip' | 'identifier' | 'identifier-ip' | 'session'; readonly subject: string; readonly budget: Budget }
 export interface PasswordHasher { hash(password: string): Promise<string>; verify(password: string, hash: string): Promise<boolean>; dummyCheck(password: string): Promise<boolean> }
 export type AccountTokenPurpose = 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
 export interface TokenCodec { generateVerifier(): string; randomUUID(): string; sessionTokenDigest(raw: unknown): string; accountTokenDigest(purpose: AccountTokenPurpose, raw: unknown): string }
@@ -58,7 +59,8 @@ export interface IdentityStorePort {
   recoveryMarker(tx: IdentityTransactionPort, id: string, action: string, key: string): Promise<{ last_requested_at: Date; request_count: number }>;
   acceptRecovery(tx: IdentityTransactionPort, now: Date, action: string, key: string): Promise<number>;
   /** Clears the account's per-identifier attempt buckets; only after proof of ownership, in the caller's transaction. */
-  releaseIdentifierBuckets(tx: IdentityTransactionPort, config: IdentitySecurityConfiguration, actions: readonly RateAction[], canonical: string): Promise<void>;
+  /** Also clears the identifier+address bucket of `ip`; other addresses keep theirs until their window ends. */
+  releaseIdentifierBuckets(tx: IdentityTransactionPort, config: IdentitySecurityConfiguration, actions: readonly RateAction[], canonical: string, ip: string): Promise<void>;
 }
 export interface AccountMailInput { jobId: string; tokenId: string; userId: string; purpose: AccountTokenPurpose; expiresAt: string; rawToken: string }
 export interface AccountMailOutbox {

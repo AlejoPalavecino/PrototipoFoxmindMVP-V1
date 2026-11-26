@@ -6,9 +6,15 @@ import type { MembershipAccess } from '../../application/management-operations.t
 
 export function createMembershipCodeOperations(repository: MembershipCodeRepository, dependencies: { digest(text: string): string }) {
 const { digest } = dependencies;
-/** Adivinanzas fallidas tolerables entre todas las cuentas antes de bloquear nuevas consultas. */
+/**
+ * Adivinanzas fallidas tolerables. Cada alumno tiene su propio cupo. El tope global sólo cuenta y
+ * frena códigos anteriores de 6 dígitos (un millón de combinaciones); los de 8 caracteres no se
+ * pueden adivinar por fuerza bruta y nunca quedan bloqueados para todos.
+ */
 const GLOBAL_FAILURE_LIMIT = 300;
-const GLOBAL_FAILURE_WINDOW_SECONDS = 600;
+const STUDENT_FAILURE_LIMIT = 20;
+const FAILURE_WINDOW_SECONDS = 600;
+const guessable = (code: string) => /^[0-9]{6}$/.test(code);
 const MISS = Symbol('code-miss');
 async function previewCodeOperation(capability: MembershipAccess, request: unknown, input: unknown) {
     const normalized = normalizeClassroomCode(input);
@@ -16,12 +22,18 @@ async function previewCodeOperation(capability: MembershipAccess, request: unkno
       return fail('INVALID_INPUT');
     const outcome = await capability.run(request, true, async (tx, actor) => {
       if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
-      const [window] = await repository.readGlobalCodeFailures(tx, { windowSeconds: GLOBAL_FAILURE_WINDOW_SECONDS });
-      if (window && window.failures >= GLOBAL_FAILURE_LIMIT) return fail('RATE_LIMITED', window.retry_after);
+      const student = `student:${actor.id}`, shared = guessable(normalized);
+      const [own] = await repository.readCodeFailures(tx, { subject: student, windowSeconds: FAILURE_WINDOW_SECONDS });
+      if (own && own.failures >= STUDENT_FAILURE_LIMIT) return fail('RATE_LIMITED', own.retry_after);
+      if (shared) {
+        const [window] = await repository.readCodeFailures(tx, { subject: 'global', windowSeconds: FAILURE_WINDOW_SECONDS });
+        if (window && window.failures >= GLOBAL_FAILURE_LIMIT) return fail('RATE_LIMITED', window.retry_after);
+      }
       const [code] = await repository.findLiveCode(tx, { digest: digest(normalized) });
       if (!code) {
         // Se registra y se confirma la transacción; el rechazo se emite después para que el conteo sobreviva.
-        await repository.recordGlobalCodeFailure(tx, { windowSeconds: GLOBAL_FAILURE_WINDOW_SECONDS });
+        await repository.recordCodeFailure(tx, { subject: student, windowSeconds: FAILURE_WINDOW_SECONDS });
+        if (shared) await repository.recordCodeFailure(tx, { subject: 'global', windowSeconds: FAILURE_WINDOW_SECONDS });
         return MISS;
       }
       const { classroom, exists, live } = await previewState(tx, code.classroom_id, actor.id, code.id);

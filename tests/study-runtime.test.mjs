@@ -12,7 +12,7 @@ function fixture(t) {
     timers.push(timer); return timer;
   });
   t.mock.method(globalThis, 'clearInterval', timer => { timer.active = false; calls.push('clear'); });
-  const database = {}, security = { clientAddress: request => request.socket.remoteAddress }, actor = { sessionId: 'synthetic-session' }, authenticate = async () => 'synthetic-owner';
+  const database = {}, security = { clientAddress: request => request.socket.remoteAddress }, actor = { sessionId: 'synthetic-session', user: { id: 'synthetic-owner' } }, authenticate = async () => 'synthetic-owner';
   const files = { storage: {}, scanner: { async scan(bytes) { captures.scan = bytes; return 'CLEAN'; } } };
   const identity = { configuration: { security }, store: { async authenticate(verifier) { calls.push(['authenticate', verifier]); return actor; } },
     async generalAdmission(ip, context) { calls.push(['admit', ip, context]); } };
@@ -65,10 +65,10 @@ test('S1 existing factories receive the same database, authentication, file port
 
 test('S1 admission preserves cookie lookup, authenticated/anonymous context, IP guard and errors', async t => {
   const f = fixture(t), runtime = f.create(), response = {};
-  await runtime.admit({ headers: { cookie: 'synthetic-cookie' }, socket: { remoteAddress: '127.0.0.1' } }, response);
+  assert.equal(await runtime.admit({ headers: { cookie: 'synthetic-cookie' }, socket: { remoteAddress: '127.0.0.1' } }, response), 'synthetic-owner');
   assert.deepEqual(f.calls, [['cookie', 'synthetic-cookie'], ['authenticate', 'synthetic-verifier'], ['admit', '127.0.0.1', f.actor]]);
   f.calls.length = 0;
-  await runtime.admit({ headers: {}, socket: { remoteAddress: '127.0.0.2' } }, response);
+  assert.equal(await runtime.admit({ headers: {}, socket: { remoteAddress: '127.0.0.2' } }, response), null);
   assert.deepEqual(f.calls, [['cookie', undefined], ['admit', '127.0.0.2', null]]);
   f.calls.length = 0;
   await assert.rejects(runtime.admit({ headers: {}, socket: {} }, response), { code: 'SERVICE_UNAVAILABLE', message: 'SERVICE_UNAVAILABLE' });

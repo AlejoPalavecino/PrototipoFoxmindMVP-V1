@@ -224,22 +224,29 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       assert.equal((await pool.query("SELECT coalesce(sum(request_count),0)::int n FROM account_action_controls WHERE action='classroom-code-failure'")).rows[0].n, before);
     });
 
-    await t.test('failed guesses are counted globally across accounts, survive the failed operation and end in 429', async () => {
+    await t.test('failed guesses are limited per student; only legacy 6-digit guesses share the global ceiling', async () => {
       await pool.query("DELETE FROM account_action_controls WHERE action='classroom-code-failure'");
-      const students = await Promise.all(Array.from({ length: 6 }, () => account('student')));
+      const count = async subject => (await pool.query("SELECT request_count n FROM account_action_controls WHERE action='classroom-code-failure' AND subject_key=$1", [subject])).rows[0]?.n ?? 0;
       const guess = i => 'ZZ' + Array.from({ length: 6 }, (_, k) => ALPHABET[Math.floor(i / 30 ** k) % 30]).join('');
-      const count = async () => (await pool.query("SELECT request_count n FROM account_action_controls WHERE action='classroom-code-failure' AND subject_key='global'")).rows[0]?.n ?? 0;
-      for (let i = 0; i < 300; i++) {
-        await denied(service.previewCode(students[i % students.length], guess(i)), 'ENROLLMENT_UNAVAILABLE');
-      }
-      assert.equal(await count(), 300);
-      await assert.rejects(service.previewCode(students[0], 'ZZZZ2222'), error => error.code === 'RATE_LIMITED' && error.retryAfter > 0);
-      // Another account, and even a valid code, are blocked while the global window is saturated.
-      await assert.rejects(service.previewCode(students[5], CODE_B), error => error.code === 'RATE_LIMITED');
-      assert.equal(await count(), 300);
+      const notLimited = promise => promise.then(() => undefined, error => assert.notEqual(error.code, 'RATE_LIMITED'));
+      // Each student has 20 misses per window; the count survives the failed operation.
+      const [own, other] = await Promise.all([account('student'), account('student')]);
+      for (let i = 0; i < 20; i++) await denied(service.previewCode(own, guess(i)), 'ENROLLMENT_UNAVAILABLE');
+      await assert.rejects(service.previewCode(own, 'ZZZZ2222'), error => error.code === 'RATE_LIMITED' && error.retryAfter > 0);
+      await denied(service.previewCode(other, 'ZZZZ2222'), 'ENROLLMENT_UNAVAILABLE');
+      assert.equal(await count('global'), 0, 'unguessable 8-character codes never reach the shared ceiling');
+      // 300 legacy misses across accounts saturate the ceiling for 6-digit codes only.
+      const students = await Promise.all(Array.from({ length: 15 }, () => account('student')));
+      for (let i = 0; i < 300; i++) await denied(service.previewCode(students[i % 15], String(900000 + i)), 'ENROLLMENT_UNAVAILABLE');
+      assert.equal(await count('global'), 300);
+      const fresh = await account('student');
+      await assert.rejects(service.previewCode(fresh, '987654'), error => error.code === 'RATE_LIMITED' && error.retryAfter > 0);
+      await notLimited(service.previewCode(fresh, CODE_B));
+      await denied(service.previewCode(fresh, 'ZZZZ3333'), 'ENROLLMENT_UNAVAILABLE');
+      assert.equal(await count('global'), 300);
       await pool.query("UPDATE account_action_controls SET window_started_at=now()-interval '11 minutes' WHERE action='classroom-code-failure'");
-      await denied(service.previewCode(students[1], 'ZZZZ2222'), 'ENROLLMENT_UNAVAILABLE');
-      assert.equal(await count(), 1);
+      await denied(service.previewCode(fresh, '987654'), 'ENROLLMENT_UNAVAILABLE');
+      assert.equal(await count('global'), 1);
     });
 
     await t.test('verified code previews are rate-limited by account across sessions and allow a shared network', async t => {

@@ -241,6 +241,20 @@ test('signed proxy client addresses get independent general-identity buckets; fo
   await error(await send('/auth/session', { target: keyed.base, headers: { 'X-Foxmind-Client-Address': '203.0.113.4' } }), 429, 'RATE_LIMITED');
   await assert.rejects(() => start({ FOXMIND_PROXY_CLIENT_KEY: 'too-short' }));
 });
+test('failed sign-ins from one address cannot lock the same account out from another address', async () => {
+  const key = randomBytes(32);
+  const from = ip => ({ headers: { 'X-Foxmind-Client-Address': ip, 'X-Foxmind-Client-Proof': clientProof(key, ip, Math.floor(Date.now() / 1000)) } });
+  const keyed = await start({ FOXMIND_PROXY_CLIENT_KEY: key.toString('base64url'),
+    AUTH_RATE_LIMITS_JSON: JSON.stringify({ login: { identifierPerIp: { limit: 2, windowSeconds: 60 }, identifier: { limit: 4, windowSeconds: 60 } } }) });
+  const attempt = (ip, raw) => login(fixtureEmail, raw, { target: keyed.base, ...from(ip) });
+  for (let n = 0; n < 2; n++) await error(await attempt('203.0.113.10', 'wrong-password-' + 'x'.repeat(16)), 401, 'AUTHENTICATION_FAILED');
+  await error(await attempt('203.0.113.10', password), 429, 'RATE_LIMITED');
+  assert.equal((await attempt('203.0.113.11', password)).status, 200, 'the owner still signs in from another address');
+  // The successful sign-in released the identifier ceiling; failures spread across addresses reach it again.
+  for (const ip of ['203.0.113.12', '203.0.113.12', '203.0.113.13', '203.0.113.13'])
+    await error(await attempt(ip, 'wrong-password-' + 'x'.repeat(16)), 401, 'AUTHENTICATION_FAILED');
+  await error(await attempt('203.0.113.14', password), 429, 'RATE_LIMITED');
+});
 test('D1 stale credential snapshot cannot sign in after serialized password replacement', async () => {
   let reached, release;
   const checked = new Promise(resolve => { reached = resolve; });
@@ -267,6 +281,7 @@ test('D1 invalid B/C/mail configuration fails before listen without input echo; 
     { AUTH_OUTBOX_KEYS_JSON: undefined }, { AUTH_OUTBOX_ACTIVE_KEY_ID: 'missing' },
     { MAIL_SMTP_PORT: 'invalid-private' }, { AUTH_LOCAL_HTTP: 'true', NODE_ENV: 'production' },
     { AUTH_RATE_LIMITS_JSON: '{"unexpected":{}}' }, { AUTH_TRUSTED_PROXY_CIDRS: '127.0.0.1/32' },
+    { APP_ORIGIN: 'https://foxmind.example.test', AUTH_LOCAL_HTTP: 'false', NODE_ENV: 'production', FOXMIND_PROXY_CLIENT_KEY: undefined },
   ];
   for (const change of scenarios) {
     const env = { ...process.env, ...identityTestEnvironment(), API_PORT: '0', ...change };
@@ -276,7 +291,7 @@ test('D1 invalid B/C/mail configuration fails before listen without input echo; 
   }
 });
 test('D1 secure configuration emits Secure cookie; trusted CIDRs do not silently enable arbitrary proxy trust', async () => {
-  const a = await start({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_LOCAL_HTTP: 'false', NODE_ENV: 'production' });
+  const a = await start({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_LOCAL_HTTP: 'false', NODE_ENV: 'production', FOXMIND_PROXY_CLIENT_KEY: randomBytes(32).toString('base64url') });
   const response = await login(fixtureEmail, password, { target: a.base, headers: { Origin: 'https://foxmind.example.test' } });
   assert.equal(response.status, 200); assert.ok(response.headers.get('set-cookie').includes('Secure'));
 });

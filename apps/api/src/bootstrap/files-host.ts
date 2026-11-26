@@ -11,6 +11,7 @@ import type { AttemptWriteAuthorizer } from '../modules/files/custody/infrastruc
 import { createFileAccess } from '../modules/files/custody/infrastructure/access.ts';
 import { FileError } from '../modules/files/domain/errors.ts';
 import { createFilesHandler } from '../modules/files/uploads/presentation/http.ts';
+import { createTransferGate, TRANSFER_IDLE_MS, type TransferGate } from '../platform/http/transfer-gate.ts';
 import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
 import type { FileCleanupWorker } from '../modules/files/custody/infrastructure/cleanup-worker.ts';
 import { FileIdentityError } from '../modules/files/custody/infrastructure/store.ts';
@@ -39,8 +40,10 @@ export function createIdentityFileAccess(security: IdentityConfiguration, author
 }
 
 /** Express owns the mount prefix. The same IncomingMessage and unread binary stream enter the file handler. */
-export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtime: IdentityRuntime, service: FileService): void {
-  const files = createFilesHandler(service);
+export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtime: IdentityRuntime, service: FileService, transfers: TransferGate = createTransferGate()): void {
+  // The account authenticated here owns the request's transfer slot.
+  const owners = new WeakMap<IncomingMessage, string>();
+  const files = createFilesHandler(service, { gate: transfers, owner: request => owners.get(request), idleMs: TRANSFER_IDLE_MS });
   app.use('/api/v1', (request: IncomingMessage, response: ServerResponse, next: () => void) => {
     const path = request.url?.split('?')[0];
     if (path !== '/files' && !path?.startsWith('/files/')) { next(); return; }
@@ -58,6 +61,7 @@ export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtim
       await runtime.generalAdmission(ip, context);
       if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
       writeGuard(security, request, context.verifier);
+      owners.set(request, context.user.id);
       files(request, response, next);
     })().catch(error => {
       const safe = publicIdentityError(error);

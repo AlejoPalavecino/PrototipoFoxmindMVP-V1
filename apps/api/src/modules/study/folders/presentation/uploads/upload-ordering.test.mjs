@@ -66,3 +66,33 @@ test('readStudyBody corta a un cliente que no termina de enviar el cuerpo', asyn
   await assert.rejects(readStudyBody(stalled, 100, 80), { code: 'REQUEST_TIMEOUT' });
   assert.ok(Date.now() - started < 1000);
 });
+
+test('una cuenta no acapara las transferencias de Estudio y las consultas no ocupan lugar', async () => {
+  const { createTransferGate } = await import('../../../../../platform/http/transfer-gate.ts');
+  const gate = createTransferGate({ total: 8, perOwner: 1 });
+  let release;
+  const held = new Promise(resolve => { release = resolve; });
+  const operations = {
+    authorizeReceive: async request => { if (request.headers['x-owner'] === 'a') await held; return { expectedBytes: 4 }; },
+    receive: async () => view, status: async () => view,
+  };
+  const handlers = [];
+  installStudyUploads({ use: (_prefix, handler) => handlers.push(handler) }, operations, async request => request.headers['x-owner'] ?? null, gate);
+  const server = createServer((req, res) => handlers[0](req, res, () => { res.statusCode = 404; res.end(); }));
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const port = server.address().port;
+    const first = put(port, Buffer.from('abcd'), { 'x-owner': 'a' });
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const second = await put(port, Buffer.from('abcd'), { 'x-owner': 'a' });
+    assert.equal(second.status, 503);
+    assert.equal((await put(port, Buffer.from('abcd'), { 'x-owner': 'b' })).status, 200, 'otra cuenta sigue subiendo');
+    const status = await new Promise((resolve, reject) => {
+      const req = httpRequest({ port, host: '127.0.0.1', method: 'GET', path, headers: { 'x-owner': 'a' } }, res => { res.resume(); res.on('end', () => resolve(res.statusCode)); });
+      req.on('error', reject); req.end();
+    });
+    assert.equal(status, 200, 'consultar el estado no ocupa un lugar de transferencia');
+    release();
+    assert.equal((await first).status, 200);
+  } finally { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
+});

@@ -26,15 +26,21 @@ function scope(value: unknown): FileScope {
   if (!['draft', 'classroom'].includes(value.kind) || !uuid(value.id)) throw new FileError('INVALID_UPLOAD');
   return { kind: value.kind, id: value.id };
 }
-function body(request: IncomingMessage, limit: number, expected?: number): Promise<Buffer> {
+function body(request: IncomingMessage, limit: number, expected?: number, idleMs = 5000): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     let total = 0, ended = false; const chunks: Buffer[] = [];
     const finish = (error?: FileError) => {
-      if (ended) return; ended = true; clearTimeout(timer);
+      if (ended) return; ended = true; clearTimeout(timer); clearTimeout(idle);
       request.off('data', data); request.off('end', end); request.off('aborted', abort); request.off('error', abort);
       if (error) { request.pause(); reject(error); } else resolve(Buffer.concat(chunks, total));
     };
-    const data = (chunk: Buffer) => { total += chunk.length; if (total > limit) finish(new FileError('FILE_TOO_LARGE')); else chunks.push(chunk); };
+    // A sender that goes quiet is cut early, so a deliberately slow body cannot hold its transfer slot.
+    const stall = () => finish(new FileError('SERVICE_UNAVAILABLE'));
+    let idle = setTimeout(stall, idleMs);
+    const data = (chunk: Buffer) => {
+      clearTimeout(idle); idle = setTimeout(stall, idleMs);
+      total += chunk.length; if (total > limit) finish(new FileError('FILE_TOO_LARGE')); else chunks.push(chunk);
+    };
     const end = () => finish(expected !== undefined && total !== expected ? new FileError('INVALID_UPLOAD') : undefined);
     const abort = () => finish(new FileError('INVALID_UPLOAD'));
     const timer = setTimeout(() => finish(new FileError('SERVICE_UNAVAILABLE')), 10000);
@@ -57,9 +63,24 @@ function sendContent(response: ServerResponse, bytes: Uint8Array): Promise<void>
   });
 }
 
+/** Shared bound on concurrent byte transfers; `undefined` from `acquire` means no slot. */
+export interface FileTransferGate { acquire(owner: string): (() => void) | undefined }
+export interface FilesHandlerOptions {
+  /** One gate shared by every transport that buffers files, created by the composition root. */
+  readonly gate?: FileTransferGate;
+  /** The account the host authenticated for this request. */
+  readonly owner?: (request: IncomingMessage) => string | undefined;
+  readonly idleMs?: number;
+}
+// Without a shared gate (isolated tests) the handler keeps its former single transfer slot.
+function singleSlot(): FileTransferGate {
+  let busy = false;
+  return { acquire: () => { if (busy) return undefined; busy = true; return () => { busy = false; }; } };
+}
+
 /** One instance per ingress; the host owns admission and the Express mount prefix. */
-export function createFilesHandler(service: FileService) {
-  let transferring = false;
+export function createFilesHandler(service: FileService, options: FilesHandlerOptions = {}) {
+  const gate = options.gate ?? singleSlot(), idleMs = options.idleMs ?? 5000;
   return (request: IncomingMessage, response: ServerResponse, next: Next) => {
     const requestId = String(response.getHeader?.('X-Request-Id') ?? randomUUID());
     let url: URL;
@@ -68,7 +89,11 @@ export function createFilesHandler(service: FileService) {
     if (url.pathname !== '/files' && !url.pathname.startsWith('/files/')) { next(); return; }
     response.setHeader('X-Request-Id', requestId);
     response.setHeader('Cache-Control', 'no-store'); response.setHeader('X-Content-Type-Options', 'nosniff');
-    let ownsTransfer = false;
+    let release: (() => void) | undefined;
+    const claim = () => {
+      release = gate.acquire(options.owner?.(request) ?? '');
+      if (!release) throw new FileError('SERVICE_UNAVAILABLE');
+    };
     void (async () => {
       const method = request.method;
       if (method === 'GET' && (request.headers['transfer-encoding'] || Number(request.headers['content-length'] ?? '0') !== 0)) {
@@ -91,14 +116,13 @@ export function createFilesHandler(service: FileService) {
         const id = match[1];
         if (method === 'PUT' && match[2]) {
           if (url.search || request.headers['content-type'] !== 'application/octet-stream') throw new FileError('INVALID_UPLOAD');
-          if (transferring) throw new FileError('SERVICE_UNAVAILABLE');
-          transferring = true; ownsTransfer = true;
+          claim();
           // Authorize before accepting a potentially large body; receive rechecks before every mutation.
           const { expectedBytes } = await service.authorizeReceive(request, id);
           if (!/^\d+$/.test(request.headers['content-length'] ?? '') || Number(request.headers['content-length']) !== expectedBytes) {
             throw new FileError('INVALID_UPLOAD');
           }
-          const bytes = await body(request, expectedBytes, expectedBytes);
+          const bytes = await body(request, expectedBytes, expectedBytes, idleMs);
           json(response, 200, await service.receive(request, id, bytes));
         } else if (method === 'GET' && !match[2]) {
           if (url.search) throw new FileError('INVALID_UPLOAD');
@@ -107,8 +131,7 @@ export function createFilesHandler(service: FileService) {
           if ([...url.searchParams.keys()].some(key => key !== 'mode') || url.searchParams.getAll('mode').length > 1) throw new FileError('INVALID_UPLOAD');
           const mode = url.searchParams.get('mode') ?? 'download';
           if (mode !== 'download' && mode !== 'preview') throw new FileError('INVALID_UPLOAD');
-          if (transferring) throw new FileError('SERVICE_UNAVAILABLE');
-          transferring = true; ownsTransfer = true;
+          claim();
           const file = await service.read(request, id, mode);
           if (response.destroyed) return;
           for (const [name, value] of Object.entries(file.headers)) response.setHeader(name, value);
@@ -126,6 +149,6 @@ export function createFilesHandler(service: FileService) {
       // Do not drain an unbounded rejected body. Finish the sanitized response, then close that socket.
       if (!request.complete) { response.setHeader('Connection', 'close'); response.once('finish', () => request.destroy()); }
       json(response, status, { error: { code, requestId } });
-    }).finally(() => { if (ownsTransfer) transferring = false; });
+    }).finally(() => release?.());
   };
 }

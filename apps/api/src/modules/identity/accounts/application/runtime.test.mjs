@@ -52,7 +52,7 @@ function releaseFixture() {
     findUser: async () => user, lockUsers: async () => {}, now: async () => new Date(0),
     consumeToken: async () => [{ id: 'token' }],
     transaction: async run => { const result = await run(tx); events.push('commit'); return result; },
-    releaseIdentifierBuckets: async (received, config, actions, canonical) => { assert.equal(received, tx); events.push(['release', actions, canonical]); },
+    releaseIdentifierBuckets: async (received, config, actions, canonical, ip) => { assert.equal(received, tx); events.push(['release', actions, canonical, ip]); },
   };
   const runtime = new IdentityRuntime({ security: { rateLimits: { login: { ip: {}, identifier: {} }, 'token-redemption': { ip: {} } } } }, store,
     { verify: async () => true, hash: async () => 'new', dummyCheck: async () => false }, {
@@ -64,7 +64,7 @@ function releaseFixture() {
 test('successful password login releases the identifier login bucket inside the session transaction', async () => {
   const { runtime, events } = releaseFixture();
   await runtime.login({ email: 'Victim@example.test', password }, '127.0.0.1', null);
-  assert.deepEqual(events, ['session', ['release', ['login'], 'victim@example.test'], 'commit']);
+  assert.deepEqual(events, ['session', ['release', ['login'], 'victim@example.test', '127.0.0.1'], 'commit']);
 });
 test('failed password login never releases the identifier bucket', async () => {
   const { runtime, events } = releaseFixture();
@@ -76,5 +76,20 @@ test('completed password reset releases login and recovery identifier buckets of
   const { runtime, events } = releaseFixture();
   await runtime.confirmPasswordRecovery({ token: 'x', newPassword: password }, '127.0.0.1', null);
   // First 'commit' is the token lookup transaction; the release must land before the mutation transaction commits.
-  assert.deepEqual(events, ['commit', ['release', ['login', 'recovery-request'], 'victim@example.test'], 'commit']);
+  assert.deepEqual(events, ['commit', ['release', ['login', 'recovery-request'], 'victim@example.test', '127.0.0.1'], 'commit']);
+});
+
+test('login and recovery charge the address of each attempt separately from a wider per-identifier ceiling', async () => {
+  const budgets = { ip: { limit: 300, windowSeconds: 900 }, identifierPerIp: { limit: 10, windowSeconds: 900 }, identifier: { limit: 100, windowSeconds: 900 } };
+  const admitted = [];
+  const store = { canonicalEmail: async value => value.toLowerCase(), admit: async (_config, buckets) => { admitted.push(buckets); throw Object.assign(new Error('stop'), { code: 'RATE_LIMITED' }); } };
+  const runtime = new IdentityRuntime({ security: { rateLimits: { login: budgets, 'recovery-request': { ...budgets, cooldownSeconds: 60 } } } }, store,
+    { verify: async () => true, dummyCheck: async () => false }, { validateMailbox: value => value, tokens: {} });
+  await assert.rejects(runtime.login({ email: 'Victim@example.test', password }, '203.0.113.7', null), { code: 'RATE_LIMITED' });
+  await assert.rejects(runtime.requestPasswordRecovery({ email: 'Victim@example.test' }, '203.0.113.7'), { code: 'RATE_LIMITED' });
+  for (const [index, action] of ['login', 'recovery-request'].entries()) assert.deepEqual(admitted[index], [
+    { action, namespace: 'ip', subject: '203.0.113.7', budget: budgets.ip },
+    { action, namespace: 'identifier-ip', subject: 'victim@example.test\u0000203.0.113.7', budget: budgets.identifierPerIp },
+    { action, namespace: 'identifier', subject: 'victim@example.test', budget: budgets.identifier },
+  ]);
 });

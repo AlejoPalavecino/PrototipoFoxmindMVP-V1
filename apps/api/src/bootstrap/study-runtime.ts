@@ -73,6 +73,7 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     const ip = identity.configuration.security.clientAddress(request);
     if (!ip) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
     await identity.generalAdmission(ip, context);
+    return context?.user.id ?? null;
   };
   let cleanup: Promise<void> | undefined;
   const timer = setInterval(() => {

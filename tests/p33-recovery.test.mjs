@@ -21,7 +21,7 @@ const apps = new Set();
 let db, base, hash, sequence = 0;
 // Only unrelated registration/login/general budgets are widened. T3 budgets/TTLs are real defaults.
 const rates = JSON.stringify({ registration: { ip: { limit: 100 }, identifier: { limit: 100 } },
-  login: { ip: { limit: 100 }, identifier: { limit: 100 } },
+  login: { ip: { limit: 100 }, identifierPerIp: { limit: 100 }, identifier: { limit: 100 } },
   'general-identity': { ip: { limit: 1000 }, session: { limit: 1000 } } });
 async function start(overrides = {}, options = {}) {
   const app = await createApplication(readConfiguration({ ...process.env, AUTH_RATE_LIMITS_JSON: rates, ...overrides }), options);
