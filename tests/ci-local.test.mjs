@@ -10,8 +10,9 @@ const secretScan = readFileSync(new URL('../.github/workflows/secret-scan.yml', 
 const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 
 test('ci-local covers every GitHub check name of the PR workflows', () => {
-  const groups = workflow.match(/group:\s*\[([^\]]+)\]/)[1].split(',').map(value => value.trim());
-  const expected = ['verify', 'gitleaks', 'integration-owned (integration-owned)', ...groups.map(group => `complete-suite (${group})`)];
+  const groups = job => workflow.split(new RegExp(`\\n  ${job}:\\s*\\r?\\n`))[1].match(/group:\s*\[([^\]]+)\]/)[1].split(',').map(value => value.trim());
+  const expected = ['verify', 'gitleaks', 'integration-owned (integration-owned)',
+    ...groups('complete-suite').map(group => `complete-suite (${group})`), ...groups('full-suite').map(group => `full-suite (${group})`)];
   assert.deepEqual(Object.keys(jobs(root)).sort(), expected.sort());
 });
 
