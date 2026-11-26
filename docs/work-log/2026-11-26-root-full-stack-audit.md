@@ -114,6 +114,10 @@ Tipado: en producción no hay `any`, `eslint-disable` ni `@ts-ignore`.
 3. **Duplicación que ya es riesgo de seguridad:** F1 y D2.
 4. **Deuda estructural:** D4, D1, F3 y un formateador con largo de línea en un commit aislado.
 
+## Seguimiento
+
+El mismo día se resolvieron B1, B2, S10, S11, D13 y F10 (salvo el `PlanWorkspace.tsx` de `workflows`, que sólo alcanzan pruebas). El detalle y su verificación están en [arreglos acotados](2026-11-26-root-audit-bounded-fixes.md). Las tablas de arriba conservan el estado observado sobre `c5298e77`.
+
 ## Decisiones pendientes del usuario
 
 - Adoptar NestJS con controllers, guard y filtro, o asumir el transporte propio y extraerlo a `apps/api/src/platform/http` (D3).

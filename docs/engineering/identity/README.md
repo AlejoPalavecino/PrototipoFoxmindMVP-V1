@@ -14,7 +14,7 @@ Mi perfil muestra nombre y apellido editables, y correo y rol de solo lectura. L
 
 ## Políticas que se conservan
 
-- Contraseña: 16–128 puntos de código Unicode; nombres: 1–80 cada uno; preservar espacios y escritura admitida, sin truncar ni normalizar silenciosamente.
+- Contraseña: 16–128 puntos de código Unicode; nombres: 1–80 cada uno, sin caracteres de control (`p{Cc}`) ni de control bidireccional (U+061C, U+200E, U+200F, U+202A–U+202E, U+2066–U+2069); preservar espacios y escritura admitida, sin truncar ni normalizar silenciosamente.
 - Sesión: 30 minutos de inactividad y 12 horas absolutas.
 - Verificación: 1 hora; recuperación: 15 minutos; enlace de un uso; mínimo 60 segundos para reenvío y políticas de abuso.
 - Límites de frecuencia: el inicio de sesión admite 10 intentos por identificador (correo canónico) y 30 por IP en ventanas de 900 s; los intentos rechazados también consumen. Como quien conozca un correo puede agotar su cupo, el cupo por identificador de `login` se libera (se elimina la fila de `account_action_controls`) en la misma transacción cuando se completa un restablecimiento de contraseña (junto con el de `recovery-request` de esa cuenta) y cuando un inicio de sesión con contraseña tiene éxito. Los cupos por IP y sesión, y el marcador de enfriamiento de recuperación, no se tocan. La liberación sólo ocurre tras probar titularidad, por lo que no distingue correos desconocidos.

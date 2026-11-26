@@ -8,7 +8,7 @@
 | Integración de frontend y backend, recorridos de Aulas y recuperaciones posteriores | [Integración de arquitectura](refactor-integration.json), [consolidación de main](main-consolidation.json) y [correcciones de Aulas](../work-log/2026-11-17-root-classroom-audit-fixes.md) |
 | Foxy y Mi Estudio, latencia, interacción y recuperación | [Mediciones con Gemini y suite integrada](../work-log/2026-11-17-root-cierre-main.md) y [auditoría funcional](../work-log/2026-11-17-root-foxy-study-audit-fixes.md) |
 | Exportaciones, recursos didácticos y práctica | [Verificación del arnés](../work-log/2026-11-17-root-cierre-arnes.md), [precisión gráfica y lectura de PDF](../work-log/2026-11-17-root-precision-y-lectura.md) y [comparación con Gemini](pedagogical-pilots.md) |
-| Seguridad, acoplamiento y cohesión de frontend, backend y base de datos | [Auditoría estática del 26 de noviembre](../work-log/2026-11-26-root-full-stack-audit.md), sobre `c5298e77`, sin pruebas ejecutadas |
+| Seguridad, acoplamiento y cohesión de frontend, backend y base de datos | [Auditoría estática del 26 de noviembre](../work-log/2026-11-26-root-full-stack-audit.md), sobre `c5298e77`, sin pruebas ejecutadas. Remediación de B1, B2, S10, S11, D13 y F10 en [arreglos acotados](../work-log/2026-11-26-root-audit-bounded-fixes.md) |
 | Piloto educativo con personas | [Guion preparado para coordinación](piloto-con-participantes.md), pendiente de ejecución |
 
 La [galería de la aplicación](../design/current/README.md) identifica su candidato, roles y anchos. Una captura muestra la presentación y los estados visibles. Los ensayos de API, base de datos y recorrido autenticado acreditan los resultados que ejercitaron.

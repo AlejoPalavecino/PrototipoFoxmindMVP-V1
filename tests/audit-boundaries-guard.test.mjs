@@ -38,49 +38,12 @@ test('boundary guard accepts pure domain and rejects injected forbidden imports 
     await put(root, 'src/core/domain/bad.ts', "import { Injectable } from '@nestjs/common'; export { Injectable };");
     assert.ok((await checkBoundaries(root)).length > 0, 'domain to Nest must fail');
     await rm(join(root, 'src/core/domain/bad.ts'));
-    await put(root, 'apps/classrooms-ui/bad.ts', "import { internal } from '../api/src/classrooms/core.ts'; export { internal };");
-    assert.ok((await checkBoundaries(root)).length > 0, 'UI to server internals must fail');
-    await rm(join(root, 'apps/classrooms-ui/bad.ts'));
-    await put(root, 'apps/api/src/classrooms/plan.ts', 'class PlanService extends OtherService {}');
-    assert.ok((await checkBoundaries(root)).length > 0, 'capability inheritance must fail');
+    await put(root, 'apps/shared-ui/bad.ts', "import { internal } from '../api/src/modules/classrooms/catalog/application/core.ts'; export { internal };");
+    assert.match((await checkBoundaries(root)).join('\n'), /UI to backend/, 'UI to server internals must fail');
+    await rm(join(root, 'apps/shared-ui/bad.ts'));
+    await put(root, 'apps/api/src/modules/classrooms/catalog/application/plan.ts', 'class PlanService extends OtherService {} class Failure extends Error {}');
+    assert.deepEqual(await checkBoundaries(root), ['capability inheritance: apps/api/src/modules/classrooms/catalog/application/plan.ts -> PlanService extends OtherService']);
   } finally { await rm(root, { recursive: true, force: true }); }
-});
-
-test('classroom may import only the exact lightweight files public barrel', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'foxmind-audit-public-port-'));
-  try {
-    await put(root, 'apps/api/src/files/public/index.ts', 'export const port = 1;');
-    await put(root, 'apps/api/src/files/public/private.ts', 'export const internal = 1;');
-    await put(root, 'apps/api/src/classrooms/example.ts', "import { port } from '../files/public/index.ts'; export { port };");
-    assert.deepEqual(await checkBoundaries(root), [], 'exact public barrel must be allowed');
-    await put(root, 'apps/api/src/classrooms/example.ts', "import { internal } from '../files/public/private.ts'; export { internal };");
-    assert.ok((await checkBoundaries(root)).length > 0, 'private file under public directory must remain blocked');
-  } finally { await rm(root, { recursive: true, force: true }); }
-});
-
-test('mail and classrooms expose only their exact lightweight public barrels across slices', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'foxmind-audit-other-ports-'));
-  try {
-    for (const [consumer, target] of [['classrooms', 'mail'], ['mail', 'classrooms']]) {
-      await put(root, `apps/api/src/${target}/public/index.ts`, 'export const port = 1;');
-      await put(root, `apps/api/src/${target}/public/private.ts`, 'export const secret = 1;');
-      const file = `apps/api/src/${consumer}/sample.ts`;
-      await put(root, file, `import { port } from '../${target}/public/index.ts'; export { port };`);
-      assert.deepEqual(await checkBoundaries(root), [], `${target} exact barrel must be allowed`);
-      await put(root, file, `import { secret } from '../${target}/public/private.ts'; export { secret };`);
-      assert.ok((await checkBoundaries(root)).length > 0, `${target} private nested file must be blocked`);
-      await rm(join(root, file));
-    }
-  } finally { await rm(root, { recursive: true, force: true }); }
-});
-
-test('files may import the exact Foxy lightweight public barrel', async () => {
-  const root=await mkdtemp(join(tmpdir(),'foxmind-audit-foxy-public-'));
-  try {
-    await put(root,'apps/api/src/foxy-ai/public/index.ts','export const port = 1;');
-    await put(root,'apps/api/src/files/consumer.ts',"import { port } from '../foxy-ai/public/index.ts'; export { port };");
-    assert.deepEqual(await checkBoundaries(root),[],'exact Foxy public barrel must be allowed');
-  } finally {await rm(root,{recursive:true,force:true});}
 });
 
 test('files cannot import Foxy internals or other files inside its public directory', async () => {
@@ -120,15 +83,11 @@ test('the web boundary also covers helpers outside src and pages', async () => {
   });
 });
 
-test('escaped names and absolute module paths cannot bypass the boundary', async () => {
+test('absolute module paths cannot bypass the boundary', async () => {
   await fixture({
-    'apps/api/src/files/public/index.ts': 'export interface FileStore {}',
-    'apps/api/src/classrooms/example.ts': "import type { F\\u0069leStore as Store } from '../files/public/index.ts';",
-    'apps/api/src/classrooms/absolute.ts': "export const load = () => import('file:///C:/repo/apps/api/src/files/store.ts');",
+    'apps/api/src/modules/classrooms/catalog/application/absolute.ts': "export const load = () => import('file:///C:/repo/apps/api/src/modules/files/public.ts');",
   }, root => {
-    const violations = checkBoundaries(root).join('\n');
-    assert.match(violations, /public surface dependency: .*example\.ts/);
-    assert.match(violations, /absolute module path: .*absolute\.ts/);
+    assert.match(checkBoundaries(root).join('\n'), /absolute module path: .*absolute\.ts/);
   });
 });
 
@@ -378,10 +337,10 @@ test('former Agenda compatibility bridges cannot reopen private implementation a
       assert.equal(checkBoundaries(root).length === 0, allowed, code));
   }
   await fixture({
-    'apps/agenda-ui/EventForm.tsx': "export { EventForm } from '../web/src/features/agenda/ui/EventForm.tsx';",
+    'apps/shared-ui/EventForm.tsx': "export { EventForm } from '../web/src/features/agenda/ui/EventForm.tsx';",
   }, root => assert.ok(checkBoundaries(root).length));
   await fixture({
-    'apps/agenda-ui/EventForm.tsx': "export { EventFields } from '../web/src/features/agenda/ui/EventFields.tsx';",
+    'apps/shared-ui/EventForm.tsx': "export { EventFields } from '../web/src/features/agenda/ui/EventFields.tsx';",
   }, root => assert.ok(checkBoundaries(root).length));
 });
 
@@ -389,7 +348,7 @@ test('legacy sources cannot import bootstrap wiring or reopen the former classro
   for (const [file, code, kind] of [
     ['apps/api/src/agenda/host.ts', "export { installAgendaTransport } from '../bootstrap/agenda-transport.ts';", 'host-only dependency'],
     ['apps/api/src/agenda/unit-of-work.ts', "export { createAgendaUnitOfWork } from '../bootstrap/agenda-composition.ts';", 'host-only dependency'],
-    ['apps/api/src/classrooms/public/index.ts', "export { createAcademicAgenda } from '../agenda.ts';", 'public surface dependency'],
+    ['apps/api/src/modules/classrooms/public.ts', "export { createAcademicAgenda } from '../agenda/public.ts';", 'module public surface dependency'],
   ]) await fixture({ [file]: code }, root => assert.ok(checkBoundaries(root).some(value => value.startsWith(kind)), code));
 });
 

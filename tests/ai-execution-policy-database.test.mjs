@@ -30,6 +30,19 @@ test('policy startup initializes idempotently through the real generated Prisma 
     } finally { await database.onModuleDestroy(); }
   });
 });
+test('API pool sessions end transactions left idle and keep the statement bound', { timeout: 120000 }, async () => {
+  await import('reflect-metadata');
+  const { PrismaService } = await import('../.build/api/apps/api/src/platform/database/prisma.service.js');
+  await withAgendaDatabase(async ({ databaseUrl }) => {
+    const database = new PrismaService(databaseUrl);
+    try {
+      const [settings] = await database.$queryRawUnsafe(`SELECT current_setting('idle_in_transaction_session_timeout') AS idle,
+        current_setting('statement_timeout') AS statement`);
+      // Above the longest transaction timeout in the API (15 s), so it only reclaims stuck sessions.
+      assert.deepEqual(settings, { idle: '20s', statement: '1s' });
+    } finally { await database.onModuleDestroy(); }
+  });
+});
 function databaseFor(pool, observe = () => {}) {
   return { async $transaction(operation) {
     const client = await pool.connect(); observe(client.processID);

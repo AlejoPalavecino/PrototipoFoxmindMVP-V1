@@ -6,9 +6,8 @@ import { cycleEdges } from './boundary-cycles.mjs';
 import { legacyEdges } from './boundary-legacy-edges.mjs';
 import { migrationBoundary } from './migration-boundaries.mjs';
 
-const roots = ['src/core/contracts', 'src/core/domain', 'apps/api/src', 'apps/classrooms-ui', 'apps/agenda-ui', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
+const roots = ['src/core/contracts', 'src/core/domain', 'apps/api/src', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
 const slash = path => path.split(sep).join('/');
-const publicBarrels = new Set(['files', 'mail', 'classrooms', 'foxy-ai'].map(name => 'apps/api/src/' + name + '/public/index.ts'));
 const hostFiles = new Set(['application.ts', 'main.ts', 'configuration.ts'].map(name => 'apps/api/src/' + name));
 const apiSlice = path => /^apps\/api\/src\/([^/]+)\//.exec(path)?.[1];
 const isLiteral = node => node && ts.isStringLiteralLike(node);
@@ -181,13 +180,8 @@ function boundary({ file, target, form, mode, binding }) {
   const migrated = migrationBoundary({ file, target, form, mode, binding });
   if (migrated !== undefined) return migrated;
   const from = apiSlice(file), to = apiSlice(target);
-  if (publicBarrels.has(file) && target.startsWith('apps/api/src/')) return 'public surface dependency';
   if (from && hostFiles.has(target)) return 'host-only dependency';
   if (hostFiles.has(file) || !to || from === to) return null;
-  if (publicBarrels.has(target)) {
-    if ((form !== 'import' && form !== 'inline') || /\* as |\b(?:FileStore|FileService|ClassroomService)\b/.test(binding)) return 'public surface dependency';
-    return null;
-  }
   if (/^apps\/api\/src\/[^/]+\/index(?:\.[cm]?tsx?)?$/.test(target)) return 'broad barrel dependency';
   return 'cross-module private API';
 }
@@ -212,7 +206,7 @@ export function inspectBoundaries(root) {
         const edge = { file, target, form, mode, binding };
         edges.set(edgeKey(edge), edge);
       }
-      if (file.startsWith('apps/api/src/classrooms/') && ts.isClassDeclaration(node)) {
+      if (file.startsWith('apps/api/src/modules/classrooms/') && ts.isClassDeclaration(node)) {
         const heritage = node.heritageClauses?.find(clause => clause.token === ts.SyntaxKind.ExtendsKeyword);
         const base = heritage?.types.map(type => type.expression.getText(source)).join(', ');
         if (base && base !== 'Error') findings.push(['capability inheritance', file + ' -> ' + (node.name?.text ?? '<anonymous>') + ' extends ' + base]);

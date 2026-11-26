@@ -81,3 +81,49 @@ test('attachment ownership, replay, revocation and independent folder copy on Po
     await assert.rejects(service.upload({ owner: student }, studentTarget, randomUUID(), intent, bytes), { code: 'FORBIDDEN' });
   });
 });
+
+test('object storage writes run outside any transaction and revoked writes leave no orphan', { timeout: 90000 }, async () => {
+  await withAgendaDatabase(async ({ pool }) => {
+    const teacher = randomUUID(), chat = randomUUID();
+    await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Cuenta','Sintética','fixture',now(),'teacher')`, [teacher, `${teacher}@example.test`]);
+    await pool.query("INSERT INTO foxy_conversations(id,owner_id,title,context_kind) VALUES($1,$2,'Prueba','GENERAL')", [chat, teacher]);
+    let open = 0;
+    const database = { async $transaction(run) {
+      const client = await pool.connect();
+      open++;
+      try {
+        await client.query('BEGIN');
+        const value = await run({ $queryRawUnsafe: async (sql, ...values) => (await client.query(sql, values)).rows });
+        await client.query('COMMIT');
+        return value;
+      } catch (error) { await client.query('ROLLBACK'); throw error; }
+      finally { open--; client.release(); }
+    } };
+    const objects = new Map(), writes = [];
+    let duringPut;
+    const storage = {
+      async put(key, bytes) { writes.push(open); await duringPut?.(key); objects.set(key, Buffer.from(bytes)); },
+      async get(key) { return Buffer.from(objects.get(key)); },
+      async remove(key) { objects.delete(key); },
+    };
+    const auth = async (_tx, request) => request.owner;
+    const service = createChatAttachmentService({ database, storage, teacher: auth, student: auth,
+      inspect: async () => 'application/pdf', scan: async () => {} });
+    const pdf = await PDFDocument.create();
+    pdf.addPage().drawText('Documento sintético de prueba');
+    const bytes = Buffer.from(await pdf.save());
+    const intent = { name: 'guía.pdf', extension: 'pdf', copy: false }, target = { conversationId: chat };
+
+    const ready = randomUUID();
+    await service.upload({ owner: teacher }, target, ready, intent, bytes);
+    assert.deepEqual(writes, [0], 'the write must not hold a pooled connection or row locks');
+
+    const swept = randomUUID();
+    // The sweeper claims the reservation while the bytes are still in flight.
+    duringPut = () => pool.query('UPDATE chat_attachments SET cleanup_claimed_at=now() WHERE id=$1', [swept]);
+    await assert.rejects(service.upload({ owner: teacher }, target, swept, intent, bytes), { code: 'CONFLICT' });
+    assert.equal(objects.has(attachmentKey(swept)), false, 'a write that lost the race must not leave an orphan object');
+    assert.equal(objects.has(attachmentKey(ready)), true);
+  });
+});

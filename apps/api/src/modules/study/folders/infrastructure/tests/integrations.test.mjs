@@ -137,3 +137,23 @@ test('admisión IA compartida: revalida tras preflight y deduplica gasto sin pro
   assert.equal(usage.request_count,1);assert.equal(usage.reserved_microusd,0n);assert.equal(usage.consumed_microusd,21n); // 10 input + 8 visible output + 3 reasoning at fixture rates.
  });
 });
+
+test('reminder listing writes nothing without a session and only refreshes the caller rows', async () => {
+ const statements=[],owner=randomUUID();
+ const database={$transaction:async operation=>operation({$queryRawUnsafe:async(sql,...values)=>{
+  statements.push({sql,values});
+  if(/FROM users/.test(sql))return [{account_role:'student',email_verified_at:new Date()}];
+  if(/count\(\*\)/.test(sql))return [{unread:0n}];
+  return [];
+ }})};
+ const authenticate=async(_tx,request)=>{if(!request.owner)throw Object.assign(new Error('No session'),{code:'UNAUTHENTICATED'});return request.owner;};
+ const reminders=createStudyReminderRuntime({database,authenticate});
+ try{
+  await assert.rejects(reminders.list({}),{code:'UNAUTHENTICATED'});
+  assert.deepEqual(statements.filter(({sql})=>/^\s*UPDATE/.test(sql)),[],'an anonymous request must not write');
+  assert.deepEqual(await reminders.list({owner}),{items:[],unreadCount:0});
+  const updates=statements.filter(({sql})=>/^\s*UPDATE/.test(sql));
+  assert.equal(updates.length,2);
+  for(const {sql,values} of updates){assert.match(sql,/r\.owner_id=\$1::uuid FOR UPDATE SKIP LOCKED/);assert.deepEqual(values,[owner]);}
+ }finally{await reminders.close();}
+});

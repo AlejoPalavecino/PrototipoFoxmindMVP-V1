@@ -16,9 +16,12 @@ export function validatePassword(value: unknown): string {
   return scalarText(value, 16, 128);
 }
 
+// Control and bidirectional formatting characters let a name spoof other text in mails and UI.
+const NAME_FORBIDDEN = /[\p{Cc}؜‎‏‪-‮⁦-⁩]/u;
+
 export function validateName(value: unknown): string {
   const text = scalarText(value, 1, 80);
-  if (!/\S/u.test(text)) throw new IdentitySecurityError('VALIDATION_ERROR');
+  if (!/\S/u.test(text) || NAME_FORBIDDEN.test(text)) throw new IdentitySecurityError('VALIDATION_ERROR');
   return text;
 }
 

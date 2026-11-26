@@ -10,6 +10,9 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
     super({ adapter: new PrismaPg({
       connectionString, max: 5, connectionTimeoutMillis: 1000,
       query_timeout: 1000, statement_timeout: 1000, application_name: "foxmind-api-ai-execution-v1",
+      // Server-side backstop above the longest transaction timeout (15 s): a stuck process
+      // must not keep row locks or a pooled connection. statement_timeout already bounds lock waits.
+      idle_in_transaction_session_timeout: 20000,
     }) });
   }
 

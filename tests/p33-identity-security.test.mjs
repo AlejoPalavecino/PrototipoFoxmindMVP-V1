@@ -41,6 +41,14 @@ test('S2 names count raw scalar points without trimming or normalization', () =>
   }
 });
 
+test('S2 names reject control and bidirectional characters but keep regular names', () => {
+  for (const value of ['María José', "D'Angelo", 'Ñandú Pérez', 'Łukasz', '李 小龍', 'Ana-Lía']) assert.equal(api.validateName(value), value);
+  for (const control of ['\u0000', '\u0007', '\t', '\n', '\u001f', '\u007f', '\u0085', '\u009f',
+    '؜', '‎', '‏', '‪', '‫', '‬', '‭', '‮', '⁦', '⁧', '⁨', '⁩']) {
+    assert.throws(() => api.validateName(`Ana${control}lía`), safeError('VALIDATION_ERROR'), JSON.stringify(control));
+  }
+});
+
 test('S2 exact body shapes and byte cap reject before expensive work', () => {
   assert.ok(api.validateBodyShape({ firstName: 'A' }, ['firstName', 'lastName'], [], true).firstName === 'A');
   for (const body of [null, [], {}, { email: 'unused' }, { firstName: 'A', role: 'teacher' }]) {

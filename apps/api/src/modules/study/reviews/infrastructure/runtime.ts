@@ -3,18 +3,23 @@ import {studyFileError} from '../../domain/errors.ts';
 
 export function createStudyReminderRuntime(options:{database:StudyFileDatabase;authenticate(tx:StudyFileQuery,request:unknown,write:boolean):Promise<string>}) {
   let pending:Promise<void>|undefined,closing=false;
-  async function tick(){
-    if(closing)return;if(pending)return pending;
-    pending=options.database.$transaction(async raw=>{
-      // A direct Agenda edit/removal invalidates the old schedule and its notice.
-      await raw.$queryRawUnsafe(`UPDATE study_review_sessions s SET cancelled_at=clock_timestamp(),updated_at=clock_timestamp()
-        WHERE s.cancelled_at IS NULL AND NOT EXISTS(SELECT 1 FROM agenda_events e JOIN study_folders f ON f.id=s.folder_id
-          WHERE e.id=s.agenda_event_id AND e.owner_id=s.owner_id AND e.revision=s.event_revision AND f.status='ACTIVE') RETURNING s.id`);
-      await raw.$queryRawUnsafe(`UPDATE study_review_sessions s SET notified_at=clock_timestamp(),updated_at=clock_timestamp()
+  // A direct Agenda edit/removal invalidates the old schedule and its notice. Without an owner
+  // the sweep covers every student; with one it only refreshes that student's rows and skips
+  // rows the sweep holds, so the two never wait on each other.
+  async function refresh(tx:StudyFileQuery,owner?:string){
+    const scope=owner?' AND s.id IN (SELECT r.id FROM study_review_sessions r WHERE r.owner_id=$1::uuid FOR UPDATE SKIP LOCKED)':'',values=owner?[owner]:[];
+    await tx.query(`UPDATE study_review_sessions s SET cancelled_at=clock_timestamp(),updated_at=clock_timestamp()
+        WHERE s.cancelled_at IS NULL${scope} AND NOT EXISTS(SELECT 1 FROM agenda_events e JOIN study_folders f ON f.id=s.folder_id
+          WHERE e.id=s.agenda_event_id AND e.owner_id=s.owner_id AND e.revision=s.event_revision AND f.status='ACTIVE') RETURNING s.id`,...values);
+    await tx.query(`UPDATE study_review_sessions s SET notified_at=clock_timestamp(),updated_at=clock_timestamp()
         FROM agenda_events e,study_folders f,users u WHERE s.agenda_event_id=e.id AND e.revision=s.event_revision AND f.id=s.folder_id
         AND f.owner_id=s.owner_id AND f.status='ACTIVE' AND u.id=s.owner_id AND u.account_role='student' AND u.email_verified_at IS NOT NULL
-        AND s.cancelled_at IS NULL AND s.notified_at IS NULL AND s.notify_at<=clock_timestamp() AND s.ends_at>clock_timestamp() RETURNING s.id`);
-    }).then(()=>{}).finally(()=>{pending=undefined;});return pending;
+        AND s.cancelled_at IS NULL AND s.notified_at IS NULL AND s.notify_at<=clock_timestamp() AND s.ends_at>clock_timestamp()${scope} RETURNING s.id`,...values);
+  }
+  async function tick(){
+    if(closing)return;if(pending)return pending;
+    pending=options.database.$transaction(raw=>refresh({query:(sql,...values)=>raw.$queryRawUnsafe(sql,...values)}))
+      .then(()=>{}).finally(()=>{pending=undefined;});return pending;
   }
   const timer=setInterval(()=>{void tick().catch(()=>{/* Durable rows retry on the next tick; no personal data in logs. */});},30_000);timer.unref();
   async function authorized<T>(request:unknown,write:boolean,operation:(tx:StudyFileQuery,owner:string)=>Promise<T>){
@@ -28,8 +33,9 @@ export function createStudyReminderRuntime(options:{database:StudyFileDatabase;a
   return {
     tick,
     async list(request:unknown){
-      await tick();
+      // Only an authenticated student refreshes, and only their own rows.
       return authorized(request,false,async(tx,owner)=>{
+        await refresh(tx,owner);
         const rows=await tx.query<{id:string;folder_id:string;title:string;starts_at:Date;notified_at:Date;read_at:Date|null}>(`SELECT s.id,s.folder_id,e.title,s.starts_at,s.notified_at,s.read_at FROM study_review_sessions s
           JOIN study_folders f ON f.id=s.folder_id JOIN agenda_events e ON e.id=s.agenda_event_id AND e.revision=s.event_revision
           WHERE s.owner_id=$1::uuid AND f.owner_id=$1::uuid AND f.status='ACTIVE' AND s.notified_at IS NOT NULL AND s.cancelled_at IS NULL

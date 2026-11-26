@@ -10,7 +10,7 @@ Correo verificado es necesario para usar aulas y capacidades privadas. Quitar bo
 
 Registro y recuperación responden genéricamente sin revelar existencia de cuenta. Aceptar una solicitud de correo no demuestra entrega, inicia sesión o inscribe. Login verificado ordinario lleva a Inicio; una continuación explícita permitida conserva validación. La verificación del enlace requiere confirmación y ofrece Ir a Inicio.
 
-Contraseñas 16–128 puntos de código Unicode; nombres 1–80 cada uno. Sesión: 30 minutos de inactividad y 12 horas absolutas. Verificación 1 hora, recuperación 15 minutos, enlaces de un uso y mínimo 60 segundos de reenvío con controles de abuso. Cambiar contraseña conserva/renueva la sesión actual sin extender su vida absoluta y revoca otras; recuperar revoca anteriores sin login automático.
+Contraseñas 16–128 puntos de código Unicode; nombres 1–80 cada uno, sin caracteres de control ni de control bidireccional. Sesión: 30 minutos de inactividad y 12 horas absolutas. Verificación 1 hora, recuperación 15 minutos, enlaces de un uso y mínimo 60 segundos de reenvío con controles de abuso. Cambiar contraseña conserva/renueva la sesión actual sin extender su vida absoluta y revoca otras; recuperar revoca anteriores sin login automático.
 
 Dominios de correo deben venir en minúsculas; conservar local part válido, incluidos entrecomillados/internacionales, sin normalización silenciosa o reglas de alias de proveedores. [OpenAPI y políticas](api/accounts-sessions.openapi.json).
 

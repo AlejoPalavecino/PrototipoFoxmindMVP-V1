@@ -144,22 +144,29 @@ export function createChatAttachmentService(options: Options) {
         return row;
       });
       if (reserved.ready_at) return publicAttachment(reserved);
+      // The write runs outside any transaction: a slow object store must not hold a pooled
+      // connection or the owner's row lock. The object stays unreachable until READY below.
+      const key = attachmentKey(id);
+      try { await options.storage.put(key, bytes); }
+      catch (error) {
+        if ((error as { code?: string }).code !== 'UPLOAD_CONFLICT') throw error;
+        const stored = await options.storage.get(key, bytes.length);
+        if (attachmentDigest(stored) !== digest) attachmentError('CONFLICT');
+      }
+      let orphaned = false;
       try { return await scoped(request, target, true, async (tx, scope) => {
-        // Serialize the immutable write and READY transition against revocation and the sweeper.
+        // Serialize the READY transition against revocation and the sweeper.
         const row = await lookup(tx, id, scope, true);
+        // A revoked or swept reservation never becomes READY, so nothing else can reference
+        // these bytes; the sweeper may have removed the key before this write landed.
+        orphaned = Boolean(row && !row.ready_at && (row.removed_at || row.cleanup_claimed_at || row.cleaned_at));
         if (!row || row.removed_at || row.cleanup_claimed_at || row.cleaned_at || row.digest !== digest) return attachmentError('CONFLICT');
         if (row.ready_at) return publicAttachment(row);
         if (intent.copy) await copyIntoFolder(tx, row, mime, options.folderQuota ?? quota);
-        const key = attachmentKey(id);
-        try { await options.storage.put(key, bytes); }
-        catch (error) {
-          if ((error as { code?: string }).code !== 'UPLOAD_CONFLICT') throw error;
-          const stored = await options.storage.get(key, bytes.length);
-          if (attachmentDigest(stored) !== digest) attachmentError('CONFLICT');
-        }
         await tx.query('UPDATE chat_attachments SET ready_at=clock_timestamp() WHERE id=$1::uuid RETURNING id', id);
         return publicAttachment(row);
-      }, 25000); } catch (error) {
+      }); } catch (error) {
+        if (orphaned) await options.storage.remove(key).catch(() => undefined);
         if ((error as { code?: string }).code === 'QUOTA_EXCEEDED') {
           await scoped(request, target, true, async (tx, scope) => {
             const row = await lookup(tx, id, scope, true);
