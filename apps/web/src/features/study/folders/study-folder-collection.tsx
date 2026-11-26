@@ -5,6 +5,28 @@ import { learningCover } from '../../../../../shared-ui/parity-assets';
 import { Notice } from '../../../../../shared-ui/feedback';
 import type { StudyCollection } from '../model/study-contracts.ts';
 import { StudyConfirmation } from '../ui/study-confirmation';
+import { studyReviewWhen } from '../model/study-mastery.ts';
+
+type Folder = StudyCollection['items'][number];
+
+/** The folder to pick up again: the most recently touched active one. The list arrives ordered by last update. */
+export function studyResumeFolder(items: Folder[]) {
+  return items.find((item) => item.status === 'ACTIVE');
+}
+
+function ProgressTrail({ progress }: { progress: NonNullable<Folder['progress']> }) {
+  if (!progress.topics) return null;
+  // Long programs collapse into ten segments so the trail keeps its rhythm on narrow cards.
+  const segments = Math.min(progress.topics, 10), on = Math.round((progress.practicedTopics / progress.topics) * segments);
+  return (
+    <span className="study-folder-trail">
+      <span className="study-folder-trail-bar" aria-hidden="true">
+        {Array.from({ length: segments }, (_, index) => <i key={index} className={index < on ? 'on' : ''} />)}
+      </span>
+      <small>{progress.practicedTopics} de {progress.topics} {progress.topics === 1 ? 'tema practicado' : 'temas practicados'}</small>
+    </span>
+  );
+}
 
 const api = studyDraftOperations;
 export function StudyCollectionView({
@@ -39,18 +61,37 @@ export function StudyCollectionView({
     (!needle || [item.name, item.subject].some(value => value?.toLocaleLowerCase().includes(needle))),
   );
   const filtering = Boolean(needle || year || classroom);
+  const resume = status === 'ACTIVE' && !filtering ? studyResumeFolder(available) : undefined;
   return (
     <div className="parity-study-collection study-exact-collection">
-      <header>
+      <header className="study-collection-banner">
         <div>
+          <span className="study-collection-kicker">Tus carpetas de estudio</span>
           <h1>Mi estudio</h1>
-          <p>Organizá tus temas, consultá tus materiales y practicá con Foxy.</p>
+          <p>Guardá tu programa, practicá con Foxy y organizá tu repaso, tema por tema.</p>
         </div>
         <button onClick={onCreate}>
           <FoxmindIcon name="plus" />
           Crear carpeta
         </button>
       </header>
+      {resume && (
+        <section className="study-collection-resume" aria-labelledby="study-resume-title">
+          <img src={learningCover(resume.bannerKey)} alt="" />
+          <div>
+            <small>Seguí donde quedaste</small>
+            <strong id="study-resume-title">{resume.name}</strong>
+            <span className="study-collection-resume-facts">
+              {resume.nextReview && <span className="study-chip-sun"><FoxmindIcon name="clock" />Repaso {studyReviewWhen(resume.nextReview.startAt, resume.nextReview.timeZone)}</span>}
+              {resume.progress?.weakestTopic && <span className="study-chip-orange">Tema más flojo: {resume.progress.weakestTopic.title}</span>}
+              {!resume.nextReview && !resume.progress?.weakestTopic && resume.progress && <span className="study-chip-muted">{resume.progress.practicedTopics} de {resume.progress.topics} {resume.progress.topics === 1 ? 'tema practicado' : 'temas practicados'}</span>}
+            </span>
+          </div>
+          <button type="button" onClick={() => onEnter(resume.id)} aria-label={`Abrir ${resume.name}`}>
+            Abrir carpeta <FoxmindIcon name="arrow-right" />
+          </button>
+        </section>
+      )}
       <section aria-label="Carpetas de estudio">
         <div className="study-exact-collection-toolbar">
           <div className="study-exact-segmented" role="group" aria-label="Estado de las carpetas">
@@ -91,7 +132,7 @@ export function StudyCollectionView({
         {error && <Notice error>{error}</Notice>}
         {!items.length ? (
           <div className="study-exact-empty">
-            <img src="/foxmind/classroom-world.webp" alt="" />
+            <img src="/foxmind-3d/states/empty-320.webp" alt="" />
             <h2>
               {filtering ? 'No encontramos carpetas' : status === 'DRAFT' ? 'Todavía no tenés borradores'
                 : status === 'ARCHIVED' ? 'Todavía no tenés carpetas archivadas' : 'Todavía no tenés carpetas'}
@@ -170,8 +211,11 @@ export function StudyCollectionView({
                         ? catalog.classrooms.find(room => room.id === folder.linkedClassroomId)?.name ?? 'Aula vinculada'
                         : 'Materiales propios'}
                     </span>
+                    {folder.progress && <ProgressTrail progress={folder.progress} />}
                     <span className="study-exact-card-bottom">
-                      <span>Abrir carpeta</span>
+                      {folder.nextReview
+                        ? <span className="study-chip-sun"><FoxmindIcon name="clock" />{studyReviewWhen(folder.nextReview.startAt, folder.nextReview.timeZone)}</span>
+                        : <span>Abrir carpeta</span>}
                       <FoxmindIcon name="arrow-right" />
                     </span>
                   </span>

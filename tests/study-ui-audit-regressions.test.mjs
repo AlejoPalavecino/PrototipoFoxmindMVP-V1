@@ -201,3 +201,35 @@ test('una explicación conserva su versión guardada y ofrece una ilustración d
   }
 });
 
+test('sin enlace, el asistente deja elegida la única aula disponible y no una archivada', async () => {
+  const { StudyWizard } = componentWithPorts(study + 'folders/study-folder-wizard.tsx', {
+    '../api.ts': { createStudyClient: () => ({ create: async () => assert.fail('abrir el asistente no crea un borrador') }) },
+  });
+  const previousWindow = globalThis.window;
+  globalThis.window = { addEventListener() {}, removeEventListener() {} };
+  try {
+    for (const [classrooms, expected] of [
+      [[{ id: 'room-id', name: 'Fotografía', academicYear: 2026 }], true],
+      [[{ id: 'room-id', name: 'Fotografía', academicYear: 2026 }, { id: 'old', name: 'Historia', academicYear: 2025, archived: true }], true],
+      [[{ id: 'a', name: 'A', academicYear: 2026 }, { id: 'b', name: 'B', academicYear: 2026 }], false],
+    ]) {
+      const view = hookView(StudyWizard, { catalog: { classrooms }, onClose() {}, onCreated() {} });
+      try {
+        await view.flush();
+        const fields = descendants(view.tree, node => node.type === 'input');
+        fields[0].props.onChange({ target: { value: 'Mi carpeta' } });
+        fields[1].props.onChange({ target: { value: 'Fotografía' } });
+        await view.flush();
+        descendants(view.tree, node => node.type === 'form')[0].props.onSubmit({ preventDefault() {} });
+        await view.flush();
+        const origin = descendants(view.tree, node => node.type === 'input' && node.props.name === 'study-origin' && node.props.checked);
+        assert.equal(origin[0]?.props.value === 'classroom', expected, `${classrooms.length} aulas`);
+        if (expected) assert.equal(descendants(view.tree, node => node.type === 'input' && node.props.name === 'study-classroom' && node.props.checked)[0].props['aria-label'], 'Fotografía');
+      } finally {
+        view.close();
+      }
+    }
+  } finally {
+    globalThis.window = previousWindow;
+  }
+});

@@ -49,3 +49,14 @@ test('Práctica y repaso: el sendero distingue correcta, para repasar y actual, 
   assert.match(css, /\.study-plan-stage\[hidden\] \{ display: none; \}/, 'los pasos ocultos no se muestran aunque otra hoja fije display');
 });
 
+test('Colección y asistente: hoja anclada, banner con la escena de estudio y sendero de avance en pino', () => {
+  const path = appStylesheets().find(item => item.endsWith('expedition-collection.css'));
+  assert.ok(path, 'expedition-collection.css debe formar parte de la cascada real');
+  const css = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const selector of selectorsOf(css)) for (const part of selector.split(/,(?![^(]*\))/))
+    assert.match(part.trim(), /^#foxmind-product#foxmind-product\.fm3d-theme /, part.trim());
+  assert.match(css, /\/foxmind-3d\/hero\/welcome-learn-960\.webp/);
+  assert.ok(readFileSync(new URL('../apps/web/public/foxmind-3d/hero/welcome-learn-960.webp', import.meta.url)).length > 0);
+  assert.match(css, /\.study-folder-trail-bar > i\.on \{[^}]*background: var\(--xp-pine\)/);
+});
+

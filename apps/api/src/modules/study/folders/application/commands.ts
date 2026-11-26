@@ -37,7 +37,7 @@ export function publicState(state: StudyState, sources: StudySource[], attachmen
     practices: state.practices.map(practiceView), exams: state.exams, memory: state.memory };
 }
 async function validatePlan(tx: StudyQuery, row: FolderRow, options: StudyCommandPorts) {
-    const fields = validateFolder(row.state.fields, true, !!row.state.planOrigin);
+    const fields = validateFolder(row.state.fields, true);
     if (fields.planFileId) {
         if (!options.files) studyFail('FILE_NOT_READY');
         await options.files.assertOwn(tx, row.owner_id, row.id, fields.planFileId, 'plan');

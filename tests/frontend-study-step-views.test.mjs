@@ -72,14 +72,29 @@ test('wizard program presenter preserves the upload control callbacks without su
   const onFile = async () => { uploads += 1; };
   const planSource = { file: { id: 'file', name: 'Plan', ready: true }, uploading: false, disabled: false,
     fileUrl: id => `/fixture/${id}`, onFile, onError() {}, onRefresh() {}, onRemoveFile() {} };
-  const tree = renderStudyFolderProgram({
-    programSource: 'own', linked: '', method: 'manual', classrooms: [], planSource,
-    onSource() {}, onClassroom() {}, onMethod() {},
-  });
+  const tree = renderStudyFolderProgram({ origin: 'program', linked: '', classrooms: [], planSource, onOrigin() {}, onClassroom() {} });
   assert.equal(uploads, 0);
   const source = descendants(tree, node => node.type?.name === 'WizardPlanSource')[0];
   assert.equal(source.props.onFile, onFile);
   assert.equal(source.props.file, planSource.file);
+});
+
+test('wizard origin is one question: by hand needs no file and the classroom option shows only its picker', () => {
+  const { renderStudyFolderProgram } = loadTsModule('apps/web/src/features/study/folders/wizard/study-folder-program.tsx');
+  const chosen = [];
+  const base = { linked: '', classrooms: [{ id: 'room', name: 'Fotografía y luz', academicYear: 2026 }], planSource: { file: null }, onOrigin: value => chosen.push(value), onClassroom() {} };
+  const empty = renderStudyFolderProgram({ ...base, origin: null });
+  const radios = descendants(empty, node => node.type === 'input' && node.props.name === 'study-origin');
+  assert.deepEqual(radios.map(node => node.props['aria-label']), ['Del aula', 'De mi programa', 'A mano']);
+  assert.equal(descendants(empty, node => node.type?.name === 'WizardPlanSource').length, 0, 'no pide archivo antes de elegir');
+  radios.forEach(node => node.props.onChange());
+  assert.deepEqual(chosen, ['classroom', 'program', 'manual']);
+  const manual = renderToStaticMarkup(renderStudyFolderProgram({ ...base, origin: 'manual' }));
+  assert.match(manual, /Empezás con una unidad vacía/);
+  assert.doesNotMatch(manual, /study-classroom/);
+  const classroom = renderStudyFolderProgram({ ...base, origin: 'classroom', linked: 'room' });
+  assert.equal(descendants(classroom, node => node.type === 'input' && node.props.name === 'study-classroom')[0].props.checked, true);
+  assert.equal(descendants(classroom, node => node.type?.name === 'WizardPlanSource').length, 0);
 });
 
 test('practice result offers next steps: missed topics first, review plan always', () => {

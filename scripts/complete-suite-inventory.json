@@ -742,7 +742,9 @@
     "tests/expedition-notifications.test.mjs",
     "tests/expedition-profile.test.mjs",
     "tests/expedition-desk.test.mjs",
-    "tests/foxy-chat-layout-tools-rail.test.mjs"
+    "tests/foxy-chat-layout-tools-rail.test.mjs",
+    "tests/study-folder-progress.test.mjs",
+    "tests/study-collection-progress.test.mjs"
   ],
   "exclusions": [
     {
