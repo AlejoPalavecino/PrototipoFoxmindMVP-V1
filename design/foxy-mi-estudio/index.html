@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foxy AI y Mi estudio · maqueta Expedición</title>
+<link rel="stylesheet" href="maqueta.css?v=15">
+</head>
+<body>
+<!-- Barra de la maqueta: no forma parte del producto. -->
+<div class="mock-bar" role="region" aria-label="Controles de la maqueta">
+  <strong>Maqueta Foxy y Mi estudio</strong>
+  <span class="seg" role="group" aria-label="Rol">
+    <button type="button" data-role="student" aria-pressed="true">Estudiante · Mi estudio</button>
+    <button type="button" data-role="teacher" aria-pressed="false">Docente · Foxy AI</button>
+  </span>
+  <label>Ir a <select data-jump aria-label="Ir a una pantalla o flujo"></select></label>
+  <button type="button" class="notes-btn" data-notes aria-expanded="false">Decisiones para validar</button>
+</div>
+<aside class="notes" data-notes-panel hidden aria-label="Decisiones para validar"></aside>
+<div class="app">
+  <nav class="side" aria-label="Navegación principal">
+    <div class="brand"><img src="../../apps/web/public/foxmind-3d/brand/zorroh-128.webp" alt="">FoxMind</div>
+    <button type="button" class="icon-btn menu-btn" data-menu aria-expanded="false" aria-label="Abrir menú"><svg class="i" aria-hidden="true"><use href="../../apps/web/public/foxmind-3d/icons/sprite.svg#menu"/></svg></button>
+    <div class="nav" data-nav></div>
+    <div class="side-foot">
+      <div class="ai-meter">Saldo de IA · 82 %<i><b></b></i></div>
+      <div class="me" data-me></div>
+    </div>
+  </nav>
+  <main id="main"><div class="wrap" data-view></div></main>
+</div>
+<div data-overlay></div>
+<div data-toast></div>
+<script src="maqueta.js?v=15"></script>
+</body>
+</html>

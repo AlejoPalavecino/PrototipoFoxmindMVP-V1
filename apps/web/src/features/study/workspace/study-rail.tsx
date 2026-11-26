@@ -3,6 +3,48 @@ import { learningCover } from '../../../../../shared-ui/parity-assets';
 import type { StudyDetail } from '../model/study-contracts.ts';
 import { studyMasteryLabel, studyNextReview, studyReviewWhen, studyTopicMastery } from '../model/study-mastery.ts';
 
+/** The folded rail: folder cover, how many topics go in the next request, and direct doors to materials and review. */
+export function StudyRailMini({
+  bannerKey,
+  folderName,
+  selectedCount,
+  sourceCount,
+  disabled,
+  onTopics,
+  onMaterials,
+  onReview,
+}: {
+  bannerKey: string;
+  folderName: string;
+  selectedCount: number;
+  sourceCount: number;
+  disabled: boolean;
+  onTopics: (launcher: HTMLButtonElement) => void;
+  onMaterials: (launcher: HTMLButtonElement) => void;
+  onReview: () => void;
+}) {
+  return (
+    <div className="study-rail-mini">
+      <img src={learningCover(bannerKey)} alt="" title={folderName} />
+      <button type="button" aria-haspopup="dialog" aria-label={`Temas: ${selectedCount ? `${selectedCount} elegidos` : 'todos'}. Cambiar temas`}
+        onClick={(event) => onTopics(event.currentTarget)}>
+        <FoxmindIcon name="book" />
+        {selectedCount > 0 && <b>{selectedCount}</b>}
+        <small>Temas</small>
+      </button>
+      <button type="button" disabled={disabled} aria-label="Organizar mi repaso" onClick={onReview}>
+        <FoxmindIcon name="calendar" />
+        <small>Repaso</small>
+      </button>
+      <button type="button" aria-haspopup="dialog" aria-label={`Materiales: ${sourceCount}`} onClick={(event) => onMaterials(event.currentTarget)}>
+        <FoxmindIcon name="foxy-folder" />
+        <b>{sourceCount}</b>
+        <small>Material</small>
+      </button>
+    </div>
+  );
+}
+
 /** Folder identity, topics with mastery, materials and next review: the left rail of the study workbench. */
 export function StudyRail({
   detail,

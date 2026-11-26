@@ -1,0 +1,117 @@
+/* Mesa de trabajo de Mi estudio y Foxy AI en dirección Expedición (maqueta design/foxy-mi-estudio).
+   Las hojas parity-ai llegan a un id y tres clases, así que esta suma el id raíz duplicado y la clase del chat. */
+
+/* Cabecera: Historial, Herramientas, Creaciones y Nuevo chat */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar { gap: 10px; padding: 10px 14px; background: linear-gradient(180deg, #f7fbfd, #fff); border-bottom-color: var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar :is(.parity-ai-shortcuts > button, .parity-ai-newChat) { min-height: 42px; padding: 0 12px; border: 1.5px solid var(--xp-line-strong); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-shortcuts > button:hover { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-shortcuts > button[aria-expanded=true] { border-color: var(--xp-lake); background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-shortcuts > .parity-ai-toolsTrigger { border-color: var(--xp-pine); color: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-shortcuts > .parity-ai-toolsTrigger:hover { background: var(--xp-pine-soft); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-shortcuts > .parity-ai-toolsTrigger[aria-expanded=true] { border-color: var(--xp-pine); background: var(--xp-pine); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-toolsTrigger[aria-expanded=true] > svg:last-child { transform: rotate(180deg); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-creationCount { min-width: 20px; padding: 2px 6px; border-radius: 99px; background: #e8eff4; color: var(--xp-lake); font: 900 11px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-newChat { border-color: var(--xp-orange-button); background: var(--xp-orange-button); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-newChat:hover:not(:disabled) { background: var(--xp-orange-button-hover); }
+@media (max-width: 650px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar .parity-ai-toolsTrigger > svg:last-child { display: none; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat > .parity-ai-compactBar :is(.parity-ai-shortcuts > button, .parity-ai-newChat) { width: 42px; min-width: 42px; padding: 0; }
+}
+
+/* Menú de herramientas: el mismo catálogo que la bienvenida, en una lista */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu { font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools-panel, .study-exact-tools, .parity-foxy-tools) { display: grid; gap: 2px; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu .study-exact-tools + .study-exact-tools { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu .study-exact-tools > h3 { margin: 6px 8px 4px; color: var(--xp-muted); font: 900 12px/1.3 var(--xp-font); letter-spacing: .04em; text-transform: uppercase; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools, .parity-foxy-tools) > button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 8px 10px; border: 0; border-radius: 14px; background: none; color: var(--xp-ink); text-align: left; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools, .parity-foxy-tools) > button:is(:hover, :focus-visible):not(:disabled) { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools, .parity-foxy-tools) > button:focus-visible { outline: 2px solid var(--xp-focus); outline-offset: 1px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools, .parity-foxy-tools) > button[aria-current=true] { background: #fff6dc; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools > button b, .parity-foxy-toolCopy strong) { display: block; color: var(--xp-ink); font: 900 15px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tools > button small, .parity-foxy-toolCopy small) { display: block; color: var(--xp-muted); font: 600 13px/1.35 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu .parity-foxy-toolExample { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu :is(.study-exact-tool-icon, .parity-foxy-toolIcon) { width: 38px; height: 38px; border: 0; border-radius: 12px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu .parity-foxy-toolArrow { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-toolsMenu .study-exact-tool-current { padding: 3px 9px; border-radius: 99px; background: var(--xp-sun); color: var(--xp-lake); font: 900 11px/1.3 var(--xp-font); font-style: normal; }
+
+/* Riel de la carpeta y su pliegue */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-rail { background: var(--xp-mist); border-right-color: var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-rail .study-rail-identity { padding-right: 40px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-railFold { position: absolute; z-index: 1; top: 16px; right: 10px; display: grid; place-items: center; width: 34px; height: 34px; min-height: 0; padding: 0; border: 1.5px solid var(--xp-line-strong); border-radius: 10px; background: #fff; color: var(--xp-lake); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-railFold:hover { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-railFold[aria-expanded=true] > svg { transform: rotate(180deg); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-railMini .parity-ai-railFold { position: static; width: 44px; height: 40px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-rail .study-rail-topic[aria-pressed=true] { border-color: var(--xp-lake-soft); box-shadow: inset 3px 0 var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini { display: grid; justify-items: center; gap: 8px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini > img { width: 44px; height: 44px; margin: 2px 0 6px; border-radius: 12px; object-fit: cover; }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini > button { position: relative; display: grid; justify-items: center; gap: 2px; width: 56px; min-height: 54px; padding: 7px 0; border: 1.5px solid transparent; border-radius: 14px; background: none; color: var(--xp-lake); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini > button:hover:not(:disabled) { border-color: var(--xp-line); background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini > button > small { color: var(--xp-muted); font: 800 11px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-rail-mini > button > b { position: absolute; top: 2px; right: 5px; min-width: 18px; padding: 1px 5px; border-radius: 99px; background: var(--xp-sun); color: var(--xp-lake); font: 900 10px/1.4 var(--xp-font); }
+
+/* Bienvenida: cuatro intenciones y más herramientas */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-welcome { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 24px 16px; text-align: center; }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-fox { width: 92px; height: 92px; object-fit: contain; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-welcome h2 { margin: 4px 0 0; color: var(--xp-ink); font: 900 26px/1.15 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-welcome > p { max-width: 520px; margin: 0; color: var(--xp-muted); font: 600 15px/1.5 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: 720px; margin-top: 12px; text-align: left; }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents > button { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 14px 16px; border: 1.5px solid var(--xp-line); border-radius: 18px; background: #fff; color: var(--xp-ink); text-align: left; box-shadow: 0 1px 0 rgba(27, 58, 82, .05); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents > button:hover:not(:disabled) { border-color: var(--xp-lake-soft); box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents > button > .study-exact-tool-icon { grid-row: span 2; }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents > button > b { font: 900 16px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents > button > small { color: var(--xp-muted); font: 600 13px/1.35 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-more { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-more > span { color: var(--xp-muted); font: 800 13px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-more > button { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px; border: 1.5px solid var(--xp-line-strong); border-radius: 99px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-more > button:hover:not(:disabled) { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .study-welcome-more > button > svg { width: 17px; height: 17px; }
+
+/* Aviso de material, formulario acoplado y composer */
+/* El aviso y el formulario se alinean con el composer, que mide como máximo 1000 px y va centrado. */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-composer-dock { display: grid; grid-template-columns: minmax(0, 1fr); flex: none; width: min(calc(100% - 60px), 1000px); margin: 8px auto 0; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-composer-dock > .parity-ai-composer { width: 100%; min-width: 0; margin: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .study-material-alert { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 12px 14px; border: 1px solid #f0d995; border-radius: 16px; background: #fff6dc; color: var(--xp-ink); font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-material-alert > svg { flex: none; width: 22px; height: 22px; color: #8a5a00; }
+#foxmind-product#foxmind-product.fm3d-theme .study-material-alert > p { flex: 1; margin: 0; font: 600 14px/1.45 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-material-alert > button { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1.5px solid var(--xp-lake); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock { padding: 14px 16px 12px; border: 1.5px solid var(--xp-lake-soft); border-bottom: 0; border-radius: 18px 18px 0 0; background: #f7fbfd; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock > header { display: flex; align-items: center; gap: 12px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock > header > span:not(.study-exact-tool-icon) { flex: 1; min-width: 0; display: grid; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock > header strong { color: var(--xp-ink); font: 900 16px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock > header small { color: var(--xp-muted); font: 600 13px/1.35 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock .study-tool-close { display: grid; place-items: center; width: 38px; height: 38px; min-height: 0; padding: 0; border: 0; border-radius: 10px; background: none; color: var(--xp-lake); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-dock .study-tool-close:hover { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 12px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-field { display: grid; gap: 6px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-field > span { color: var(--xp-ink); font: 800 13px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-segments { display: inline-flex; flex-wrap: wrap; gap: 4px; justify-self: start; padding: 4px; border-radius: 12px; background: #dfe9ef; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-segments > button { min-width: 44px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: #3b5163; font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-segments > button[aria-pressed=true] { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 10px 0 0; color: var(--xp-muted); font: 600 13px/1.4 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-hint .study-exact-example { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 10px; border: 0; border-radius: 99px; background: var(--xp-pine-soft); color: var(--xp-pine); font: 800 13px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-tool-hint .study-exact-example > svg { width: 15px; height: 15px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-tool-dock + .parity-ai-composer { border-top-left-radius: 0; border-top-right-radius: 0; border-color: var(--xp-lake-soft); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-composer { border: 1.5px solid var(--xp-line-strong); border-radius: 18px; background: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-composer:focus-within { border-color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-composer .parity-ai-primary { border-color: var(--xp-orange-button); background: var(--xp-orange-button); color: #fff; font-family: var(--xp-font); font-weight: 900; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-ai-composer .parity-ai-primary:hover:not(:disabled) { background: var(--xp-orange-button-hover); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topics { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 2px 2px 6px; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topics > span:first-child { color: var(--xp-muted); font: 800 13px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topic { display: inline-flex; align-items: center; gap: 2px; min-height: 30px; padding: 0 4px 0 11px; border-radius: 99px; background: var(--xp-sky); color: var(--xp-lake); font: 800 13px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topic.muted { padding-right: 11px; background: #eef2f5; color: var(--xp-muted); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topic > button { display: grid; place-items: center; width: 26px; height: 26px; min-height: 0; padding: 0; border: 0; border-radius: 99px; background: none; color: inherit; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topic > button:hover:not(:disabled) { background: rgba(27, 58, 82, .12); }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topic > button > svg { width: 14px; height: 14px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-composer-topics .study-composer-change { min-height: 30px; padding: 0 8px; border: 0; background: none; color: var(--xp-orange-ink); font: 800 13px/1 var(--xp-font); text-decoration: underline; box-shadow: none; }
+@media (max-width: 680px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .study-composer-dock { width: calc(100% - 16px); }
+}
+@media (max-width: 650px) {
+  #foxmind-product#foxmind-product.fm3d-theme .study-welcome-intents { grid-template-columns: 1fr; }
+  #foxmind-product#foxmind-product.fm3d-theme .study-material-alert { flex-wrap: wrap; }
+  #foxmind-product#foxmind-product.fm3d-theme .study-tool-dock { padding: 12px; }
+  #foxmind-product#foxmind-product.fm3d-theme .study-tool-fields { grid-template-columns: 1fr; }
+}
+
+/* Con una creación o práctica abierta, la columna del chat se angosta: la ayuda del teclado cede su lugar al botón. */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-workbench[data-panel=open] .parity-ai-composer .parity-chat-key-hint { display: none; }

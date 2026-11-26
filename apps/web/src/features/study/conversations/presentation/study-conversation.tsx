@@ -15,8 +15,8 @@ import type {
 import { StudyChatWelcome } from './study-chat-welcome';
 import { StudyMessageList } from './study-message-list';
 import { StudyChatProgress } from './study-chat-progress';
-import { StudyChatComposer } from './study-chat-composer';
-import { StudyToolChips } from '../../tools/study-tool-chips';
+import { StudyChatComposer, type StudyComposerTool } from './study-chat-composer';
+import type { ReactNode } from 'react';
 export function StudyConversation({
   identity,
   current,
@@ -41,6 +41,12 @@ export function StudyConversation({
   onLibrary,
   onAttach,
   onTool,
+  topics,
+  onDropTopic,
+  onChooseTopics,
+  dock,
+  composerTool,
+  notice,
 }: {
   identity?: ChatIdentity;
   current?: Pick<Conversation, 'id' | 'sourceUnavailable'>;
@@ -65,6 +71,15 @@ export function StudyConversation({
   onLibrary: (launcher: HTMLButtonElement) => void;
   onAttach: (id: string, file: File, copy: boolean) => Promise<void>;
   onTool?: (tool: { kind: string; title: string }) => void;
+  /** Topics for the next request, as chips in the composer. */
+  topics?: { id: string; title: string }[];
+  onDropTopic?: (id: string) => void;
+  onChooseTopics?: (launcher: HTMLButtonElement) => void;
+  /** The open tool's form, docked on top of the composer. */
+  dock?: ReactNode;
+  composerTool?: StudyComposerTool;
+  /** Warnings that belong before the composer (for example, missing material). */
+  notice?: ReactNode;
 }) {
   const { pending } = chat;
   return (
@@ -81,7 +96,11 @@ export function StudyConversation({
         aria-label="Mensajes con Foxy"
       >
         {!messages.length && !pending && !generation.local ? (
-          <StudyChatWelcome onPrompt={onPrompt} />
+          <StudyChatWelcome
+            disabled={busy || !active || generation.blocked}
+            imageGenerationAvailable={detail.imageGenerationAvailable}
+            onTool={onTool ?? (() => onPrompt(''))}
+          />
         ) : (
           <StudyMessageList
             identity={identity}
@@ -113,15 +132,15 @@ export function StudyConversation({
           Ver mensajes nuevos ↓
         </button>
       )}
-      {onTool && (
-        <StudyToolChips
-          disabled={busy || !active || generation.blocked}
-          imageGenerationAvailable={detail.imageGenerationAvailable}
-          onChoose={onTool}
-        />
-      )}
+      <div className="study-composer-dock">
+      {notice}
+      {dock}
       <StudyChatComposer
         text={text}
+        topics={topics}
+        tool={composerTool}
+        onDropTopic={onDropTopic}
+        onChooseTopics={onChooseTopics}
         pending={pending}
         busy={busy}
         active={active}
@@ -134,6 +153,7 @@ export function StudyConversation({
         onLibrary={onLibrary}
         onAttach={onAttach}
       />
+      </div>
       <p className={`${s.chatDisclaimer} parity-ai-chatDisclaimer`}>
         Foxy puede equivocarse. Revisá sus propuestas.
       </p>

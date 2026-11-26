@@ -62,6 +62,8 @@ test('pure conversation preserves message viewport, unread control, composer and
  assert.equal(tree.props['aria-label'], 'Conversación con Foxy');
  assert.equal(children[0].props['aria-label'], 'Mensajes con Foxy');
  assert.equal(text(children[1]), 'Ver mensajes nuevos ↓');
- assert.equal(children[2].type.name, 'StudyChatComposer');
+ // Notice and docked tool form share one column with the composer, which always closes it.
+ assert.equal(children[2].props.className, 'study-composer-dock');
+ assert.equal([children[2].props.children].flat().filter(Boolean).at(-1).type.name, 'StudyChatComposer');
  assert.equal(text(children[3]), 'Foxy puede equivocarse. Revisá sus propuestas.');
 });

@@ -78,30 +78,52 @@ test('abrir una práctica la muestra en el panel mientras el chat sigue montado'
  }finally{view.close();}
 });
 
-test('los chips sobre el compositor abren la herramienta correspondiente',async()=>{
- const {view,by}=workspace();
+const bold=node=>descendants(node,child=>child.type==='b')[0]?.props.children;
+const intentsOf=tree=>descendants(tree,node=>node.type==='button'&&['Entender un tema','Practicar','Preparar una evaluación','Organizar mi repaso'].includes(bold(node)));
+const moreTools=tree=>descendants(descendants(tree,node=>node.props?.role==='group'&&node.props['aria-label']==='Más herramientas')[0],node=>node.type==='button').map(node=>[node.props.children].flat().at(-1));
+
+test('la bienvenida ofrece cuatro intenciones y elegir una monta su formulario sobre el compositor',async()=>{
+ const {view,by,layout}=workspace();
  try{
   await view.flush();
-  const chips=descendants(view.tree,node=>node.type?.name==='StudyToolChips')[0];
-  assert.ok(chips);
-  const buttons=descendants(chips.type(chips.props),node=>node.type==='button');
-  assert.deepEqual(buttons.map(node=>node.props.children),['Entender un tema','Apunte','Esquema','Practicar','Ejercicios','Simulacro','Organizar repaso']);
-  buttons.find(node=>node.props.children==='Practicar').props.onClick();await view.flush();
-  by(node=>node.type?.name==='FoxyDialog'&&node.props.className==='study-exact-tool-dialog'&&node.props.title==='Practicar');
-  assert.equal(by(node=>node.type==='input'&&node.props.type==='number').props.value,5);
+  const intents=intentsOf(view.tree);
+  assert.deepEqual(intents.map(bold),['Entender un tema','Practicar','Preparar una evaluación','Organizar mi repaso']);
+  assert.deepEqual(moreTools(view.tree),['Preparar un apunte','Conectar ideas','Crear ejercicios']);
+  intents[1].props.onClick();await view.flush();
+  const dock=by(node=>node.type?.name==='StudyToolDock');
+  assert.equal(dock.props.kind,'QUIZ');assert.equal(dock.props.count,5);
+  assert.equal(descendants(view.tree,node=>node.type?.name==='FoxyDialog').length,0,'no abre un segundo cuadro modal');
+  assert.equal(descendants(view.tree,node=>node.type==='textarea').length,1,'un solo cuadro de texto');
+  const submit=by(node=>node.type==='button'&&node.props.type==='submit');
+  assert.equal([submit.props.children].flat()[0],'Preparar práctica');
+  const chosen=layout().props.aside.props.selected;
+  const chips=descendants(view.tree,node=>node.type==='button'&&String(node.props['aria-label']).startsWith('Quitar ')).map(label);
+  assert.deepEqual(chips,units[0].topics.filter(topic=>chosen.includes(topic.id)).map(topic=>'Quitar '+topic.title));
  }finally{view.close();}
 });
 
-test('el chip Imagen sólo existe si hay generación de imágenes y Organizar repaso abre el plan',async()=>{
- const {view,by}=workspace({...base,imageGenerationAvailable:true});
+test('Imagen aparece sólo con generación de imágenes y Organizar mi repaso abre el plan',async()=>{
+ const {view,by,layout}=workspace({...base,imageGenerationAvailable:true});
  try{
   await view.flush();
-  const chips=descendants(view.tree,node=>node.type?.name==='StudyToolChips')[0];
-  const buttons=descendants(chips.type(chips.props),node=>node.type==='button');
-  assert.equal(buttons.at(-1).props.children,'Imagen');
-  buttons.find(node=>node.props.children==='Organizar repaso').props.onClick();await view.flush();
-  assert.equal(descendants(view.tree,node=>node.type?.name==='FoxyDialog'&&node.props.className==='study-exact-tool-dialog').length,0);
+  assert.equal(moreTools(view.tree).at(-1),'Crear una imagen');
+  layout().props.onView('tools');await view.flush();
+  const plan=descendants(layout().props.tools,node=>node.type==='button'&&bold(node)==='Organizar mi repaso')[0];
+  plan.props.onClick();await view.flush();
+  assert.equal(descendants(view.tree,node=>node.type?.name==='StudyToolDock').length,0);
   assert.equal(by(node=>node.type?.name==='Dialog'&&node.props.className==='parity-study-plan-dialog').props.title,'Un plan para llegar con calma');
+ }finally{view.close();}
+});
+
+test('el riel se pliega a una tira con los temas elegidos, el repaso y los materiales',async()=>{
+ const {view,layout,expand}=workspace();
+ try{
+  await view.flush();
+  assert.equal(layout().props.asideFoldKey,'foxmind:study-rail');
+  const chosen=layout().props.aside.props.selected.length;
+  const mini=expand(layout().props.asideMini);
+  assert.deepEqual(descendants(mini,node=>node.type==='button').map(label),
+   [`Temas: ${chosen?chosen+' elegidos':'todos'}. Cambiar temas`,'Organizar mi repaso','Materiales: 1']);
  }finally{view.close();}
 });
 
@@ -118,8 +140,11 @@ test('la colección vacía ofrece Crear carpeta y los temas del diálogo tienen 
   button.props.onClick();
   assert.equal(created,1);
  }finally{view.close();}
- const {StudyToolDialog}=componentWithPorts('apps/web/src/features/study/tools/study-tool-dialog.tsx',{});
- const dialog=StudyToolDialog({kind:'QUIZ',title:'Practicar',folderName:'F',sourceCount:1,brief:'',selected:['t1'],count:5,difficulty:'MEDIUM',topics:units[0].topics,error:'',disabled:false,onBrief(){},onSelected(){},onCount(){},onDifficulty(){},onSubmit(){},onClose(){}});
- const boxes=descendants(dialog,node=>node.type==='input'&&node.props.type==='checkbox');
- assert.deepEqual(boxes.map(node=>node.props['aria-label']),['Exposición','Contraste','Apertura']);
+ const {StudyChatComposer}=componentWithPorts('apps/web/src/features/study/conversations/presentation/study-chat-composer.tsx',{});
+ const dropped=[];
+ const composer=StudyChatComposer({text:'',pending:null,busy:false,active:true,generationBlocked:false,attachmentsBusy:false,sourceCount:1,folderName:'F',topics:units[0].topics.slice(0,2),onDropTopic:id=>dropped.push(id),onText(){},onSend:async()=>{},onLibrary(){},onAttach:async()=>{}});
+ const chips=descendants(composer,node=>node.type==='button'&&String(node.props['aria-label']).startsWith('Quitar '));
+ assert.deepEqual(chips.map(node=>node.props['aria-label']),['Quitar Exposición','Quitar Contraste']);
+ chips[1].props.onClick();assert.deepEqual(dropped,['t2']);
 });
+

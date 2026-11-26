@@ -50,7 +50,7 @@ test('Herramientas envía la descripción de la imagen y Creaciones abre el viso
   const description = by(node => node.type === 'textarea' && node.props.maxLength === 1500);
   description.props.onChange({ target: { value: 'Célula vegetal ilustrada' } });
   await view.flush();
-  by(node => node.type === 'form' && node.props.className === 'study-exact-tool-form').props.onSubmit({ preventDefault() {} });
+  by(node => node.type === 'form' && descendants(node, child => child.type === 'textarea' && child.props.id === 'study-message').length).props.onSubmit({ preventDefault() {} });
   await view.flush();
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], 'GENERATE');
@@ -88,7 +88,10 @@ test('volver a preparar recupera el pedido y sus opciones sin generar ni sobresc
    descendants(layout.props.creations, node => node.type === 'button' && node.props['aria-label'] === 'Volver a preparar: Las dos copias')[0].props.onClick();
    await view.flush();
    assert.equal(descendants(view.tree, n => n.type === 'textarea' && n.props.maxLength === 1500)[0].props.value, 'Explicá la separación');
-   assert.equal(descendants(view.tree, n => n.type === 'input' && n.props.type === 'checkbox')[0].props.checked, true);
+   assert.ok(descendants(view.tree, n => n.type === 'button' && n.props['aria-label'] === 'Quitar Anafase').length, 'el tema original vuelve a quedar elegido');
+   const dock = descendants(view.tree, n => n.type?.name === 'StudyToolDock')[0];
+   assert.equal(dock.props.count, 7);
+   assert.equal(dock.props.difficulty, 'HARD');
    assert.equal(detail.creations.length, 1);
  } finally { view.close(); }
 });
