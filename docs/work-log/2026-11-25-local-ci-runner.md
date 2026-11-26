@@ -56,3 +56,4 @@ Sobre el commit `3b8d552a` del PR 18, el trabajo `wrappers` falló tres veces, c
     - Nuevo job `full-suite`, con `[owned-db, owned-browser, wrappers]` y `if: workflow_dispatch`.
   - `ci-local` corre el gate por defecto. Con `--full` suma `full-suite (…)`.
 - **Prueba nueva:** `tests/ci-pr-gate.test.mjs`. Falló primero (RED) porque `criticalOwnedFiles` no existía. Con la implementación, la suite de CI pasa 40/40.
+- **Gate local sobre `1c9eea99`:** pasaron 5/6. `critical` falló en `tests/backend.test.mjs` (`CLI listening event timed out` a los 4041 ms): la escala no llegaba a las pruebas porque `cleanEnvironment` de `run-complete-suite` filtra el entorno y no incluía `FOXMIND_TEST_TIMEOUT_SCALE`. El verde anterior de `wrappers` con «tiempos x3» fue sin escala efectiva. Corrección: la variable se suma a la lista permitida (sin definir sigue sin definir), con prueba RED → GREEN en `tests/test-timeout-scale.test.mjs`.

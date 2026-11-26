@@ -16,7 +16,9 @@ export async function runCompleteGroup(route, { cwd = process.cwd(), env = proce
   return { passed: 0, failed: Number(failed), skipped: 0 };
 }
 export function cleanEnvironment(source = process.env) {
-  const allowed = ['PATH', 'SystemRoot', 'WINDIR', 'COMSPEC', 'PATHEXT', 'TEMP', 'TMP', 'HOME', 'USERPROFILE', 'ProgramFiles'];
+  const allowed = ['PATH', 'SystemRoot', 'WINDIR', 'COMSPEC', 'PATHEXT', 'TEMP', 'TMP', 'HOME', 'USERPROFILE', 'ProgramFiles',
+    // Local-only stretch of tight budgets (scripts/test-timeout-scale.mjs); unset in CI.
+    'FOXMIND_TEST_TIMEOUT_SCALE'];
   return { ...Object.fromEntries(allowed.filter(key => source[key]).map(key => [key, source[key]])), NEXT_TELEMETRY_DISABLED: '1' };
 }
 function prepareGroup(group, env) {
