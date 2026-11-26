@@ -14,7 +14,7 @@ test('account helper retains verification when the same mailbox also contains an
       const visits = [];
       const element = () => ({ fill: async () => {}, click: async () => {}, waitFor: async () => {} });
       const page = { goto: async url => { visits.push(url); }, getByLabel: element,
-        getByRole: element, getByText: element, waitForURL: async () => {},
+        getByRole: element, getByText: element, waitForURL: async () => {}, on: () => {}, off: () => {},
         evaluate: async () => ({ status: 200, body: { user: { id: 'fixture-user' } } }) };
       globalThis.fetch = async url => Response.json(url.endsWith('/messages')
         ? { messages: order.map(ID => ({ ID, To: [{ Address: email }] })) }

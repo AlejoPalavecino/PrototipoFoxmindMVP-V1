@@ -2,9 +2,11 @@
 
 Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada de `main` en `2ed07b67`. Se usaron cuentas sintéticas, el aula «Fotografía y luz» y una carpeta de estudiante con una copia de su plan. Escritorio mide 1440×1000 y móvil, 390×844. [Catálogo de rutas, tamaños y hashes](catalog.json) · [Registro de captura](../../work-log/2026-11-18-galeria-docs.md) · [Guía de UX/UI](../README.md)
 
+**Piloto Expedición (24 de noviembre de 2026).** Iniciar sesión, Crear cuenta, Inicio de ambos roles y los menús móviles se volvieron a capturar con la app del worktree del piloto. Se usó `next dev` contra una API sintética local, sin base de datos ni proveedores, y Chromium de Playwright. Esas entradas del catálogo llevan su propio candidato y entorno. Las imágenes anteriores de esas rutas se conservan en el commit `32c93a9c`. El resto de las capturas privadas es anterior al piloto y muestra la barra lateral Brújula. [Registro del piloto](../../work-log/2026-11-24-expedition-access.md)
+
 ## Cuenta y acceso
 
-[Iniciar sesión en escritorio](vigente-acceso-publico-1440.png)
+[Iniciar sesión en escritorio](vigente-acceso-publico-1440.png) · [Crear cuenta, parada del rol](vigente-registro-publico-1440.png) · [Crear cuenta, parada de datos en móvil](vigente-registro-datos-publico-390.png)
 
 | Vista | Docente | Estudiante |
 |---|---|---|

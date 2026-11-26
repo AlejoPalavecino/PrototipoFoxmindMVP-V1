@@ -18,3 +18,8 @@
 @import "../../../features/classrooms/styles/parity-classroom-collection.css";
 @import "./parity-wizard.css";
 @import "../../../features/study/styles/parity-study-exact.css";
+/* Expedición: tokens y pantallas migradas. Van al final para no depender del orden de las hojas anteriores. */
+@import "./expedition-tokens.css";
+@import "../../../features/identity/styles/expedition-auth.css";
+@import "../../navigation/styles/expedition-navigation.css";
+@import "../../../features/home/dashboard/styles/expedition-home.css";

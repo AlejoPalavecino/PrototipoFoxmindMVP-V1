@@ -7,9 +7,8 @@ import { AccountError, createAccountClient, validateAccountFields, type AccountS
 import { authHref, safeDestination } from '../application/navigation/destinations';
 import { Button } from '../../../shared-ui/primitives/button';
 import { AccountNavbar } from '../application/navigation/account-navbar';
-import { BrujulaIcon } from '../../../shared-ui/BrujulaIcon';
 declare global { interface Window { __foxmindTakeToken?: () => string | null } }
-import { accountContent as content, type AccountView } from '../features/identity/index';
+import { accountContent as content, accountScene, type AccountView } from '../features/identity/index';
 export type { AccountView } from '../features/identity/index';
 const client = createAccountClient();
 
@@ -150,10 +149,10 @@ export function AccountScreen({ view }: { view: AccountView }) {
         delete data.confirmPassword;
       }
       if (path === '/auth/register' && data.accountRole !== 'teacher' && data.accountRole !== 'student') {
-        setMessage({ error: true, text: 'Selecciona docente o estudiante para tu cuenta.' }); return;
+        setMessage({ error: true, text: 'Elegí docente o estudiante para tu cuenta.' }); return;
       }
       if (path.endsWith('/confirm')) {
-        if (!token.current) { setMessage({ error: true, text: 'Abre el enlace original del correo para continuar.' }); return; }
+        if (!token.current) { setMessage({ error: true, text: 'Abrí el enlace original del correo para continuar.' }); return; }
         data.token = token.current;
       }
       void action(path, data, success, method).then(() => {
@@ -163,27 +162,56 @@ export function AccountScreen({ view }: { view: AccountView }) {
     };
   }
   const signOut = <Button variant="outline" disabled={busy || loading} onClick={() => void action('/auth/logout', {}, 'Cerraste tu sesión.')}>Cerrar sesión</Button>;
-  const accountEntry = view !== 'profile' && view !== 'settings';
+  // A registration accepted by the server is announced inside the third stop, not twice,
+  // and its resend cooldown has nothing to retry on that screen.
+  const registered = view === 'register' && Boolean(message && !message.error);
+  const notice = message && !registered
+    ? <div ref={status} tabIndex={-1} className={`notice ${message.error ? 'notice-error' : 'notice-success'}`} role={message.error ? 'alert' : 'status'}>{message.text}</div> : null;
+  const flow = <>
+    {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
+    {notice}
+    {waitSeconds > 0 && !registered ? <p className="cooldown" role="status">Vas a poder volver a intentar en {waitSeconds} segundos.</p> : null}
+    {!loading && !session ? <div className="state"><p>No se pudo comprobar tu sesión.</p><Button disabled={busy || waitSeconds > 0} onClick={() => void load()}>Volver a intentar</Button></div> : null}
+    <AccountFlowForms view={view} session={session} user={user} verified={verified} classroomNext={classroomNext} nextAccountHref={nextAccountHref}
+      locked={locked} busy={busy} hasToken={hasToken} submit={submit} message={message} signOut={signOut} load={load} action={action} />
+  </>;
+  const head = <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accedé a tu cuenta FoxMind." /></Head>;
+  if (view !== 'profile' && view !== 'settings') {
+    const { scene, guide } = accountScene[view];
+    return <>
+      {head}
+      <a className="skip-link" href="#main">Saltar al contenido</a>
+      <div className={`xp-auth auth-${view}`} data-scene={scene}>
+        <header className="xp-auth-top">
+          <Link className="xp-auth-brand" href="/sign-in"><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width="40" height="43" />FoxMind</Link>
+          <p className="xp-auth-switch">{view === 'sign-in' ? <><span>¿Todavía no tenés cuenta?</span><Link href={nextAccountHref('register')}>Crear cuenta</Link></>
+            : view === 'register' ? <><span>¿Ya tenés cuenta?</span><Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link></>
+            : <Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link>}</p>
+        </header>
+        <main id="main" className="xp-auth-stage">
+          <section className="xp-auth-panel surface" aria-label={content[view].title} aria-busy={loading || busy}>
+            <div className="page-heading"><h1>{content[view].title}</h1><p>{content[view].description}</p></div>
+            {flow}
+          </section>
+          <div className="xp-auth-guide" aria-hidden="true"><p className="xp-auth-say">{guide}</p><img src="/brujula/foxy-bienvenida.webp" alt="" width="490" height="636" /></div>
+        </main>
+      </div>
+    </>;
+  }
   return <>
-    <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
+    {head}
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <div className={`entry-page ${surface.scope} ${accountEntry ? `brujula-auth auth-${view}` : 'entry-profile parity-account'}`}>
-    {!accountEntry ? <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
-      accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} /> : null}
-    <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main parity-account-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
-      {accountEntry ? <aside className="br-auth-visual" aria-label="Foxy te da la bienvenida al aula"><Link className="br-auth-brand" href="/sign-in"><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width="40" height="43" />FoxMind</Link><div className="br-auth-land" aria-hidden="true" /><span className="br-auth-caption"><BrujulaIcon name="compass" />Brújula</span></aside> : null}
-      <section className={(view === 'profile' || view === 'settings') ? 'surface profile-account parity-account-surface' : 'surface folder-panel tone-yellow'} aria-label={content[view].title} aria-busy={loading || busy}>
-        {(view === 'profile' || view === 'settings') ? <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">{content[view].title}</span></nav> : null}
+    <div className={`entry-page ${surface.scope} entry-profile parity-account`}>
+    <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
+      accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
+    <main id="main" className="main profile-main parity-account-main">
+      <section className="surface profile-account parity-account-surface" aria-label={content[view].title} aria-busy={loading || busy}>
+        <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">{content[view].title}</span></nav>
         <div className="page-heading"><div>
-          {accountEntry ? <span className={surface.kicker}>Acceso a FoxMind</span> : <span className="br-account-eyebrow">Mi cuenta</span>}
+          <span className="br-account-eyebrow">Mi cuenta</span>
           <h1>{content[view].title}</h1><p>{content[view].description}</p>
         </div></div>
-        {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
-        {message ? <div ref={status} tabIndex={-1} className={`notice ${message.error ? 'notice-error' : 'notice-success'}`} role={message.error ? 'alert' : 'status'}>{message.text}</div> : null}
-        {waitSeconds > 0 ? <p className="cooldown" role="status">Podrás volver a intentar en {waitSeconds} segundos.</p> : null}
-        {!loading && !session ? <div className="state"><p>No se pudo comprobar tu sesión.</p><Button disabled={busy || waitSeconds > 0} onClick={() => void load()}>Volver a intentar</Button></div> : null}
-        <AccountFlowForms view={view} session={session} user={user} verified={verified} classroomNext={classroomNext} nextAccountHref={nextAccountHref}
-          locked={locked} busy={busy} hasToken={hasToken} submit={submit} message={message} signOut={signOut} load={load} action={action} />
+        {flow}
         {session && view === 'profile' ? <>
           {!user ? <div className="state"><h2>Inicia sesión para ver tu perfil</h2><Link className="button button-primary" href="/sign-in">Iniciar sesión</Link></div> : null}
           {user && !verified ? <div className="state"><h2>Primero verifica tu correo</h2><p>La edición del perfil estará disponible después de verificar tu dirección.</p><Link className="button button-primary" href="/verify-email">Verificar correo</Link></div> : null}
@@ -195,7 +223,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : authHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>
           : <AccountSettings user={user!} locked={locked} busy={busy} submit={submit} signOut={signOut} /> : null}
       </section>
-      {!accountEntry ? <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer> : null}
+      <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer>
     </main>
     </div>
   </>;

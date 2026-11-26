@@ -105,6 +105,7 @@ export const suites = {
     'tests/agenda-ux-navigation.test.mjs',
     'tests/teacher-home-polish.test.mjs',
     'tests/home-order.test.mjs',
+    'tests/expedition-access.test.mjs', 'tests/expedition-navigation.test.mjs', 'tests/expedition-home.test.mjs',
     'tests/p8-ui-contract-helpers.test.mjs',
     'apps/api/src/modules/classrooms/access/infrastructure/context-run.test.ts', 'apps/api/src/modules/curriculum/plan/application/plan.test.ts', 'apps/api/src/modules/files/uploads/application/file-use-cases.test.mjs', 'apps/api/src/modules/identity/accounts/application/runtime.test.mjs',
     'tests/grading-participation-modules.test.mjs',

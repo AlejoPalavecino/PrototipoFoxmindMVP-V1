@@ -17,7 +17,7 @@ const rgb = value => value.match(/[\d.]+/g).slice(0, 3).map(Number);
 function contrast(first, second) { const a = luminance(rgb(first)), b = luminance(rgb(second)); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); }
 async function fit(page, width) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Page overflow at${width}`);
-  const boxes = await page.locator('.brujula-auth main, header.fm3d-shell').evaluate(element => {
+  const boxes = await page.locator('.xp-auth .xp-auth-panel, header.fm3d-shell').evaluate(element => {
     const header = element.getBoundingClientRect();
     return { width: header.width, left: header.left, right: header.right, height: header.height };
   });
@@ -37,12 +37,13 @@ test('glass actual account, shared navigation, authorized news and responsive vi
       await t.test('public forms reflow across all required widths and expose complete mobile navigation', async () => {
         for (const route of ['sign-in', 'register']) {
           await page.goto(`${runtime.origin}/${route}`);
-          await page.getByLabel('Correo electrónico', { exact: true }).waitFor();
+          // Registration starts at the role stop; its data fields appear after Continuar.
+          await (route === 'register' ? page.getByRole('radio', { name: 'Docente', exact: true }) : page.getByLabel('Correo electrónico', { exact: true })).waitFor();
           for (const width of [320, 390, 768, 1024, 1440, 1448]) {
             await page.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(page, width);
             await page.screenshot({ path: resolve(artifacts, `${route}-${width}.png`), fullPage: true });
-            const surface = page.locator('.brujula-auth .surface');
+            const surface = page.locator('.xp-auth .xp-auth-panel');
             const target = route === 'register' ? 'Iniciar sesión' : 'Crear cuenta';
             const link = surface.locator('.after-form').getByRole('link', { name: target, exact: true });
             assert.equal(await link.getAttribute('href'), route === 'register' ? '/sign-in' : '/register');
@@ -53,7 +54,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
             await page.keyboard.press('Tab');
             assert.equal(await link.evaluate(node => node === document.activeElement), true);
             if (width >= 1024) {
-              await page.locator('.br-auth-visual').getByRole('link', { name: 'FoxMind', exact: true }).waitFor();
+              await page.locator('.xp-auth-top').getByRole('link', { name: 'FoxMind', exact: true }).waitFor();
             }
           }
         }
@@ -191,7 +192,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         await openProfileFromFiles();
         for (const route of ['forgot-password', 'recover-password', 'verify-email']) {
           await page.goto(`${runtime.origin}/${route}`);
-          await page.locator('.entry-page .surface').waitFor(); await fit(page, 390);
+          await page.locator('.xp-auth .xp-auth-panel').waitFor(); await fit(page, 390);
           await page.screenshot({ path: resolve(artifacts, `${route}-390.png`), fullPage: true });
         }
         await openProfileFromFiles();

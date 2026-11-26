@@ -1,5 +1,5 @@
 export function VerificationGuidance({ confirmed }: { confirmed: boolean }) {
   return <p>{confirmed
-    ? 'Inicia sesión para continuar con tu cuenta verificada.'
-    : 'Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.'}</p>;
+    ? 'Iniciá sesión para continuar con tu cuenta verificada.'
+    : 'Abrí el enlace original del correo para verificar tu cuenta. Si necesitás un mensaje nuevo, iniciá sesión y pedí el reenvío.'}</p>;
 }

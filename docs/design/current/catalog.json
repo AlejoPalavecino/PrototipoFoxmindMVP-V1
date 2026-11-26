@@ -9,7 +9,7 @@
     {
       "id": "vigente-acceso-publico-1440",
       "role": "publico",
-      "result": "Formulario de ingreso en escritorio.",
+      "result": "Iniciar sesión en la escena del atardecer, con el zorro guía y el cambio a Crear cuenta.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -19,19 +19,23 @@
       ],
       "alerts": [],
       "typography": {
-        "family": "Brújula, sans-serif",
-        "fontReady": false
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
       },
       "shell": {
-        "background": "rgb(251, 246, 238)",
-        "ink": "rgb(56, 39, 31)",
-        "accent": "#ae481c",
+        "background": "rgb(248, 214, 184)",
+        "ink": "rgb(28, 46, 59)",
+        "accent": "rgb(196, 73, 10)",
         "navWidth": null
       },
       "path": "vigente-acceso-publico-1440.png",
       "route": "/sign-in",
-      "sha256": "ee7a06aa118d13f416b9a2f8d2be3059b9d28fea5b64ee3a505462389e8ec5a1",
-      "bytes": 679902
+      "sha256": "af26d11d41cbb81aa625333dbee4670960dc4a1eae1844870e0e5957d172b3fb",
+      "bytes": 1099876,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-agenda-docente-1440",
@@ -674,20 +678,17 @@
     {
       "id": "vigente-inicio-docente-1440",
       "role": "docente",
-      "result": "Inicio docente con aula de prueba y seguimiento.",
+      "result": "Inicio docente con banner del atardecer, recorrido de hoy, burbuja de lo más urgente y entregas con avance.",
       "width": 1440,
       "height": 1000,
-      "scrollWidth": 1425,
+      "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Hola, Lucía.",
+        "Semáforo de acompañamiento",
         "Por acompañar",
-        "Estás al día",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -697,31 +698,32 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(196, 73, 10)",
         "navWidth": 232
       },
       "path": "vigente-inicio-docente-1440.png",
       "route": "/inicio",
-      "sha256": "9c98c698d19ef977a28d548331350c210b8660bd2ec7460c5ed6664af2a63d61",
-      "bytes": 251804
+      "sha256": "5bbae8c897dc6609e105f9158edca16075cc7c849d4d5e8a26d9e4ee2832750a",
+      "bytes": 558910,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-inicio-docente-390",
       "role": "docente",
-      "result": "Inicio docente con aula de prueba y navegación compacta.",
+      "result": "Inicio docente en móvil con barra superior lago.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Hola, Lucía.",
+        "Semáforo de acompañamiento",
         "Por acompañar",
-        "Estás al día",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -731,31 +733,31 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
       },
       "path": "vigente-inicio-docente-390.png",
       "route": "/inicio",
-      "sha256": "39270651209f7510c3c68800d249dffc97b293c5db3c317e9dea7f36da84f4b5",
-      "bytes": 88523
+      "sha256": "dffad79ec84fddc75434716ea4f8e0b19c6c4ca53c4aea433ec4eef36f9ac7dc",
+      "bytes": 158022,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-inicio-estudiante-1440",
       "role": "estudiante",
-      "result": "Inicio estudiante con pendientes, entrada a Mi estudio y aula activa.",
+      "result": "Inicio estudiante con banner del río, recorrido de hoy, próxima parada y avance de preguntas.",
       "width": 1440,
       "height": 1000,
-      "scrollWidth": 1425,
+      "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Buen día, Marina.",
         "Tu próximo paso",
-        "Un buen momento para explorar",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -765,31 +767,31 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(196, 73, 10)",
         "navWidth": 232
       },
       "path": "vigente-inicio-estudiante-1440.png",
       "route": "/inicio",
-      "sha256": "aac9c3de75837d71eb32e40904ad61c2f0e1183d773a580c646cf5e083ab5f53",
-      "bytes": 257767
+      "sha256": "81d3efceac58bb4ff7f484fa2afe6ed39ec27f99b6020085600c9c156ea5f6d1",
+      "bytes": 714424,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-inicio-estudiante-390",
       "role": "estudiante",
-      "result": "Inicio estudiante con pendientes, entrada a Mi estudio y aula activa.",
+      "result": "Inicio estudiante en móvil.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Buen día, Marina.",
         "Tu próximo paso",
-        "Un buen momento para explorar",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -799,32 +801,33 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
       },
       "path": "vigente-inicio-estudiante-390.png",
       "route": "/inicio",
-      "sha256": "0b3034dbbb620311a8d78382237d19262a0574e8af1169ec8b0f622faea0fa3d",
-      "bytes": 90434
+      "sha256": "c4de13011a909a7f42634f97f3c70d1d9a32b3fab37730e806875ea92f286410",
+      "bytes": 174416,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-menu-docente-390",
       "role": "docente",
-      "result": "Menú compacto abierto con secciones docentes y el acceso directo al aula.",
+      "result": "Menú de navegación móvil en lago.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Menú de navegación",
         "Hola, Lucía.",
+        "Semáforo de acompañamiento",
         "Por acompañar",
-        "Estás al día",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -834,32 +837,32 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
       },
       "path": "vigente-menu-docente-390.png",
       "route": "/inicio",
-      "sha256": "0a2f5995ad4185420b5c9c3f3b00a34ad6517a1e37a497675e0caa15f4b718ac",
-      "bytes": 66481
+      "sha256": "81e581071bfb350c6af59b14abdd5666b3d5fe89cbbe4254a191361af91a4036",
+      "bytes": 80456,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-menu-estudiante-390",
       "role": "estudiante",
-      "result": "Menú compacto abierto con secciones del rol estudiante y acceso rápido al aula.",
+      "result": "Menú de navegación móvil en lago con Mi estudio.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Menú de navegación",
         "Buen día, Marina.",
         "Tu próximo paso",
-        "Un buen momento para explorar",
         "Tu día, con calma",
-        "Miércoles 18 de noviembre",
-        "Un espacio para lo que te gusta.",
-        "Tus aulas",
-        "Fotografía y luz"
+        "Tus aulas"
       ],
       "alerts": [],
       "typography": {
@@ -869,13 +872,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
       },
       "path": "vigente-menu-estudiante-390.png",
       "route": "/inicio",
-      "sha256": "397ca00aeca8688ab6c306aeb2f54d5280c77bb9737b38ae8e2f66f77b4a5346",
-      "bytes": 67020
+      "sha256": "24d06a89b403cac2deccf1709abf98d3a5a5c17c7f3edb4cc3778b0f2755bc3c",
+      "bytes": 80039,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-mi-estudio-estudiante-1440",
@@ -1280,7 +1287,70 @@
       "route": "/mis-aulas",
       "sha256": "05d991046d088761a4c3d59c7014ae4e48b63abe2041fa46786ccc448a45cca1",
       "bytes": 58096
+    },
+    {
+      "id": "vigente-registro-datos-publico-390",
+      "role": "publico",
+      "result": "Crear cuenta, parada de datos en móvil, con el rol docente elegido.",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollY": 8,
+      "headings": [
+        "Creá tu cuenta"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(237, 243, 240)",
+        "ink": "rgb(28, 46, 59)",
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
+      },
+      "path": "vigente-registro-datos-publico-390.png",
+      "route": "/register",
+      "sha256": "2d36dc24547229d3988a3b58e402ca78d4d823cbbdd24741520419346aa431a5",
+      "bytes": 125921,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-registro-publico-1440",
+      "role": "publico",
+      "result": "Crear cuenta, parada del rol, en la escena del río.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Creá tu cuenta"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(159, 239, 226)",
+        "ink": "rgb(28, 46, 59)",
+        "accent": "rgb(196, 73, 10)",
+        "navWidth": null
+      },
+      "path": "vigente-registro-publico-1440.png",
+      "route": "/register",
+      "sha256": "e1a9baed85fca9b026645d9ea40be2fdd39f9f297b6a747b3d4f6e77ee3876d4",
+      "bytes": 1177482,
+      "date": "2026-11-24",
+      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
+      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     }
   ],
-  "count": 42
+  "count": 42,
+  "note": "Las entradas con date, candidate, environment y browser propios corresponden al piloto Expedición del 2026-11-24 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
 }

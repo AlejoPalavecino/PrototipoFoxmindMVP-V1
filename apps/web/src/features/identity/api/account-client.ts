@@ -2,23 +2,23 @@ import type { AccountAvatarKey } from '../../../../../../src/core/domain/identit
 export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student'; avatarKey?: AccountAvatarKey }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {
-  AUTH_REQUIRED: 'Tu sesión finalizó. Inicia sesión para continuar.',
+  AUTH_REQUIRED: 'Tu sesión finalizó. Iniciá sesión para continuar.',
   AUTHENTICATION_FAILED: 'El correo o la contraseña no son correctos.',
-  EMAIL_VERIFICATION_REQUIRED: 'Verifica tu correo para continuar.',
-  ORIGIN_NOT_ALLOWED: 'No se pudo validar la solicitud. Abre FoxMind desde su dirección habitual.',
-  CSRF_INVALID: 'La sesión cambió. Vuelve a intentar la acción.',
-  LINK_INVALID: 'El enlace no es válido, venció o ya fue utilizado. Solicita uno nuevo.',
-  EMAIL_ALREADY_VERIFIED: 'El correo ya está verificado. Actualiza el estado para continuar.',
-  VALIDATION_ERROR: 'Revisa los datos: nombres de hasta 80 caracteres, correo válido con dominio en minúsculas y contraseña de 16 a 128 caracteres.',
+  EMAIL_VERIFICATION_REQUIRED: 'Verificá tu correo para continuar.',
+  ORIGIN_NOT_ALLOWED: 'No se pudo validar la solicitud. Abrí FoxMind desde su dirección habitual.',
+  CSRF_INVALID: 'La sesión cambió. Volvé a intentar la acción.',
+  LINK_INVALID: 'El enlace no es válido, venció o ya se usó. Pedí uno nuevo.',
+  EMAIL_ALREADY_VERIFIED: 'El correo ya está verificado. Actualizá el estado para continuar.',
+  VALIDATION_ERROR: 'Revisá los datos: nombres de hasta 80 caracteres, correo válido con dominio en minúsculas y contraseña de 16 a 128 caracteres.',
   REQUEST_TOO_LARGE: 'Los datos superan el tamaño permitido.',
-  RATE_LIMITED: 'Se alcanzó el límite de intentos. Espera antes de volver a intentar.',
+  RATE_LIMITED: 'Se alcanzó el límite de intentos. Esperá antes de volver a intentar.',
 };
 export class AccountError extends Error {
   readonly code: string;
   readonly status: number;
   readonly retryAfter: number;
   constructor(code: string, status: number, retryAfter = 0) {
-    super(messages[code] ?? 'No pudimos conectar con FoxMind. Vuelve a intentar en unos momentos.');
+    super(messages[code] ?? 'No pudimos conectar con FoxMind. Volvé a intentar en unos momentos.');
     this.code = code; this.status = status; this.retryAfter = retryAfter;
   }
 }
@@ -64,10 +64,10 @@ export function validateAccountFields(fields: Record<string, string>): string | 
   for (const [name, value] of Object.entries(fields)) {
     const count = [...value].length;
     if (['password', 'newPassword'].includes(name) && (count < 16 || count > 128)) return 'La contraseña debe tener entre 16 y 128 caracteres.';
-    if (['firstName', 'lastName'].includes(name) && (!value.trim() || count > 80)) return 'Completa nombre y apellido, con hasta 80 caracteres cada uno.';
-    if (name === 'currentPassword' && !value) return 'Escribe tu contraseña actual.';
+    if (['firstName', 'lastName'].includes(name) && (!value.trim() || count > 80)) return 'Completá nombre y apellido, con hasta 80 caracteres cada uno.';
+    if (name === 'currentPassword' && !value) return 'Escribí tu contraseña actual.';
     if (name === 'email') {
-      if (!value.trim()) return 'Escribe tu correo electrónico.';
+      if (!value.trim()) return 'Escribí tu correo electrónico.';
       const domain = value.trim().slice(value.trim().lastIndexOf('@') + 1);
       if (domain !== domain.toLowerCase()) return 'El dominio del correo debe estar escrito en minúsculas.';
     }

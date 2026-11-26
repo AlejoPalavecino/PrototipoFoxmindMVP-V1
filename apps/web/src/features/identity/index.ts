@@ -1,7 +1,7 @@
 export { AccountError, createAccountClient, validateAccountFields } from './api/account-client';
 export type { AccountSession, AccountUser } from './api/account-client';
-export { accountContent } from './model/account-view';
-export type { AccountView } from './model/account-view';
+export { accountContent, accountScene } from './model/account-view';
+export type { AccountView, AccountEntryView } from './model/account-view';
 export type { AccountSubmit } from './model/form-types';
 export { AccountField } from './controls/account-field';
 export { AccountFlowForms } from './authentication/account-flow-forms';

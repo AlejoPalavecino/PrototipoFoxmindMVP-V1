@@ -13,6 +13,9 @@ export async function account(page, origin, inbox, email, beforeVerification, ro
   page.on?.('response', record);
   await page.goto(`${origin}/register`);
   try {
+    // Registration is three stops: role, then data, then the sent notice.
+    if (role) await page.getByRole('radio', { name: role === 'teacher' ? 'Docente' : 'Estudiante', exact: true }).check();
+    await page.getByRole('button', { name: 'Continuar', exact: true }).click();
     for (const [label, value] of Object.entries({ Nombre: 'Files', Apellido: 'Fixture', 'Correo electrónico': email, 'Contraseña': password })) {
       await page.getByLabel(label, { exact: true }).fill(value);
     }
@@ -20,9 +23,8 @@ export async function account(page, origin, inbox, email, beforeVerification, ro
     const text = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 600);
     throw new Error(`${error.message}\nRegistration page ${page.url()}: ${text}\nResponses: ${responses.slice(-12).join('; ') || 'none'}`, { cause: error });
   } finally { page.off?.('response', record); }
-  if (role) await page.getByRole('radio', { name: role === 'teacher' ? 'Docente' : 'Estudiante' }).check();
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
-  await page.getByText('recibirás un correo de verificación', { exact: false }).waitFor();
+  await page.getByText('recibir un correo de verificación', { exact: false }).waitFor();
   await page.goto(`${origin}/sign-in`);
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email);
   await page.getByLabel('Contraseña', { exact: true }).fill(password);

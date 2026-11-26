@@ -1,25 +1,40 @@
 # Experiencia de usuario de FoxMind
 
-Esta guía describe la experiencia en `main` al 18 de noviembre de 2026. Las acciones dependen de la cuenta, el contexto y los permisos del recurso. La galería recorre la aplicación compilada con cuentas sintéticas. Las comparaciones con UI Lab documentan las decisiones que dieron origen a la interfaz. [Galería vigente](current/README.md) · [Referencia aprobada](../../design/foxmind-ui-lab/IMPLEMENTATION-PLAN.md)
+Esta guía describe la experiencia en `main` al 18 de noviembre de 2026, más el piloto Expedición del 24 de noviembre (acceso, barra lateral e Inicio), todavía sin integrar. Las acciones dependen de la cuenta, el contexto y los permisos del recurso. La galería recorre la aplicación compilada con cuentas sintéticas. Las comparaciones con UI Lab documentan las decisiones que dieron origen a la interfaz. [Galería vigente](current/README.md) · [Referencia aprobada](../../design/foxmind-ui-lab/IMPLEMENTATION-PLAN.md)
 
 La [maqueta HTML interactiva](../../design/foxmind-ui-lab/01-foxmind.html) incluye el semáforo propuesto en Inicio docente y las fichas en Aula → Estudiantes. [Recorrido y reglas](../product/acompanamiento-docente-propuesta.md).
 
-## Lenguaje visual Brújula
+## Lenguaje visual Expedición
+
+Expedición reemplaza a Brújula en el acceso, la barra lateral privada e Inicio. Es un piloto: si convence, se migran las demás pantallas. Mientras tanto, Mis aulas, Agenda, Foxy, Mi estudio, Notificaciones y Perfil conservan su contenido en Brújula y comparten la barra lateral Expedición. [Tablero](../../odd/tasks/expedition-visual.md) · [Maquetas aprobadas](../../design/auth-home-refresh/expedicion.html)
 
 | Decisión | Cómo aplicarla |
 |---|---|
-| Color y contraste | Usá el fondo gris claro `#edf0f4`, superficies blancas `#fff` y texto `#202c3d`. Reservá el naranja `#b74710` para acciones principales y acentos. El blanco sobre ese naranja da 5,35:1 y el texto principal sobre el fondo da 12,34:1. El foco visible de la base usa azul `#256082` y un contorno de 3 px. |
-| Tipografía y jerarquía | Usá Nunito local en el espacio privado, con títulos de página dominantes, subtítulos por sección y texto de apoyo más pequeño. El acceso público usa Brújula y separa la ilustración de bienvenida del formulario. |
-| Superficies e ilustración | Concentrá la ilustración en las bienvenidas y portadas de aulas y carpetas. En el Plan, el chat y el trabajo enfocado, priorizá el contenido con paneles claros, bordes suaves y acciones cerca del elemento que modifican. |
-| Navegación adaptable | Usá la barra lateral expandida o plegada en escritorio. En móvil, reuní el acceso a secciones y aulas en el menú compacto. El chat adapta su propia barra de contexto. |
+| Color y contraste | Paleta de valle definida en [`expedition-tokens.css`](../../apps/web/src/application/shell/styles/expedition-tokens.css): lago `#1b3a52` para la navegación y la selección activa, pino `#1d6b57`, cielo `#d6ebf7`, niebla `#edf3f0`, sol `#ffc94d`, sendero `#d9a66b` y violeta `#6d5bd0`. El naranja de marca `#e8590c` es decorativo (paradas, barras, puntos). Detrás de texto blanco usá `#c4490a` (4,88:1), y para texto naranja sobre blanco, `#b8420a` (5,49:1). Sobre el lago, el texto de navegación `#c4d6e4` da 7,94:1 y las etiquetas `#93b0c6`, 5,22:1. |
+| Tipografía y jerarquía | Nunito en toda la app, incluido el acceso. Títulos en peso 900 y texto de apoyo en 600. Expedición no agrega fuentes. |
+| Ilustración | Los paisajes pintados de cada rol (atardecer con cerros para docente y río para estudiante) y el zorro plano `foxy-bienvenida` son decorativos: `aria-hidden` y `alt` vacío. El zorro está parado sobre el camino del paisaje y puede decir una frase o lo más urgente en una burbuja. |
+| Sendero | El recorrido se dibuja con paradas (círculos con aro) unidas por un trazo punteado: los pasos del registro, el recorrido del día y las actividades de Inicio. Usá este motivo sólo cuando el contenido sea una secuencia o una lista de pasos. |
+| Foco | Sobre superficies claras, contorno azul `#2463c9`. Sobre el lago, contorno sol `#ffc94d` de 3 px (al menos 3:1). |
 
-Los contrastes corresponden a los pares de color de la base. Cada variante de componente debe verificarse sobre su superficie real. [CSS compartido](../../apps/web/src/application/shell/styles/parity-foundation.css) · [Inicio](current/README.md#inicio-búsqueda-y-notificaciones) · [Plan de aula](current/README.md#mis-aulas) · [Chat](current/README.md#foxy-y-carpetas-de-estudio)
+Cada variante de componente debe verificarse sobre su superficie real y en la app, no sólo en la maqueta: las hojas Brújula todavía cargadas pueden ganar por especificidad. [Cómo se cargan los estilos](../engineering/frontend/README.md#composición-y-contratos) · [Capturas](current/README.md)
+
+## Acceso
+
+Iniciar sesión, Crear cuenta, Verificar correo, Recuperar acceso y Nueva contraseña muestran el paisaje a pantalla completa con el formulario en una tarjeta. Arriba hay un acceso para pasar entre ingresar y registrarse. El zorro guía tiene una frase por vista; en celular asoma detrás de la tarjeta.
+
+Crear cuenta se recorre en tres paradas:
+
+1. **Tu rol.** Tarjetas con avatar y qué puede hacer cada rol. No se avanza sin elegir uno y se aclara que el rol es permanente.
+2. **Tus datos.** Muestra el rol elegido con la opción Cambiar. Volver conserva lo escrito.
+3. **Tu correo.** Después de un envío aceptado aparece «Revisá tu correo» con la dirección y los pasos siguientes.
+
+El envío y sus validaciones son los del contrato de identidad. Los textos del acceso usan voseo y el rol se llama Estudiante. [Identidad](../engineering/identity/README.md) · [Capturas](current/README.md#cuenta-y-acceso)
 
 ## Navegación e Inicio
 
-Por encima de 1000 px, la barra lateral privada puede quedar expandida (232 px) o plegada a iconos (76 px). La elección se guarda en el navegador. En anchos menores, el menú compacto devuelve el foco al control de origen al cerrarse. Ambos roles tienen Inicio, Mis aulas, Agenda, búsqueda, Notificaciones y acceso directo a Mi perfil. Foxy AI aparece para docentes y Mi estudio para estudiantes. «Tus aulas» muestra hasta tres accesos con puntos de color y nombres completos, tanto en la barra expandida como al abrir el menú móvil. Dentro del chat móvil, el menú se integra en su barra de contexto.
+La barra lateral privada usa el lago de Expedición en toda la app. La sección actual va en blanco con una marca naranja. Saldo de IA, Ayuda y cuenta quedan juntos al pie, y Ayuda es una fila que abre el diálogo de orientación. Por encima de 1000 px, la barra puede quedar expandida (232 px) o plegada a iconos (76 px). La elección se guarda en el navegador. En anchos menores, el menú compacto devuelve el foco al control de origen al cerrarse. Ambos roles tienen Inicio, Mis aulas, Agenda, búsqueda, Notificaciones y acceso directo a Mi perfil. Foxy AI aparece para docentes y Mi estudio para estudiantes. «Tus aulas» muestra hasta tres accesos con puntos de color y nombres completos, tanto en la barra expandida como al abrir el menú móvil. Dentro del chat móvil, el menú se integra en su barra de contexto.
 
-Inicio abre con un saludo ilustrado, fecha local y acciones según el rol. El docente alterna entregas agrupadas por actividad y consultas, puede ordenar cada lista y confirma el aula al crear una actividad. El estudiante encuentra pendientes y acceso a Mi estudio. Ambos roles tienen una agenda del día y tarjetas de aulas. El contenido se centra con un máximo de 1200 px. En móvil, el plazo de una entrega estudiantil queda debajo del título. [Reglas de Inicio](../engineering/home/README.md) · [Capturas](current/README.md#inicio-búsqueda-y-notificaciones)
+Inicio abre con el banner pintado del rol, la fecha local, el saludo y las acciones. Debajo del resumen, el recorrido muestra como mucho tres eventos o entregas que quedan hoy, y se oculta si no hay ninguno. La burbuja del zorro indica lo más urgente: la primera entrega para revisar o la primera actividad abierta con su cierre. Cada actividad docente muestra «X de Y corregidas», cada actividad del estudiante con preguntas muestra cuántas respondió, y las aulas son destinos circulares con el avance del plan. El docente alterna entregas agrupadas por actividad y consultas, puede ordenar cada lista y confirma el aula al crear una actividad. El estudiante encuentra pendientes y acceso a Mi estudio. Ambos roles tienen una agenda del día y tarjetas de aulas. El contenido se centra con un máximo de 1200 px. En móvil, el plazo de una entrega estudiantil queda debajo del título. [Reglas de Inicio](../engineering/home/README.md) · [Capturas](current/README.md#inicio-búsqueda-y-notificaciones)
 
 ## Mis aulas
 
@@ -85,4 +100,4 @@ Los estados de carga y guardado indican la operación. Un vacío explica qué fa
 
 ## Saldo mensual de IA
 
-La cabecera autenticada muestra el porcentaje disponible. En pantallas angostas conserva el porcentaje en el botón. Al abrirlo se presentan saldo disponible, límite mensual, consumo imputado, reservas en curso, desglose por herramienta y renovación en hora de Buenos Aires. Escape cierra el diálogo y devuelve el foco al botón. Durante la reconexión el estado indica que el saldo se está actualizando. [Reglas del saldo](../engineering/ai/README.md) · [Capturas](current/README.md#cuota-mensual-de-ia)
+La barra lateral muestra «Saldo de IA» con el porcentaje disponible y una barra. En la barra plegada queda el porcentaje y, en pantallas angostas, el botón compacto «IA N %». El nombre accesible sigue siendo «IA · N % disponible». Al abrirlo se presentan saldo disponible, límite mensual, consumo imputado, reservas en curso, desglose por herramienta y renovación en hora de Buenos Aires. Escape cierra el diálogo y devuelve el foco al botón. Durante la reconexión el estado indica que el saldo se está actualizando. [Reglas del saldo](../engineering/ai/README.md) · [Capturas](current/README.md#cuota-mensual-de-ia)

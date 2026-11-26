@@ -36,9 +36,9 @@ test('dialog closes and restores its connected trigger after removal, without st
 test('anonymous verification success replaces obsolete proof instructions, pending state retains them', () => {
   const { VerificationGuidance } = load('apps/shared-ui/VerificationGuidance.tsx');
   const render = confirmed => renderToStaticMarkup(React.createElement(VerificationGuidance, { confirmed }));
-  assert.doesNotMatch(render(true), /Abre el enlace original|reenvío/);
-  assert.match(render(true), /Inicia sesión/);
-  assert.match(render(false), /Abre el enlace original/);
+  assert.doesNotMatch(render(true), /Abrí el enlace original|reenvío/);
+  assert.match(render(true), /Iniciá sesión/);
+  assert.match(render(false), /Abrí el enlace original/);
 });
 
 test('navbar marker movement uses actual old/new rectangles and suppresses zero/reduced motion', () => {

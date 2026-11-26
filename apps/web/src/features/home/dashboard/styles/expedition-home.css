@@ -1,0 +1,142 @@
+/* Expedición · Inicio (docente y estudiante). Anchored with the duplicated root id like the navigation:
+   the Home sheets stacked before (parity-home, home-warm, home-reference, teacher-home…) escalate up to
+   single-id selectors; (2,x,y) wins without !important. Remove the duplication once those sheets are retired. */
+
+/* Banner: the painted landscape of each role, the guide standing on the path */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome {
+  --wash: 255, 240, 226;
+  position: relative; isolation: isolate; display: block; overflow: hidden; min-height: 300px; margin: 0 0 24px; padding: 34px 40px 36px;
+  border: 0; border-radius: 28px; color: var(--xp-ink);
+  background: #f8d6b8 url('/brujula/banner-docente.webp') no-repeat 100% 70% / cover;
+  box-shadow: 0 1px 0 rgba(27, 58, 82, .06), 0 18px 36px -22px rgba(27, 58, 82, .45);
+}
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome.for-student { --wash: 226, 250, 246; background-color: #9fefe2; background-image: url('/brujula/banner-alumno.webp'); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome::before { content: ""; position: absolute; inset: 0; z-index: -1; display: block; width: auto; height: auto; border-radius: 0; opacity: 1; transform: none;
+  background: linear-gradient(90deg, rgba(var(--wash), .96) 0, rgba(var(--wash), .88) 36%, rgba(var(--wash), 0) 62%); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome::after { content: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-copy { position: relative; z-index: 2; max-width: 560px; padding: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-date { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px 5px 10px; border-radius: 999px; background: #fff; color: var(--xp-ink); font: 800 13px var(--xp-font); box-shadow: 0 2px 6px -3px rgba(27, 58, 82, .4); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-date svg { width: 16px; height: 16px; color: var(--xp-orange-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome.for-student .home-date svg { color: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome h1 { margin: 14px 0 0; color: var(--xp-ink); font: 900 clamp(40px, 4.6vw, 60px) / 1 var(--xp-font); letter-spacing: -.03em; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-summary { margin: 10px 0 0; max-width: 34ch; color: #2a3e4c; font: 700 19px / 1.4 var(--xp-font); }
+
+/* Today's route: stops joined by the trail */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route { display: flex; flex-wrap: wrap; align-items: center; row-gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li { display: inline-flex; align-items: center; gap: 6px; color: #33495a; font: 800 13px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 3px var(--xp-orange); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome.for-student .home-route li::before { box-shadow: inset 0 0 0 3px var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li + li { margin-left: 46px; position: relative; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li + li::after { content: ""; position: absolute; left: -40px; top: 50%; width: 34px; border-top: 3px dashed var(--xp-trail); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route-time { color: var(--xp-ink); font-weight: 900; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .button { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border: 0; border-radius: 14px; font: 800 16px var(--xp-font); text-decoration: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .button.primary { background: var(--xp-orange-button); color: #fff; box-shadow: 0 4px 0 #7f3006; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .button.primary:hover { background: var(--xp-orange-button-hover); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .home-secondary { background: #fff; color: var(--xp-ink); box-shadow: 0 4px 0 #c5d3dc; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .button:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 3px; }
+
+/* Guide and bubble */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-illustration { position: absolute; z-index: 1; inset: auto 30% -6px auto; display: flex; flex-direction: column; justify-content: flex-end; width: 150px; height: auto; min-height: 0; max-height: none; aspect-ratio: auto; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-illustration::before, #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-illustration::after { content: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-fox { position: static; display: block; width: 100%; height: auto; margin: 0; transform: none; filter: drop-shadow(0 6px 4px rgba(101, 62, 46, .25)); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-bubble { position: absolute; z-index: 3; right: calc(30% - 176px); top: 40px; max-width: 210px; margin: 0; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: #fff; color: var(--xp-ink); font: 800 15px / 1.25 var(--xp-font); box-shadow: 0 10px 20px -10px rgba(27, 58, 82, .5); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-bubble small { display: block; margin-bottom: 2px; color: var(--xp-orange-ink); font: 800 11px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome.for-student ~ * .home-bubble small,
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome.for-student .home-bubble small { color: var(--xp-pine); }
+
+/* Panels */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-dashboard > .panel { border: 0; border-radius: 24px; background: var(--xp-surface); box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-dashboard .panel-header h2 { color: var(--xp-ink); font: 900 22px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-dashboard .panel-header p { color: var(--xp-muted); font-weight: 600; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-widget-icon { background: var(--xp-mist); color: var(--xp-lake); border: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs { gap: 8px; border: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 16px; border: 0; border-radius: 12px; background: #dde7ee; color: #3b5163; font: 800 15px var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button::after { content: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button[aria-pressed=true] { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button > span { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 99px; background: #fff; color: var(--xp-ink); line-height: 1; font-variant-numeric: tabular-nums; }
+/* Nunito draws its capitals slightly above the line box centre; 2px restores the optical centre of the initials. */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-priorities .avatar { padding-top: 2px; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-queue-tabs > button[aria-pressed=true] > span { background: var(--xp-orange-button); color: #fff; }
+
+/* Teacher: each activity is a stop on the trail */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-review-list { position: relative; display: grid; gap: 10px; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-review-list:has(.review-group + .review-group)::before { content: ""; position: absolute; left: 39px; top: 40px; bottom: 40px; border-left: 4px dashed var(--xp-trail); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group { position: relative; padding: 12px 14px; border: 0; border-radius: 18px; background: var(--xp-mist); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group-heading { gap: 14px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-subject-image { position: relative; z-index: 1; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 0 3px var(--xp-orange); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group.tone-mint .review-subject-image { box-shadow: 0 0 0 3px var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group.tone-sky .review-subject-image { box-shadow: 0 0 0 3px var(--xp-violet); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group-heading p { color: var(--xp-muted); font-weight: 700; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group-heading h3 { color: var(--xp-ink); font: 900 17px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .review-group-count { border-radius: 99px; background: #fff; color: var(--xp-ink); font-weight: 800; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .submission-row { border-radius: 14px; background: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .submission-action { color: var(--xp-lake); font-weight: 800; }
+
+/* Progress (teacher corrections and student questions) */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress { display: flex; align-items: center; gap: 10px; margin: 10px 0 8px 66px; color: var(--xp-muted); font: 700 12px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress-track { display: block; flex: 0 1 200px; height: 10px; border-radius: 99px; background: #e3ebef; overflow: hidden; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress-track > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f39a55, var(--xp-orange)); }
+/* Student tiles: the label sits above a full-width bar, and the progress block takes the free space so the
+   deadline lands on the same line in every tile, with or without progress. */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress { display: grid; gap: 6px; margin: auto 0 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-text { order: -1; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-track { width: 100%; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .learning-body:has(.home-progress) .learning-deadline { order: 2; margin-top: 12px; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-student-queue .home-progress-track > i { background: linear-gradient(90deg, #5fbf97, var(--xp-pine)); }
+
+/* Student tiles */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .learning-tile { border: 0; border-radius: 20px; background: var(--xp-mist); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .learning-tile .button.primary { background: var(--xp-orange-button); color: #fff; border: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .learning-tile .learning-secondary { background: #fff; color: var(--xp-lake); border: 2px solid var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .home-priorities-footer .text-button { color: var(--xp-orange-ink); font-weight: 800; }
+
+/* Day planner: a sky card */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .day-planner { overflow: hidden; padding: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-header { margin: 0; padding: 18px 20px 16px; border: 0; border-bottom: 1px solid #cfe1ec; border-radius: 0; background: linear-gradient(180deg, #cfe7f6, #e8f4fb); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-title h2 { color: var(--xp-lake); font: 900 22px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-title .text-button { color: var(--xp-lake); font-weight: 800; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-paper { border-radius: 12px; background: #fff; box-shadow: 0 4px 10px -4px rgba(27, 58, 82, .35); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-paper > span { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-date-copy h3 { color: var(--xp-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-date-copy p { color: #3b5f7a; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-spark { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-content { padding: 16px 20px 18px; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-week a { border: 0; border-radius: 12px; background: #eef3f6; color: var(--xp-ink); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-week a.is-reference { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-week a.is-reference span { color: var(--xp-lake-soft); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-week .has-events { background: var(--xp-orange); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-week a.is-reference .has-events { background: var(--xp-sun); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-event-card { border: 0; border-left: 4px solid var(--xp-pine); border-radius: 14px; background: var(--xp-mist); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .planner-footer .button { border: 2px solid var(--xp-lake); border-radius: 14px; background: #fff; color: var(--xp-lake); font-weight: 800; }
+
+/* Classrooms: destinations */
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-home-rooms .section-head h2 { color: var(--xp-ink); font: 900 26px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-home-rooms .section-head .text-button { color: var(--xp-orange-ink); font-weight: 800; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card { display: flex; flex-direction: column; align-items: center; padding: 20px 16px 18px; border: 0; border-radius: 24px; background: var(--xp-surface); box-shadow: var(--xp-shadow); text-align: center; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-cover { position: relative; width: 132px; height: 132px; flex: none; overflow: hidden; border-radius: 50%; border: 6px solid var(--xp-sky); box-shadow: 0 0 0 4px #fff, 0 0 0 6px #d6e2e9; background: var(--xp-mist); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-cover .state { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-body { width: 100%; padding: 14px 0 0; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-body h3 { color: var(--xp-ink); font: 900 19px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-body p { color: var(--xp-muted); font-weight: 600; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .class-bottom { justify-content: center; gap: 8px; color: var(--xp-muted); font-weight: 700; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .progress-track { height: 8px; border-radius: 99px; background: #e3ebef; }
+#foxmind-product#foxmind-product.fm3d-theme .fm-home .parity-class-card .progress-track > span { border-radius: inherit; background: linear-gradient(90deg, #7fd3b0, var(--xp-pine)); }
+
+@media (max-width: 1100px) {
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-bubble { display: none; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-illustration { right: 10%; }
+}
+@media (max-width: 760px) {
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome { min-height: 0; padding: 170px 20px 24px; background-size: auto 210px; background-position: 100% 0; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome::before { background: linear-gradient(180deg, rgba(var(--wash), 0) 0, rgba(var(--wash), 0) 120px, rgba(var(--wash), .97) 180px); }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-illustration { inset: 34px auto auto 18px; width: 100px; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome h1 { font-size: 38px; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-summary { font-size: 17px; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-welcome-actions .button { flex: 1 1 auto; justify-content: center; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-progress { margin-left: 0; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route { flex-direction: column; align-items: flex-start; gap: 6px; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li + li { margin-left: 0; }
+  #foxmind-product#foxmind-product.fm3d-theme .fm-home .home-route li + li::after { display: none; }
+}

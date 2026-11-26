@@ -84,16 +84,16 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
     try {
       await t.test('register and unverified sign-in use real session gates', async () => {
         await page.goto(`${origin}/register`);
+        await page.getByRole('radio', { name: 'Estudiante', exact: true }).check(); await submit(page, 'Continuar');
         await fill(page, { Nombre: 'Ada', Apellido: 'Learner', 'Correo electrónico': email, 'Contraseña': original });
-        await page.getByRole('radio', { name: 'Estudiante', exact: true }).check();
-        await submit(page, 'Crear cuenta'); await visible(page, 'recibirás un correo de verificación');
+        await submit(page, 'Crear cuenta'); await visible(page, 'recibir un correo de verificación');
         assert.deepEqual(await state(page), { authenticated: false });
         // Real Next client navigation must not inherit registration's resend cooldown.
         await page.getByRole('link', { name: 'Iniciar sesión', exact: true }).first().click();
         await page.waitForURL('**/sign-in');
         await fill(page, { 'Correo electrónico': email, 'Contraseña': original });
         assert.equal(await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).isEnabled(), true);
-        await submit(page, 'Iniciar sesión'); await page.waitForURL('**/verify-email'); await visible(page, 'Revisa tu correo');
+        await submit(page, 'Iniciar sesión'); await page.waitForURL('**/verify-email'); await visible(page, 'Revisá tu correo');
         const active = await state(page); assert.equal(active.authenticated, true); assert.equal(active.user.emailVerified, false);
         await page.goto(`${origin}/profile`); await visible(page, 'Primero verifica tu correo');
         assert.equal(await page.getByRole('button', { name: 'Guardar cambios', exact: true }).count(), 0);
@@ -103,7 +103,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         [verification] = await capture(inbox, email, 'verify-email');
         const before = (await context.cookies()).find(cookie => cookie.name === 'foxmind_session');
         const count = requests.filter(request => request.path.endsWith('/email-verification/confirm')).length;
-        await openProof(page, verification); await visible(page, 'Confirma tu dirección');
+        await openProof(page, verification); await visible(page, 'Confirmá tu dirección');
         assert.equal((await state(page)).user.emailVerified, false);
         assert.equal(requests.filter(request => request.path.endsWith('/email-verification/confirm')).length, count);
         await submit(page, 'Confirmar verificación'); await visible(page, 'Tu correo está verificado');
@@ -158,9 +158,9 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
       await t.test('expired verification and recovery links reject without changing credentials', async () => {
         await logout(page); await page.waitForURL('**/sign-in');
         const expiredEmail = `Expired${Date.now()}@example.test`;
-        await page.goto(`${origin}/register`); await fill(page, { Nombre: 'Expiry', Apellido: 'Learner', 'Correo electrónico': expiredEmail, 'Contraseña': original });
-        await page.getByRole('radio', { name: 'Estudiante', exact: true }).check();
-        await submit(page, 'Crear cuenta'); await visible(page, 'recibirás un correo');
+        await page.goto(`${origin}/register`); await page.getByRole('radio', { name: 'Estudiante', exact: true }).check(); await submit(page, 'Continuar');
+        await fill(page, { Nombre: 'Expiry', Apellido: 'Learner', 'Correo electrónico': expiredEmail, 'Contraseña': original });
+        await submit(page, 'Crear cuenta'); await visible(page, 'recibir un correo');
         const [verify] = await capture(inbox, expiredEmail, 'verify-email');
         await db.query("UPDATE account_tokens SET expires_at=clock_timestamp() WHERE user_id=(SELECT id FROM users WHERE email=$1)", [expiredEmail]);
         await openProof(page, verify); await submit(page, 'Confirmar verificación'); await page.getByRole('alert').waitFor();
@@ -191,9 +191,9 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         for (const mailbox of [`"Quoted Learner ${Date.now()}"@example.test`, `Élève${Date.now()}@bücher.example`]) {
           await logout(page); await page.waitForURL('**/sign-in');
           await page.goto(`${origin}/register`);
+          await page.getByRole('radio', { name: 'Estudiante', exact: true }).check(); await submit(page, 'Continuar');
           await fill(page, { Nombre: 'Élève', Apellido: 'Learner', 'Correo electrónico': mailbox, 'Contraseña': original });
-          await page.getByRole('radio', { name: 'Estudiante', exact: true }).check();
-          await submit(page, 'Crear cuenta'); await visible(page, 'recibirás un correo');
+          await submit(page, 'Crear cuenta'); await visible(page, 'recibir un correo');
           await capture(inbox, mailbox, 'verify-email');
           await login(page, origin, mailbox, original); await page.waitForURL('**/verify-email');
           assert.equal((await state(page)).user.email, mailbox);
@@ -203,13 +203,15 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await logout(page); await page.waitForURL('**/sign-in');
         for (const width of [320, 375, 1280]) {
           await page.setViewportSize({ width, height: 900 }); await page.goto(`${origin}/register`); await page.getByRole('heading', { name: 'Creá tu cuenta', exact: true }).waitFor();
-          await page.getByRole('button', { name: 'Crear cuenta', exact: true }).waitFor({ state: 'visible' });
+          await page.getByRole('button', { name: 'Continuar', exact: true }).waitFor({ state: 'visible' });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           await page.keyboard.press('Tab'); assert.ok(await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement !== document.body));
           await page.screenshot({ path: `.test-artifacts/p3-register-${width}.png`, fullPage: true });
         }
         await page.route('**/api/v1/auth/session', route => route.abort()); await page.reload(); await visible(page, 'No se pudo comprobar tu sesión');
-        await page.unroute('**/api/v1/auth/session'); await submit(page, 'Volver a intentar'); await visible(page, 'Crear cuenta');
+        await page.unroute('**/api/v1/auth/session'); await submit(page, 'Volver a intentar');
+        // Registration opens on the role stop, so the recovered form shows Continuar; Crear cuenta waits on the data stop.
+        await page.getByRole('heading', { name: 'Creá tu cuenta', exact: true }).waitFor(); await page.getByRole('button', { name: 'Continuar', exact: true }).waitFor({ state: 'visible' });
         assert.equal((await state(page)).authenticated, false);
         assert.equal(external.length, 0, 'account documents fetch no third-party resources');
         assert.deepEqual(errors, [], 'no browser runtime exception');

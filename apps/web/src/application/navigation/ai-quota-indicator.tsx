@@ -53,9 +53,9 @@ export function AiQuotaIndicator({ subjectId }: { subjectId: string }) {
   return <div className="fm-ai-quota-slot">
     <button className={styles.trigger} type="button" aria-haspopup="dialog" aria-label={status ? `${label}. ${status}` : label}
       aria-expanded={open} onClick={() => setOpen(true)}>
-      <span className={styles.prefix}>IA</span>
-      {snapshot && <><span className={styles.separator}> · </span><span>{pct} %</span><span className={styles.available}> disponible</span></>}
-      {!snapshot && <span className={styles.available}> · saldo</span>}
+      <span className={styles.row} data-quota-row=""><span className={styles.prefix} data-quota-prefix=""><span data-quota-long="">Saldo de </span>IA</span>
+        <span className={styles.value}>{snapshot ? `${pct} %` : '—'}</span></span>
+      {snapshot && <span className={styles.meter} data-quota-meter="" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>}
     </button>
     {open && <Dialog title="Tu cuota mensual de IA" onClose={() => setOpen(false)} className={styles.dialog} labeledClose>
       <div className={styles.detail}>
