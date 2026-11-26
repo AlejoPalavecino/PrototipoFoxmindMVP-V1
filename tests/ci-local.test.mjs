@@ -44,3 +44,8 @@ test('ci-local rejects an invalid timeout scale before running any job', async (
   const { main } = await import('../scripts/ci-local.mjs');
   await assert.rejects(main(['--jobs', 'gitleaks', '--timeout-scale', '0.5']), /FOXMIND_TEST_TIMEOUT_SCALE/);
 });
+
+test('npm run ci:local is the documented entry point', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(pkg.scripts['ci:local'], 'node scripts/ci-local.mjs');
+});

@@ -31,6 +31,11 @@ Sobre el commit `3b8d552a` del PR 18, el trabajo `wrappers` falló tres veces, c
 | `docs:check` y ESLint sobre los archivos tocados | 0 problemas |
 | `ci-local --timeout-scale 3 --jobs "complete-suite (wrappers)"`, sin publicar, sobre `1be56400` más estos cambios sin commitear | PASS en 8,6 min. Corrieron los 24 wrappers; todas las compilaciones de la API terminaron con `exit 0`. |
 
+| CI local completo sobre `d584bee9` (tiempos x3) | `verify`, `gitleaks` e `integration-owned` pasaron. `fast` falló en `tests/api-build-pipeline.test.mjs:245`: la prueba copia `p33-identity-test-env.mjs` a una carpeta aislada sin `test-timeout-scale.mjs` y exigía el literal `Math.min(30000, …)`. Se cortó la corrida. |
+| Corrección: copiar el módulo en la carpeta aislada y exigir `Math.min(scaledMs(30000), …)` más el piso de la escala | Las 3 pruebas afectadas pasan 20/20. |
+| `run-complete-suite --group fast` | 2113/1: falla `domain-barrel` por `src/core/domain/choice-order.ts`, que también falla en `main`. La corrección está en el PR 18 (`3b8d552a`). |
+| `fast` con `3b8d552a` aplicado temporalmente, sin commitear, y retirado después | 3145/0. |
+
 ## Límites
 
 - La escala no acelera nada: sólo evita que una máquina lenta corte una prueba sana. Un estado con «tiempos xN» no prueba que el código entre en los topes de CI.
