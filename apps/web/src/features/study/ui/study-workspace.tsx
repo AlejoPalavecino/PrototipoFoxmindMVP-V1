@@ -1,5 +1,7 @@
 import { StudyToolsPanel } from '../tools/study-tools-panel';
-import { StudyToolDialog } from '../tools/study-tool-dialog';
+import { StudyToolDock } from '../tools/study-tool-dock';
+import { studyTool, studyToolExample } from '../tools/study-tool-catalog.ts';
+import { StudyMaterialAlert } from '../workspace/study-material-alert';
 import { StudyCreationsPanel } from '../creations/presentation/study-creations-panel';
 import { StudyPracticePreview } from '../creations/presentation/study-practice-preview';
 import { StudyHistoryPanel } from '../conversations/presentation/study-history-panel';
@@ -9,7 +11,7 @@ import { StudyConversation } from '../conversations/presentation/study-conversat
 import { StudyContextDialog } from '../workspace/study-context-dialog';
 import { StudyLibraryDialog } from '../workspace/study-library-dialog';
 import { StudyFolderOptions } from '../workspace/study-folder-options';
-import { StudyRail } from '../workspace/study-rail';
+import { StudyRail, StudyRailMini } from '../workspace/study-rail';
 import { StudySharedStrategyDialog } from '../workspace/StudySharedStrategyDialog.tsx';
 import { createStudyClient } from '../api.ts';
 import { useStudyChat } from '../conversations/use-study-chat.ts';
@@ -156,7 +158,8 @@ export function StudyWorkspace({
   const [selectedExam, setSelectedExam] = useState(examId);
   const [repeatPlan, setRepeatPlan] = useState<StudyGenerationInput>();
   const [repeatSources, setRepeatSources] = useState<string[]>();
-  const [toolTitle, setToolTitle] = useState('Preparar un apunte');
+  // The open tool is docked on the composer; it stays open while a dialog (library, context) is on top.
+  const [toolOpen, setToolOpen] = useState(false);
   const [toolBriefs, setToolBriefs] = useState<Record<string, string>>({});
   const toolBrief = toolBriefs[kind] ?? '';
   // Each tool keeps its own draft: a failed request must not leak into another tool.
@@ -275,8 +278,6 @@ export function StudyWorkspace({
       return;
     }
     Kind(resourceKind);
-    const toolTitles: Record<string, string> = { NOTE: 'Preparar un apunte', EXPLANATION: 'Entender un tema', OUTLINE: 'Conectar ideas', IMAGE: 'Crear una imagen', QUIZ: 'Practicar', EXERCISE: 'Crear ejercicios', MOCK_EXAM: 'Preparar una evaluación' };
-    setToolTitle(toolTitles[resourceKind] ?? 'Preparar propuesta');
     setToolBrief(original?.message ?? title, resourceKind);
     setToolError('');
     setRepeatSources(original?.sourceIds);
@@ -285,7 +286,20 @@ export function StudyWorkspace({
       Count(original.questionCount);
       Difficulty(original.difficulty);
     }
-    Panel('tool');
+    openTool();
+  }
+  function focusComposer() {
+    if (typeof requestAnimationFrame === 'function')
+      requestAnimationFrame(() => document.getElementById('study-message')?.focus());
+  }
+  function openTool() {
+    setToolOpen(true);
+    focusComposer();
+  }
+  function closeTool() {
+    setToolOpen(false);
+    setToolError('');
+    focusComposer();
   }
   function chooseTool(tool: { kind: string; title: string }) {
     Tab('chat');
@@ -297,13 +311,29 @@ export function StudyWorkspace({
       return;
     }
     Kind(tool.kind);
-    setToolTitle(tool.title);
     setToolError('');
-    Panel('tool');
+    openTool();
+  }
+  function submitTool() {
+    if (toolNeedsMaterial) return;
+    if (kind !== 'IMAGE' && topics.length && !selected.length) {
+      setToolError('Elegí al menos un tema de tu carpeta.');
+      return;
+    }
+    // An empty box sends the tool's starting idea: the student can just press the button.
+    const submitted = toolBrief.trim() ? toolBrief : studyToolExample(kind, selectedTopics[0]?.title), submittedKind = kind;
+    const data = studyGenerationData(kind, submitted, selected, count, difficulty) as StudyGenerationInput;
+    setToolOpen(false);
+    setToolError('');
+    Tab('chat');
+    void generation.submit(repeatSources ? { ...data, sourceIds: repeatSources } : data).then((ok) => {
+      if (ok) setToolBrief((value) => (value === toolBrief ? '' : value), submittedKind);
+    });
   }
   function toggleTopic(id: string) {
     Selected(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
   }
+  const selectedTopics = topics.filter((topic) => selected.includes(topic.id));
   const generationIssue = studyGenerationIssue(kind, selected);
   const toolSourceCount = detail.sources.filter((source) => source.available && source.readable !== false).length + attachments.items.length;
   // Study answers are grounded in folder materials; only images and review plans work without them.
@@ -422,6 +452,7 @@ export function StudyWorkspace({
           <StudyToolsPanel
             disabled={busy || !active || generation.blocked}
             imageGenerationAvailable={detail.imageGenerationAvailable}
+            current={toolOpen ? kind : undefined}
             onChoose={chooseTool}
           />
         }
@@ -453,6 +484,19 @@ export function StudyWorkspace({
         newDisabled={busy || attachments.busy || !active}
         onNew={() => openChat('new')}
         aside={rail()}
+        asideMini={
+          <StudyRailMini
+            bannerKey={f.bannerKey}
+            folderName={f.name}
+            selectedCount={selected.length}
+            sourceCount={detail.sources.length + attachments.items.length}
+            disabled={busy || !active || generation.blocked}
+            onTopics={(launcher) => openPanelFrom('context', launcher)}
+            onMaterials={(launcher) => openPanelFrom('library', launcher)}
+            onReview={() => chooseTool({ kind: 'PLAN', title: 'Organizar mi repaso' })}
+          />
+        }
+        asideFoldKey="foxmind:study-rail"
         asideLabel="Temas y materiales de la carpeta"
         panel={inlineDiagram ? creationReader : inlinePractice ? practiceReader : undefined}
         panelLabel={inlineDiagram ? 'Esquema abierto' : 'Práctica abierta'}
@@ -527,6 +571,34 @@ export function StudyWorkspace({
           onLibrary={(launcher) => openPanelFrom('library', launcher)}
           onAttach={attach}
           onTool={chooseTool}
+          topics={selectedTopics}
+          onDropTopic={toggleTopic}
+          onChooseTopics={(launcher) => openPanelFrom('context', launcher)}
+          notice={active && toolSourceCount === 0 ? (
+            <StudyMaterialAlert disabled={busy} onAdd={(launcher) => openPanelFrom('library', launcher)} />
+          ) : undefined}
+          dock={toolOpen ? (
+            <StudyToolDock
+              kind={kind}
+              selected={selected}
+              topics={topics}
+              count={count}
+              difficulty={difficulty}
+              error={toolError || generationIssue || ''}
+              onBrief={(value) => setToolBrief(value)}
+              onCount={Count}
+              onDifficulty={Difficulty}
+              onClose={closeTool}
+            />
+          ) : undefined}
+          composerTool={toolOpen ? {
+            action: studyTool(kind).action,
+            placeholder: kind === 'IMAGE' ? 'Describí la imagen que querés' : 'Opcional: contale a Foxy en qué querés hacer foco',
+            value: toolBrief,
+            disabled: busy || !active || generation.blocked || !!generationIssue || toolNeedsMaterial,
+            onValue: (value) => setToolBrief(value),
+            onSubmit: submitTool,
+          } : undefined}
         />
       </FoxyChatLayout>
       {citedSources.length > 0 && (
@@ -607,52 +679,6 @@ export function StudyWorkspace({
             dismissPanel(false);
             Tab('chat');
             requestAnimationFrame(() => document.getElementById('study-message')?.focus());
-          }}
-        />
-      )}
-      {panel === 'tool' && (
-        <StudyToolDialog
-          kind={kind}
-          title={toolTitle}
-          folderName={f.name}
-          sourceCount={toolSourceCount}
-          needsMaterial={toolNeedsMaterial}
-          onAddMaterial={() => Panel('library')}
-          brief={toolBrief}
-          selected={selected}
-          count={count}
-          difficulty={difficulty}
-          topics={topics}
-          error={toolError || generationIssue || ''}
-          disabled={busy || !active || generation.blocked || !!generationIssue || toolNeedsMaterial}
-          onBrief={(value) => setToolBrief(value)}
-          onSelected={Selected}
-          onCount={Count}
-          onDifficulty={Difficulty}
-          onClose={closePanel}
-          onSubmit={() => {
-            if (toolNeedsMaterial) return;
-            if (!toolBrief.trim()) {
-              setToolError('Contá qué querés preparar para que Foxy tenga un punto de partida.');
-              return;
-            }
-            if (kind !== 'IMAGE' && topics.length && !selected.length) {
-              setToolError('Elegí al menos un tema de tu carpeta.');
-              return;
-            }
-            const submitted = toolBrief, submittedKind = kind;
-            const data = studyGenerationData(
-              kind,
-              submitted,
-              selected,
-              count,
-              difficulty,
-            ) as StudyGenerationInput;
-            dismissPanel(false);
-            Tab('chat');
-            void generation.submit(repeatSources ? { ...data, sourceIds: repeatSources } : data).then((ok) => {
-              if (ok) setToolBrief((value) => (value === submitted ? '' : value), submittedKind);
-            });
           }}
         />
       )}

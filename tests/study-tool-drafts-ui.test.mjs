@@ -27,7 +27,7 @@ test('el borrador de una herramienta que falló no aparece al abrir otra herrami
   await openTool('Preparar un apunte');
   by(node=>node.type==='textarea'&&node.props.maxLength===1500).props.onChange({target:{value:'Preguntas de exposición'}});
   await view.flush();
-  by(node=>node.type==='form'&&node.props.className==='study-exact-tool-form').props.onSubmit({preventDefault(){}});
+  by(node=>node.type==='form'&&descendants(node,child=>child.type==='textarea'&&child.props.id==='study-message').length).props.onSubmit({preventDefault(){}});
   await view.flush();
   await openTool('Conectar ideas');
   assert.equal(by(node=>node.type==='textarea'&&node.props.maxLength===1500).props.value,'');
@@ -47,13 +47,14 @@ test('sin materiales la herramienta no envía y ofrece agregar material',async()
   await view.flush();
   const submit=by(node=>node.type==='button'&&node.props.type==='submit');
   assert.equal(submit.props.disabled,true);
-  by(node=>node.type==='form'&&node.props.className==='study-exact-tool-form').props.onSubmit({preventDefault(){}});
+  by(node=>node.type==='form'&&descendants(node,child=>child.type==='textarea'&&child.props.id==='study-message').length).props.onSubmit({preventDefault(){}});
   await view.flush();
   assert.equal(calls.length,0);
   const add=by(node=>node.type==='button'&&[node.props.children].flat().includes('Agregar material'));
   add.props.onClick({currentTarget:{}});
   await view.flush();
-  assert.equal(descendants(view.tree,node=>node.type==='textarea'&&node.props.maxLength===1500).length,0);
+  assert.ok(descendants(view.tree,node=>node.type?.name==='FoxyDialog'&&node.props.title==='Biblioteca de contexto').length,'abre la biblioteca');
+  assert.equal(by(node=>node.type==='textarea'&&node.props.maxLength===1500).props.value,'Preguntas de exposición','el formulario conserva lo escrito detrás de la biblioteca');
  }finally{view.close();}
 });
 

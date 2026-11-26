@@ -54,7 +54,7 @@ export function descendants(node, predicate) {
   // Expand shared, stateless presentation just as the DOM renderer does.
   if ([
     'FoxyToolPicker', 'CollectionStateFilter', 'CreationSteps', 'AgendaToolbar',
-    'StudyToolsPanel', 'StudyToolDialog', 'StudyCreationsPanel', 'StudyPracticePreview',
+    'StudyToolsPanel', 'StudyMaterialAlert', 'StudyCreationsPanel', 'StudyPracticePreview',
     'StudyHistoryPanel', 'StudyConversation', 'StudyChatWelcome', 'StudyMessageList',
     'StudyChatProgress', 'StudyChatComposer', 'StudySourcesDialog', 'StudyRenameDialog',
     'StudyContextDialog', 'StudyLibraryDialog', 'StudyFolderOptions',

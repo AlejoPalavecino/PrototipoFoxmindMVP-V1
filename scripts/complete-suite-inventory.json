@@ -740,7 +740,9 @@
     "tests/expedition-activities.test.mjs",
     "tests/expedition-agenda.test.mjs",
     "tests/expedition-notifications.test.mjs",
-    "tests/expedition-profile.test.mjs"
+    "tests/expedition-profile.test.mjs",
+    "tests/expedition-desk.test.mjs",
+    "tests/foxy-chat-layout-tools-rail.test.mjs"
   ],
   "exclusions": [
     {

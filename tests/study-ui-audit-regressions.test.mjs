@@ -84,23 +84,22 @@ test('la carpeta abre sus opciones y conserva la operación de archivar o reacti
 
 test('ejercicios conservan la configuración elegida y los intentos muestran su estado', () => {
   const { StudyToolsPanel } = loadTsModule(study + 'tools/study-tools-panel.tsx');
-  const { StudyToolDialog } = loadTsModule(study + 'tools/study-tool-dialog.tsx');
+  const { StudyToolDock } = loadTsModule(study + 'tools/study-tool-dock.tsx');
   const { StudyCreationsPanel } = loadTsModule(study + 'creations/presentation/study-creations-panel.tsx');
   const selected = [];
   const tools = StudyToolsPanel({ onChoose: value => selected.push(value) });
   descendants(tools, node => node.type === 'button' && text(node).includes('Crear ejercicios'))[0].props.onClick();
   assert.equal(selected[0].kind, 'EXERCISE');
-  const dialog = StudyToolDialog({
-    kind: 'EXERCISE', topics: [], selected: [], count: 7, difficulty: 'HARD',
-    onCount: value => selected.push(value), onDifficulty: value => selected.push(value),
+  const dock = StudyToolDock({
+    kind: 'EXERCISE', topics: [], selected: [], count: 7, difficulty: 'HARD', error: '',
+    onCount: value => selected.push(value), onDifficulty: value => selected.push(value), onBrief() {}, onClose() {},
   });
-  const count = descendants(dialog, node => node.type === 'input' && node.props.type === 'number')[0];
-  const difficulty = descendants(dialog, node => node.type === 'select')[0];
-  assert.equal(count.props.value, 7);
-  assert.equal(difficulty.props.value, 'HARD');
-  count.props.onChange({ target: { value: '3' } });
-  difficulty.props.onChange({ target: { value: 'EASY' } });
-  assert.deepEqual(selected.slice(1), [3, 'EASY']);
+  const choices = descendants(dock, node => node.type?.name === 'Choice').map(node => node.type(node.props));
+  const pressed = descendants(choices, node => node.type === 'button' && node.props['aria-pressed'] === true).map(text);
+  assert.deepEqual(pressed, ['7', 'Avanzada'], 'conserva una cantidad fuera de los atajos y la dificultad elegida');
+  descendants(choices[0], node => node.type === 'button' && text(node) === '15')[0].props.onClick();
+  descendants(choices[1], node => node.type === 'button' && text(node) === 'Inicial')[0].props.onClick();
+  assert.deepEqual(selected.slice(1), [15, 'EASY']);
   const items = [{ id: 'old', title: 'Luz', kind: 'QUIZ', status: 'FINALIZED' },
     { id: 'new', title: 'Luz', kind: 'QUIZ', status: 'ACTIVE', attemptNumber: 2 }];
   const creations = StudyCreationsPanel({ matchingCreations: [], matchingPractices: items, matchingPlans: [] });
@@ -201,3 +200,4 @@ test('una explicación conserva su versión guardada y ofrece una ilustración d
     view.close();
   }
 });
+
