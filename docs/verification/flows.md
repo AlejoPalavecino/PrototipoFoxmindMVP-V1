@@ -2,6 +2,27 @@
 
 Los resultados de esta matriz corresponden a los candidatos, fechas y entornos indicados en cada bloque. La galería del 18 de noviembre documenta su propio recorrido de la aplicación. [Galería vigente](../design/current/README.md) · [Índice de verificación](README.md).
 
+## Mi estudio y Foxy AI con la experiencia Expedición · 25 y 26 de noviembre
+
+Resultado: **PASS local, sin integrar ni commitear**. Candidato: rama `claude/studio-foxy-expedition-60ff94` (sobre `082341ec`) con cambios de UI y de API (avance por carpeta, carpeta a mano sin archivo y formato del quiz docente).
+
+- **Pruebas:**
+  - Menú, pliegue del riel y su memoria. Fallan contra el layout anterior.
+  - Formulario sobre el composer, sendero y resultado de la práctica, y repaso por pasos.
+  - Avance por carpeta en dominio y servicio, y origen del asistente.
+  - Formato del quiz (pedido, instrucción y esquema) y guardas de las cuatro hojas.
+  - La suite `fast` completa pasa 3204/3204.
+- **Navegador real:** builds de producción sobre el harness sintético con PostgreSQL real.
+  - **Estudiante, 1440 y 390 px:** menú y pliegue; Practicar con un apunte PDF sintético (cinco preguntas, sendero y «Practicar lo que falló»); repaso Fecha, Temas y Horarios; colección con «2 de 2 temas practicados» y tema más flojo; carpeta «A mano» sin archivo.
+  - **Docente:** «Trabajando con», grupos de herramientas, quiz verdadero o falso enviado con su etiqueta y «Retomá».
+  - Sin desborde ni errores de página.
+- **No ensayado:**
+  - Un repaso agendado en la colección (la IA sintética no genera planes de repaso).
+  - El resultado de un quiz verdadero o falso (la IA sintética no genera quizzes).
+  - Proveedores reales y suites de integración completas.
+
+[Registro](../work-log/2026-11-25-expedition-studio-foxy.md) · [Tablero](../../odd/tasks/expedition-studio-foxy.md) · [Capturas](../design/current/README.md#foxy-y-carpetas-de-estudio)
+
 ## Notificaciones y Perfil en dirección Expedición · 25 de noviembre
 
 Resultado: **PASS local UI, sin integrar ni commitear**. Candidato: rama `claude/notifications-profile-expedition`, apilada sobre el PR 20.
