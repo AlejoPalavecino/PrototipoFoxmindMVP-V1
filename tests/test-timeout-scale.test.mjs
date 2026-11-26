@@ -29,3 +29,9 @@ test('the identity compile cap and the backend CLI startup wait use the scale', 
   const backend = readFileSync(new URL('./backend.test.mjs', import.meta.url), 'utf8');
   assert.match(backend, /scaledMs\(4000\)/);
 });
+
+test('the complete-suite clean environment carries the timeout scale to every test process', async () => {
+  const { cleanEnvironment } = await import('../scripts/run-complete-suite.mjs');
+  assert.equal(cleanEnvironment({ FOXMIND_TEST_TIMEOUT_SCALE: '3' }).FOXMIND_TEST_TIMEOUT_SCALE, '3');
+  assert.equal('FOXMIND_TEST_TIMEOUT_SCALE' in cleanEnvironment({}), false, 'unset stays unset, so CI keeps its budgets');
+});
