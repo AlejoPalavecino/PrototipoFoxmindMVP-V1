@@ -1,0 +1,63 @@
+/* Práctica y repaso de Mi estudio en dirección Expedición (maqueta design/foxy-mi-estudio).
+   Las hojas parity-study llegan a un id y dos clases; esta suma el id raíz duplicado. */
+
+/* Encabezado y pie de la práctica */
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-focus-header { background: linear-gradient(180deg, #f7fbfd, #fff); border-bottom-color: var(--xp-line); font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-focus-header > button { border: 1.5px solid var(--xp-line-strong); border-radius: 12px; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-focus-header > span { border-radius: 99px; background: var(--xp-pine-soft); color: var(--xp-pine); font: 800 12px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-practice-heading h1 { color: var(--xp-ink); font: 900 22px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-focus-footer { border-top-color: var(--xp-line); background: #fff; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-focus-footer button { border: 1.5px solid var(--xp-line-strong); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme :is(.study-exact-focus-footer, .study-exact-dialog-footer, .study-practice-next) .primary { border-color: var(--xp-orange-button); background: var(--xp-orange-button); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme :is(.study-exact-focus-footer, .study-exact-dialog-footer, .study-practice-next) .primary:hover:not(:disabled) { background: var(--xp-orange-button-hover); }
+
+/* Sendero de preguntas: pino si salió bien, sendero si hay que repasarla, lago la actual */
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-meter progress::-webkit-progress-value { background: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-meter progress::-moz-progress-bar { background: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail { gap: 6px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button { position: relative; width: 40px; height: 40px; min-height: 0; padding: 0; border: 2px solid var(--xp-line-strong); border-radius: 99px; background: #fff; color: var(--xp-muted); font: 900 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button.answered { border-color: var(--xp-lake-muted); background: var(--xp-sky); color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button.is-correct { border-color: var(--xp-pine); background: var(--xp-pine); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button.is-review { border-color: var(--xp-trail); background: #fbecd9; color: #7a4a12; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button[aria-current=step] { outline: 3px solid var(--xp-lake); outline-offset: 2px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-trail > button:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 2px; }
+
+/* Pregunta y devolución */
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-practice-question legend { color: var(--xp-ink); font: 900 18px/1.4 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-question-option { border: 1.5px solid var(--xp-line); border-radius: 14px; background: #fff; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-question-option:has(input:checked) { border-color: var(--xp-lake); background: var(--xp-sky); box-shadow: inset 3px 0 var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-question-option .study-option-letter { background: #e8eff4; color: var(--xp-lake); font-weight: 900; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-option-key { color: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-inline-feedback { border-radius: 16px; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-inline-feedback.is-correct { border: 1px solid #a9d6c4; background: var(--xp-pine-soft); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-inline-feedback.needs-review { border: 1px solid #ecd2ad; background: #fdf3e6; }
+
+/* Resultado y siguiente paso */
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-outcomes > li.is-correct > svg { color: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-outcomes > li.needs-review > svg { color: var(--xp-orange-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-next { display: grid; gap: 8px; margin-top: 18px; padding: 16px 18px; border: 1px solid var(--xp-lake-soft); border-radius: 18px; background: #f7fbfd; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-next h3 { margin: 0; color: var(--xp-ink); font: 900 17px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-next p { margin: 0; color: var(--xp-muted); font: 600 14px/1.45 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-next > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-practice-next button { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 14px; border: 1.5px solid var(--xp-lake); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); box-shadow: none; }
+
+/* Repaso en tres pasos */
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps { display: flex; gap: 6px; margin: 0 0 16px; padding: 4px; list-style: none; border-radius: 14px; background: #dfe9ef; font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li { flex: 1; min-width: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps :is(.study-plan-step, button) { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 11px; background: transparent; color: #3b5163; font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps :is(.study-plan-step, button) > span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 99px; background: #fff; color: var(--xp-lake); font: 900 12px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li[aria-current=step] .study-plan-step { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li[aria-current=step] .study-plan-step > span { background: var(--xp-sun); }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li.is-done button { cursor: pointer; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li.is-done button > span { background: var(--xp-pine); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-steps > li.is-done button:hover:not(:disabled) { background: rgba(255, 255, 255, .6); }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-stage[hidden] { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-topics { position: relative; }
+#foxmind-product#foxmind-product.fm3d-theme .study-plan-topics .study-plan-all { position: absolute; top: 0; right: 0; min-height: 30px; padding: 0 6px; border: 0; background: none; color: var(--xp-orange-ink); font: 800 13px/1 var(--xp-font); text-decoration: underline; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-planner .study-exact-choice-group label:has(:checked) { border-color: var(--xp-lake); background: var(--xp-sky); color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-session { border-color: var(--xp-line); border-radius: 16px; }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-session > header > span { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .study-exact-plan-scheduled { color: var(--xp-pine); }
+@media (max-width: 520px) {
+  #foxmind-product#foxmind-product.fm3d-theme .study-plan-steps :is(.study-plan-step, button) { padding: 0 6px; font-size: 13px; }
+}

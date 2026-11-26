@@ -4,6 +4,7 @@ import type { StudyPractice } from '../../model/study-contracts.ts';
 import { studyAnswerValue } from '../../model/study-transitions.ts';
 import { FoxyMarkdown } from '../../../../../../shared-ui/markdown';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
+import { practiceAnswerIsCorrect } from './study-practice-results.ts';
 export function renderStudyPracticeQuestion({ question, index, total, busy, checked, heading, answers, change }: {
   question: StudyPractice['questions'][number];
   index: number;
@@ -15,8 +16,7 @@ export function renderStudyPracticeQuestion({ question, index, total, busy, chec
   change: (id: string, value: string | string[]) => void;
 }) {
   const given = answers[question.id];
-  const isCorrect = checked && Array.isArray(given) && given.length === question.correctOptionIds?.length
-    && given.every(id => question.correctOptionIds?.includes(id));
+  const isCorrect = checked && practiceAnswerIsCorrect(question, given);
   const selectedFeedback = Array.isArray(given)
     ? question.optionFeedback?.filter(item => given.includes(item.optionId)).map(item => item.text).join('\n\n')
     : undefined;

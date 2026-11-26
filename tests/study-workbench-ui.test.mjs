@@ -112,6 +112,7 @@ test('Imagen aparece sólo con generación de imágenes y Organizar mi repaso ab
   plan.props.onClick();await view.flush();
   assert.equal(descendants(view.tree,node=>node.type?.name==='StudyToolDock').length,0);
   assert.equal(by(node=>node.type?.name==='Dialog'&&node.props.className==='parity-study-plan-dialog').props.title,'Un plan para llegar con calma');
+  assert.deepEqual(by(node=>node.type?.name==='StudyExamPlanner').props.initialRequest.topicIds,layout().props.aside.props.selected,'parte de los temas elegidos en el riel');
  }finally{view.close();}
 });
 
@@ -124,6 +125,30 @@ test('el riel se pliega a una tira con los temas elegidos, el repaso y los mater
   const mini=expand(layout().props.asideMini);
   assert.deepEqual(descendants(mini,node=>node.type==='button').map(label),
    [`Temas: ${chosen?chosen+' elegidos':'todos'}. Cambiar temas`,'Organizar mi repaso','Materiales: 1']);
+ }finally{view.close();}
+});
+
+test('el resultado lleva a practicar lo que falló o a organizar el repaso con esos temas',async()=>{
+ const {view,by,layout}=workspace();
+ const openFinished=async()=>{
+  layout().props.children.props.onPractice('p0');await view.flush();
+  by(node=>node.type==='button'&&node.props.className==='primary'&&descendants(view.tree,n=>n.type?.name==='Dialog'&&n.props.title==='Tu creación').length>0).props.onClick();await view.flush();
+  return layout().props.panel;
+ };
+ try{
+  await view.flush();
+  let panel=await openFinished();
+  assert.equal(panel.props.practice.id,'p0');
+  panel.props.onPracticeMissed(['t2','borrado']);await view.flush();
+  assert.equal(layout().props.panel,undefined,'cierra la práctica');
+  const dock=by(node=>node.type?.name==='StudyToolDock');
+  assert.equal(dock.props.kind,'QUIZ');
+  assert.deepEqual(dock.props.selected,['t2'],'sólo los temas que fallaron y siguen en la carpeta');
+  panel=await openFinished();
+  panel.props.onPlanReview(['t2']);await view.flush();
+  const planner=by(node=>node.type?.name==='StudyExamPlanner');
+  assert.deepEqual(planner.props.initialRequest.topicIds,['t2']);
+  assert.equal(planner.props.examId,undefined,'abre un plan nuevo, no uno guardado');
  }finally{view.close();}
 });
 

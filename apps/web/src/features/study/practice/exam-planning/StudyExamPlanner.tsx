@@ -38,6 +38,8 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
   const [minutes, setMinutes] = useState(previousSlot?.minutes ?? 25);
   const [topics, setTopics] = useState(() => initialRequest?.topicIds.filter(id => allTopics.some(topic => topic.id === id)) ?? []);
   const [error, setError] = useState('');
+  // Setup goes in three steps (fecha, temas, horarios); a repeated plan opens on the first one with its values.
+  const [step, setStep] = useState(1);
   const [dirty, setDirty] = useState(false), [selection, setSelection] = useState<string[]>([]), [agendaNotice, setAgendaNotice] = useState('');
   const exam = detail.exams.find((item) => item.id === examId);
   const [sessions, setSessions] = useState<StudyDetail['exams'][number]['sessions']>([]), [editing, setEditing] = useState<StudyDetail['exams'][number]['sessions'][number]>();
@@ -72,6 +74,16 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
 
     }
 
+  }
+  function advance() {
+    setError('');
+    if (step === 1) {
+      if (!title.trim()) return setError('Contá para qué te estás preparando.');
+      if (!date || !start) return setError('Elegí cuándo empezás y la fecha de la evaluación.');
+      if (date < start) return setError('La evaluación tiene que ser después del primer día de repaso.');
+    }
+    if (step === 2 && !topics.length) return setError('Elegí al menos un tema para tu repaso.');
+    setStep(Math.min(3, step + 1));
   }
   function generate() {
     if (!title.trim()) {
@@ -153,6 +165,9 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
   return (<div className="study-exact-planner">
     {!exam && error && <Notice error>{error}</Notice>}
     {!exam ? (renderStudyExamSetup({
+      step,
+      setStep: (next: number) => { setError(''); setStep(next); },
+      onNext: advance,
       title,
       start,
       date,

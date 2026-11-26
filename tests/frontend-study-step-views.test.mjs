@@ -81,3 +81,29 @@ test('wizard program presenter preserves the upload control callbacks without su
   assert.equal(source.props.onFile, onFile);
   assert.equal(source.props.file, planSource.file);
 });
+
+test('practice result offers next steps: missed topics first, review plan always', () => {
+  const { renderStudyPracticeFeedback } = loadTsModule('apps/web/src/features/study/practice/presentation/study-practice-feedback.tsx');
+  const base = { practice: { questions: [] }, heading: { current: null }, hasDevelopmentAnswers: false, answerText: () => '', feedbackComplete: true, busy: false, onRetryFeedback() {} };
+  const chosen = [];
+  const tree = renderStudyPracticeFeedback({ ...base, missedTopics: ['t2'], onPracticeMissed: ids => chosen.push(['missed', ids]), onPlanReview: ids => chosen.push(['plan', ids]) });
+  const buttons = descendants(tree, node => node.type === 'button');
+  const labels = buttons.map(node => [node.props.children].flat().filter(part => typeof part === 'string').join(''));
+  assert.deepEqual(labels, ['Practicar lo que falló', 'Organizar mi repaso']);
+  buttons.forEach(node => node.props.onClick());
+  assert.deepEqual(chosen, [['missed', ['t2']], ['plan', ['t2']]]);
+  const allRight = renderToStaticMarkup(renderStudyPracticeFeedback({ ...base, missedTopics: [], onPracticeMissed() {}, onPlanReview() {} }));
+  assert.doesNotMatch(allRight, /Practicar lo que falló/);
+  assert.match(allRight, /Respondiste todo bien/);
+  assert.doesNotMatch(renderToStaticMarkup(renderStudyPracticeFeedback(base)), /¿Y ahora\?/, 'sin acciones no promete pasos');
+});
+
+test('practice trail names each stop by how it went', () => {
+  const { renderStudyPracticeProgress } = loadTsModule('apps/web/src/features/study/practice/presentation/study-practice-progress.tsx');
+  const questions = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  const states = { a: 'correct', b: 'review', c: 'pending' };
+  const html = renderToStaticMarkup(renderStudyPracticeProgress({ practice: { questions }, empty: 1, index: 2, step: q => states[q.id], guided: true, setIndex() {} }));
+  assert.match(html, /aria-label="Pregunta 1, correcta" class="is-correct answered"/);
+  assert.match(html, /aria-label="Pregunta 2, para repasar" class="is-review answered"/);
+  assert.match(html, /aria-label="Pregunta 3" aria-current="step"/);
+});
