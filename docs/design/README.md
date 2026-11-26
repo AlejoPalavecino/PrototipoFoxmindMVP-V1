@@ -6,7 +6,7 @@ La [maqueta HTML interactiva](../../design/foxmind-ui-lab/01-foxmind.html) inclu
 
 ## Lenguaje visual Expedición
 
-Expedición reemplaza a Brújula en el acceso, la barra lateral privada, Inicio y Mis aulas. Agenda, Foxy, Mi estudio, Notificaciones y Perfil conservan su contenido en Brújula y comparten la barra lateral Expedición. [Tablero del piloto](../../odd/tasks/expedition-visual.md) · [Tablero de Mis aulas](../../odd/tasks/expedition-classrooms.md) · [Maquetas aprobadas](../../design/auth-home-refresh/expedicion.html) · [Maqueta de Mis aulas](../../design/mis-aulas/index.html)
+Expedición reemplaza a Brújula en el acceso, la barra lateral privada, Inicio, Mis aulas y Agenda. Foxy, Mi estudio, Notificaciones y Perfil conservan su contenido en Brújula y comparten la barra lateral Expedición. [Tablero del piloto](../../odd/tasks/expedition-visual.md) · [Tablero de Mis aulas](../../odd/tasks/expedition-classrooms.md) · [Maquetas aprobadas](../../design/auth-home-refresh/expedicion.html) · [Maqueta de Mis aulas](../../design/mis-aulas/index.html)
 
 | Decisión | Cómo aplicarla |
 |---|---|
@@ -70,7 +70,7 @@ Mi estudio separa Activas, Borradores y Archivadas. Crear carpeta recorre identi
 
 ## Agenda
 
-Mes es la vista inicial en escritorio y móvil. Mes, Semana y Día comparten la fecha seleccionada. Un enlace explícito puede abrir otra vista. El panel de Mes se muestra a la derecha en escritorio y debajo del calendario en pantallas angostas. Al elegir una fecha, el foco llega al panel. Las fichas reúnen hora, tipo y color. El detalle y su confirmación se abren sobre el calendario. El editor presenta categorías reales como tarjetas, fecha y horas, repetición y anticipación del aviso. La vista previa muestra azul, verde, naranja, rosa, violeta o pizarra. Los eventos antiguos conservan sus colores adicionales. Los repasos confirmados desde Estudio enlazan al examen y a su carpeta. [Reglas de Agenda](../engineering/agenda/README.md) · [Capturas](current/README.md#agenda)
+La agenda abre con el banner de Expedición (el zorro escribiendo en su escritorio) y la acción Crear evento debajo del texto. Mes, Semana y Día se eligen con pestañas segmentadas; el día elegido se marca en lago, con su contador en sol, y el panel del día lleva una banda celeste. Los títulos de día respetan la ortografía («Martes, 24 de noviembre») y «Día completo» no se corta en la columna de la hora. Los colores de los eventos son los que elige cada persona. Mes es la vista inicial en escritorio y móvil. Mes, Semana y Día comparten la fecha seleccionada. Un enlace explícito puede abrir otra vista. El panel de Mes se muestra a la derecha en escritorio y debajo del calendario en pantallas angostas. Al elegir una fecha, el foco llega al panel. Las fichas reúnen hora, tipo y color. El detalle y su confirmación se abren sobre el calendario. El editor presenta categorías reales como tarjetas, fecha y horas, repetición y anticipación del aviso. La vista previa muestra azul, verde, naranja, rosa, violeta o pizarra. Los eventos antiguos conservan sus colores adicionales. Los repasos confirmados desde Estudio enlazan al examen y a su carpeta. [Reglas de Agenda](../engineering/agenda/README.md) · [Capturas](current/README.md#agenda)
 
 ## Notificaciones
 

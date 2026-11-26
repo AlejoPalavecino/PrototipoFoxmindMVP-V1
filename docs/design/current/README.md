@@ -49,6 +49,7 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 | Vista | Docente | Estudiante |
 |---|---|---|
 | Mes | [Escritorio](vigente-agenda-docente-1440.png) · [Móvil](vigente-agenda-docente-390.png) | [Escritorio](vigente-agenda-estudiante-1440.png) · [Móvil](vigente-agenda-estudiante-390.png) |
+| Semana | [Escritorio](vigente-agenda-semana-docente-1440.png) | — |
 
 ## Cuota mensual de IA
 

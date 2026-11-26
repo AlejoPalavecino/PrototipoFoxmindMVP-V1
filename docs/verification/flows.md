@@ -2,6 +2,16 @@
 
 Los resultados de esta matriz corresponden a los candidatos, fechas y entornos indicados en cada bloque. La galería del 18 de noviembre documenta su propio recorrido de la aplicación. [Galería vigente](../design/current/README.md) · [Índice de verificación](README.md).
 
+## Agenda en dirección Expedición · 24 de noviembre
+
+Resultado: **PASS local UI, sin integrar ni commitear**. Candidato: rama `claude/agenda-expedition`, apilada sobre el PR 19.
+
+- **Pruebas:** `expedition-agenda` (anclaje de la hoja, contador centrado, título del día y «Día completo») y la suite `fast` completa: 3135/3135.
+- **Navegador real:** `next dev` del worktree contra una API sintética con eventos y entregas. Mes, Semana, Día, detalle y editor, con ambos roles a 1440 y 390 px, sin desborde.
+- **No ensayado:** las suites de integración con PostgreSQL y Docker.
+
+[Registro](../work-log/2026-11-24-expedition-agenda.md) · [Tablero](../../odd/tasks/expedition-agenda.md) · [Capturas](../design/current/README.md#agenda)
+
 ## Mis aulas en dirección Expedición · 24 de noviembre
 
 Resultado: **PASS local UI, sin integrar**. Candidato: rama `claude/classrooms-expedition`, apilada sobre el PR 18.
