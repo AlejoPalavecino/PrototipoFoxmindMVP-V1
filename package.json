@@ -49,6 +49,7 @@
     "lint:boundaries": "eslint src/core/contracts src/core/domain apps/api/src apps/shared-ui apps/p5-preview apps/web/src apps/web/pages && node scripts/check-boundaries.mjs && node scripts/check-frontend-architecture.mjs",
     "test:ci": "node scripts/build-api.mjs && node scripts/run-ci-suite.mjs --suite pure && node scripts/run-ci-suite.mjs --suite transport",
     "test:complete": "node scripts/run-complete-suite.mjs",
+    "ci:local": "node scripts/ci-local.mjs",
     "docs:check": "node scripts/check-documentation.mjs",
     "test:study": "npm run api:build && node scripts/run-ci-suite.mjs --suite study"
   },
