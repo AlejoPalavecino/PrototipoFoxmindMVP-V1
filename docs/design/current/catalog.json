@@ -368,50 +368,62 @@
     {
       "id": "vigente-chat-estudio-estudiante-1440",
       "role": "estudiante",
-      "result": "Chat privado con contexto de la carpeta y herramientas de estudio.",
+      "result": "Mesa de trabajo de la carpeta en Expedición: riel con temas y materiales, bienvenida con cuatro intenciones y temas en el composer.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
-        "Un espacio para tus preguntas."
+        "¿Qué hacemos hoy?"
       ],
       "alerts": [],
-      "typography": null,
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
         "navWidth": 76
       },
       "path": "vigente-chat-estudio-estudiante-1440.png",
-      "route": "/carpetas-de-estudio/[id]",
-      "sha256": "bfb0fb2b8c683053e5166856047de2dcdafa371a092536e8d3949b23cd9102b5",
-      "bytes": 90609
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "57d61289d2d85062b2d4b135df86d2dca97f93348305f7c36070c724e890fbe0",
+      "bytes": 138639,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-chat-estudio-estudiante-390",
       "role": "estudiante",
-      "result": "Chat privado con contexto de la carpeta y herramientas de estudio.",
+      "result": "Mesa de trabajo en móvil: cabecera compacta, intenciones y composer con temas.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
-      "headings": [
-        "Un espacio para tus preguntas."
-      ],
+      "headings": [],
       "alerts": [],
-      "typography": null,
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 390
       },
       "path": "vigente-chat-estudio-estudiante-390.png",
-      "route": "/carpetas-de-estudio/[id]",
-      "sha256": "454e81e5943c1b4dad6d86e81fc29dc54d95e9a6206291e104db70a90acb700e",
-      "bytes": 57526
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "97db1d07b7bd4e7d1f9ecb64436bb23f832ffd34a9d426459e02d95f6524301a",
+      "bytes": 52921,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-crear-aula-docente-390",
@@ -621,14 +633,14 @@
     {
       "id": "vigente-foxy-docente-1440",
       "role": "docente",
-      "result": "Espacio privado de Foxy en estado inicial, con herramientas y contexto.",
+      "result": "Foxy en Expedición: contexto explícito en la cabecera y herramientas agrupadas por intención.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Foxy AI",
-        "¿Qué idea trabajamos hoy?"
+        "¿Qué preparamos hoy?"
       ],
       "alerts": [],
       "typography": {
@@ -636,27 +648,31 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
         "navWidth": 76
       },
       "path": "vigente-foxy-docente-1440.png",
       "route": "/foxy-ai",
-      "sha256": "7ae93d2971704f3fd28c51095ab032752b7a9fb4a932505b59a25643841b2348",
-      "bytes": 89747
+      "sha256": "30b70d0100a30bf55fd8648c7b5f3ee864efd916c9917e7aff3b45f035501794",
+      "bytes": 126099,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-foxy-docente-390",
       "role": "docente",
-      "result": "Espacio privado de Foxy en estado inicial y cabecera compacta.",
+      "result": "Foxy en móvil con cabecera compacta e intenciones en una columna.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Foxy AI",
-        "¿Qué idea trabajamos hoy?"
+        "¿Qué preparamos hoy?"
       ],
       "alerts": [],
       "typography": {
@@ -664,15 +680,19 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 390
       },
       "path": "vigente-foxy-docente-390.png",
       "route": "/foxy-ai",
-      "sha256": "96e3a17b138dfa9920b5c056406a7e7d4450f53717d7aa88bb26bd1113fc9cf1",
-      "bytes": 55029
+      "sha256": "ede659a6b3fc27e03a7439a70683909277ffe087555ba235e1d3035aadb56588",
+      "bytes": 77142,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-ingresar-aula-estudiante-390",
@@ -919,7 +939,7 @@
     {
       "id": "vigente-mi-estudio-estudiante-1440",
       "role": "estudiante",
-      "result": "Colección con una carpeta activa que contiene un programa importado del aula de prueba.",
+      "result": "Colección en Expedición: banner, «Seguí donde quedaste» con el tema más flojo y tarjetas con el avance real.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -933,20 +953,24 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-mi-estudio-estudiante-1440.png",
       "route": "/carpetas-de-estudio",
-      "sha256": "c7f6ade2774f940de4550cb33aa87ee6a6531d3bf0cd6680d43b2e19b7c6ff11",
-      "bytes": 141630
+      "sha256": "b63c7a6dd7ea6aed78bd31fc5717a0d504506273cdc0a74b33ab18e193f105a5",
+      "bytes": 425471,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-mi-estudio-estudiante-390",
       "role": "estudiante",
-      "result": "Colección con una carpeta activa que contiene un programa importado del aula de prueba.",
+      "result": "Colección en móvil con banner, carpeta para retomar y avance.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
@@ -960,15 +984,19 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
-        "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 390
       },
       "path": "vigente-mi-estudio-estudiante-390.png",
       "route": "/carpetas-de-estudio",
-      "sha256": "831d2791ffff32e20e18bb3345c19e273d091e1a9c249660944e7a9843b10a4c",
-      "bytes": 100136
+      "sha256": "3a64393772a83b4c32e4aa17c5603cd618bbe6b1c74fbdc9def3f21b5d1cdb5c",
+      "bytes": 184771,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     },
     {
       "id": "vigente-notificaciones-docente-1440",
@@ -1595,8 +1623,197 @@
       "candidate": "Rama claude/agenda-expedition (sobre 22b7c743) más los cambios sin commit de la migración de Agenda",
       "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA y una agenda con clases, actividades, una evaluación, un evento de dos días y entregas del aula. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-herramientas-estudiante-1440",
+      "role": "estudiante",
+      "result": "Menú Herramientas desplegado en la cabecera: «Para estudiar» y «Más herramientas», disponible en cualquier momento de la charla.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "¿Qué hacemos hoy?"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 76
+      },
+      "path": "vigente-herramientas-estudiante-1440.png",
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "3193a7438732ed6cf6c7103bb944ef8dcfa013522ce26535c393f7779a980d95",
+      "bytes": 160205,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
+    },
+    {
+      "id": "vigente-practica-estudiante-1440",
+      "role": "estudiante",
+      "result": "Práctica en el panel: sendero de preguntas con estado, devolución al confirmar y el chat montado al lado.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Práctica sintética de luz y exposición"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 76
+      },
+      "path": "vigente-practica-estudiante-1440.png",
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "b66b2a7cb1ab15e932e71552ae6d9cdffaaeff37089789bd996c2218714f9912",
+      "bytes": 173027,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
+    },
+    {
+      "id": "vigente-resultado-practica-estudiante-1440",
+      "role": "estudiante",
+      "result": "Resultado de la práctica con «¿Y ahora?»: practicar lo que falló u organizar el repaso.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Práctica sintética de luz y exposición",
+        "Tu orientación"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 76
+      },
+      "path": "vigente-resultado-practica-estudiante-1440.png",
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "5c5b8fe0a836115b5264d48fdddeba47df4dc6646f536afaa6973aa4dd8baa85",
+      "bytes": 205909,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
+    },
+    {
+      "id": "vigente-repaso-estudiante-1440",
+      "role": "estudiante",
+      "result": "Organizar mi repaso en tres pasos: Temas con los que fallaron ya elegidos.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Un plan para llegar con calma"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 76
+      },
+      "path": "vigente-repaso-estudiante-1440.png",
+      "route": "/carpetas-de-estudio/832d0a7e-e2c5-422c-a9b5-58d6f95f3596",
+      "sha256": "e16086644978cf73f4cef74613253f817560f8553d60abda5fa632c289ae0c68",
+      "bytes": 156616,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
+    },
+    {
+      "id": "vigente-origen-carpeta-estudiante-1440",
+      "role": "estudiante",
+      "result": "Crear carpeta, paso 2: una sola pregunta (del aula, de mi programa o a mano) con la única aula ya elegida.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Crear una carpeta",
+        "Mi estudio"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 232
+      },
+      "path": "vigente-origen-carpeta-estudiante-1440.png",
+      "route": "/carpetas-de-estudio",
+      "sha256": "f6467e13506b8395854dd487e75a5b06cc70ed47f9c5d1266477790d58dbb257",
+      "bytes": 306628,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
+    },
+    {
+      "id": "vigente-quiz-docente-1440",
+      "role": "docente",
+      "result": "Crear un quiz acoplado en lugar del composer: formato de preguntas y cantidad, un solo cuadro de texto.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Foxy AI",
+        "¿Qué preparamos hoy?"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 37, 34)",
+        "accent": null,
+        "navWidth": 76
+      },
+      "path": "vigente-quiz-docente-1440.png",
+      "route": "/foxy-ai",
+      "sha256": "c652341a42b7ff6efe1df6ebcc4894c6ee75df8ae63fef16c5336e78f6ec5937",
+      "bytes": 120807,
+      "date": "2026-11-26",
+      "candidate": "Rama claude/studio-foxy-expedition-60ff94 (sobre 082341ec) más los cambios sin commit de la experiencia Expedición de Mi estudio y Foxy AI (tramos 1 a 4)",
+      "environment": "API y Next.js de producción del worktree sobre el harness sintético (scripts/study-preview.mjs): PostgreSQL, almacenamiento y escáner descartables, cuentas y proveedores de IA sintéticos. La carpeta de la estudiante se creó por la API con un apunte PDF sintético.",
+      "browser": "Chromium de Playwright (headless), con animaciones y transiciones congeladas al capturar."
     }
   ],
-  "count": 49,
-  "note": "Las entradas con date, candidate, environment y browser propios corresponden a las migraciones Expedición del 2026-11-24 y 2026-11-25 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
+  "count": 55,
+  "note": "Las entradas con date, candidate, environment y browser propios corresponden a las migraciones Expedición del 2026-11-24, 2026-11-25 y 2026-11-26 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
 }

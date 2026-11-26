@@ -8,6 +8,8 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 
 **Notificaciones y Perfil Expedición (25 de noviembre de 2026).** Notificaciones y Mi perfil de ambos roles se volvieron a capturar, y se sumó Configuración de la docente, en la rama `claude/notifications-profile-expedition`. Se usó `next dev` contra una API sintética local que responde la sesión, el saldo de IA, el perfil y una bandeja con avisos leídos y sin leer, sin base de datos ni proveedores. [Registro](../../work-log/2026-11-25-expedition-notifications-profile.md)
 
+**Mi estudio y Foxy AI Expedición (26 de noviembre de 2026).** Se volvieron a capturar Mi estudio, la mesa de la carpeta y Foxy, y se sumaron el menú Herramientas, la práctica con su sendero, el resultado con «¿Y ahora?», el repaso por pasos, el origen de Crear carpeta y el Quiz docente. Se usaron builds de producción del worktree sobre el harness sintético (PostgreSQL, almacenamiento y escáner descartables; IA sintética), con una carpeta creada por la API y un apunte PDF sintético, en la rama `claude/studio-foxy-expedition-60ff94`. [Registro](../../work-log/2026-11-25-expedition-studio-foxy.md)
+
 ## Cuenta y acceso
 
 [Iniciar sesión en escritorio](vigente-acceso-publico-1440.png) · [Crear cuenta, parada del rol](vigente-registro-publico-1440.png) · [Crear cuenta, parada de datos en móvil](vigente-registro-datos-publico-390.png)
@@ -43,9 +45,10 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 
 | Vista | Escritorio | Móvil |
 |---|---|---|
-| Foxy AI docente | [Chat](vigente-foxy-docente-1440.png) | [Chat](vigente-foxy-docente-390.png) |
-| Mi estudio | [Colección](vigente-mi-estudio-estudiante-1440.png) | [Colección](vigente-mi-estudio-estudiante-390.png) |
-| Carpeta | [Chat](vigente-chat-estudio-estudiante-1440.png) | [Chat](vigente-chat-estudio-estudiante-390.png) |
+| Foxy AI docente | [Inicio](vigente-foxy-docente-1440.png) · [Crear un quiz](vigente-quiz-docente-1440.png) | [Inicio](vigente-foxy-docente-390.png) |
+| Mi estudio | [Colección](vigente-mi-estudio-estudiante-1440.png) · [Crear carpeta: origen](vigente-origen-carpeta-estudiante-1440.png) | [Colección](vigente-mi-estudio-estudiante-390.png) |
+| Carpeta | [Mesa de trabajo](vigente-chat-estudio-estudiante-1440.png) · [Herramientas](vigente-herramientas-estudiante-1440.png) | [Mesa de trabajo](vigente-chat-estudio-estudiante-390.png) |
+| Práctica y repaso | [Práctica](vigente-practica-estudiante-1440.png) · [Resultado](vigente-resultado-practica-estudiante-1440.png) · [Repaso](vigente-repaso-estudiante-1440.png) | — |
 
 ## Agenda
 
