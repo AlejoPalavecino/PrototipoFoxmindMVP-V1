@@ -1,0 +1,52 @@
+/* Notificaciones en dirección Expedición. Las reglas de la bandeja llegan a (1,3,1)
+   (#foxmind-product .parity-notifications ...), así que esta hoja suma el id raíz duplicado. */
+
+/* Banner */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: 180px; margin: 0 0 22px; padding: 30px 34px; border: 0; border-radius: 24px; background: #cfe6f4 url('/foxmind-3d/hero/welcome-sky-1600.webp') right center / cover; box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro::before { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: linear-gradient(90deg, rgba(246,251,255,.97) 0%, rgba(246,251,255,.86) 38%, rgba(246,251,255,0) 64%); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro > div:first-child { max-width: 480px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro h1 { margin: 0 0 6px; color: var(--xp-ink); font: 900 44px/1.05 var(--xp-font); letter-spacing: -.01em; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro p { margin: 0; color: var(--xp-muted); font: 600 16px/1.5 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-summary { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 7px 14px 7px 11px; border-radius: 99px; background: #fff; color: var(--xp-lake); font: 800 14px/1.2 var(--xp-font); box-shadow: 0 1px 0 rgba(27,58,82,.08); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-summary .fm3d-icon { width: 17px; height: 17px; color: var(--xp-orange-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-letter { display: none; }
+
+/* Bandeja */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-inbox { border: 1px solid var(--xp-line); border-radius: 24px; box-shadow: var(--xp-shadow); }
+
+/* Estado de lectura: pestañas segmentadas como las vistas de Agenda */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters { gap: 6px; padding: 5px; border: 0; border-radius: 16px; background: #dfe9ef; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 12px; background: transparent; color: #3b5163; font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters button[aria-pressed=true] { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters button span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 99px; background: #fff; color: var(--xp-lake); font: 900 11px/1 var(--xp-font); font-variant-numeric: tabular-nums; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters button[aria-pressed=true] span { background: var(--xp-sun); color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-toolbar > .nt-button { color: var(--xp-lake); }
+
+/* Tipos: chips, el elegido en lago */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-kind-filters { border-bottom-color: var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-kind-filters button { min-height: 36px; padding: 0 14px; border: 1.5px solid var(--xp-line-strong); border-radius: 99px; background: #fff; color: #3b5163; font: 800 13px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-kind-filters button[aria-pressed=true] { border-color: var(--xp-lake); background: var(--xp-lake); color: #fff; }
+
+/* Avisos */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-date-group > h2 { color: var(--xp-muted); font: 900 12px/1 var(--xp-font); letter-spacing: .02em; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-date-group > h2 > span { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #e8eff4; color: var(--xp-lake); font: 900 11px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-row { border-radius: 14px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-row.unread { background: #f1f6fa; box-shadow: inset 4px 0 0 var(--xp-lake); border-bottom-color: transparent; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-row h3 { color: var(--xp-ink); font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-unread-label { display: inline-grid; place-items: center; padding: 3px 8px; border: 0; border-radius: 99px; background: var(--xp-sun); color: var(--xp-lake); font: 900 11px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-row-actions > .nt-button { color: var(--xp-lake); font-family: var(--xp-font); font-weight: 800; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-toggle { border: 1.5px solid var(--xp-line-strong); border-radius: 12px; color: var(--xp-lake); }
+
+/* Bandeja vacía: el zorro con la caja reemplaza al ícono */
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-empty > span { width: 150px; height: 150px; border: 0; border-radius: 0; background: url('/foxmind-3d/states/empty-320.webp') center / contain no-repeat; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-empty > span > .fm3d-icon { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-empty h2 { color: var(--xp-ink); font: 900 24px/1.2 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-empty .nt-button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 1.5px solid var(--xp-lake); border-radius: 12px; background: #fff; color: var(--xp-lake); font: 800 14px/1 var(--xp-font); text-decoration: none; }
+
+@media (max-width: 760px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro { min-height: 0; padding: 22px; background-position: 72% center; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro::before { background: linear-gradient(180deg, rgba(246,251,255,.95) 35%, rgba(246,251,255,.6)); }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-intro h1 { font-size: 34px; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters { width: 100%; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-notifications .nt-reading-filters button { flex: 1; }
+}

@@ -6,7 +6,7 @@ La [maqueta HTML interactiva](../../design/foxmind-ui-lab/01-foxmind.html) inclu
 
 ## Lenguaje visual Expedición
 
-Expedición reemplaza a Brújula en el acceso, la barra lateral privada, Inicio, Mis aulas y Agenda. Foxy, Mi estudio, Notificaciones y Perfil conservan su contenido en Brújula y comparten la barra lateral Expedición. [Tablero del piloto](../../odd/tasks/expedition-visual.md) · [Tablero de Mis aulas](../../odd/tasks/expedition-classrooms.md) · [Maquetas aprobadas](../../design/auth-home-refresh/expedicion.html) · [Maqueta de Mis aulas](../../design/mis-aulas/index.html)
+Expedición reemplaza a Brújula en el acceso, la barra lateral privada, Inicio, Mis aulas, Agenda, Notificaciones, Mi perfil y Configuración. Foxy y Mi estudio conservan su contenido en Brújula y comparten la barra lateral Expedición. [Tablero del piloto](../../odd/tasks/expedition-visual.md) · [Tablero de Mis aulas](../../odd/tasks/expedition-classrooms.md) · [Tablero de Notificaciones y Perfil](../../odd/tasks/expedition-notifications-profile.md) · [Maquetas aprobadas](../../design/auth-home-refresh/expedicion.html) · [Maqueta de Mis aulas](../../design/mis-aulas/index.html)
 
 | Decisión | Cómo aplicarla |
 |---|---|
@@ -74,13 +74,13 @@ La agenda abre con el banner de Expedición (el zorro escribiendo en su escritor
 
 ## Notificaciones
 
-El centro de ambos roles muestra los totales de la cuenta, filtros por lectura y tipo y avisos agrupados por fecha. En celular, el texto y las acciones se distribuyen en filas separadas y los controles conservan un área táctil cuadrada. La lectura se puede revertir y conserva las páginas abiertas. Si una lectura ya se guardó y falla la actualización de la bandeja, se conserva la confirmación y aparece un reintento de consulta.
+La bandeja abre con el banner de Expedición (el zorro sobre sus libros con el cielo de fondo) y el resumen de avisos sin leer en una píldora blanca. «Todas» y «No leídas» son pestañas segmentadas; la elegida va en lago con su contador en sol. Los tipos son chips y el elegido también va en lago. Cada aviso sin leer lleva una franja lago a la izquierda y la etiqueta «Sin leer» en sol. La bandeja vacía muestra al zorro con su caja. El centro de ambos roles muestra los totales de la cuenta, filtros por lectura y tipo y avisos agrupados por fecha. En celular, el texto y las acciones se distribuyen en filas separadas y los controles conservan un área táctil cuadrada. La lectura se puede revertir y conserva las páginas abiertas. Si una lectura ya se guardó y falla la actualización de la bandeja, se conserva la confirmación y aparece un reintento de consulta.
 
 Los avisos de Agenda y de invitación abren su detalle sobre la bandeja; cerrar devuelve el foco a la acción de origen o al filtro activo cuando la fila ya no se muestra. Revisar una invitación no inscribe al estudiante. El aviso de un recurso retirado presenta una explicación en rojo sin navegar al destino. [Reglas de la bandeja](../engineering/home/README.md#bandeja-unificada) · [Registro de paridad](../work-log/2026-11-16-root-notifications-exact.md)
 
 ## Perfil y configuración de cuenta
 
-El selector ofrece iniciales y cuatro avatares Foxy. Guardar cambios aplica nombres y avatar juntos. En móvil, las iniciales ocupan una fila y los avatares se distribuyen en dos columnas. Configuración contiene contraseña y cierre de sesión. [Identidad](../engineering/identity/README.md) · [Capturas](current/README.md#cuenta-y-acceso)
+Mi perfil y Configuración abren con un banner cálido: el zorro con su libro en Mi perfil y el zorro con el escudo en Configuración. La vista previa del perfil va en cielo, con el avatar enmarcado en lago. Los campos usan el mismo borde de 3:1 que el acceso, y los de sólo lectura (correo y rol) se distinguen con borde punteado. En el selector de avatar, la opción elegida va en lago. La tarjeta de Configuración de cuenta muestra la escena del escudo. El selector ofrece iniciales y cuatro avatares Foxy. Guardar cambios aplica nombres y avatar juntos. En móvil, las iniciales ocupan una fila y los avatares se distribuyen en dos columnas. Configuración contiene contraseña y cierre de sesión. [Identidad](../engineering/identity/README.md) · [Capturas](current/README.md#cuenta-y-acceso)
 
 ## Componentes y estados
 

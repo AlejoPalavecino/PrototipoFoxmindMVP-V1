@@ -973,15 +973,16 @@
     {
       "id": "vigente-notificaciones-docente-1440",
       "role": "docente",
-      "result": "Bandeja de la docente con un aviso sintético de ingreso al aula.",
+      "result": "Bandeja de la docente en Expedición: banner del cielo, lectura y tipo en lago y avisos sin leer marcados.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Notificaciones",
-        "Hoy 1",
-        "Marina Demo se sumó a tu aula"
+        "Hoy 3",
+        "Ayer 2",
+        "Anteriores 1"
       ],
       "alerts": [],
       "typography": {
@@ -991,26 +992,31 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-notificaciones-docente-1440.png",
       "route": "/notificaciones",
-      "sha256": "f7fd37270354250314daad2f2f1963bd8c240488cb62e8e4bf2fd68e5d642f82",
-      "bytes": 92848
+      "sha256": "51a0416fed8bfe966c73fdc38eb458a45c1cb3f908d48f1ae59ce30732a2c6a9",
+      "bytes": 339190,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-notificaciones-docente-390",
       "role": "docente",
-      "result": "Bandeja de la docente con un aviso sintético de ingreso al aula.",
+      "result": "Bandeja de la docente en Expedición a 390 px: pestañas de lectura a lo ancho y avisos apilados.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Notificaciones",
-        "Hoy 1",
-        "Marina Demo se sumó a tu aula"
+        "Hoy 3",
+        "Ayer 2",
+        "Anteriores 1"
       ],
       "alerts": [],
       "typography": {
@@ -1020,25 +1026,31 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-notificaciones-docente-390.png",
       "route": "/notificaciones",
-      "sha256": "42d19457e06f1de2286d71acbce7390303d148578e971746be6718f696bf9952",
-      "bytes": 48393
+      "sha256": "0259a524e852ad4b135935ffb8fdc5bff2a054e8787223c5096511c41f8b1c8a",
+      "bytes": 107597,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-notificaciones-estudiante-1440",
       "role": "estudiante",
-      "result": "Bandeja del estudiante con filtros de estado y tipo.",
+      "result": "Bandeja del estudiante en Expedición: banner del cielo, lectura y tipo en lago y avisos sin leer marcados.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Notificaciones",
-        "Las próximas novedades llegan acá"
+        "Hoy 3",
+        "Ayer 1",
+        "Esta semana 1"
       ],
       "alerts": [],
       "typography": {
@@ -1048,25 +1060,31 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-notificaciones-estudiante-1440.png",
       "route": "/notificaciones",
-      "sha256": "24e7989cbb81da321e3a97012442540c156fb8136324c28d051e702d44e5441d",
-      "bytes": 97519
+      "sha256": "52df8fa39755be645a2f832b1b8a786196fd3bd6273cb506e1b1928ed4fa7d9b",
+      "bytes": 335180,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-notificaciones-estudiante-390",
       "role": "estudiante",
-      "result": "Bandeja del estudiante con filtros de estado y tipo.",
+      "result": "Bandeja del estudiante en Expedición a 390 px: pestañas de lectura a lo ancho y avisos apilados.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Notificaciones",
-        "Las próximas novedades llegan acá"
+        "Hoy 3",
+        "Ayer 1",
+        "Esta semana 1"
       ],
       "alerts": [],
       "typography": {
@@ -1076,18 +1094,22 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-notificaciones-estudiante-390.png",
       "route": "/notificaciones",
-      "sha256": "7220840ad1ae2c6be0380c9e414f97845301a49af221c4b3864cb9ccc4cbc6cd",
-      "bytes": 51558
+      "sha256": "8265e4880d193eec621dcb526fd37a81ea37d14e6beb2196b5454060c271556f",
+      "bytes": 113480,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-perfil-docente-1440",
       "role": "docente",
-      "result": "Perfil de la docente y selección de avatar.",
+      "result": "Mi perfil de la docente en Expedición: banner con el zorro, vista previa en cielo y tarjeta de cuenta con la escena de seguridad.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -1103,23 +1125,27 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
+        "background": "rgba(0, 0, 0, 0)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(237, 240, 244)",
         "navWidth": 232
       },
       "path": "vigente-perfil-docente-1440.png",
       "route": "/profile",
-      "sha256": "dea21b556d54bfc6cfb586672fd8bdbf8bf0749336b614124d1ca61de6ac611f",
-      "bytes": 110517
+      "sha256": "c067325ddd670355c16757da39799fb06378f7b936b2f85310e2ec6d01ead7b8",
+      "bytes": 243882,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-perfil-docente-390",
       "role": "docente",
-      "result": "Perfil de la docente y selección de avatar.",
+      "result": "Mi perfil de la docente en Expedición a 390 px.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Mi perfil",
@@ -1132,20 +1158,57 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
+        "background": "rgba(0, 0, 0, 0)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(237, 240, 244)",
+        "navWidth": null
       },
       "path": "vigente-perfil-docente-390.png",
       "route": "/profile",
-      "sha256": "fcbfcce5622d4f9d212b033492d424fc811da3280c190fd92aedda850354a51d",
-      "bytes": 48773
+      "sha256": "ae316401e92798b7245361601b193015405b29b71b01afbb47c6576dbf4ada48",
+      "bytes": 79717,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-configuracion-docente-1440",
+      "role": "docente",
+      "result": "Configuración de la cuenta en Expedición: banner con el escudo, contraseña y sesión actual.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Configuración de la cuenta",
+        "Contraseña",
+        "Sesión actual"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgba(0, 0, 0, 0)",
+        "ink": "rgb(32, 44, 61)",
+        "accent": "rgb(184, 73, 12)",
+        "navWidth": 232
+      },
+      "path": "vigente-configuracion-docente-1440.png",
+      "route": "/settings",
+      "sha256": "e92a08ce52fed064b6e727b0641578ccba1647c2eeb0b02ad5b4abdbcea5ac2f",
+      "bytes": 177707,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-perfil-estudiante-1440",
       "role": "estudiante",
-      "result": "Perfil del estudiante y selección de avatar.",
+      "result": "Mi perfil del estudiante en Expedición: banner con el zorro, vista previa en cielo y tarjeta de cuenta con la escena de seguridad.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -1161,23 +1224,27 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
+        "background": "rgba(0, 0, 0, 0)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(237, 240, 244)",
         "navWidth": 232
       },
       "path": "vigente-perfil-estudiante-1440.png",
       "route": "/profile",
-      "sha256": "507b6f49c675b615d2f4fd9da00e2d07c3ebe25abef34d5be146e56b8cb3604c",
-      "bytes": 111506
+      "sha256": "8b09ab23743c93d6d4d5bd83c94a57f2ff2269e9348942ff6cb0a2af5b5046bd",
+      "bytes": 246241,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-perfil-estudiante-390",
       "role": "estudiante",
-      "result": "Perfil del estudiante y selección de avatar.",
+      "result": "Mi perfil del estudiante en Expedición a 390 px.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Mi perfil",
@@ -1190,15 +1257,19 @@
         "fontReady": true
       },
       "shell": {
-        "background": "rgb(237, 240, 244)",
+        "background": "rgba(0, 0, 0, 0)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": "rgb(237, 240, 244)",
+        "navWidth": null
       },
       "path": "vigente-perfil-estudiante-390.png",
       "route": "/profile",
-      "sha256": "94adfd9f293407aa2c5795c4794ade3a227054807318d5affbb24e541d49fc15",
-      "bytes": 49795
+      "sha256": "c17f27032b056ebb4bf4889cca93b15e68a4884e2a3bc7a4e9147e1684c20abe",
+      "bytes": 81072,
+      "date": "2026-11-25",
+      "candidate": "Rama claude/notifications-profile-expedition (sobre d732d935) más los cambios sin commit de la migración de Notificaciones y Perfil",
+      "environment": "next dev del worktree con una API sintética local: sesión, saldo de IA, perfil y una bandeja con avisos de actividades, aulas y agenda, leídos y sin leer. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-plan-aula-docente-1440",
@@ -1526,6 +1597,6 @@
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     }
   ],
-  "count": 48,
-  "note": "Las entradas con date, candidate, environment y browser propios corresponden al piloto Expedición del 2026-11-24 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
+  "count": 49,
+  "note": "Las entradas con date, candidate, environment y browser propios corresponden a las migraciones Expedición del 2026-11-24 y 2026-11-25 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
 }

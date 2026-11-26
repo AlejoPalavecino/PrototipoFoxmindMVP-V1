@@ -2,6 +2,16 @@
 
 Los resultados de esta matriz corresponden a los candidatos, fechas y entornos indicados en cada bloque. La galería del 18 de noviembre documenta su propio recorrido de la aplicación. [Galería vigente](../design/current/README.md) · [Índice de verificación](README.md).
 
+## Notificaciones y Perfil en dirección Expedición · 25 de noviembre
+
+Resultado: **PASS local UI, sin integrar ni commitear**. Candidato: rama `claude/notifications-profile-expedition`, apilada sobre el PR 20.
+
+- **Pruebas:** `expedition-notifications` y `expedition-profile` (anclaje de cada hoja, estados elegidos en lago, bandeja vacía con el zorro y borde de los campos de 3:1). Fallan sin la importación de las hojas y pasan con ella. La suite `fast` completa pasa 3141/3141.
+- **Navegador real:** `next dev` del worktree contra una API sintética, con ambos roles a 1440 y 390 px. En Notificaciones se filtró por lectura y por tipo, se marcó un aviso como leído, se marcaron todos y se vio la bandeja vacía. En Mi perfil se editó el nombre, se descartó el cambio y se eligió un avatar. Sin desborde ni errores de página.
+- **No ensayado:** guardar el perfil y cambiar la contraseña contra la API real, y las suites de integración con PostgreSQL y Docker.
+
+[Registro](../work-log/2026-11-25-expedition-notifications-profile.md) · [Tablero](../../odd/tasks/expedition-notifications-profile.md) · [Capturas](../design/current/README.md#cuenta-y-acceso)
+
 ## Agenda en dirección Expedición · 24 de noviembre
 
 Resultado: **PASS local UI, sin integrar ni commitear**. Candidato: rama `claude/agenda-expedition`, apilada sobre el PR 19.

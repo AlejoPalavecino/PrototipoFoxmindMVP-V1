@@ -6,6 +6,8 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 
 **Mis aulas Expedición (24 de noviembre de 2026).** La lista, Crear aula, el interior con el Plan, Ajustes con la corrección asistida, el apunte escrito de la Biblioteca, el ingreso por código e Inicio de ambos roles se volvieron a capturar en la rama `claude/classrooms-expedition`. Se usó `next dev` contra una API sintética local que responde aulas, borradores, invitaciones, el detalle del aula, integrantes, actividades, biblioteca, muro y progreso, sin base de datos ni proveedores. El catálogo registra la fecha, el candidato, el entorno y el sha256 de cada captura.
 
+**Notificaciones y Perfil Expedición (25 de noviembre de 2026).** Notificaciones y Mi perfil de ambos roles se volvieron a capturar, y se sumó Configuración de la docente, en la rama `claude/notifications-profile-expedition`. Se usó `next dev` contra una API sintética local que responde la sesión, el saldo de IA, el perfil y una bandeja con avisos leídos y sin leer, sin base de datos ni proveedores. [Registro](../../work-log/2026-11-25-expedition-notifications-profile.md)
+
 ## Cuenta y acceso
 
 [Iniciar sesión en escritorio](vigente-acceso-publico-1440.png) · [Crear cuenta, parada del rol](vigente-registro-publico-1440.png) · [Crear cuenta, parada de datos en móvil](vigente-registro-datos-publico-390.png)
@@ -13,6 +15,7 @@ Capturas del 18 de noviembre de 2026 en Ego Lite sobre la aplicación compilada 
 | Vista | Docente | Estudiante |
 |---|---|---|
 | Mi perfil | [Escritorio](vigente-perfil-docente-1440.png) · [Móvil](vigente-perfil-docente-390.png) | [Escritorio](vigente-perfil-estudiante-1440.png) · [Móvil](vigente-perfil-estudiante-390.png) |
+| Configuración | [Escritorio](vigente-configuracion-docente-1440.png) | — |
 
 ## Inicio, búsqueda y notificaciones
 
