@@ -23,6 +23,8 @@ export const suites = {
   ],
   pure: [
     'tests/choice-order.test.mjs',
+    'tests/ci-local.test.mjs',
+    'tests/test-timeout-scale.test.mjs',
     'tests/ai-text-tuning.test.mjs',
     'tests/study-chat-preview.test.mjs',
     'tests/study-shared-strategy-policy.test.mjs',
