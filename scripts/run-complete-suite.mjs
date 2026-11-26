@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { checkInventory, runSuite } from './run-ci-suite.mjs';
-import { validateCompleteRoutes } from './ci-suites.mjs';
+import { criticalOwnedFiles, validateCompleteRoutes } from './ci-suites.mjs';
 import { executeFastFile, runFastGroup } from './run-fast-suite.mjs';
 
 export async function runCompleteGroup(route, { cwd = process.cwd(), env = process.env, spawn = spawnSync } = {}) {
@@ -32,9 +32,19 @@ function prepareGroup(group, env) {
     if (result.error || result.status !== 0) throw new Error(`Prerequisite failed or timed out: ${program}`);
   }
 }
+// PR gate subset: security and access files from owned-db, then every identity wrapper.
+export function criticalRoute(routes) {
+  const ownedDb = new Set(routes.find(route => route.id === 'owned-db')?.files ?? []);
+  const unrouted = criticalOwnedFiles.filter(file => !ownedDb.has(file));
+  if (unrouted.length) throw new Error(`Critical files not routed in owned-db: ${unrouted.join(', ')}`);
+  return { id: 'critical-owned-db', kind: 'owned', files: criticalOwnedFiles };
+}
 async function executeGroup(group, routes, env) {
   prepareGroup(group, env);
-  const selected = group === 'wrappers' ? routes.filter(route => route.kind === 'wrapper') : routes.filter(route => route.id === group);
+  const wrappers = routes.filter(route => route.kind === 'wrapper');
+  const selected = group === 'wrappers' ? wrappers
+    : group === 'critical' ? [criticalRoute(routes), ...wrappers]
+      : routes.filter(route => route.id === group);
   if (!selected.length) throw new Error(`Unknown group: ${group}`);
   for (const route of selected) {
     const result = group === 'fast'
@@ -49,7 +59,7 @@ async function executeGroup(group, routes, env) {
   return true;
 }
 async function main(args) {
-  const groups = ['fast', 'owned-db', 'owned-services', 'owned-browser', 'wrappers'];
+  const groups = ['fast', 'critical', 'owned-db', 'owned-services', 'owned-browser', 'wrappers'];
   if (args.length === 1 && args[0] === '--check') {
     checkInventory();
     const inventory = JSON.parse(readFileSync('scripts/complete-suite-inventory.json', 'utf8'));
@@ -60,14 +70,15 @@ async function main(args) {
     return;
   }
   if (args.length && (args.length !== 2 || args[0] !== '--group' || !groups.includes(args[1])))
-    throw new Error('Usage: [--group fast|owned-db|owned-services|owned-browser|wrappers]');
+    throw new Error('Usage: [--group fast|critical|owned-db|owned-services|owned-browser|wrappers]');
   checkInventory();
   const inventory = JSON.parse(readFileSync('scripts/complete-suite-inventory.json', 'utf8'));
   const routes = JSON.parse(readFileSync('scripts/complete-suite-routes.json', 'utf8'));
   const errors = validateCompleteRoutes({ ...inventory, routes });
   if (errors.length) throw new Error(errors.join('\n'));
   const env = cleanEnvironment();
-  const planned = args.length ? [args[1]] : groups;
+  // A plain run is the whole suite; critical only repeats a subset of it.
+  const planned = args.length ? [args[1]] : groups.filter(group => group !== 'critical');
   for (const [index, group] of planned.entries()) {
     console.log(`Complete suite group: ${group}`);
     if (!await executeGroup(group, routes, env)) {

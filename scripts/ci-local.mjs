@@ -3,7 +3,8 @@
 // records each result as a commit status named `local/<job>` on the tested commit, which costs no minutes.
 //
 // Usage: node scripts/ci-local.mjs [--jobs verify,gitleaks,...] [--install] [--publish] [--repo owner/name]
-//                                  [--timeout-scale 1-10]
+//                                  [--timeout-scale 1-10] [--full]
+// Without --jobs it runs the PR gate (the jobs every PR gets on GitHub); --full adds the manual full-suite jobs.
 // --timeout-scale stretches the tight test budgets that read FOXMIND_TEST_TIMEOUT_SCALE (see
 // scripts/test-timeout-scale.mjs) and is noted in every published status, so a pass is never mistaken for one at CI limits.
 // Run it from the repository root of the commit to validate. It refuses to publish while tracked files differ
@@ -91,10 +92,11 @@ export function jobs(cwd) {
       command('suite integration-owned', node, ['scripts/run-ci-suite.mjs', '--suite', 'integration-owned'], 3_000_000),
     ],
     'complete-suite (fast)': group('fast'),
-    'complete-suite (owned-db)': group('owned-db'),
+    'complete-suite (critical)': group('critical'),
     'complete-suite (owned-services)': group('owned-services'),
-    'complete-suite (owned-browser)': group('owned-browser'),
-    'complete-suite (wrappers)': group('wrappers'),
+    'full-suite (owned-db)': group('owned-db'),
+    'full-suite (owned-browser)': group('owned-browser'),
+    'full-suite (wrappers)': group('wrappers'),
   };
   function pullAll(list) { return pull(list).map(({ command: [program, args], timeout }) => command(`docker pull ${args[1]}`, program, args, timeout)); }
 }
@@ -132,7 +134,8 @@ const minutes = ms => `${Math.round(ms / 6000) / 10} min`;
 
 export async function main(argv = process.argv.slice(2), cwd = process.cwd()) {
   const option = name => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined; };
-  const all = jobs(cwd), selected = option('--jobs')?.split(',').map(value => value.trim()) ?? Object.keys(all);
+  const all = jobs(cwd), selected = option('--jobs')?.split(',').map(value => value.trim())
+    ?? Object.keys(all).filter(id => argv.includes('--full') || !id.startsWith('full-suite '));
   for (const id of selected) if (!all[id]) throw new Error(`Trabajo desconocido: ${id}. Disponibles: ${Object.keys(all).join(' | ')}`);
   const sha = git(cwd, 'rev-parse', 'HEAD'), dirty = git(cwd, 'status', '--porcelain', '--untracked-files=no');
   const doPublish = argv.includes('--publish'), repo = option('--repo') ?? 'AlejoPalavecino/PrototipoFoxmindMVP-V1';
