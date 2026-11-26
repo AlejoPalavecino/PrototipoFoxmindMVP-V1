@@ -28,7 +28,7 @@ test('pending cards automatically identify unnamed drafts and offer separate con
   const { PendingClassroomCard } = loadTsModule("apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx");
   const continued = [], deleted = [];
   const card = PendingClassroomCard({ draft: { ...pending, payload: {} }, onContinue: id => continued.push(id), onDelete: item => deleted.push(item), busy: false });
-  assert.match(text(card), /Pendiente de creación/); assert.match(text(card), /Tu próxima aula/);
+  assert.match(text(card), /Borrador/); assert.match(text(card), /Tu próxima aula/);
   const actions = descendants(card, n => n.type === 'button');
   actions.find(n => text(n) === 'Continuar creación').props.onClick();
   actions.find(n => n.props['aria-label'] === 'Eliminar borrador sin nombre').props.onClick();

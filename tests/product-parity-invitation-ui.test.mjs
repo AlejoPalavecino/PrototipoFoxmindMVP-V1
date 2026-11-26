@@ -183,7 +183,7 @@ test('el diálogo muestra portada real, grupo y beneficios sin acción extra de 
  const writes=[];const view=hookView(PendingInvitations,{items:[{...invitation,coverKey:'math'}],requested:invitation.id,onAccept:async item=>writes.push(item),onDecline:async()=>assert.fail()});
  try {await view.flush();const dialog=component(view,'Dialog');assert.equal(dialog.props.title,'Hay un lugar para vos');
  assert.match(text(dialog),/Tu docente/);assert.match(text(dialog),/Ciclo 2026/);assert.match(text(dialog),/Materiales y actividades/);
- assert.equal(descendants(dialog,n=>n.type==='img')[0].props.src,'/foxmind/math.webp');
+ assert.equal(descendants(dialog,n=>n.type==='img')[0].props.src,'/foxmind-3d/covers/math-640.webp');
  assert.equal(button(view,'Rechazar invitación'),undefined);button(view,'Ahora no').props.onClick();await view.flush();assert.deepEqual(writes,[]);assert.equal(component(view,'Dialog'),undefined);
  }finally{view.close();}
 });

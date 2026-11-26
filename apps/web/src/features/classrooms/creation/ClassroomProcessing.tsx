@@ -20,7 +20,7 @@ export function ClassroomProcessing({ stage, message, consultationFailed = false
   const current = stage === 'validation' ? 1 : stage === 'queued' ? 1 : stage === 'running' ? 2 : 0;
   return <Dialog title={title} className="parity-classroom-process" onClose={onBack}>
     <div className="class-process">
-      <img src={`/foxmind/${upload ? 'classroom-world' : 'foxy'}.webp`} alt="" />
+      <img src={`/foxmind/${upload ? 'classroom-world' : 'foxy-reader'}.webp`} alt="" />
       <span className="class-process-step">Paso 2 de 4</span>
       <h3>{failed ? 'Tu trabajo se conserva' : stages[current]}</h3>
       {failed ? <div className="class-process-error" role="alert"><p>{message || 'Podés volver al programa e intentarlo nuevamente.'}</p></div>

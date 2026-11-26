@@ -316,7 +316,7 @@ export function ClassroomsApp({
           </div>
         )}
       </main>
-      {deletingDraft ? <Dialog title="Eliminar pendiente" onClose={() => { if (!deleting.current) setDeletingDraft(null); }}>
+      {deletingDraft ? <Dialog title="Eliminar borrador" onClose={() => { if (!deleting.current) setDeletingDraft(null); }}>
         <p>Vas a eliminar «{deletingDraft.payload.name || 'Aula sin nombre'}». Se perderán los datos guardados de esta creación. Esta acción no se puede deshacer.</p>
         {deleteError ? <Notice error>{deleteError}</Notice> : null}
         <footer className="p5-form-footer">
@@ -330,9 +330,9 @@ export function ClassroomsApp({
               setData(current => ({ ...current, drafts: current.drafts?.filter(d => d.id !== item.id) }));
               setDeletingDraft(null); setNoticeKind('success'); setNotice('Pendiente eliminado.');
               await load(undefined, 'drafts');
-            }).catch(() => setDeleteError('No pudimos eliminar el pendiente. Puede haber cambiado o ya estar creado. Cerrá este diálogo y actualizá la lista antes de volver a intentar.'))
+            }).catch(() => setDeleteError('No pudimos eliminar el borrador. Puede haber cambiado o ya estar creado. Cerrá este diálogo y actualizá la lista antes de volver a intentar.'))
               .finally(() => { deleting.current = false; setBusy(false); });
-          }}>{busy ? 'Eliminando…' : 'Eliminar pendiente'}</button>
+          }}>{busy ? 'Eliminando…' : 'Eliminar borrador'}</button>
         </footer>
       </Dialog> : null}
       {join ? (

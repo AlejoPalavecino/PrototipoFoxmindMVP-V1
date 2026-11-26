@@ -66,7 +66,7 @@ test('people match role rows, hide incidental search/email, and mark self only f
   assert.doesNotMatch(student, /Ver ficha|Invitar estudiantes|synthetic@example/);
 });
 
-test('settings only edit reference fields and preserve persisted year and AI state when saving', async () => {
+test('settings offer the full cover catalog and preserve the read-only year and AI state when saving', async () => {
   const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   const calls=[];
   const view=hookView(ClassroomSettings,{...props,settings:{name:room.name,subject:room.subject,division:room.division,academicYear:2026,coverKey:'math',aiGradingEnabled:true},
@@ -76,7 +76,8 @@ test('settings only edit reference fields and preserve persisted year and AI sta
     await view.flush();
     const inputs=descendants(view.tree,node=>node.type==='input');
     assert.equal(inputs.filter(n=>n.props.type==='number'||n.props.type==='checkbox').length,0);
-    assert.deepEqual(inputs.filter(n=>n.props.type==='radio').map(n=>n.props.value),['literature','biology','math']);
+    // Decision of 2026-11-24: the full cover catalog, the same one the wizard offers.
+    assert.deepEqual(inputs.filter(n=>n.props.type==='radio').map(n=>n.props.value),['literature','math','biology','society','science','creative','general']);
     descendants(view.tree,node=>node.type==='form')[0].props.onSubmit({preventDefault:noop}); await view.flush();
     assert.equal(calls[0][2].academicYear,2026); assert.equal(calls[0][2].aiGradingEnabled,true); assert.equal(calls[0][2].coverKey,'math');
   } finally {view.close();}

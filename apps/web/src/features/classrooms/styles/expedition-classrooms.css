@@ -1,0 +1,86 @@
+/* Mis aulas · lista en dirección Expedición (maqueta aprobada design/mis-aulas).
+   Anclada con el id raíz duplicado: las hojas Brújula de esta pantalla llegan a (1,6,0). */
+
+/* Banner */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome { position: relative; overflow: hidden; display: flex; align-items: flex-end; min-height: 220px; margin: 0; padding: 30px 34px; border: 0; border-radius: 24px; background: #bfe3d6 url('/foxmind-3d/classrooms-reference/hero-wide-1600.webp') center 60% / cover; box-shadow: var(--xp-shadow, 0 1px 0 rgba(27,58,82,.06), 0 14px 28px -22px rgba(27,58,82,.45)); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(244,248,246,.96) 0%, rgba(244,248,246,.86) 38%, rgba(244,248,246,0) 66%); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome-copy { position: relative; max-width: 520px; padding: 0; background: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-art { display: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-context { display: inline-flex; align-items: center; gap: 8px; padding: 0; background: none; color: var(--xp-pine); font: 800 14px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome h1 { margin: 4px 0 6px; color: var(--xp-ink); font: 900 44px/1.05 var(--xp-font); letter-spacing: -.01em; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome p { max-width: 440px; margin: 0; color: var(--xp-muted); font: 600 16px/1.5 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-welcome-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-welcome-actions > span { color: var(--xp-lake); font: 800 15px var(--xp-font); }
+
+/* Aviso de borrador */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge { display: flex; align-items: center; gap: 14px; margin: 18px 0 0; padding: 14px 18px; border: 1px solid #f4d3a8; border-radius: 16px; background: #fff7ec; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge > svg { color: var(--xp-orange-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge b { color: var(--xp-ink); font: 800 15px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge p { margin: 2px 0 0; color: var(--xp-muted); font: 600 13px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge .button { margin-left: auto; }
+
+/* Pestañas y búsqueda */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 26px 0 18px; padding: 0; border: 0; background: none; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented { display: inline-flex; gap: 6px; padding: 5px; border: 0; border-radius: 16px; background: #dfe9ef; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented > button { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 12px; background: transparent; color: #3b5163; font: 800 15px var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented > button[aria-pressed=true] { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .collection-count { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 99px; background: #fff; color: var(--xp-ink); font: 900 12px/1 var(--xp-font); font-variant-numeric: tabular-nums; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented > button[aria-pressed=true] .collection-count { background: var(--xp-orange-button); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .search-field { position: relative; display: flex; align-items: center; flex: 0 1 360px; margin-left: auto; padding: 0; border: 0; background: none; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .search-field > svg { position: absolute; left: 14px; color: var(--xp-muted); pointer-events: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .search-field input { width: 100%; min-height: 46px; padding: 10px 14px 10px 42px; border: 2px solid #bfcfda; border-radius: 12px; background: #fff; color: var(--xp-ink); font: 600 15px var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .search-field input:focus { border-color: var(--xp-lake); outline: 3px solid rgba(36,99,201,.25); outline-offset: 0; }
+
+/* Grilla de aulas */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog :is(.class-grid, .draft-grid) { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; margin: 0; padding: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-card { position: relative; display: flex; flex-direction: column; overflow: hidden; min-height: 0; padding: 0; border: 0; border-radius: 20px; background: #fff; color: inherit; text-decoration: none; box-shadow: var(--xp-shadow, 0 1px 0 rgba(27,58,82,.06), 0 14px 28px -22px rgba(27,58,82,.45)); transition: translate .2s ease, box-shadow .2s ease; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-card:hover { translate: 0 -3px; box-shadow: 0 1px 0 rgba(27,58,82,.08), 0 22px 40px -24px rgba(27,58,82,.55); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-card:focus-visible { outline: 3px solid var(--xp-focus); outline-offset: 3px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-cover { position: relative; aspect-ratio: 16 / 9; height: auto; margin: 0; border-radius: 0; background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-cover img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-cover .state { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; min-height: 26px; padding: 0 10px; border-radius: 99px; background: #fff; color: var(--xp-lake); font: 800 12px/1 var(--xp-font); white-space: nowrap; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-body { display: flex; flex: 1; flex-direction: column; gap: 4px; padding: 16px 18px 18px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-body h3 { margin: 0; color: var(--xp-ink); font: 900 19px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-body > p { margin: 0; color: var(--xp-muted); font: 600 14px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 14px; color: var(--xp-muted); font: 800 13px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-bottom > svg { width: 20px; height: 20px; color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-body .progress-track { display: block; height: 10px; margin-top: 8px; border-radius: 99px; background: #e3ebef; overflow: hidden; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-body .progress-track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #5fbf97, var(--xp-pine)); }
+
+/* Borradores */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-draft { display: flex; flex-direction: column; overflow: hidden; padding: 0; border: 2px dashed var(--xp-trail); border-radius: 20px; background: #fffaf2; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .class-draft > img { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; border-radius: 0; opacity: .75; filter: saturate(.7); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-copy { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px 18px 18px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-label { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 10px; border-radius: 99px; background: var(--xp-orange-soft, #ffe9dc); color: var(--xp-orange-ink); font: 800 12px/1 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-label svg { width: 14px; height: 14px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-copy h3 { margin: 6px 0 0; color: var(--xp-ink); font: 900 19px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-copy > p { margin: 0; color: var(--xp-muted); font: 600 14px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-progress { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; color: var(--xp-muted); font: 800 13px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-progress > span { display: inline-flex; gap: 6px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-progress i { display: block; width: 10px; height: 10px; border-radius: 50%; background: #ecdcc4; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-progress i.done { background: var(--xp-orange); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-actions { display: flex; align-self: stretch; align-items: center; gap: 8px; margin-top: auto; padding-top: 14px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-actions .button { flex: 1; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-actions .icon-button { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: #f3e6d3; color: var(--xp-lake); }
+
+/* Estado vacío */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-empty { display: grid; justify-items: center; gap: 10px; padding: 48px 24px; border: 0; border-radius: 22px; background: #fff; text-align: center; box-shadow: var(--xp-shadow, 0 1px 0 rgba(27,58,82,.06), 0 14px 28px -22px rgba(27,58,82,.45)); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-empty img { width: 180px; height: auto; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-empty h3 { margin: 0; color: var(--xp-ink); font: 900 22px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-empty p { max-width: 420px; margin: 0; color: var(--xp-muted); font: 600 15px var(--xp-font); }
+
+/* Invitaciones pendientes (estudiante) */
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .invitations-panel { margin: 22px 0 0; padding: 18px 22px; border: 2px solid #f6dc8d; border-radius: 20px; background: linear-gradient(90deg, #fff3cf, #fffaf0); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .invitations-heading h2 { color: var(--xp-ink); font: 900 18px var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-catalog .invitation-card { border: 0; border-radius: 16px; background: #fff; box-shadow: none; }
+
+@media (max-width: 820px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome { min-height: 200px; padding: 22px; background-position: 70% 60%; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome::before { background: linear-gradient(180deg, rgba(244,248,246,.95) 30%, rgba(244,248,246,.55)); }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .classrooms-welcome h1 { font-size: 34px; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge { flex-wrap: wrap; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .draft-nudge .button { margin-left: 0; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented { display: flex; width: 100%; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .segmented > button { flex: 1; justify-content: center; gap: 6px; padding: 0 8px; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-catalog .collection-toolbar .search-field { flex-basis: 100%; margin-left: 0; }
+}

@@ -160,14 +160,13 @@
     {
       "id": "vigente-aulas-docente-1440",
       "role": "docente",
-      "result": "Catálogo con aula activa y acceso para crear otra.",
+      "result": "Mis aulas docente: banner del valle, aviso de borrador, pestañas con contador y aulas con su portada y avance del plan.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
-        "Mis aulas",
-        "Fotografía y luz"
+        "Mis aulas"
       ],
       "alerts": [],
       "typography": {
@@ -177,25 +176,28 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(183, 71, 16)",
         "navWidth": 232
       },
       "path": "vigente-aulas-docente-1440.png",
       "route": "/mis-aulas",
-      "sha256": "b6d2e1832f6430327edf30ad1b1c1f784ccd26e51bedd6caade46c3fa8e7daf5",
-      "bytes": 202983
+      "sha256": "3ad5597b0605b948207cbb426732790c2661e49b15fc835503d182557c0f75d3",
+      "bytes": 693149,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-aulas-docente-390",
       "role": "docente",
-      "result": "Catálogo con aula activa y acceso para crear otra.",
+      "result": "Mis aulas docente en móvil con pestañas a todo el ancho.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
-        "Mis aulas",
-        "Fotografía y luz"
+        "Mis aulas"
       ],
       "alerts": [],
       "typography": {
@@ -205,25 +207,29 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "accent": "rgb(183, 71, 16)",
+        "navWidth": null
       },
       "path": "vigente-aulas-docente-390.png",
       "route": "/mis-aulas",
-      "sha256": "f00625ac652f13b031e75d8f03eb90ca073ac7b4ffa38c291ad1e09e17edc97a",
-      "bytes": 87497
+      "sha256": "325331da877346029f963324d7c8e24cddc337c8afe99311fb5c8150fcae51f0",
+      "bytes": 232477,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-aulas-estudiante-1440",
       "role": "estudiante",
-      "result": "Catálogo con aula activa y acceso de ingreso por código.",
+      "result": "Mis aulas estudiante: banner del valle, invitación pendiente destacada, Unirme con código y aulas con su portada.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
         "Mis aulas",
-        "Fotografía y luz"
+        "Te invitaron a aprender 1"
       ],
       "alerts": [],
       "typography": {
@@ -233,25 +239,29 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": "rgb(183, 71, 16)",
         "navWidth": 232
       },
       "path": "vigente-aulas-estudiante-1440.png",
       "route": "/mis-aulas",
-      "sha256": "0d78894be3126203fbf9a25f8030631398026532fae4d463a2f10d7cee57d847",
-      "bytes": 202171
+      "sha256": "ad27e123269045ddd654185402527a3e11b416fc69e3e767d21c48ecd37754fe",
+      "bytes": 735970,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-aulas-estudiante-390",
       "role": "estudiante",
-      "result": "Catálogo con aula activa y acceso de ingreso por código.",
+      "result": "Mis aulas estudiante en móvil.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Mis aulas",
-        "Fotografía y luz"
+        "Te invitaron a aprender 1"
       ],
       "alerts": [],
       "typography": {
@@ -261,13 +271,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "accent": "rgb(183, 71, 16)",
+        "navWidth": null
       },
       "path": "vigente-aulas-estudiante-390.png",
       "route": "/mis-aulas",
-      "sha256": "785f79595f34722c84cc525c8e7d7d08d643f861582566b026b79b723de0e750",
-      "bytes": 86042
+      "sha256": "053e15fb97f7d30d03cb3ae8dbbd949d5d90803a6bc337714696c5588be9ee41",
+      "bytes": 146756,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-busqueda-docente-1440",
@@ -390,16 +404,14 @@
     {
       "id": "vigente-crear-aula-docente-390",
       "role": "docente",
-      "result": "Primer paso de Crear aula con datos básicos y portadas.",
+      "result": "Crear aula en móvil: paradas en fila y primer paso con datos.",
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
         "Crear un aula",
-        "Dale identidad a tu aula",
-        "Mis aulas",
-        "Fotografía y luz"
+        "Mis aulas"
       ],
       "alerts": [],
       "typography": {
@@ -409,13 +421,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "accent": "rgb(183, 71, 16)",
+        "navWidth": null
       },
       "path": "vigente-crear-aula-docente-390.png",
       "route": "/mis-aulas",
-      "sha256": "6122ae858a8287ece0c8ddf253f31d6605030e056499de6df8ca6775c945d366",
-      "bytes": 62327
+      "sha256": "b1bc67dc31a6c6d4f7b8494e2358ed81307188927b8c44059a649a2b81406f98",
+      "bytes": 56414,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-crear-carpeta-estudiante-390",
@@ -656,7 +672,7 @@
       "scrollY": 0,
       "headings": [
         "Mis aulas",
-        "Fotografía y luz",
+        "Te invitaron a aprender 1",
         "Un nuevo lugar para aprender"
       ],
       "alerts": [],
@@ -667,13 +683,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 390.3999938964844
+        "accent": "rgb(183, 71, 16)",
+        "navWidth": null
       },
       "path": "vigente-ingresar-aula-estudiante-390.png",
       "route": "/mis-aulas",
-      "sha256": "691129477dc2eecab2fdd6676c28f158e69731c979b4ee66c0ffc34070b80ed7",
-      "bytes": 78958
+      "sha256": "4723f5040e24d24bb9564cc8b97640359997c9f4c7e899e347203523551bc7ba",
+      "bytes": 108843,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-inicio-docente-1440",
@@ -703,11 +723,11 @@
       },
       "path": "vigente-inicio-docente-1440.png",
       "route": "/inicio",
-      "sha256": "5bbae8c897dc6609e105f9158edca16075cc7c849d4d5e8a26d9e4ee2832750a",
-      "bytes": 558910,
+      "sha256": "ff5f17580be9fc67daf13f26ca4e06f790f485fbe9eec0a404173e2e6fe3ca6e",
+      "bytes": 565801,
       "date": "2026-11-24",
-      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
-      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
@@ -738,17 +758,17 @@
       },
       "path": "vigente-inicio-docente-390.png",
       "route": "/inicio",
-      "sha256": "dffad79ec84fddc75434716ea4f8e0b19c6c4ca53c4aea433ec4eef36f9ac7dc",
-      "bytes": 158022,
+      "sha256": "5c1d4d5831e552ea4749b05cdfc2040e5ab79578f6e58cbe184d2244a177f6e5",
+      "bytes": 158077,
       "date": "2026-11-24",
-      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
-      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-inicio-estudiante-1440",
       "role": "estudiante",
-      "result": "Inicio estudiante con banner del río, recorrido de hoy, próxima parada y avance de preguntas.",
+      "result": "Inicio estudiante con banner del río, recorrido de hoy, burbuja de la próxima parada y actividades con avance.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
@@ -772,11 +792,11 @@
       },
       "path": "vigente-inicio-estudiante-1440.png",
       "route": "/inicio",
-      "sha256": "81d3efceac58bb4ff7f484fa2afe6ed39ec27f99b6020085600c9c156ea5f6d1",
-      "bytes": 714424,
+      "sha256": "38a05538bf644ca5346d057d5cde7e8fbdd9a7784f1eb4afff9f88f67b6b5d38",
+      "bytes": 721792,
       "date": "2026-11-24",
-      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
-      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
@@ -806,11 +826,11 @@
       },
       "path": "vigente-inicio-estudiante-390.png",
       "route": "/inicio",
-      "sha256": "c4de13011a909a7f42634f97f3c70d1d9a32b3fab37730e806875ea92f286410",
-      "bytes": 174416,
+      "sha256": "a2c1ffdb26bddac8b713fc169ed97471e09f8f234ef86025031f50842603d894",
+      "bytes": 176421,
       "date": "2026-11-24",
-      "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
-      "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
@@ -1171,16 +1191,15 @@
     {
       "id": "vigente-plan-aula-docente-1440",
       "role": "docente",
-      "result": "Plan del aula de prueba. La docente ve los controles de edición y dictado.",
+      "result": "Interior del aula docente: banner con la portada, pestañas como paradas y Plan como sendero de temas.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
-        "Fotografía y luz",
+        "Biología 3.° B",
         "Plan",
-        "Plan de estudio",
-        "Exposición"
+        "Plan de estudio"
       ],
       "alerts": [],
       "typography": {
@@ -1190,27 +1209,30 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-plan-aula-docente-1440.png",
-      "route": "/mis-aulas",
-      "sha256": "385d37ca4bda945b1cb5bd29141a96ae9bf1727da654812681eef8c0dcc9dd8d",
-      "bytes": 124906
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "ba805b8f24c3922cc3e4d917a44af0fc9f86fd43e5e0e38a726a854a7e0b0859",
+      "bytes": 366741,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-plan-aula-docente-390",
       "role": "docente",
-      "result": "Plan del aula de prueba con selector móvil de tema.",
+      "result": "Interior del aula docente en móvil con Invitar y pestañas desplazables.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
-        "Fotografía y luz",
+        "Biología 3.° B",
         "Plan",
-        "Plan de estudio",
-        "Exposición"
+        "Plan de estudio"
       ],
       "alerts": [],
       "typography": {
@@ -1220,27 +1242,30 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-plan-aula-docente-390.png",
-      "route": "/mis-aulas",
-      "sha256": "0c5b62eeb44c5fc70ffcca6cba1122377a51a5e52a2060b4e05ccdc293184736",
-      "bytes": 59542
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "f66c668255b743ce1413a3dd180e1d65b532b4aa54fb0fbfdd5d55393281add3",
+      "bytes": 171947,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-plan-aula-estudiante-1440",
       "role": "estudiante",
-      "result": "Plan del aula como estudiante, con los temas publicados.",
+      "result": "Interior del aula estudiante: banner con la portada, Mi progreso y Plan como sendero de temas.",
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
       "scrollY": 0,
       "headings": [
-        "Fotografía y luz",
+        "Biología 3.° B",
         "Plan",
-        "Plan de estudio",
-        "Exposición"
+        "Plan de estudio"
       ],
       "alerts": [],
       "typography": {
@@ -1250,27 +1275,30 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
+        "accent": null,
         "navWidth": 232
       },
       "path": "vigente-plan-aula-estudiante-1440.png",
-      "route": "/mis-aulas",
-      "sha256": "bdb95c63299268d235d12829547ab740d44a19d807b7be66776d859e1c182d2e",
-      "bytes": 123241
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "d827e45a7db48fb6515eb9f38fd6152e36975aa5c48b8e55b1fbcf10a527dea3",
+      "bytes": 354167,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-plan-aula-estudiante-390",
       "role": "estudiante",
-      "result": "Plan del aula como estudiante, con los temas publicados.",
+      "result": "Interior del aula estudiante en móvil.",
       "width": 390,
       "height": 844,
-      "scrollWidth": 375,
+      "scrollWidth": 390,
       "scrollY": 0,
       "headings": [
-        "Fotografía y luz",
+        "Biología 3.° B",
         "Plan",
-        "Plan de estudio",
-        "Exposición"
+        "Plan de estudio"
       ],
       "alerts": [],
       "typography": {
@@ -1280,13 +1308,17 @@
       "shell": {
         "background": "rgb(237, 240, 244)",
         "ink": "rgb(32, 44, 61)",
-        "accent": "#b74710",
-        "navWidth": 375.20001220703125
+        "accent": null,
+        "navWidth": null
       },
       "path": "vigente-plan-aula-estudiante-390.png",
-      "route": "/mis-aulas",
-      "sha256": "05d991046d088761a4c3d59c7014ae4e48b63abe2041fa46786ccc448a45cca1",
-      "bytes": 58096
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "0984e9ea4ceaf86a840eeabadc3089c58d2ef53fc17bc8fee93480865d4e855f",
+      "bytes": 167289,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     },
     {
       "id": "vigente-registro-datos-publico-390",
@@ -1349,8 +1381,107 @@
       "candidate": "32c93a9c más los cambios sin commit del worktree auth-home-visual-design-6ba7ad (piloto Expedición)",
       "environment": "next dev del worktree con una API sintética local (sesión, Inicio validado con parseHomeResponse, saldo de IA, agenda y seguimiento vacíos). Sin base de datos ni proveedores.",
       "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-crear-aula-docente-1440",
+      "role": "docente",
+      "result": "Crear aula: riel lago con las cuatro paradas, vista previa en vivo y catálogo completo de portadas.",
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Crear un aula",
+        "Mis aulas"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(237, 240, 244)",
+        "ink": "rgb(32, 44, 61)",
+        "accent": "rgb(183, 71, 16)",
+        "navWidth": 232
+      },
+      "path": "vigente-crear-aula-docente-1440.png",
+      "route": "/mis-aulas",
+      "sha256": "a3cd7557b036adf2f684ed604f7b05aa64cacd17811b61723f42546d39495fa9",
+      "bytes": 445922,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-ajustes-aula-docente-1440",
+      "role": "docente",
+      "result": "Ajustes del aula con el interruptor de corrección asistida, ciclo de sólo lectura y portadas.",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Biología 3.° B",
+        "Ajustes",
+        "Tu aula, a tu manera"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(237, 240, 244)",
+        "ink": "rgb(32, 44, 61)",
+        "accent": null,
+        "navWidth": 232
+      },
+      "path": "vigente-ajustes-aula-docente-1440.png",
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "1900a8d52e71f57e0facd66eebed62332d1f08cdfeea7a70aebc8e8125557982",
+      "bytes": 402340,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
+    },
+    {
+      "id": "vigente-apunte-biblioteca-docente-1440",
+      "role": "docente",
+      "result": "Biblioteca: el docente elige escribir un apunte y completa título y contenido.",
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "scrollY": 0,
+      "headings": [
+        "Biología 3.° B",
+        "Biblioteca",
+        "Biblioteca",
+        "Escribir un apunte"
+      ],
+      "alerts": [],
+      "typography": {
+        "family": "Nunito, system-ui, sans-serif",
+        "fontReady": true
+      },
+      "shell": {
+        "background": "rgb(237, 240, 244)",
+        "ink": "rgb(32, 44, 61)",
+        "accent": null,
+        "navWidth": 232
+      },
+      "path": "vigente-apunte-biblioteca-docente-1440.png",
+      "route": "/mis-aulas?aula=00000000-0000-4000-8000-000000000001",
+      "sha256": "054ab7b08bbfe197fa483de03fd9171eb7a8d336d1a8e39d13321c67967a6fdb",
+      "bytes": 236074,
+      "date": "2026-11-24",
+      "candidate": "Rama claude/classrooms-expedition (bdd908a2) más los cambios sin commit de TASK-008 (migración Expedición de Mis aulas)",
+      "environment": "next dev del worktree con una API sintética local: sesión, Inicio, aulas, borradores, invitaciones, detalle del aula con unidades y temas, integrantes, actividades, biblioteca con un apunte escrito, muro y progreso. Sin base de datos ni proveedores.",
+      "browser": "Chromium de Playwright (headless). El indicador de desarrollo de Next se oculta al capturar."
     }
   ],
-  "count": 42,
+  "count": 47,
   "note": "Las entradas con date, candidate, environment y browser propios corresponden al piloto Expedición del 2026-11-24 y reemplazan a las de la misma ruta. El resto conserva la revisión indicada arriba; sus pantallas privadas muestran todavía la barra lateral Brújula."
 }

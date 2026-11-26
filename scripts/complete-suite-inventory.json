@@ -372,7 +372,6 @@
     "tests/brujula-search-ui.test.mjs",
     "tests/brujula-wizard-database.test.mjs",
     "tests/brujula-wizard-parity.test.mjs",
-    "tests/brujula-wizard-roundtrip.test.mjs",
     "tests/choice-order.test.mjs",
     "tests/ci-local.test.mjs",
     "tests/ci-pr-gate.test.mjs",
@@ -734,7 +733,11 @@
     "tests/teacher-writing-backend-db.test.mjs",
     "tests/expedition-access.test.mjs",
     "tests/expedition-home.test.mjs",
-    "tests/expedition-navigation.test.mjs"
+    "tests/expedition-navigation.test.mjs",
+    "tests/expedition-classrooms.test.mjs",
+    "tests/expedition-library.test.mjs",
+    "tests/expedition-settings.test.mjs",
+    "tests/expedition-activities.test.mjs"
   ],
   "exclusions": [
     {

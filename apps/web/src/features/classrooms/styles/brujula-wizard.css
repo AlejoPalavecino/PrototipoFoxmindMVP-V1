@@ -28,9 +28,7 @@
 .fm3d-theme .p5-app .p5-main .brujula-wizard-foot>div {display:flex;gap:9px;}
 .fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog button {display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:9px 13px;border:1px solid #dce1ef;border-radius:11px;background:#fff;color:#252646;font:600 12px/1.4 'Brújula',sans-serif;box-shadow:none;}
 .fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog button.primary {background:#b8490c;color:#fff;border-color:#b8490c;}
-.fm3d-theme .p5-app .p5-main .brujula-wizard button:is(.brujula-wizard-keep,.brujula-wizard-extract) {justify-content:flex-start;border:0;background:none;color:#b8490c;padding:7px 0;min-height:32px;}
-.fm3d-theme .p5-app .p5-main .brujula-wizard-extract {margin:12px 0 0;}
-.fm3d-theme .p5-app .p5-main .brujula-wizard-extract svg {width:16px;height:16px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard button.brujula-wizard-keep {justify-content:flex-start;border:0;background:none;color:#b8490c;padding:7px 0;min-height:32px;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file) {margin:18px 0 0;padding:14px 0 0;border:0;border-top:1px solid #e0e4f0;border-radius:0;background:none;color:#515971;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>summary {cursor:pointer;color:#59428a;font-size:12px;font-weight:600;background:none;padding:0;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>:not(summary) {margin-top:14px;}
