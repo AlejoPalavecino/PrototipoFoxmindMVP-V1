@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from 'react-dom/server';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { componentWithPorts } from './foxmind-3d-flows-loader.test.mjs';
@@ -34,7 +35,7 @@ test('tool generation sends the actual brief with its purpose without adding vis
   const sent=[],state={current:{id:'chat',title:'Clase',context:{kind:'GENERAL'}},conversations:[],turns:[],pending:null,activeTurn:null,busy:false,nextAfterSequence:null,selection:{topicIds:[],sourceIds:[]},curriculum:null,capabilities:{textGeneration:{enabled:true}}};
   const view=hookView(FoxyWorkspace,{state,controller:{send:async(...args)=>{sent.push(args);return 'accepted';}},classrooms:[]});
   try{await view.flush();const layout=descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0];
-    layout.props.tools.props.onChange('NOTE');await view.flush();
+    descendants(layout.props.tools,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Preparar un apunte'))[0].props.onClick();await view.flush();
     const dialog=descendants(view.tree,n=>n.type?.name==='FoxyToolDialog')[0];assert.ok(dialog);
     assert.equal(await dialog.props.onPrepare('Una explicación sobre la luz',[]),true);
     assert.deepEqual(sent,[['STUDY_MATERIAL','Una explicación sobre la luz',{topicIds:[],sourceIds:[]}]]);

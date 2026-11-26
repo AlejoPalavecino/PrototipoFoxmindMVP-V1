@@ -2,7 +2,13 @@ import { materialsInConversation } from '../../../../../shared-ui/creation-prese
 import { useId, useState } from 'react';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
-import { foxyQuizBrief, foxyQuizQuestionCount, foxyQuizRequest } from '../../../../../../src/core/domain/foxy/foxy-quiz.ts';
+import { foxyQuizBrief, foxyQuizFormat, foxyQuizQuestionCount, foxyQuizRequest, type FoxyQuizFormat } from '../../../../../../src/core/domain/foxy/foxy-quiz.ts';
+
+const quizFormats: { value: FoxyQuizFormat; label: string }[] = [
+  { value: 'CHOICE', label: 'Opción múltiple' },
+  { value: 'TRUE_FALSE', label: 'Verdadero o falso' },
+  { value: 'MIXED', label: 'Mixto' },
+];
 
 const assignmentInstructions = 'Incluí un objetivo observable, consignas para estudiantes, qué deben entregar y criterios concretos para revisar su trabajo.';
 const kickers: Record<string, string> = {
@@ -23,14 +29,15 @@ export function FoxyToolDialog({ title, contextName, materialCount, topics, init
   const [brief,setBrief]=useState(() => initialCount ? foxyQuizBrief(initialBrief) : activity && initialBrief.endsWith(assignmentInstructions)
     ? initialBrief.slice(0, -assignmentInstructions.length).trimEnd() : initialBrief);
   const [selected,setSelected]=useState(initialTopicIds ?? topics.map(topic=>topic.id)),[localError,setLocalError]=useState(''),[submitting,setSubmitting]=useState(false);
-  const [activityKind, setActivityKind] = useState(initialCount || initialQuiz ? 'QUIZ' : 'ASSIGNMENT');
+  // Quiz and assignment are separate tools: the entry decides the kind, so the form never asks «Trabajo práctico | Quiz».
+  const quiz = activity && (initialCount !== null || initialQuiz);
   const [questionCount, setQuestionCount] = useState(initialCount ?? 3);
-  const quiz = activity && activityKind === 'QUIZ';
+  const [format, setFormat] = useState<FoxyQuizFormat>(() => initialCount ? foxyQuizFormat(initialBrief) : 'CHOICE');
   async function prepare(){
     if(!brief.trim()){setLocalError('Contá qué querés preparar para que Foxy tenga un punto de partida.');return;}
     if(submitting||busy)return;
     setSubmitting(true);setLocalError('');
-    const request = quiz ? foxyQuizRequest(questionCount, brief.trim())
+    const request = quiz ? foxyQuizRequest(questionCount, brief.trim(), format)
       : activity ? `${brief.trim()}\n\n${assignmentInstructions}`
       : brief.trim();
     try{if(await onPrepare(request,selected))onClose();else setLocalError('No pudimos iniciar la propuesta. Tu idea sigue acá; volvé a intentar.');}
@@ -48,22 +55,21 @@ export function FoxyToolDialog({ title, contextName, materialCount, topics, init
   const close = () => { if (!submitting) onClose(); };
   const form = <form onSubmit={event=>{event.preventDefault();void prepare();}} className="parity-foxy-toolForm">
     {!inline && <div className="parity-foxy-scopeBanner"><FoxmindIcon name="book"/><div><strong>{contextName}</strong><p>{materialsInConversation(materialCount)}</p></div></div>}
-    {activity && <>
+    {quiz && <>
       <fieldset className="parity-foxy-choiceGroup parity-foxy-formatGroup" disabled={submitting}>
-        <legend>Formato</legend>
+        <legend>Formato de preguntas</legend>
         <div className="parity-foxy-seg">
-          <span><input type="radio" id={`${uid}-assignment`} name={`${uid}-kind`} value="ASSIGNMENT" checked={!quiz} onChange={() => setActivityKind('ASSIGNMENT')} /><label htmlFor={`${uid}-assignment`}>Trabajo práctico</label></span>
-          <span><input type="radio" id={`${uid}-quiz`} name={`${uid}-kind`} value="QUIZ" checked={quiz} onChange={() => setActivityKind('QUIZ')} /><label htmlFor={`${uid}-quiz`}>Quiz</label></span>
+          {quizFormats.map(item => <span key={item.value}><input type="radio" id={`${uid}-${item.value}`} name={`${uid}-format`} value={item.value} checked={format === item.value} onChange={() => setFormat(item.value)} /><label htmlFor={`${uid}-${item.value}`}>{item.label}</label></span>)}
         </div>
       </fieldset>
-      {quiz && <div className="parity-foxy-countGroup" role="group" aria-labelledby={`${uid}-count`}>
+      <div className="parity-foxy-countGroup" role="group" aria-labelledby={`${uid}-count`}>
         <span id={`${uid}-count`} className="parity-foxy-fieldLabel">Cantidad de preguntas</span>
         <div className="parity-foxy-stepper">
           <button type="button" aria-label="Una pregunta menos" disabled={submitting || questionCount <= 1} onClick={() => setQuestionCount(count => Math.max(1, count - 1))}>−</button>
           <output aria-live="polite">{questionCount}</output>
           <button type="button" aria-label="Una pregunta más" disabled={submitting || questionCount >= 10} onClick={() => setQuestionCount(count => Math.min(10, count + 1))}>+</button>
         </div>
-      </div>}
+      </div>
     </>}
     <label>¿Qué te gustaría preparar?<textarea autoFocus rows={inline ? 3 : 5} maxLength={1500} disabled={submitting} value={brief} onChange={event=>{setBrief(event.target.value);setLocalError('');}} placeholder={example}/></label>
     <button type="button" className="parity-foxy-example" onClick={()=>setBrief(example)}><FoxmindIcon name="spark"/>Usar una idea para empezar</button>
@@ -81,7 +87,7 @@ export function FoxyToolDialog({ title, contextName, materialCount, topics, init
     </header>
     {form}
   </section>;
-  return <FoxyDialog title={title} description="Contale a Foxy qué necesitás. Después podés revisar y editar." className="parity-foxy-toolDialog" onClose={close}
+  return <FoxyDialog title={quiz ? 'Crear un quiz' : title} description="Contale a Foxy qué necesitás. Después podés revisar y editar." className="parity-foxy-toolDialog" onClose={close}
     footer={<><button type="button" disabled={submitting} onClick={onClose}>Cancelar</button><button type="button" className="p5-primary" disabled={submitting||busy} onClick={()=>void prepare()}><FoxmindIcon name="spark"/>{submitting?'Preparando…':'Preparar propuesta'}</button></>}>
     {form}
   </FoxyDialog>;

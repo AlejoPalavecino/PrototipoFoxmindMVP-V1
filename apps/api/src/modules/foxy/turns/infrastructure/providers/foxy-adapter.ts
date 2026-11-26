@@ -7,7 +7,7 @@ import { injectedTextClient, textClientCompatibilityView } from '../../../../../
 import type { AiConfiguration } from '../../../../../platform/ai/configuration.ts';
 import { AiError } from '../../../../../platform/ai/errors.ts';
 import { foxyMessages, foxyInstructionFor, foxyResponseSchema, foxyQuizInstruction, foxyQuizResponseSchema } from './foxy-prompt.ts';
-import { foxyQuizQuestionCount } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
+import { foxyQuizFormat, foxyQuizQuestionCount } from '../../../../../../../../src/core/domain/foxy/foxy-quiz.ts';
 import { foxyResponse } from './foxy-response.ts';
 import { createFoxyStreamPreview } from './foxy-stream-preview.ts';
 type Configuration = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>
@@ -65,11 +65,12 @@ export class GeminiFoxyTextAdapter {
  private call(input: FoxyTextInput, publish?: (markdown: string | undefined) => void) {
   const streaming = eligible(input) && this.executionProvider === 'gemini';
   const quizCount = input.purpose === 'ACTIVITY_IDEAS' ? foxyQuizQuestionCount(input.message) : null;
+  const quizFormat = foxyQuizFormat(input.message);
   return { key: input, signal: input.signal, request: () => {
    validate(input);
    const instruction = foxyInstructionFor(input.purpose, this.promptVersion);
-   return { system: quizCount ? `${instruction}\n\n${foxyQuizInstruction(quizCount)}` : instruction,
-    messages: foxyMessages(input), schema: quizCount ? foxyQuizResponseSchema(quizCount) : streaming ? streamingSchema : foxyResponseSchema,
+   return { system: quizCount ? `${instruction}\n\n${foxyQuizInstruction(quizCount, quizFormat)}` : instruction,
+    messages: foxyMessages(input), schema: quizCount ? foxyQuizResponseSchema(quizCount, quizFormat) : streaming ? streamingSchema : foxyResponseSchema,
     // Conversational replies favour a fast first answer; resources keep the model's default reasoning.
     ...(input.purpose === 'CHAT' ? { tuning: { thinking: 'low' as const } } : {}) };
   }, ...(streaming && publish ? { preview: createFoxyStreamPreview(publish) } : {}) };

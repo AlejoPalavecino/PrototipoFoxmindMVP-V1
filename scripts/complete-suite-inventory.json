@@ -744,7 +744,8 @@
     "tests/expedition-desk.test.mjs",
     "tests/foxy-chat-layout-tools-rail.test.mjs",
     "tests/study-folder-progress.test.mjs",
-    "tests/study-collection-progress.test.mjs"
+    "tests/study-collection-progress.test.mjs",
+    "tests/foxy-quiz-format.test.mjs"
   ],
   "exclusions": [
     {

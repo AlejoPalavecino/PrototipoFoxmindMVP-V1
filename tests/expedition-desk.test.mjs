@@ -60,3 +60,12 @@ test('Colección y asistente: hoja anclada, banner con la escena de estudio y se
   assert.match(css, /\.study-folder-trail-bar > i\.on \{[^}]*background: var\(--xp-pine\)/);
 });
 
+test('Foxy AI: hoja anclada, íconos con color fuera del diálogo y elección de formato en lago', () => {
+  const path = appStylesheets().find(item => item.endsWith('expedition-foxy.css'));
+  assert.ok(path, 'expedition-foxy.css debe formar parte de la cascada real');
+  const css = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const selector of selectorsOf(css)) for (const part of selector.split(/,(?![^(]*\))/))
+    assert.match(part.trim(), /^#foxmind-product#foxmind-product\.fm3d-theme /, part.trim());
+  assert.match(css, /^#foxmind-product#foxmind-product\.fm3d-theme \.parity-foxy-toolIcon\.mint \{[^}]*background: var\(--xp-pine-soft\)/m, 'el color no depende de estar dentro del diálogo');
+  assert.match(css, /\.parity-foxy-seg input:checked \+ label \{[^}]*background: var\(--xp-lake\)/);
+});
