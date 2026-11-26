@@ -245,6 +245,7 @@ test('all public runners reject skip/unknown options and keep help resource-lazy
 test('standalone compiler helper has no receipt or environment bypass', () => {
   const f = fixture(); tools(f);
   f.put('scripts/p33-identity-test-env.mjs', readFileSync('scripts/p33-identity-test-env.mjs'));
+  f.put('scripts/test-timeout-scale.mjs', readFileSync('scripts/test-timeout-scale.mjs'));
   f.put('node_modules/pg/package.json', '{"name":"pg","main":"index.js"}');
   f.put('node_modules/pg/index.js', 'module.exports = {};');
   const run = spawnSync(process.execPath, ['--input-type=module', '-e', `
@@ -256,6 +257,8 @@ test('standalone compiler helper has no receipt or environment bypass', () => {
   assert.equal(run.stderr, 'SYNTHETIC_COMPILATION_STDERR\n');
   const helper = readFileSync('scripts/p33-identity-test-env.mjs', 'utf8');
   assert.doesNotMatch(helper, /receipt|SKIP_BUILD|REUSE_BUILD/);
-  assert.match(helper, /Math\.min\(30000, deadline - Date\.now\(\)\)/);
+  // The 30 s cap can only be stretched locally (FOXMIND_TEST_TIMEOUT_SCALE >= 1), never skipped.
+  assert.match(helper, /Math\.min\(scaledMs\(30000\), deadline - Date\.now\(\)\)/);
+  assert.match(readFileSync('scripts/test-timeout-scale.mjs', 'utf8'), /scale < 1/);
   assert.match(helper, /Date\.now\(\) \+ 90000/);
 });
