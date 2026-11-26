@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { setTimeout } from 'node:timers/promises';
 import pg from 'pg';
+import { scaledMs } from './test-timeout-scale.mjs';
 
 // Keys and owned database credentials exist only in process memory.
 export function identityTestEnvironment() {
@@ -19,7 +20,7 @@ export function identityTestEnvironment() {
 
 export function compileIdentityApi(deadline) {
   const run = spawnSync(process.execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', 'apps/api/tsconfig.json'], {
-    env: process.env, encoding: 'utf8', timeout: Math.max(1, Math.min(30000, deadline - Date.now())), windowsHide: true,
+    env: process.env, encoding: 'utf8', timeout: Math.max(1, Math.min(scaledMs(30000), deadline - Date.now())), windowsHide: true,
   });
   if (run.stdout) process.stdout.write(run.stdout);
   if (run.stderr) process.stderr.write(run.stderr);
@@ -63,7 +64,7 @@ export async function withIdentityDatabase(run) {
       if (/^\d+_/.test(entry)) await client.query(readFileSync(`prisma/migrations/${entry}/migration.sql`, 'utf8'));
     }
     await client.end(); client = undefined;
-    return await run({ url, container, name, deadline: Date.now() + 30000 });
+    return await run({ url, container, name, deadline: Date.now() + scaledMs(30000) });
   } finally {
     if (client) { try { await client.end(); } catch {} }
     if (owned) {
