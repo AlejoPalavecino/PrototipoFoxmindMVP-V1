@@ -18,7 +18,23 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 | Selección de suites | scripts/ci-suites.mjs y scripts/complete-suite-inventory.json |
 | Suite completa | npm run test:complete; leer admisión, grupos y recursos antes de ejecutarla |
 
-En GitHub, el workflow `FoxMind checks` (`.github/workflows/issue2-ci.yml`) tiene tres disparadores. Cada push a `main` corre sólo el job liviano `verify` (build, typecheck, lint, docs y suites puras). Los pull requests y las corridas manuales desde la pestaña Actions (`workflow_dispatch`) corren además `integration-owned` y `complete-suite`, que incluyen los recorridos con navegador como `p5-integration`.
+En GitHub, el workflow `FoxMind checks` (`.github/workflows/issue2-ci.yml`) tiene tres disparadores. Cada push a `main` corre sólo el job liviano `verify` (build, typecheck, lint, docs y suites puras). Cada pull request corre un gate de unos 15 minutos, con los trabajos en paralelo:
+- `verify`.
+- `integration-owned`, un recorrido de punta a punta.
+- La matriz `complete-suite`, con tres grupos:
+  - `fast`: pruebas unitarias.
+  - `critical`: todas las rutas de identidad (sesiones, CSRF, registro, recuperación y cambio de contraseña), más las pruebas con PostgreSQL de custodia de archivos, cuota y presupuesto de IA, roles exclusivos, códigos e inscripción de aulas y autorización de la corrección con IA. La lista vive en `criticalOwnedFiles`, dentro de [`ci-suites.mjs`](../../../scripts/ci-suites.mjs).
+  - `owned-services`: almacenamiento y escáner reales.
+
+El resto, es decir `owned-db` completo, `owned-browser` y `wrappers`, va en el job `full-suite`. Sólo corre a mano, desde Actions → FoxMind checks → Run workflow, antes de integrar una pila a `main`. Una corrida manual corre el gate y `full-suite`, que juntos cubren la suite completa. Las demás pruebas acompañan el desarrollo: corré las del área que tocás, con TDD.
+
+Cuando GitHub Actions no está disponible (por ejemplo, sin minutos), [`scripts/ci-local.mjs`](../../../scripts/ci-local.mjs) corre en esta máquina los mismos trabajos de `issue2-ci.yml` y `secret-scan.yml`. Con `--publish` deja cada resultado como estado `local/<trabajo>` en el commit probado; se niega a publicar si hay archivos versionados con cambios. `--jobs` elige trabajos y `--install` corre `npm ci` antes. Algunas suites de identidad tienen topes que una máquina lenta no alcanza aunque el código esté bien: la compilación de la API tiene 30 s y en una notebook Windows tarda de 20 a 38 s. `--timeout-scale N` (de 1 a 10) define `FOXMIND_TEST_TIMEOUT_SCALE` y estira sólo los topes que leen [`test-timeout-scale.mjs`](../../../scripts/test-timeout-scale.mjs). Cada estado publicado lo anota como «tiempos xN». En CI la variable no existe y los topes quedan iguales.
+
+Antes de mergear un PR sin Actions disponible:
+1. Dejá la rama del PR en el worktree, sin cambios versionados.
+2. Corré `npm run ci:local -- --publish --timeout-scale 3`. Corre el gate de PR en serie y en esta notebook tarda unos 50 minutos. Con `--full` suma `full-suite`, unas 3 horas más, y es lo que corresponde antes de integrar una pila. Evitá otras suites pesadas en la misma máquina mientras corre.
+3. Comprobá en el PR que los ocho estados `local/…` estén en verde y correspondan al último commit. Un push nuevo deja sin estados al commit anterior, así que hay que volver a correrlo.
+4. Si falla un trabajo, leé su log en `.test-artifacts/ci-local/` y repetí sólo ese con `--jobs "<id>"`.
 
 Los runners pueden crear PostgreSQL/S3/escáner/correo propios; otros requieren activación explícita de entorno/proveedor. Revisar el inventario y los guards antes de ejecutar. No descubrir secretos ni usar una base persistente como fixture.
 

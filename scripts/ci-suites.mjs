@@ -23,6 +23,9 @@ export const suites = {
   ],
   pure: [
     'tests/choice-order.test.mjs',
+    'tests/ci-local.test.mjs',
+    'tests/ci-pr-gate.test.mjs',
+    'tests/test-timeout-scale.test.mjs',
     'tests/ai-text-tuning.test.mjs',
     'tests/study-chat-preview.test.mjs',
     'tests/study-shared-strategy-policy.test.mjs',
@@ -250,3 +253,26 @@ export function validateCompleteRoutes({ entries, exclusions, routes }) {
   for (const file of omitted) errors.push(`Unrouted: ${file}`);
   return errors.concat(validateGroups(entries, routes));
 }
+
+// PR gate: the owned-db files that guard security and access, run with every identity wrapper
+// route by `run-complete-suite --group critical`. They stay routed in owned-db for the full suite.
+// Areas: file custody, AI cost limits, classroom membership and codes, exclusive roles, grading AI authorization.
+export const criticalOwnedFiles = [
+  'apps/api/src/modules/files/custody/infrastructure/tests/chat-attachment-custody.test.mjs',
+  'apps/api/src/modules/files/custody/infrastructure/tests/chat-attachment-transfer.test.mjs',
+  'apps/api/src/modules/files/custody/infrastructure/tests/foxy-begin-transaction.test.mjs',
+  'apps/api/src/modules/files/custody/infrastructure/tests/foxy-private-asset-files.test.mjs',
+  'apps/api/src/modules/files/custody/infrastructure/tests/foxy-publication-files.test.mjs',
+  'tests/agenda-identity.test.mjs',
+  'tests/ai-study-profile-database.test.mjs',
+  'tests/ai-study-reservation-database.test.mjs',
+  'tests/ai-monthly-budget-database.test.mjs',
+  'tests/ai-quota-completion-race.test.mjs',
+  'tests/monthly-ai-quota-database.test.mjs',
+  'tests/audit-lock-concurrency.test.mjs',
+  'tests/exclusive-account-role.test.mjs',
+  'tests/grading-ai-authorization.test.mjs',
+  'tests/p5-codes-invitation-batches.test.mjs',
+  'tests/p5-enrollment.test.mjs',
+  'tests/pending-classrooms-database.test.mjs',
+];

@@ -4,6 +4,7 @@ import { execFileSync, spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import pg from "pg";
+import { scaledMs } from "../scripts/test-timeout-scale.mjs";
 import { createApplication } from "../.build/api/apps/api/src/application.js";
 import { readConfiguration } from "../.build/api/apps/api/src/configuration.js";
 
@@ -77,7 +78,7 @@ test("compiled CLI starts on loopback and supports an ephemeral port", async () 
   child.stderr.on("data", data => { stderr += data; });
   try {
     const event = await new Promise((resolve, reject) => {
-      const timeout = globalThis.setTimeout(() => reject(new Error("CLI listening event timed out")), 4000);
+      const timeout = globalThis.setTimeout(() => reject(new Error("CLI listening event timed out")), scaledMs(4000));
       let output = "";
       child.stdout.on("data", data => {
         output += data;
