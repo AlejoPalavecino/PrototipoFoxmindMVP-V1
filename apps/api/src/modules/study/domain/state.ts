@@ -1,6 +1,7 @@
 import type { StudyInput, StudyResult, StudyPractice, StudyAnswers, PracticeResult, SourceRef, planExam, generateDevelopmentFeedback } from '../../../../../../src/core/domain/study/engine.ts';
 import type { FolderFields } from '../../../../../../src/core/domain/study/folders.ts';
 import type { StudyReviewRequest } from '../../../../../../src/core/domain/study/review.ts';
+import { studyFolderProgress, type StudyFolderProgress, type StudyScoreRow, type StudyTopicRef } from '../../../../../../src/core/domain/study/progress.ts';
 export interface StudySource {
     kind?: 'PLAN' | 'MATERIAL';
     extension?: string;
@@ -42,15 +43,17 @@ export interface StudyFolder extends FolderFields {
     createdAt: string;
     updatedAt: string;
 }
-export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'>;
-export type StudySummaryRow = Omit<FolderRow, 'state'> & {fields: Omit<FolderFields, 'units'>};
+/** The next review already in the student's Agenda, for the collection card. */
+export type StudyNextReview = { startAt: string; endAt: string; title: string; timeZone: string };
+export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'> & { progress: StudyFolderProgress; nextReview?: StudyNextReview };
+export type StudySummaryRow = Omit<FolderRow, 'state'> & {fields: Omit<FolderFields, 'units'>; topics?: StudyTopicRef[] | null; scores?: StudyScoreRow[] | null};
 function projectFields<T extends Pick<FolderFields, 'subject' | 'wizardStep'>>(fields: T, draft: boolean) {
     const { wizardStep, ...rest } = fields;
     return { ...rest, subject: fields.subject ?? '', ...(draft ? { wizardStep: wizardStep ?? 0 } : {}) };
 }
 export function projectFolderSummary(r: StudySummaryRow): StudyFolderSummary {
     return {id:r.id,ownerId:r.owner_id,status:r.status,revision:String(r.revision),...projectFields(r.fields, r.status === 'DRAFT'),
-        createdAt:r.created_at.toISOString(),updatedAt:r.updated_at.toISOString()};
+        createdAt:r.created_at.toISOString(),updatedAt:r.updated_at.toISOString(),progress:studyFolderProgress(r.topics ?? [], r.scores ?? [])};
 }
 export interface StudyPreferences {
     difficulty: 'EASY' | 'MEDIUM' | 'HARD';

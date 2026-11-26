@@ -66,7 +66,7 @@ test('a study confirmation prevents duplicate submits and stays open for retry o
   } finally { view.close(); }
 });
 
-test('folder details can continue without a file, but the plan step requires an approved document',async()=>{
+test('folder details continue without a file; the origin step asks where the path comes from and only «De mi programa» needs a document',async()=>{
   const original=globalThis.window;
   globalThis.window={addEventListener(){},removeEventListener(){}};
   const {StudyWizard}=loadTsModule('apps/web/src/features/study/ui/study-wizard.tsx');
@@ -79,10 +79,16 @@ test('folder details can continue without a file, but the plan step requires an 
     await view.flush();field().props.onChange({target:{value:'Biología'}});subject().props.onChange({target:{value:'Ciencias naturales'}});
     await view.flush();await next();
     assert.equal(form().props['data-wizard-step'],1,'valid folder details reach Cargar plan without a file');
+    const notices=()=>descendants(view.tree,n=>n.props.error===true).map(n=>String(n.props.children));
+    const origin=async value=>{descendants(view.tree,n=>n.type==='input'&&n.props.name==='study-origin'&&n.props.value===value)[0].props.onChange();await view.flush();};
     await next();
     assert.equal(form().props['data-wizard-step'],1);
-    const notice=descendants(view.tree,n=>n.props.error===true);
-    assert.ok(notice.some(n=>/cargá.*documento del plan/i.test(String(n.props.children))));
+    assert.ok(notices().some(text=>/de dónde sale tu recorrido/i.test(text)),'sin elegir origen no avanza');
+    await origin('program');await next();
+    assert.equal(form().props['data-wizard-step'],1);
+    assert.ok(notices().some(text=>/cargá.*documento del plan/i.test(text)),'De mi programa sigue pidiendo el documento aprobado');
+    await origin('manual');await next();
+    assert.equal(form().props['data-wizard-step'],2,'A mano avanza sin archivo');
   }finally{view.close();globalThis.window=original;}
 });
 test('chained mutations use the revision returned by the prior command',async()=>{let revision=1;const seen=[];const controller=createStudyRevisionController({folder:{id:'folder',revision:'1'}},{command:async(_id,rev)=>{seen.push(rev);assert.equal(rev,String(revision));revision++;return{folder:{id:'folder',revision:String(revision)}};},get:async()=>({folder:{id:'folder',revision:String(revision)}})},()=>{});await controller.run('SAVE_ANSWERS',{});await controller.run('FINALIZE_PRACTICE',{});await controller.run('NEW_CONVERSATION',{});await controller.run('CHAT',{});assert.deepEqual(seen,['1','2','3','4']);});

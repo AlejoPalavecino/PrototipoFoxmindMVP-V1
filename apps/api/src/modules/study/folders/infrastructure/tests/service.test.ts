@@ -81,10 +81,12 @@ test('practice autosave survives new reads and finalization hides then reveals s
 
 
 
-test('confirmation revalidates that the required private plan remains ready',async()=>{
+test('confirmation revalidates that an attached private plan remains ready',async()=>{
  let ready=true;const f=fixture('student',{files:{assertOwn:async()=>{if(!ready)throw Object.assign(new Error('FILE_NOT_READY'),{code:'FILE_NOT_READY'});}}});
  const fields={name:'Privada',units:[{id:crypto.randomUUID(),title:'Unidad',topics:[{id:crypto.randomUUID(),title:'Tema'}]}]};
- await assert.rejects(f.service.create({},{...fields,status:'ACTIVE'}),{code:'INVALID_INPUT'});
+ // Built by hand (2026-11-25 decision): no program file is required, but topics still are.
+ assert.equal((await f.service.create({},{...fields,status:'ACTIVE'})).folder.status,'ACTIVE');
+ await assert.rejects(f.service.create({},{...fields,units:[],status:'ACTIVE'}),{code:'INVALID_INPUT'});
  const {folder}=await f.service.create({},{...fields,planFileId:syntheticPlanId});ready=false;
  await assert.rejects(f.service.command({},folder.id,{revision:'1',requestId:crypto.randomUUID(),action:'CONFIRM_FOLDER'}),{code:'FILE_NOT_READY'});
  assert.equal((await f.service.get({},folder.id)).folder.status,'DRAFT');ready=true;

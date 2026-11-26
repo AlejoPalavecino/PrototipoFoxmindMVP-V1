@@ -154,7 +154,11 @@ export interface StudyDetail {
   scheduledReviewSessions?: { sessionId: string; eventId: string }[];
   memory: unknown;
 }
-export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'>;
+/** Collection card data: topics with scored practice, the weakest one, and the next review already in the Agenda. */
+export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'> & {
+  progress?: { topics: number; practicedTopics: number; weakestTopic?: { id: string; title: string } };
+  nextReview?: { startAt: string; endAt: string; title: string; timeZone: string };
+};
 export interface StudyCollection {
   items: StudyFolderSummary[];
   classrooms: {

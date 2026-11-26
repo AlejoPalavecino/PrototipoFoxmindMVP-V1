@@ -31,9 +31,14 @@ export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCr
   const [step, setStep] = useState(folder?.wizardStep ?? 0), [name, setName] = useState(folder?.name ?? '');
   const [subject, setSubject] = useState(folder?.subject ?? '');
   const [year, setYear] = useState(String(folder?.academicYear ?? new Date().getFullYear()));
+  // A new folder with exactly one available classroom starts linked to it; the student can still pick another origin.
+  // A link to a specific classroom is honored only if the catalog authorizes it, and never replaced by another one.
+  const openRooms = catalog.classrooms.filter(room => !room.archived);
   const initialLink = folder
     ? folder.linkedClassroomId ?? ''
-    : catalog.classrooms.find(room => room.id === initialClassroomId)?.id ?? '';
+    : initialClassroomId
+      ? catalog.classrooms.find(room => room.id === initialClassroomId)?.id ?? ''
+      : openRooms.length === 1 ? openRooms[0]!.id : '';
   const [banner, setBanner] = useState(folder?.bannerKey ?? 'literature'), [linked, setLinked] = useState(initialLink);
   const [programSource, setProgramSource] = useState(initialLink ? 'classroom' : 'own');
   const [units, setUnits] = useState<StudyUnit[]>(folder?.units ?? []);
@@ -205,7 +210,6 @@ export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCr
   function save(active = false, exit = false) {
     const invalid = active
       ? ((!subject.trim() ? 'Completá la materia para continuar.' : null) ??
-        (draft.current?.planOrigin ? null : requireStudyPlan(file?.ready ? planId : null)) ??
         validateStudyPlan(name, year, units))
       : !/^\d{1,4}$/.test(year) || Number(year) < 1
         ? 'Revisá el año académico.'
@@ -318,10 +322,10 @@ export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCr
       ? ((!subject.trim() ? 'Completá el nombre y la materia para continuar.' : null) ??
         validateStudyPlan(name, year, units, false))
       : step === 1
-        ? ((method === 'classroom' || draft.current?.planOrigin
-          ? null
-          : requireStudyPlan(file?.ready ? planId : null)) ??
-          (!method ? 'Elegí cómo querés cargar el plan.' : null))
+        ? (!method ? 'Elegí de dónde sale tu recorrido.'
+          : method === 'classroom' ? (!linked ? 'Elegí un aula para continuar.' : null)
+            : method === 'ai' ? requireStudyPlan(file?.ready ? planId : null)
+              : null)
         : validateStudyPlan(name, year, units);
     if (invalid) {
       setError(invalid);
@@ -337,6 +341,11 @@ export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCr
       importPlan();
       return;
 
+    }
+    if (step === 1 && method === 'manual' && !units.length) {
+      // By hand starts from one empty unit with one topic, ready to name.
+      setUnits([{ id: crypto.randomUUID(), title: '', topics: [{ id: crypto.randomUUID(), title: '' }] }]);
+      setDirty(true);
     }
     if (step === 2 && method === 'ai' && analysisFailed)
       return;
@@ -421,9 +430,8 @@ content: step === 0 ? (renderStudyFolderIdentity({
                 }
 
               })) : step === 1 ? (renderStudyFolderProgram({
-                programSource,
+                origin: method === 'classroom' ? 'classroom' : method === 'ai' ? 'program' : method === 'manual' ? 'manual' : null,
                 linked,
-                method,
                 classrooms: catalog.classrooms,
                 planSource: {
                   file,
@@ -442,15 +450,18 @@ content: step === 0 ? (renderStudyFolderIdentity({
                   }
 
                 },
-                onSource: source => {
-                  setProgramSource(source);
-                  if (source === 'own') {
-                    setLinked('');
-                    setMethod(null);
-
-                  }
-                  else
+                onOrigin: origin => {
+                  setError('');
+                  if (origin === 'classroom') {
+                    setProgramSource('classroom');
                     setMethod('classroom');
+                    if (!linked && openRooms.length === 1) setLinked(openRooms[0]!.id);
+                  }
+                  else {
+                    setProgramSource('own');
+                    setLinked('');
+                    setMethod(origin === 'program' ? 'ai' : 'manual');
+                  }
                   setDirty(true);
                 },
                 onClassroom: id => {
@@ -458,10 +469,6 @@ content: step === 0 ? (renderStudyFolderIdentity({
                   setMethod('classroom');
                   setDirty(true);
                 },
-                onMethod: value => {
-                  setMethod(value);
-                  setDirty(true);
-                }
 
               })) : step === 2 ? (renderStudyFolderCurriculum({
                 method,
@@ -503,7 +510,7 @@ footer: renderStudyFolderFooter({
         advanceDisabled: blocked ||
           leave ||
           (step === 1 &&
-            (programSource === 'classroom' ? !linked : !file?.ready || !method)) ||
+            (!method || (method === 'classroom' && !linked) || (method === 'ai' && !file?.ready))) ||
           (step === 2 && method === 'ai' && analysisFailed),
         actionLabel: operation === 'create'
           ? 'Creando carpeta…'

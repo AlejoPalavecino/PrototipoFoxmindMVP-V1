@@ -1,3 +1,4 @@
+import {renderToStaticMarkup} from 'react-dom/server';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
@@ -173,3 +174,24 @@ test('la colección vacía ofrece Crear carpeta y los temas del diálogo tienen 
  chips[1].props.onClick();assert.deepEqual(dropped,['t2']);
 });
 
+test('la colección muestra «Seguí donde quedaste» y el avance real de cada carpeta',async()=>{
+ const {StudyCollectionView}=componentWithPorts('apps/web/src/features/study/folders/study-folder-collection.tsx',{});
+ const folder=(id,extra={})=>({id,name:id,subject:'Fotografía',academicYear:2026,bannerKey:'general',status:'ACTIVE',revision:'1',linkedClassroomId:null,planFileId:null,...extra});
+ const items=[folder('Luz',{progress:{topics:5,practicedTopics:3,weakestTopic:{id:'c',title:'Contraste'}},nextReview:{startAt:'2030-01-10T21:00:00Z',endAt:'2030-01-10T21:45:00Z',title:'Repaso: Contraste',timeZone:'UTC'}}),
+  folder('Lengua',{progress:{topics:0,practicedTopics:0}}),folder('Borrador',{status:'DRAFT'})];
+ const entered=[];
+ const view=hookView(StudyCollectionView,{catalog:{items,classrooms:[],covers:[]},onCreate(){},onEnter:id=>entered.push(id)});
+ try{
+  await view.flush();
+  const html=renderToStaticMarkup(view.tree);
+  const resume=descendants(view.tree,node=>node.type==='section'&&node.props.className==='study-collection-resume')[0];
+  assert.ok(resume,'muestra la carpeta para retomar');
+  assert.match(renderToStaticMarkup(resume),/Luz.*Repaso Jueves 21:00.*Tema más flojo: Contraste/s);
+  descendants(resume,node=>node.type==='button')[0].props.onClick();
+  assert.deepEqual(entered,['Luz']);
+  assert.match(html,/3 de 5 temas practicados/);
+  assert.equal((html.match(/study-folder-trail-bar/g)??[]).length,1,'una carpeta sin temas no muestra un sendero vacío');
+  descendants(view.tree,node=>node.type==='input'&&node.props.type==='search')[0].props.onChange({target:{value:'Lengua'}});await view.flush();
+  assert.equal(descendants(view.tree,node=>node.props?.className==='study-collection-resume').length,0,'al buscar no distrae con la carpeta para retomar');
+ }finally{view.close();}
+});

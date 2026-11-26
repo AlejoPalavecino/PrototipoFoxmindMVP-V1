@@ -13,6 +13,16 @@ export function createStudyAgendaIntegration():NonNullable<StudyOptions['agenda'
         FROM study_review_sessions s JOIN agenda_events e ON e.id=s.agenda_event_id AND e.owner_id=s.owner_id AND e.revision=s.event_revision
         WHERE s.owner_id=$1::uuid AND s.folder_id=$2::uuid AND s.cancelled_at IS NULL`, ownerId, folderId);
     },
+    async nextReviews(tx, ownerId) {
+      // Same link as scheduled(): only sessions whose Agenda event still exists at the confirmed revision.
+      return tx.query<{ folderId: string; startAt: string; endAt: string; title: string; timeZone: string }>(`SELECT DISTINCT ON (s.folder_id)
+          s.folder_id AS "folderId", to_char(s.starts_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "startAt",
+          to_char(s.ends_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "endAt",
+          COALESCE(s.event_snapshot->>'title','Repaso') AS title, COALESCE(s.event_snapshot->'schedule'->>'timeZone','UTC') AS "timeZone"
+        FROM study_review_sessions s JOIN agenda_events e ON e.id=s.agenda_event_id AND e.owner_id=s.owner_id AND e.revision=s.event_revision
+        WHERE s.owner_id=$1::uuid AND s.cancelled_at IS NULL AND s.starts_at>clock_timestamp()
+        ORDER BY s.folder_id, s.starts_at`, ownerId);
+    },
     async conflicts(tx,ownerId,timeZone,sessions) {
       if (!sessions.length) return [];
       const windows = sessions.map(session => {

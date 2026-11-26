@@ -146,7 +146,16 @@ export function createStudyService(options: StudyApplicationPorts) {
     return {
         async authorizeFolder(request: unknown, id: string, write: boolean) { return run(request, write, async (tx, owner) => { const r = await load(tx, owner, id, write); if (write && r.status === 'ARCHIVED')
             studyFail('CONFLICT'); return { ownerId: owner, status: r.status, revision: String(r.revision) }; }); },
-        async list(request: unknown) { return run(request, false, async (tx, owner) => ({ items: (await options.folders.list(tx, owner)).map(projectFolderSummary), classrooms: await options.linkedClassrooms(tx, owner), covers: CLASSROOM_COVER_KEYS.map(key => ({ key, label: key, color: '#e99e5a' })) })); },
+        async list(request: unknown) {
+            return run(request, false, async (tx, owner) => {
+                const rows = await options.folders.list(tx, owner);
+                // One query for the whole collection; folders without an upcoming Agenda review simply have none.
+                const reviews = rows.length && options.agenda?.nextReviews ? await options.agenda.nextReviews(tx, owner) : [];
+                const next = new Map(reviews.map(({ folderId, ...review }) => [folderId, review]));
+                return { items: rows.map(row => { const item = projectFolderSummary(row), review = next.get(row.id); return review ? { ...item, nextReview: review } : item; }),
+                    classrooms: await options.linkedClassrooms(tx, owner), covers: CLASSROOM_COVER_KEYS.map(key => ({ key, label: key, color: '#e99e5a' })) };
+            });
+        },
         async create(request: unknown, input: unknown) {
             return run(request, true, async (tx, owner) => {
                 const p = { ...studyObject(input) }, status = p.status ?? 'DRAFT';
@@ -224,7 +233,7 @@ export function createStudyService(options: StudyApplicationPorts) {
         async patch(request: unknown, id: string, input: unknown) { return run(request, true, async (tx, owner) => { const p = { ...studyObject(input) }, r = await load(tx, owner, id, true); if (studyRevision(p.revision) !== String(r.revision))
             studyFail('CONFLICT'); delete p.revision; const status = p.status ?? r.status; delete p.status; if ((r.status === 'ACTIVE' && status === 'DRAFT') || !['DRAFT', 'ACTIVE', 'ARCHIVED', 'DELETED'].includes(String(status)) || (r.status === 'ARCHIVED' && status !== 'ACTIVE'))
             studyFail('CONFLICT'); if (status === 'DELETED')
-            studyFail('INVALID_INPUT'); r.state.fields = validateFolder({ ...r.state.fields, ...p }, status === 'ACTIVE', !!r.state.planOrigin); if (status !== 'DRAFT') delete r.state.fields.wizardStep; await validateFiles(tx, owner, id, r.state.fields, Object.hasOwn(p, 'linkedClassroomId')); r.status = status as FolderRow['status']; if (status === 'ARCHIVED')
+            studyFail('INVALID_INPUT'); r.state.fields = validateFolder({ ...r.state.fields, ...p }, status === 'ACTIVE'); if (status !== 'DRAFT') delete r.state.fields.wizardStep; await validateFiles(tx, owner, id, r.state.fields, Object.hasOwn(p, 'linkedClassroomId')); r.status = status as FolderRow['status']; if (status === 'ARCHIVED')
             await options.agenda?.cancel(tx, owner, id); return { folder: projectFolder(await save(tx, r)) }; }); },
         async command(request: unknown, id: string, input: unknown) { const command = studyObject(input); if (command.action === 'CANCEL_GENERATION') return cancelGeneration(request,id,command); if (['CHAT', 'GENERATE', 'RETRY_FEEDBACK'].includes(String(command.action)))
             return generatedCommand(request, id, command); return run(request, true, async (tx, owner) => { const p = command, r = await load(tx, owner, id, true), requestId = studyId(p.requestId), hash = options.digest(JSON.stringify({ ...p, revision: undefined })); const prior = r.state.receipts[requestId]; if (prior) {

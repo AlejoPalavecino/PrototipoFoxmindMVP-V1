@@ -1,8 +1,8 @@
 import type { StudyInput, StudyResult } from '../../../../../../src/core/domain/study/engine.ts';
 import type { AiBudgetRejectionCode, AiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
-import type { StudyFeedbackInput, StudyFeedbackResult, StudyGenerationIntent, StudySource, StudyReviewWindow, StudyAgendaConflict } from '../domain/state.ts';
+import type { StudyFeedbackInput, StudyFeedbackResult, StudyGenerationIntent, StudySource, StudyReviewWindow, StudyAgendaConflict, StudyNextReview } from '../domain/state.ts';
 export { STUDY_GENERATION_PENDING_MS, projectFolder, projectFolderSummary } from '../domain/state.ts';
-export type { StudySource, StudyMaterial, StudyPlanOrigin, StudyFolder, StudyFolderSummary, StudySummaryRow, StudyPreferences, StudyGenerationIntent, StoredStudyPractice, StudyFeedbackInput, StudyFeedbackResult, StudyState, StudyReviewWindow, StudyAgendaConflict, FolderRow } from '../domain/state.ts';
+export type { StudySource, StudyMaterial, StudyPlanOrigin, StudyFolder, StudyFolderSummary, StudySummaryRow, StudyPreferences, StudyGenerationIntent, StoredStudyPractice, StudyFeedbackInput, StudyFeedbackResult, StudyState, StudyReviewWindow, StudyAgendaConflict, StudyNextReview, FolderRow } from '../domain/state.ts';
 export interface StudyGenerationView extends StudyGenerationIntent {
     status: 'PENDING' | 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'INSUFFICIENT';
     reason?: 'INTERRUPTED';
@@ -43,6 +43,8 @@ export interface StudyOptions {
     agenda?: {
         conflicts?(tx: StudyQuery, ownerId: string, timeZone: string, sessions: StudyReviewWindow[]): Promise<StudyAgendaConflict[]>;
         scheduled?(tx: StudyQuery, ownerId: string, folderId: string): Promise<{ sessionId: string; eventId: string }[]>;
+        /** Earliest upcoming review per folder that is still in the owner's Agenda. */
+        nextReviews?(tx: StudyQuery, ownerId: string): Promise<({ folderId: string } & StudyNextReview)[]>;
         confirm(tx: StudyQuery, ownerId: string, folderId: string, exam: unknown, sessions: unknown[], requestId: string): Promise<unknown>;
         cancel(tx: StudyQuery, ownerId: string, folderId: string): Promise<void>;
     };
