@@ -40,3 +40,20 @@ Sobre el commit `3b8d552a` del PR 18, el trabajo `wrappers` falló tres veces, c
 
 - La escala no acelera nada: sólo evita que una máquina lenta corte una prueba sana. Un estado con «tiempos xN» no prueba que el código entre en los topes de CI.
 - Los PR que no tengan este cambio no pueden usar la escala hasta que integren `main` con él.
+
+## Gate de PR de unos 15 minutos (26/11/2026)
+
+- **Decisión del usuario:** el CI de cada PR tiene que tardar de 10 a 15 minutos y cubrir lo crítico, es decir lo que rompe el sistema o su seguridad. El resto acompaña el desarrollo con TDD. El objetivo se mide en GitHub, con los trabajos en paralelo. La suite completa corre a pedido, antes de integrar una pila.
+- **Medición en esta notebook**, con los logs del PR 18 en `3b8d552a`:
+  - `owned-browser` suma 80,5 min en 46 archivos, de 1,5 a 4 min cada uno.
+  - `owned-db` suma 47,4 min. De eso, 22 min son limpiezas y casos borde de Foxy (publicaciones, turnos y visuales).
+  - Los wrappers de identidad tardan entre 20 y 28 s por grupo.
+- **Cambios:**
+  - `criticalOwnedFiles` en `scripts/ci-suites.mjs`: 17 archivos de `owned-db`, que suman unos 4,9 min medidos.
+  - Grupo `critical` en `run-complete-suite`: corre esos archivos y después todas las rutas wrapper. Una corrida sin `--group` no lo incluye, para no repetir pruebas.
+  - Workflow:
+    - `complete-suite` pasa a ser el gate de PR, con la matriz `[fast, critical, owned-services]` y sin `max-parallel`.
+    - Nuevo job `full-suite`, con `[owned-db, owned-browser, wrappers]` y `if: workflow_dispatch`.
+  - `ci-local` corre el gate por defecto. Con `--full` suma `full-suite (…)`.
+- **Prueba nueva:** `tests/ci-pr-gate.test.mjs`. Falló primero (RED) porque `criticalOwnedFiles` no existía. Con la implementación, la suite de CI pasa 40/40.
+- **Gate local sobre `1c9eea99`:** pasaron 5/6. `critical` falló en `tests/backend.test.mjs` (`CLI listening event timed out` a los 4041 ms): la escala no llegaba a las pruebas porque `cleanEnvironment` de `run-complete-suite` filtra el entorno y no incluía `FOXMIND_TEST_TIMEOUT_SCALE`. El verde anterior de `wrappers` con «tiempos x3» fue sin escala efectiva. Corrección: la variable se suma a la lista permitida (sin definir sigue sin definir), con prueba RED → GREEN en `tests/test-timeout-scale.test.mjs`.
