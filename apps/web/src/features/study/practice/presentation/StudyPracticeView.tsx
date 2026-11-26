@@ -10,9 +10,9 @@ import { renderStudyPracticeProgress } from './study-practice-progress.tsx';
 import { renderStudyPracticeReview } from './study-practice-review.tsx';
 import { renderStudyPracticeFeedback } from './study-practice-feedback.tsx';
 import { renderStudyPracticeFooter } from './study-practice-footer.tsx';
-import { completedPracticeAttempts } from './study-practice-results.ts';
+import { completedPracticeAttempts, practiceMissedTopics, practiceStep } from './study-practice-results.ts';
 import { clearChatTiming, commitChatTiming, startChatTiming, trackChatTiming } from '../../../../shared/chat-timing.ts';
-export function StudyPracticeView({ practice, practices = [], busy, run, onDirtyChange, onNewAttempt, onSelectAttempt, onClose, folderName, inline = false, sources, closeLabel = 'Volver al chat' }: {
+export function StudyPracticeView({ practice, practices = [], busy, run, onDirtyChange, onNewAttempt, onSelectAttempt, onClose, folderName, inline = false, sources, closeLabel = 'Volver al chat', onPracticeMissed, onPlanReview }: {
   practice: StudyPractice;
   practices?: StudyPractice[];
   busy: boolean;
@@ -25,6 +25,9 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
   inline?: boolean;
   closeLabel?: string;
   sources?: { folderId: string; items: StudySource[] };
+  /** Next steps after the result: practise the missed topics again, or plan the review. */
+  onPracticeMissed?: (topicIds: string[]) => void;
+  onPlanReview?: (topicIds: string[]) => void;
 }) {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>(practice.answers ?? {});
   const [index, setIndex] = useState(0), [review, setReview] = useState(false), [confirmation, setConfirmation] = useState(false);
@@ -228,7 +231,10 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
           answerText,
           feedbackComplete,
           busy,
-          onRetryFeedback: requestFeedback
+          onRetryFeedback: requestFeedback,
+          missedTopics: practiceMissedTopics(practice.result),
+          onPracticeMissed,
+          onPlanReview,
 
         })) : review ? (renderStudyPracticeReview({
           practice,
@@ -246,7 +252,7 @@ export function StudyPracticeView({ practice, practices = [], busy, run, onDirty
             practice,
             empty: practice.questions.filter((item) => !completed(item)).length,
             index,
-            answered: (id) => practice.questions.some((item) => item.id === id && completed(item)),
+            step: (item) => practiceStep(item, answers, checked.has(item.id), guided),
             guided,
             setIndex
 

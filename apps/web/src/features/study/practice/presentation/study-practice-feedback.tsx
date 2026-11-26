@@ -49,7 +49,7 @@ function formatResult(value: unknown): string {
   return String(value);
 
 }
-export function renderStudyPracticeFeedback({ practice, attempts, onSelectAttempt, heading, hasDevelopmentAnswers, answerText, feedbackComplete, busy, onRetryFeedback }: {
+export function renderStudyPracticeFeedback({ practice, attempts, onSelectAttempt, heading, hasDevelopmentAnswers, answerText, feedbackComplete, busy, onRetryFeedback, missedTopics = [], onPracticeMissed, onPlanReview }: {
   practice: StudyPractice;
   attempts: StudyPractice[];
   onSelectAttempt?: (id: string) => void;
@@ -59,6 +59,9 @@ export function renderStudyPracticeFeedback({ practice, attempts, onSelectAttemp
   feedbackComplete: boolean;
   busy: boolean;
   onRetryFeedback: () => void;
+  missedTopics?: string[];
+  onPracticeMissed?: (topicIds: string[]) => void;
+  onPlanReview?: (topicIds: string[]) => void;
 }) {
   const outcomes = practiceQuestionOutcomes(practice.result);
   const correct = [...outcomes.values()].filter((score) => score === 1).length;
@@ -94,6 +97,18 @@ export function renderStudyPracticeFeedback({ practice, attempts, onSelectAttemp
     {hasDevelopmentAnswers && !feedbackComplete && (<button disabled={busy} onClick={onRetryFeedback}>
       Reintentar devolución
     </button>)}
+    {(onPracticeMissed || onPlanReview) && <div className="study-practice-next">
+      <h3>¿Y ahora?</h3>
+      <p>{missedTopics.length ? 'Volvé sobre lo que falló mientras está fresco, o repartí el repaso hasta tu evaluación.' : 'Respondiste todo bien. Podés repartir el repaso hasta tu evaluación.'}</p>
+      <div>
+        {onPracticeMissed && missedTopics.length > 0 && <button type="button" className="primary" disabled={busy} onClick={() => onPracticeMissed(missedTopics)}>
+          <FoxmindIcon name="refresh" />Practicar lo que falló
+        </button>}
+        {onPlanReview && <button type="button" disabled={busy} onClick={() => onPlanReview(missedTopics)}>
+          <FoxmindIcon name="calendar" />Organizar mi repaso
+        </button>}
+      </div>
+    </div>}
   </section>);
 
 }

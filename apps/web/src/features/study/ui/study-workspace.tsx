@@ -307,6 +307,9 @@ export function StudyWorkspace({
     setRepeatSources(undefined);
     if (tool.kind === 'PLAN') {
       setSelectedExam(undefined);
+      // The plan starts from the topics already chosen in the rail; the student can change them in its second step.
+      if (selected.length)
+        setRepeatPlan({ kind: 'REVIEW_PLAN', message: '', topicIds: selected, questionCount: 5, difficulty: 'MEDIUM' } as StudyGenerationInput);
       Panel('exam');
       return;
     }
@@ -401,6 +404,20 @@ export function StudyWorkspace({
       practice={openedPractice}
       busy={busy || !active}
       run={run}
+      onPracticeMissed={active ? (topicIds) => {
+        if (!closePractice()) return;
+        Selected(topicIds.filter((id) => topics.some((topic) => topic.id === id)));
+        chooseTool({ kind: 'QUIZ', title: 'Practicar' });
+      } : undefined}
+      onPlanReview={active ? (topicIds) => {
+        if (!closePractice()) return;
+        const chosen = topicIds.filter((id) => topics.some((topic) => topic.id === id));
+        Tab('chat');
+        setSelectedExam(undefined);
+        // Seeds the planner with the topics to review; dates and times stay for the student to choose.
+        setRepeatPlan({ kind: 'REVIEW_PLAN', message: '', topicIds: chosen.length ? chosen : selected, questionCount: 5, difficulty: 'MEDIUM' } as StudyGenerationInput);
+        Panel('exam');
+      } : undefined}
     />
   );
   const rail = () => (

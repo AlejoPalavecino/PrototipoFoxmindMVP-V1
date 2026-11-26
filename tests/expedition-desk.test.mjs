@@ -27,3 +27,25 @@ test('Mesa de trabajo: Herramientas en pino, Nuevo chat en el naranja de botón 
   assert.match(css, /\.study-composer-dock \{[^}]*width: min\(calc\(100% - 60px\), 1000px\)/);
 });
 
+const practiceSheet = () => {
+  const path = appStylesheets().find(item => item.endsWith('expedition-practice.css'));
+  assert.ok(path, 'expedition-practice.css debe formar parte de la cascada real');
+  return readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+};
+
+test('Práctica y repaso: la hoja Expedición está en la cascada y se ancla con el id raíz duplicado', () => {
+  const selectors = selectorsOf(practiceSheet());
+  assert.ok(selectors.length >= 30);
+  for (const selector of selectors) for (const part of selector.split(/,(?![^(]*\))/))
+    assert.match(part.trim(), /^#foxmind-product#foxmind-product\.fm3d-theme /, part.trim());
+});
+
+test('Práctica y repaso: el sendero distingue correcta, para repasar y actual, y el paso del repaso va en lago', () => {
+  const css = practiceSheet();
+  assert.match(css, /\.study-practice-trail > button\.is-correct \{[^}]*background: var\(--xp-pine\)/);
+  assert.match(css, /\.study-practice-trail > button\.is-review \{[^}]*border-color: var\(--xp-trail\)/);
+  assert.match(css, /\.study-practice-trail > button\[aria-current=step\] \{[^}]*outline: 3px solid var\(--xp-lake\)/);
+  assert.match(css, /li\[aria-current=step\] \.study-plan-step \{[^}]*background: var\(--xp-lake\)/);
+  assert.match(css, /\.study-plan-stage\[hidden\] \{ display: none; \}/, 'los pasos ocultos no se muestran aunque otra hoja fije display');
+});
+
