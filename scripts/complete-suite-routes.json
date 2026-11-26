@@ -322,6 +322,7 @@
       "tests/foxy-chat-layout-tools-rail.test.mjs",
       "tests/study-folder-progress.test.mjs",
       "tests/study-collection-progress.test.mjs",
+      "tests/foxy-quiz-format.test.mjs",
       "tests/expedition-home.test.mjs",
       "tests/expedition-navigation.test.mjs",
       "tests/folder-platform.test.mjs",

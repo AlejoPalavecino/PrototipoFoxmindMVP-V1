@@ -25,11 +25,13 @@ function failureMessage(turn: FoxyTurn) {
   return 'No se pudo completar esta respuesta. Podés revisar tu mensaje y hacer una nueva solicitud.';
 }
 
-export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity,
+export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity, welcome,
   catalogItems, onOpenResource, onActivityHandoff, controller, attachmentCount, pendingText, setText, onSources, enabled, mode }: {
   state: FoxyChatState; chatFollow: ReturnType<typeof useChatFollow>; pendingVisible: boolean;
   visualTimeline?: FoxyVisualTranscript; tool?: { label: string; placeholder: string }; chooseExample: (text: string) => void;
   identity?: ChatIdentity;
+  /** The empty conversation's first screen, shared with a new chat so both offer the same doors. */
+  welcome?: ReactNode;
   catalogItems?: ReadonlyArray<{ turnId: string | null; title: string }>;
   onOpenResource?: (conversationId: string, turnId: string) => void;
   onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY'|'RUBRIC') => void;
@@ -87,7 +89,7 @@ export function renderFoxyTranscript({ state, chatFollow, pendingVisible, visual
   return <>
     <p className={styles.srOnly + ' parity-ai-srOnly'} role="status">{!state.activeTurn && !state.pending && state.turns.at(-1)?.state === 'READY' ? 'Respuesta de Foxy lista para leer.' : ''}</p>
     <div className={styles.transcript + ' parity-ai-transcript'} ref={chatFollow.ref} onScroll={chatFollow.onScroll} aria-label="Mensajes con Foxy">
-      {!entries.length && !state.activeTurn && !pendingVisible && !visualTimeline?.pending && !visualTimeline?.error && <FoxyWelcome tool={tool} onExample={chooseExample}/>}
+      {!entries.length && !state.activeTurn && !pendingVisible && !visualTimeline?.pending && !visualTimeline?.error && (welcome ?? <FoxyWelcome tool={tool} onExample={chooseExample}/>)}
       {entries.map(({ key, body }) => <Fragment key={key}>{body}</Fragment>)}
       {pendingVisible && (!unreadActive || state.error) && <article className={styles.turn + ' parity-ai-turn'}>
         <div className={styles.request + ' parity-ai-request'}><ChatByline user identity={identity}/><p>{pendingText}</p></div>

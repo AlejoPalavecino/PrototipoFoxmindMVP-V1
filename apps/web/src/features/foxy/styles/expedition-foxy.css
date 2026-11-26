@@ -1,0 +1,57 @@
+/* Foxy AI en dirección Expedición (maqueta design/foxy-mi-estudio): herramientas por intención, «Retomá»,
+   contexto explícito y formulario acoplado. Las hojas parity-ai llegan a un id y tres clases; esta suma el id duplicado. */
+
+/* Íconos de herramienta con su color en cualquier lugar (menú y bienvenida), no sólo en el diálogo. */
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolIcon { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border: 0; border-radius: 12px; background: var(--xp-sky); color: var(--xp-lake); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolIcon > svg { width: 20px; height: 20px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolIcon.mint { background: var(--xp-pine-soft); color: var(--xp-pine); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolIcon.peach { background: var(--xp-orange-soft); color: var(--xp-orange-ink); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolIcon.rose { background: #f5e6ed; color: #84465f; }
+
+/* Menú Herramientas agrupado */
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolGroups > section + section { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--xp-line); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-toolGroups h3 { margin: 6px 8px 4px; color: var(--xp-muted); font: 900 12px/1.3 var(--xp-font); letter-spacing: .04em; text-transform: uppercase; }
+
+/* Contexto explícito en la cabecera */
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch { border: 1.5px solid var(--xp-line-strong); border-radius: 14px; background: #fff; color: var(--xp-lake); font-family: var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch:hover:not(:disabled) { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch small { color: var(--xp-pine); font: 900 11px/1.2 var(--xp-font); letter-spacing: .04em; text-transform: uppercase; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch strong { color: var(--xp-ink); font: 900 14px/1.25 var(--xp-font); }
+
+/* Bienvenida: intenciones agrupadas y «Retomá» */
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-welcome h2 { color: var(--xp-ink); font: 900 26px/1.15 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-welcome > p { color: var(--xp-muted); font: 600 15px/1.5 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intentGroup { width: 100%; max-width: 720px; margin-top: 14px; text-align: left; }
+#foxmind-product#foxmind-product.fm3d-theme :is(.parity-foxy-intentGroup, .parity-foxy-recent) > h3 { margin: 0 0 8px; color: var(--xp-muted); font: 900 12px/1.3 var(--xp-font); letter-spacing: .04em; text-transform: uppercase; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents > button { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; align-items: center; min-height: 0; padding: 12px 14px; border: 1.5px solid var(--xp-line); border-radius: 18px; background: #fff; color: var(--xp-ink); text-align: left; box-shadow: 0 1px 0 rgba(27, 58, 82, .05); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents > button:hover:not(:disabled) { border-color: var(--xp-lake-soft); box-shadow: var(--xp-shadow); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents > button > .parity-foxy-toolIcon { grid-row: span 2; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents > button > b { font: 900 15px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents > button > small { color: var(--xp-muted); font: 600 13px/1.35 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-recent { display: grid; gap: 6px; width: 100%; max-width: 720px; margin-top: 18px; text-align: left; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-recent > button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; padding: 8px 14px; border: 1px solid var(--xp-line); border-radius: 14px; background: #fff; color: var(--xp-lake); text-align: left; box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-recent > button:hover:not(:disabled) { background: var(--xp-sky); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-recent > button b { display: block; color: var(--xp-ink); font: 800 14px/1.3 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-foxy-recent > button small { color: var(--xp-muted); font: 600 12px/1.3 var(--xp-font); }
+
+/* Formulario acoplado donde estaba el composer */
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool { border: 1.5px solid var(--xp-lake-soft); border-radius: 18px; background: #f7fbfd; font-family: var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool > header strong { color: var(--xp-ink); font: 900 16px/1.25 var(--xp-font); }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool .parity-foxy-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 0; border-radius: 12px; background: #dfe9ef; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool .parity-foxy-seg label { display: inline-flex; flex-direction: row; align-items: center; justify-content: center; min-height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: #3b5163; font: 800 14px/1 var(--xp-font); box-shadow: none; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool .parity-foxy-seg input:checked + label { background: var(--xp-lake); color: #fff; }
+#foxmind-product#foxmind-product.fm3d-theme .parity-ai-chat .parity-foxy-inlineTool .parity-foxy-inlineActions .p5-primary { border-color: var(--xp-orange-button); background: var(--xp-orange-button); color: #fff; font-weight: 900; }
+
+@media (max-width: 650px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-intents { grid-template-columns: 1fr; }
+}
+
+/* En el teléfono la cabecera va en una fila: el contexto muestra sólo su nombre, recortado con puntos suspensivos. */
+@media (max-width: 650px) {
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch small { display: none; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch > svg { display: none; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch { padding: 0 10px; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch > span { min-width: 0; }
+  #foxmind-product#foxmind-product.fm3d-theme .parity-foxy-workspace .parity-ai-contextLaunch strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+}

@@ -16,12 +16,28 @@ export function foxyQuizQuestionCount(message: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
-export function foxyQuizRequest(count: number, brief: string) {
-  return `Prepará un quiz interactivo de ${count} ${count === 1 ? 'pregunta' : 'preguntas'}.\n${brief}`;
+/** Question format of a teacher quiz. Every format stays single-answer, so the quiz model and Activities are unchanged. */
+export type FoxyQuizFormat = 'CHOICE' | 'TRUE_FALSE' | 'MIXED';
+const formatLines: Record<Exclude<FoxyQuizFormat, 'CHOICE'>, string> = {
+  TRUE_FALSE: 'Formato: verdadero o falso.',
+  MIXED: 'Formato: mixto, opción múltiple y verdadero o falso.',
+};
+const formatLine = /^Formato: (verdadero o falso|mixto, opción múltiple y verdadero o falso)\.$/mu;
+
+export function foxyQuizRequest(count: number, brief: string, format: FoxyQuizFormat = 'CHOICE') {
+  // Multiple choice keeps the historical request so saved conversations read the same.
+  const head = `Prepará un quiz interactivo de ${count} ${count === 1 ? 'pregunta' : 'preguntas'}.`;
+  return format === 'CHOICE' ? `${head}\n${brief}` : `${head}\n${formatLines[format]}\n${brief}`;
+}
+
+export function foxyQuizFormat(message: string): FoxyQuizFormat {
+  if (foxyQuizQuestionCount(message) === null) return 'CHOICE';
+  const match = formatLine.exec(message);
+  return !match ? 'CHOICE' : match[1] === 'verdadero o falso' ? 'TRUE_FALSE' : 'MIXED';
 }
 
 export function foxyQuizBrief(message: string) {
-  return message.replace(quizRequest, '').trim();
+  return message.replace(quizRequest, '').replace(formatLine, '').trim();
 }
 
 function quizText(value: unknown, maximum: number) {

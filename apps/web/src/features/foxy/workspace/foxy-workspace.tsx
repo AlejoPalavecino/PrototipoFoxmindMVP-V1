@@ -24,7 +24,7 @@ import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxyContextPicker, type FoxyContextPreview } from '../context/foxy-context-picker';
 import { FoxyLibraryPanel } from '../context/foxy-library-panel';
 import { FoxyToolDialog } from '../tools/foxy-tool-dialog';
-import { FoxyToolChips, type FoxyChipId } from '../tools/foxy-tool-chips';
+import { foxyToolGroups, type FoxyToolId } from '../tools/foxy-tool-groups';
 import { FoxyScopeDialog } from '../context/foxy-scope-dialog';
 import type { FoxyVisualTranscript } from '../visuals/foxy-visual-workspace';
 
@@ -138,6 +138,12 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
   const scopedSourceIds = !draftMode && state.selection?.mode !== 'ALL_CLASSROOM' ? state.selection?.sourceIds : undefined;
   const materialCount = attachments.items.length + materialSources.filter(source => source.available && (!scopedSourceIds || scopedSourceIds.includes(source.sourceId))).length;
   const contextName = draftMode ? contextClassrooms.find(room=>room.id===context)?.name ?? 'Contexto general' : state.curriculum?.classroomTitle ?? 'Contexto general';
+  // «Contexto general» was unclear: name the classroom and, when the teacher narrowed it, the chosen topics.
+  const generalContext = draftMode ? context === 'GENERAL' : state.current?.context.kind === 'GENERAL';
+  const scopedTopics = !draftMode && state.selection?.mode !== 'ALL_CLASSROOM'
+    ? state.curriculum?.units.flatMap(unit => unit.topics).filter(topic => state.selection?.topicIds.includes(topic.id)).map(topic => topic.name) ?? [] : [];
+  const contextLabel = generalContext ? 'Ideas generales · tu biblioteca'
+    : [contextName, scopedTopics.length ? scopedTopics.slice(0, 2).join(', ') + (scopedTopics.length > 2 ? ` y ${scopedTopics.length - 2} más` : '') : 'aula completa'].join(' · ');
   const openLibrary = () => { setLibraryOpen(true); if(state.curriculum&&!draftMode) void controller.loadSources?.('MATERIAL'); };
   const newConversation = () => {
     if (!leaveReader()) return;
@@ -182,13 +188,14 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
     else { setToolQuiz(!!options.quiz); setToolInline(!!options.inline && roomForInlineTool()); setToolDialog(value); }
   };
   const closeTool = () => { const wasInline = toolInline; setToolDialog(null); setToolInline(false); setToolQuiz(false); if (wasInline) composerRef.current?.focus(); };
-  const toolContents = <FoxyToolPicker items={[
-    {value:'NOTE',label:'Preparar un apunte',hint:'Ideas claras para tu grupo.',icon:'book',color:'sky',opensDialog:true},
-    ...(visualsEnabled ? [{value:'DIAGRAM' as const,label:'Imágenes y esquemas',hint:'Una explicación que se pueda ver.',icon:'layers' as const,color:'mint',opensDialog:true}] : []),
-    {value:'ACTIVITY',label:'Crear una actividad',hint:'Consignas para trabajar en el aula.',icon:'pencil',color:'peach',opensDialog:true},
-    {value:'PLAN',label:'Planificar una clase',hint:'Inicio, desarrollo y cierre.',icon:'calendar',color:'rose',opensDialog:true},
-    {value:'RUBRIC',label:'Pensar una rúbrica',hint:'Criterios para acompañar.',icon:'progress',color:'sky',opensDialog:true},
-  ]} value={null} disabled={toolsLocked} onChange={(value:ToolMode) => openTool(value)}/>;
+  const groups = foxyToolGroups(visualsEnabled);
+  // Every door (menu, welcome) opens the form docked over the composer when there is room; Quiz is its own tool.
+  const pickTool = (id: FoxyToolId) => id === 'QUIZ' ? openTool('ACTIVITY', { quiz: true, inline: true }) : openTool(id, { inline: true });
+  const activeTool: FoxyToolId | null = toolDialog ? (toolDialog === 'ACTIVITY' && toolQuiz ? 'QUIZ' : toolDialog) : null;
+  const toolContents = <div className="parity-foxy-toolGroups">{groups.map(group => <section key={group.id} aria-label={group.label}>
+    <h3 aria-hidden="true">{group.label}</h3>
+    <FoxyToolPicker items={group.items.map(item => ({ ...item, opensDialog: true }))} value={null} disabled={toolsLocked} onChange={pickTool}/>
+  </section>)}</div>;
   const creationContents = <FoxyCollectionPanel page={catalog?.creations ?? { items: [], next: null, loading: false, error: null }} query={catalog?.creationQuery ?? { q: '', context: 'ALL', type: 'ALL', status: 'ALL' }} classrooms={contextClassrooms} onNavigate={onNavigate} destinationHref={destinationHref} onQuery={onCreationQuery} onMore={onMoreCreations} onRefresh={onRefreshCatalog} onTools={()=>setView('tools')} disabled={state.busy || creationBlocked || !onOpenCreation} onRepeat={async item => {
     if (!leaveReader()) { setView('chat'); return; }
     saveDraft();
@@ -203,9 +210,11 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
     setInitialToolBrief(item.brief ?? item.title);
     setToolInline(false); setToolQuiz(false); setToolDialog(item.kind);
   }} onOpen={item => { if (showingReader) setView('chat'); onOpenCreation?.(item); }} />;
+  const welcome = <FoxyWelcome tool={tool} onExample={chooseExample} groups={groups} disabled={toolsLocked} onTool={pickTool} recent={(catalog?.creations.items ?? []).slice(0, 3)}
+    onRecent={onOpenCreation ? item => { if (showingReader) setView('chat'); onOpenCreation(item); } : undefined} />;
   const conversationContents = <FoxyConversationPanel page={catalog?.conversations ?? {items:state.conversations,next:state.nextConversationCursor,loading:false,error:null}} query={catalog?.conversationQuery ?? {q:'',context:'ALL'}} classrooms={contextClassrooms} currentId={state.current?.id} disabled={!!starting || state.busy} onQuery={onConversationQuery} onSelect={openConversation} onMore={onMoreConversations ?? (()=>void controller.loadMoreConversations())} onRefresh={onRefreshCatalog} onNew={newConversation}
     onRename={item=>{if (!leaveReader()) return; saveDraft();void Promise.resolve(controller.select(item.id)).then(selected=>{if(selected){setNewChat(false);setRenameTitle(item.title);setRenameOpen(true);}});}} />;
-  const toolDialogElement = toolDialog && <FoxyToolDialog key={toolDialog + String(toolQuiz) + String(toolInline)} inline={toolInline} initialQuiz={toolQuiz} initialBrief={initialToolBrief} title={toolDialog==='NOTE'?'Preparar un apunte':toolDialog==='PLAN'?'Planificar una clase':toolDialog==='RUBRIC'?'Pensar una rúbrica':toolDialog==='ACTIVITY'?'Crear una actividad':'Imágenes y esquemas'} contextName={contextName} materialCount={materialCount} topics={draftMode?[]:state.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={draftMode || (repeatSelection ?? state.selection)?.mode==='ALL_CLASSROOM' ? undefined : (repeatSelection ?? state.selection)?.topicIds.filter(id => state.curriculum?.units.some(unit => unit.topics.some(topic => topic.id === id)))} busy={state.busy} error={state.error} onClose={closeTool} onPrepare={async(brief,topicIds)=>{
+  const toolDialogElement = toolDialog && <FoxyToolDialog key={toolDialog + String(toolQuiz) + String(toolInline)} inline={toolInline} initialQuiz={toolQuiz} initialBrief={initialToolBrief} title={toolDialog==='NOTE'?'Preparar un apunte':toolDialog==='PLAN'?'Planificar una clase':toolDialog==='RUBRIC'?'Pensar una rúbrica':toolDialog==='ACTIVITY'?'Crear una actividad':'Imágenes y esquemas'} contextName={contextLabel} materialCount={materialCount} topics={draftMode?[]:state.curriculum?.units.flatMap(unit=>unit.topics)??[]} initialTopicIds={draftMode || (repeatSelection ?? state.selection)?.mode==='ALL_CLASSROOM' ? undefined : (repeatSelection ?? state.selection)?.topicIds.filter(id => state.curriculum?.units.some(unit => unit.topics.some(topic => topic.id === id)))} busy={state.busy} error={state.error} onClose={closeTool} onPrepare={async(brief,topicIds)=>{
       const chosen=tools.find(item=>item.mode===toolDialog)!;
       let id=state.current?.id;
       if(draftMode){const created=await controller.create({requestId:crypto.randomUUID(),title:[...brief].slice(0,120).join(''),context:draftContext});if(typeof created!=='string')return false;id=created;setNewChat(false);}
@@ -229,7 +238,7 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
       context={<button type="button" className={`${styles.contextLaunch} parity-ai-contextLaunch`} aria-label="Cambiar contexto del chat" aria-haspopup="dialog"
         disabled={attachments.busy || preparingContext || !!starting || state.busy || !!state.pending || !!state.activeTurn} onClick={() => { if (leaveReader()) setContextOpen(true); }} data-context-kind={draftMode ? draftContext.kind : state.current?.context.kind}>
         <FoxmindIcon name={draftContext.kind==='GENERAL'&& (draftMode||state.current?.context.kind==='GENERAL')?'chat-square':'book'}/>
-        <span><small>{(draftMode?context==='GENERAL':state.current?.context.kind==='GENERAL')?'Sin un aula vinculada':'Aula vinculada'}</small><strong>{draftMode ? contextClassrooms.find(room => room.id === context)?.name ?? 'Contexto general' : state.curriculum?.classroomTitle ?? 'Contexto general'}</strong></span>
+        <span><small>Trabajando con</small><strong>{contextLabel}</strong></span>
         <FoxmindIcon name="chevron-right"/>
       </button>}
       newDisabled={attachments.busy || preparingContext || !!starting || state.busy}
@@ -269,11 +278,9 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
             }
           }}/>}
         {preparingContext ? <p role="status" className={`${styles.contextHelp} parity-ai-contextHelp`}>Preparando contexto del aula…</p> : null}
-        {!draftMode && state.current ? renderFoxyTranscript({ catalogItems: catalog?.creations?.items, state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity, onOpenResource, controller, attachmentCount: attachments.items.length, pendingText, setText, enabled, mode, onActivityHandoff, onSources: turn => { setScopeReport(turn.classroomSources); setSourceTurnId(turn.id); void controller.loadCitations?.(turn.id); } }) : <div className={`${styles.empty} parity-ai-empty`}>{submittedMessage?<><div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:<FoxyWelcome tool={tool} onExample={chooseExample} />}</div>}
+        {!draftMode && state.current ? renderFoxyTranscript({ catalogItems: catalog?.creations?.items, state, chatFollow, pendingVisible, visualTimeline, tool, chooseExample, identity, welcome, onOpenResource, controller, attachmentCount: attachments.items.length, pendingText, setText, enabled, mode, onActivityHandoff, onSources: turn => { setScopeReport(turn.classroomSources); setSourceTurnId(turn.id); void controller.loadCitations?.(turn.id); } }) : <div className={`${styles.empty} parity-ai-empty`}>{submittedMessage?<><div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:welcome}</div>}
           {toolDialog && toolInline && toolDialogElement}
-          <FoxyToolChips visuals={visualsEnabled} disabled={toolsLocked} active={toolDialog && toolInline ? (toolDialog === 'ACTIVITY' && toolQuiz ? 'QUIZ' : toolDialog) : null}
-            onPick={(id: FoxyChipId) => id === 'QUIZ' ? openTool('ACTIVITY', { quiz: true, inline: true }) : openTool(id, { inline: true })}/>
-          {renderFoxyComposer({ onSubmit: submitMessage, tool, mode, setMode, composerRef, text, setText, validMessage, disabled, libraryOpen, onLibrary: openLibrary, materialCount, attachmentDisabled: !!(attachments.busy || preparingContext || starting || state.busy || state.activeTurn || state.pending || (!draftMode && state.curriculum?.archived)), onUpload: attach })}
+          {!(toolDialog && toolInline) && renderFoxyComposer({ onSubmit: submitMessage, tool, mode, setMode, composerRef, text, setText, validMessage, disabled, libraryOpen, onLibrary: openLibrary, materialCount, attachmentDisabled: !!(attachments.busy || preparingContext || starting || state.busy || state.activeTurn || state.pending || (!draftMode && state.curriculum?.archived)), onUpload: attach })}
           <p className={`${styles.disclosure} parity-ai-disclosure`}>Foxy puede equivocarse. Revisá sus propuestas.</p>
         {state.error ? <div role="alert"><p>{state.error}</p>{state.pending ? <button type="button" disabled={state.busy}
           onClick={() => void controller.retry()}>Reintentar envío</button> : null}</div> : null}
