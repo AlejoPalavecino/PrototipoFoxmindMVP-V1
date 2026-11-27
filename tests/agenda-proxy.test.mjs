@@ -34,18 +34,35 @@ test('agenda proxy forwards only security headers and exact supported private ro
   assert.equal(calls[0].headers['x-forwarded-host'], undefined); assert.deepEqual(JSON.parse(calls[0].body), body);
 }));
 
-test('agenda proxy rejects unsupported routes, methods, owner queries, schema and excessive bytes before upstream', async () => fixture(async (origin, calls) => {
+test('agenda proxy rejects unsupported routes, methods, encodings and excessive bytes before upstream', async () => fixture(async (origin, calls) => {
   const id = randomUUID();
-  for (const [path, method, body] of [
+  for (const [path, method, body, type] of [
     ['/api/v1/agenda/unknown', 'GET'], [`/api/v1/agenda/events/${id}`, 'POST', '{}'],
-    ['/api/v1/agenda?ownerId=foreign', 'GET'], ['/api/v1/agenda/upcoming?limit=21', 'GET'],
-    [`/api/v1/agenda/events/${id}`, 'DELETE', '{"revision":"0","ownerId":"foreign"}'],
+    [`/api/v1/agenda/events/${id}`, 'PATCH', '{}', 'text/plain'],
     [`/api/v1/agenda/events/${id}`, 'PUT', 'x'.repeat(32769)],
     [`/api/v1/agenda/events/not-uuid`, 'GET'],
   ]) {
-    const response = await fetch(origin + path, { method, body, headers: body ? { 'content-type': 'application/json' } : {} });
+    const response = await fetch(origin + path, { method, body, headers: body ? { 'content-type': type ?? 'application/json' } : {} });
     assert.ok(response.status >= 400 && response.status < 500, `${method} ${path}: ${response.status}`);
     assert.equal(response.headers.get('cache-control'), 'no-store');
   }
   assert.equal(calls.length, 0);
+}));
+
+// F2: domain shape (query keys, ranges, limits, event and revision bodies) belongs to the API; the proxy forwards it unchanged.
+test('agenda proxy forwards queries and bodies without checking their domain shape', async () => fixture(async (origin, calls) => {
+  const id = randomUUID();
+  const cases = [
+    ['/api/v1/agenda?ownerId=foreign', 'GET'], ['/api/v1/agenda/upcoming?limit=21', 'GET'],
+    ['/api/v1/agenda/upcoming?limit=1&limit=2', 'GET'], [`/api/v1/agenda/events/${id}?x=1`, 'GET'],
+    [`/api/v1/agenda/events/${id}`, 'DELETE', '{"revision":"0","ownerId":"foreign"}'],
+    [`/api/v1/agenda/events/${id}`, 'PUT', '{"title":7}'],
+    ['/api/v1/agenda/open', 'POST', '{"classroomId":"not-uuid","activityId":null}'],
+  ];
+  for (const [path, method, body] of cases) {
+    const response = await fetch(origin + path, { method, body, headers: body ? { 'content-type': 'application/json' } : {} });
+    assert.equal(response.status, 200, `${method} ${path}`);
+  }
+  assert.deepEqual(calls.map(call => call.path), cases.map(([path]) => path));
+  assert.deepEqual(calls.filter(call => call.body).map(call => call.body), cases.filter(([, , body]) => body).map(([, , body]) => body));
 }));

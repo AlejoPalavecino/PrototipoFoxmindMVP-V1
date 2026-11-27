@@ -32,8 +32,10 @@ export async function agendaRoute(service: AgendaService, request: IncomingMessa
   }
   if (request.method === 'GET' && url.pathname === '/agenda/upcoming') {
     const input = agendaQuery(url, ['limit']);
+    // Canonical decimal only (no leading zero, sign or exponent), as the web proxy enforced before F2.
+    if (input.limit !== undefined && !/^[1-9]d?$/.test(input.limit)) throw new AgendaError('INVALID_INPUT');
     const limit = input.limit === undefined ? 5 : Number(input.limit);
-    if (!Number.isInteger(limit) || limit < 1 || limit > 20) throw new AgendaError('INVALID_INPUT');
+    if (limit > 20) throw new AgendaError('INVALID_INPUT');
     return { status: 200, body: await service.upcoming(request, limit) };
   }
   agendaQuery(url, []);

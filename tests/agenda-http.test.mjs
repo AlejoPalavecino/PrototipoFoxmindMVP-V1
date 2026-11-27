@@ -74,3 +74,26 @@ test('agenda HTTP rejects extra query keys, invalid range/cursor/id and invalid 
   }
   assert.equal(calls.length, 0);
 }));
+
+// F2: the web proxy forwards these without checking their shape, so the API is the only gate and must answer exactly 400 INVALID_INPUT.
+test('agenda HTTP answers 400 INVALID_INPUT for every shape the web proxy no longer checks', async () => fixture(async ({ send, calls, event }) => {
+  const base = `/agenda/events/${event.id}`;
+  for (const [path, method, body] of [
+    ['/agenda?startDate=2026-11-01&endDateExclusive=2026-12-01&timeZone=UTC&ownerId=foreign', 'GET'],
+    ['/agenda?startDate=2026-11-01&startDate=2026-11-02&endDateExclusive=2026-12-01&timeZone=UTC', 'GET'],
+    ['/agenda?startDate=2026-11-01&endDateExclusive=2026-12-01', 'GET'],
+    ['/agenda?startDate=2026-11-01&endDateExclusive=2026-12-01&timeZone=UTC&cursor=bad%20cursor', 'GET'],
+    ['/agenda/upcoming?limit=21', 'GET'], ['/agenda/upcoming?limit=01', 'GET'], ['/agenda/upcoming?limit=1e1', 'GET'], ['/agenda/upcoming?other=1', 'GET'],
+    [`${base}?x=1`, 'GET'],
+    [base, 'PUT', { ...payload, title: 7 }], [base, 'PUT', { ...payload, ownerId: 'foreign' }],
+    [base, 'PATCH', { revision: '0' }], [base, 'PATCH', { revision: 'x', event: payload }],
+    [base, 'DELETE', { revision: '0', ownerId: 'foreign' }], [base, 'DELETE', {}],
+    ['/agenda/open', 'POST', { classroomId: 'not-uuid', activityId: null }],
+    ['/agenda/open', 'POST', { classroomId: randomUUID() }],
+  ]) {
+    const response = await send(path, method, body);
+    assert.equal(response.status, 400, `${method} ${path}`);
+    assert.deepEqual(await response.json(), { error: { code: 'INVALID_INPUT' } }, `${method} ${path}`);
+  }
+  assert.equal(calls.length, 0);
+}));

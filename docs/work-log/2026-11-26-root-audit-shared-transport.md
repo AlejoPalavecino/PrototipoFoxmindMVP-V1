@@ -71,11 +71,25 @@ Suites integradas del corte 3a: `fast` 3228/3228, `owned-db` 962/962 y `wrappers
 
 Suites integradas del corte 4, sobre `main` `1065eff2`: `fast` 3238/3238, `owned-db` 969/969 (segunda corrida) y `wrappers` 19/19.
 
-## Estado al pausar (2026-11-27)
+## Tren de merges (2026-11-27)
 
-- En `main`: cortes 1 (`7e192110`), 2 (`490105ff`) y 3a (`27d32c70`); PR #29, cabeceras web (`0ceab161`), y PR #32, base de datos (`1065eff2`), mergeadas con el CI en verde sobre la versión al día.
-- Corte 4 (D2): sólo en la copia local, sin commit. `fast` 3231/3231 y los 19 *wrappers* en verde (14 en la corrida completa; `p33-recovery-confirm` falló por un mail que no llegó a tiempo con la máquina cargada y pasó aislado, 8/8, junto con los cuatro de cambio de contraseña que no habían corrido). `owned-db` se repitió completo después de adaptar `foxy-management-host`.
-- Primer paso al retomar: confirmar el resultado de `owned-db`, traer `origin/main` (con #29 y #32) a la copia local, resolver el inventario de suites, recompilar, repetir `fast` y la prueba de admisión, y subir el corte 4. Después poner al día y mergear la PR #31 (choca con #32 en `academic-composition.ts` y `academic-management-composition.ts`; la resuelve su sesión) y la PR #30. Luego, F2 por subcortes.
+Después del corte 4 (`6dc90926`) entraron a `main`, en este orden y con el CI en verde sobre la cabeza exacta de cada PR: #29 (`0ceab161`), #32 (`1065eff2`), #30 (`5c50ab14`) y #31 (`7bea3829`). La #31 no compilaba al combinarse con el corte 4 porque el cupo de invitaciones leía `IdentityRuntime.store`; su sesión lo pasó a `admitBuckets`.
+
+## Corte 5 — F2, agenda
+
+Decisiones del usuario al abrir F2: la API decide el orden (sesión y permisos antes que la forma), la validación de la respuesta de Home se conserva en el proxy por ahora, y cada subcorte se sube con las tres suites en verde.
+
+- El [proxy de agenda](../../apps/web/src/application/server/agenda-proxy.ts) ya no valida claves ni valores de la consulta, ni la forma de los cuerpos (evento, revisión, apertura académica). Conserva rutas, métodos, tamaño (32 KiB), `content-encoding`, `content-type` JSON y GET sin cuerpo.
+- Divergencia encontrada: el proxy exigía `limit` en decimal canónico (`^[1-9]d?$`) y la API aceptaba `01` o `1e1`. Como todo el tráfico pasaba por el proxy, la conducta observable era la estricta, y se llevó a la [API](../../apps/api/src/modules/agenda/events/presentation/http-routes.ts).
+- Cambio observable: un pedido mal formado sin sesión recibe ahora 401 (antes 400 del proxy).
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `agenda-http`: 17 formas que el proxy dejó de revisar responden exactamente 400 `INVALID_INPUT` sin llegar al servicio | `limit=01` respondía 200 | 4/4 |
+| `agenda-proxy`: esas formas se reenvían intactas; rutas, métodos, tipo de contenido y tamaño se siguen cortando antes de la API | el proxy respondía 400 | 3/3 |
+| `agenda-feature`, `proxy-client-address`, `web-proxy-transport` | — | en verde |
+
+Suites integradas del corte 5, sobre `main` `7bea3829`: `fast` 3273/3273, `wrappers` en verde y `owned-db` 969/969 (segunda corrida; la primera cortó en la prueba 421 por un `docker run` de Foxy que pasó los 20 s con la máquina cargada, y esa prueba pasó 2/2 aislada). Como los merges y este corte cambiaron archivos del alcance de TASK-001 a TASK-004, esas tareas se volvieron a verificar sobre el candidato actual con sus pruebas declaradas (26/26, 24/24, 89/89 y 44/44) antes de cerrar TASK-005.
 
 ## Límites
 
