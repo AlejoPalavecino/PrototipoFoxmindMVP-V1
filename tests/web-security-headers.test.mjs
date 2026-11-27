@@ -35,12 +35,12 @@ test('HSTS is sent only when the request reached the edge over HTTPS', async () 
   assert.match(valueOf(rule, 'Strict-Transport-Security'), /^max-age=\d{8,}; includeSubDomains$/);
 });
 
-test('generation prompts stay in design docs, not in the public web root', () => {
+test('generation prompts and unused source originals stay in design docs, not in the public web root', () => {
   const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
-  assert.deepEqual(walk(fileURLToPath(rel('apps/web/public/'))).filter(file => /\.prompt\.txt$/i.test(file)), []);
+  assert.deepEqual(walk(fileURLToPath(rel('apps/web/public/'))).filter(file => /(\.prompt\.txt|-original\.png)$/i.test(file)), []);
   const readme = readFileSync(rel('design/foxmind-ui-lab/README.md'), 'utf8');
   for (const name of ['classroom-world', 'profile-docente', 'profile-estudiante']) {
     assert.ok(readme.includes(`(assets/${name}.prompt.txt)`), name);
-    assert.ok(existsSync(rel(`design/foxmind-ui-lab/assets/${name}.prompt.txt`)), name);
+    for (const file of [`${name}.prompt.txt`, `${name}-original.png`]) assert.ok(existsSync(rel(`design/foxmind-ui-lab/assets/${file}`)), file);
   }
 });
