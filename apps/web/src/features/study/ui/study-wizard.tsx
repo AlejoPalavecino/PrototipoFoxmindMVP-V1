@@ -1,5 +1,90 @@
 import type { StudyUnit } from '../model/study-contracts.ts';
 import s from './study.module.css';
-export {StudyCollectionView} from '../folders/study-folder-collection';
-export function StudyPlanEditor({units,onChange}:{units:StudyUnit[];onChange:(u:StudyUnit[])=>void}){return <div className={`${s.plan} parity-ai-plan`}><p className={`${s.planSummary} parity-ai-planSummary`}>{units.length} {units.length===1?'unidad':'unidades'} · {units.reduce((n,u)=>n+u.topics.length,0)} temas.</p>{units.map((u,i)=><section key={u.id} className={`${s.unit} parity-ai-unit`}><h3>Unidad {i+1} · {u.title||"Sin nombre"}</h3><div className={`${s.unitFields} parity-ai-unitFields`}><div className={`${s.inline} parity-ai-inline`}><label>Unidad {i+1}<input value={u.title} maxLength={120} onChange={e=>onChange(units.map(v=>v.id===u.id?{...v,title:e.target.value}:v))}/></label><button type="button" aria-label={`Eliminar unidad ${i+1}`} onClick={()=>onChange(units.filter(v=>v.id!==u.id))}>Eliminar unidad</button></div>{u.topics.map((t,j)=><div className={`${s.inline} parity-ai-inline`} key={t.id}><label>Tema {j+1}<input value={t.title} onChange={e=>onChange(units.map(v=>v.id===u.id?{...v,topics:v.topics.map(a=>a.id===t.id?{...a,title:e.target.value}:a)}:v))}/></label><button type="button" aria-label={`Eliminar tema ${j+1}`} onClick={()=>onChange(units.map(v=>v.id===u.id?{...v,topics:v.topics.filter(a=>a.id!==t.id)}:v))}>Quitar</button></div>)}<button type="button" onClick={()=>onChange(units.map(v=>v.id===u.id?{...v,topics:[...v.topics,{id:crypto.randomUUID(),title:''}]}:v))}>Agregar tema</button></div></section>)}<button type="button" onClick={()=>onChange([...units,{id:crypto.randomUUID(),title:'',topics:[{id:crypto.randomUUID(),title:''}]}])}>Agregar unidad</button></div>;}
+export { StudyCollectionView } from '../folders/study-folder-collection';
+export function StudyPlanEditor({ units, onChange }: { units: StudyUnit[]; onChange: (u: StudyUnit[]) => void }) {
+  return (
+    <div className={`${s.plan} parity-ai-plan`}>
+      <p className={`${s.planSummary} parity-ai-planSummary`}>
+        {units.length} {units.length === 1 ? 'unidad' : 'unidades'} · {units.reduce((n, u) => n + u.topics.length, 0)}{' '}
+        temas.
+      </p>
+      {units.map((u, i) => (
+        <section key={u.id} className={`${s.unit} parity-ai-unit`}>
+          <h3>
+            Unidad {i + 1} · {u.title || 'Sin nombre'}
+          </h3>
+          <div className={`${s.unitFields} parity-ai-unitFields`}>
+            <div className={`${s.inline} parity-ai-inline`}>
+              <label>
+                Unidad {i + 1}
+                <input
+                  value={u.title}
+                  maxLength={120}
+                  onChange={e => onChange(units.map(v => (v.id === u.id ? { ...v, title: e.target.value } : v)))}
+                />
+              </label>
+              <button
+                type="button"
+                aria-label={`Eliminar unidad ${i + 1}`}
+                onClick={() => onChange(units.filter(v => v.id !== u.id))}
+              >
+                Eliminar unidad
+              </button>
+            </div>
+            {u.topics.map((t, j) => (
+              <div className={`${s.inline} parity-ai-inline`} key={t.id}>
+                <label>
+                  Tema {j + 1}
+                  <input
+                    value={t.title}
+                    onChange={e =>
+                      onChange(
+                        units.map(v =>
+                          v.id === u.id
+                            ? { ...v, topics: v.topics.map(a => (a.id === t.id ? { ...a, title: e.target.value } : a)) }
+                            : v,
+                        ),
+                      )
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  aria-label={`Eliminar tema ${j + 1}`}
+                  onClick={() =>
+                    onChange(
+                      units.map(v => (v.id === u.id ? { ...v, topics: v.topics.filter(a => a.id !== t.id) } : v)),
+                    )
+                  }
+                >
+                  Quitar
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                onChange(
+                  units.map(v =>
+                    v.id === u.id ? { ...v, topics: [...v.topics, { id: crypto.randomUUID(), title: '' }] } : v,
+                  ),
+                )
+              }
+            >
+              Agregar tema
+            </button>
+          </div>
+        </section>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...units, { id: crypto.randomUUID(), title: '', topics: [{ id: crypto.randomUUID(), title: '' }] }])
+        }
+      >
+        Agregar unidad
+      </button>
+    </div>
+  );
+}
 export { StudyWizard } from '../folders/study-folder-wizard';
