@@ -87,3 +87,9 @@
 - `use-workspace-panels.ts`: paneles y diálogos laterales (contexto, biblioteca, alcance, fuentes, renombrar). `use-tool-dialog.ts`: el diálogo de herramientas. `use-conversation-start.ts`: el primer mensaje que espera a que exista su conversación. Paneles y herramienta se usan como objeto (`panels.*`, `toolState.*`) porque desestructurados el archivo crecía de líneas y la regla de F9 no lo deja crecer.
 - `foxy-workspace.tsx` pasa de 24 a 9 `useState` y de 953 a 935 líneas.
 - Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 18 pruebas de Foxy de la ruta `fast` dan 183/183; `test:complete --group fast` 3231/3231; `web:build` exit 0.
+
+### Navegador · cortes 2 a 10
+
+- Entornos descartables de `documentation-preview.mjs` (corridas `documentation-preview-cf2620a5eed25841` y `documentation-preview-cd249d07cb8c6f87`), con IA sintética y la cuenta docente sintética de cada fixture. Las credenciales no se copiaron; los dos entornos se bajaron con su stopFile.
+- Cortes 2–6: en Ajustes del aula se guardó dos veces seguidas (renombrar y restaurar). Los dos `PATCH .../settings` dieron 200 con un solo `GET /auth/csrf`. En Agenda, `/agenda?create=1` abrió el editor; el evento se creó (`PUT` 201) y apareció en el calendario.
+- Cortes 8–10: en Actividades carga el listado y se piden los contadores (`/progress` 200). «Crear actividad» abre el editor; tema, tipo y método se marcan y aparece «Cambios sin guardar». «Con ayuda de Foxy → Ajustes y fuentes» abre el diálogo y pide las fuentes (`/activity-generations/sources` 200). En modo manual, el título y «Guardar borrador» abren la ficha del borrador privado con su tema. En Foxy AI, la herramienta «Planificar una clase» abre y cierra en línea, el selector de contexto abre y «Abrir biblioteca» muestra la biblioteca de contexto. Sin errores en la consola.
