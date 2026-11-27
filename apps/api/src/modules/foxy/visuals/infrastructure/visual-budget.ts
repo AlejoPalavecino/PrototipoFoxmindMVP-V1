@@ -1,5 +1,6 @@
 import { priceFoxyImageUsage, quoteFoxyImageBudget } from './providers/foxy-image-budget.ts';
 import { reserveAiTextBudget, settleAiTextBudget, tokenCost } from '../../../../platform/ai/text-budget.ts';
+import { lockAiBudget } from '../../../../platform/ai/admission.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
 import { describedOpeningImageProfileVersion, exactOpeningImageProfileVersion, type VisualProfile } from '../../domain/visual-profile.ts';
@@ -33,7 +34,7 @@ async function current(tx: SqlTransaction, lease: FoxyVisualLease, requireAccess
 export function createFoxyVisualBudget(options: { limits: Limits }) {
   async function reserve(tx: SqlTransaction, lease: FoxyVisualLease, preflightTokens: number | null, openingCaption?: true): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'> {
     if (preflightTokens !== null && (!Number.isSafeInteger(preflightTokens) || preflightTokens < 1)) return invalid();
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)'); const row = await current(tx,lease,true);
+    await lockAiBudget(tx,lease.ownerId); const row = await current(tx,lease,true);
     if (!row) return 'NOT_CURRENT'; if (row.dispatch_count) return 'ALREADY_DISPATCHED';
     const config = configuration(row.profile,options.limits);
     if (openingCaption && (preflightTokens === null || row.profile.kind !== 'IMAGE' || row.profile.profileVersion !== describedOpeningImageProfileVersion)) return invalid();
@@ -67,10 +68,12 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
     if (safe) await tx.query('UPDATE foxy_visual_jobs SET input_tokens=$2 WHERE id=$1::uuid',row.id,safe.inputTokens); return true;
   }
   async function settle(tx: SqlTransaction, lease: FoxyVisualLease, usage?: VisualUsage | null): Promise<boolean> {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)'); const row = await current(tx,lease,false); return row ? settleRow(tx,row,usage) : false;
+    await lockAiBudget(tx,lease.ownerId); const row = await current(tx,lease,false); return row ? settleRow(tx,row,usage) : false;
   }
   async function settleExpired(tx: SqlTransaction, jobId: string): Promise<boolean> {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+    const [owner] = await tx.query<{ owner_id: string }>('SELECT owner_id FROM foxy_visual_jobs WHERE id=$1::uuid',jobId);
+    if (!owner) return false;
+    await lockAiBudget(tx,owner.owner_id);
     const [row] = await tx.query<Row>("SELECT * FROM foxy_visual_jobs WHERE id=$1::uuid AND state='RUNNING' AND lease_until<=clock_timestamp() FOR UPDATE",jobId);
     if (!row) return false;
     return BigInt(row.reserved_microusd) === 0n ? true : settleRow(tx,row);

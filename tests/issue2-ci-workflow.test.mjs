@@ -41,7 +41,7 @@ test('checkout, supported Node 24 and lockfile install precede API and web check
 
 test('pulls exact Docker images needed by isolated database, storage and scanner fixtures', async () => {
   const text = await workflow();
-  for (const image of ['postgres:17.10-bookworm',
+  for (const image of ['postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f',
     'chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d',
     'clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6']) {
     assert.ok(text.includes(`docker pull ${image}`), `missing pull for ${image.split('@')[0]}`);

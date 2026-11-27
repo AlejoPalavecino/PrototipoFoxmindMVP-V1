@@ -4,8 +4,9 @@ import { fail, uuid } from '../../domain/policy.ts';
 import type { Actor, Transaction } from '../../access/public.ts';
 import type { MembershipAccess } from '../../application/management-operations.ts';
 
-export function createMembershipCodeOperations(repository: MembershipCodeRepository, dependencies: { digest(text: string): string }) {
-const { digest } = dependencies;
+export function createMembershipCodeOperations(repository: MembershipCodeRepository, dependencies: {
+  codeDigests(keys: NonNullable<MembershipAccess['codeKeys']>, code: string): string[] }) {
+const { codeDigests } = dependencies;
 /**
  * Adivinanzas fallidas tolerables. Cada alumno tiene su propio cupo. El tope global sólo cuenta y
  * frena códigos anteriores de 6 dígitos (un millón de combinaciones); los de 8 caracteres no se
@@ -29,7 +30,7 @@ async function previewCodeOperation(capability: MembershipAccess, request: unkno
         const [window] = await repository.readCodeFailures(tx, { subject: 'global', windowSeconds: FAILURE_WINDOW_SECONDS });
         if (window && window.failures >= GLOBAL_FAILURE_LIMIT) return fail('RATE_LIMITED', window.retry_after);
       }
-      const [code] = await repository.findLiveCode(tx, { digest: digest(normalized) });
+      const [code] = await repository.findLiveCode(tx, { digests: codeDigests(capability.codeKeys ?? {}, normalized) });
       if (!code) {
         // Se registra y se confirma la transacción; el rechazo se emite después para que el conteo sobreviva.
         await repository.recordCodeFailure(tx, { subject: student, windowSeconds: FAILURE_WINDOW_SECONDS });

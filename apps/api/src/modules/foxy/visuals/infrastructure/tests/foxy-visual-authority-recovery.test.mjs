@@ -83,7 +83,7 @@ test('expired dispatched job settles full budget and fails without re-dispatch',
   const blocker = await pool.connect();
   try {
    await blocker.query('BEGIN');
-   await blocker.query('SELECT pg_advisory_xact_lock(78123001)');
+   await blocker.query('SELECT pg_advisory_xact_lock(78123001,hashtext(($1::uuid)::text))',[x.lease.ownerId]);
    assert.equal(await x.queue.recoverExpired(),0,'terminal recovery defers while budget is locked');
    const [pending] = await x.query('SELECT state,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
    assert.equal(pending.state,'RUNNING');
@@ -132,7 +132,7 @@ test('expired dispatched job with bound bytes is reclaimed for custody recovery 
   const blocker = await pool.connect();
   try {
    await blocker.query('BEGIN');
-   await blocker.query('SELECT pg_advisory_xact_lock(78123001)');
+   await blocker.query('SELECT pg_advisory_xact_lock(78123001,hashtext(($1::uuid)::text))',[x.lease.ownerId]);
    assert.equal(await x.queue.claim(), null, 'expired dispatched claim defers while budget is locked');
    const [pending] = await x.query('SELECT lease_nonce,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
    assert.equal(pending.lease_nonce,x.lease.leaseNonce);

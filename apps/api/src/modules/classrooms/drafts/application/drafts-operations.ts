@@ -11,7 +11,7 @@ type DraftPublicationAccess = Pick<ClassroomRuntimeAccess, 'run' | 'classroom'> 
   draft(tx: Transaction, actor: Actor, id: string): Promise<DraftRow>;
 };
 
-export function createDraftPublicationOperations(repository: PublicationRepository, dependencies: { randomUUID(): string; newClassroomCode(tx: Transaction, classroomId: string, key: Buffer): Promise<string> }) {
+export function createDraftPublicationOperations(repository: PublicationRepository, dependencies: { randomUUID(): string; newClassroomCode(tx: Transaction, classroomId: string, keys: DraftPublicationAccess['ports']): Promise<string> }) {
 const { randomUUID, newClassroomCode } = dependencies;
 async function publishDraftOperation(capability: DraftPublicationAccess, request: unknown, id: string, input: unknown) {
     const expected = revision(object(input, ['revision']).revision);
@@ -33,7 +33,7 @@ async function publishDraftOperation(capability: DraftPublicationAccess, request
         return fail('CONFLICT');
       await repository.markPublished(tx, { draftId: id, classroomId: classroomId });
       await populateClassroom(tx, capability, request, classroomId, actor, payload);
-      return { id: classroomId, code: await newClassroomCode(tx, classroomId,capability.ports.deliveryKey) };
+      return { id: classroomId, code: await newClassroomCode(tx, classroomId,capability.ports) };
     });
   }
 

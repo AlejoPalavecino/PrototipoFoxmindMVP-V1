@@ -8,11 +8,11 @@ import { createHomeService } from '../apps/api/src/modules/home/dashboard/applic
 import { createHomeUnitOfWork } from '../apps/api/src/modules/home/dashboard/infrastructure/unit-of-work.ts';
 import { createCatalogOperations } from '../apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts';
 import { createCatalogRepository } from '../apps/api/src/modules/classrooms/catalog/infrastructure/classroom-queries-repository.ts';
-import { digest } from '../apps/api/src/platform/crypto/digest.ts';
+import { classroomCodeDigests } from '../apps/api/src/platform/crypto/classroom-code-digest.ts';
 import { newClassroomCode } from '../apps/api/src/bootstrap/academic-management-composition.ts';
 import { encryptDelivery, decryptDelivery } from '../apps/api/src/modules/classrooms/invitations/infrastructure/delivery-envelope.ts';
 
-const { mine, detail: classroomDetail } = createCatalogOperations(createCatalogRepository(), { readCode: decryptDelivery, digest });
+const { mine, detail: classroomDetail } = createCatalogOperations(createCatalogRepository(), { readCode: decryptDelivery, codeDigests: classroomCodeDigests });
 
 test('Home returns only published own feedback and saved own question progress',{timeout:120000},async()=>{
  await withAgendaDatabase(async({transaction})=>transaction(async local=>{
@@ -41,15 +41,16 @@ test('Home returns only published own feedback and saved own question progress',
 test('access code recovery is encrypted, teacher-only, record-bound and revoked on rotation',{timeout:120000},async()=>{
  await withAgendaDatabase(async({transaction})=>transaction(async local=>{
   const f=await homeFixture(local.query),key=Buffer.alloc(32,11),room=f.rooms.teach.id,tx={query:local.query};
-  const code=await newClassroomCode(tx,room,key);
+  const keys={deliveryKey:key,signingKey:Buffer.alloc(32,12)};
+  const code=await newClassroomCode(tx,room,keys);
   const [stored]=await local.query('SELECT code_envelope,code_digest FROM classroom_codes WHERE classroom_id=$1 AND revoked_at IS NULL',room);
   assert.ok(!stored.code_envelope.includes(code));assert.notEqual(stored.code_digest,code);
   assert.throws(()=>decryptDelivery(key,stored.code_envelope,`classroom-access:${randomUUID()}`));
-  const context={ports:{deliveryKey:key},run:async(request,_write,run)=>run(tx,{id:request.userId}),classroom:async()=>({teacher_id:f.teacherActor}),summary:()=>({id:room})};
+  const context={ports:keys,run:async(request,_write,run)=>run(tx,{id:request.userId}),classroom:async()=>({teacher_id:f.teacherActor}),summary:()=>({id:room})};
   assert.equal((await classroomDetail(context,{userId:f.teacherActor},room)).accessCode,code);
   assert.equal((await classroomDetail(context,{userId:f.teacherActor},room.toUpperCase())).accessCode,code,'UUID casing cannot change the envelope identity');
   assert.equal(Object.hasOwn(await classroomDetail(context,{userId:f.pupil},room),'accessCode'),false);
-  const next=await newClassroomCode(tx,room.toUpperCase(),key);assert.notEqual(next,code);
+  const next=await newClassroomCode(tx,room.toUpperCase(),keys);assert.notEqual(next,code);
   assert.equal((await classroomDetail(context,{userId:f.teacherActor},room)).accessCode,next);
   assert.equal((await local.query('SELECT code_envelope FROM classroom_codes WHERE classroom_id=$1 AND revoked_at IS NOT NULL',room))[0].code_envelope,null);
   await local.query('UPDATE classroom_codes SET code_envelope=$2 WHERE classroom_id=$1 AND revoked_at IS NULL',room,encryptDelivery(key,{code:'invalid'},`classroom-access:${room}`));

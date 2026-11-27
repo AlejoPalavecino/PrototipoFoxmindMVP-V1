@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { purgeRetainedRows } from '../../../../platform/database/retention.ts';
 import type { Prisma } from '../../../../../../../.generated/prisma/client.ts';
 import type { IdentityUserRecord as User, AuthenticatedContext } from '../../sessions/public.ts';
 import type { PrismaService } from '../../../../platform/database/prisma.service.ts';
@@ -102,6 +103,12 @@ export class IdentityStore {
         SELECT id FROM account_action_controls
         WHERE greatest(window_started_at, last_requested_at) < clock_timestamp() - ${retentionSeconds}::int * interval '1 second'
         LIMIT ${limit}::int FOR UPDATE SKIP LOCKED)`;
+    } catch { throw new IdentityHttpError('SERVICE_UNAVAILABLE'); }
+  }
+  /** Data retention (S8): at most `limit` rows per table; see platform/database/retention.ts. */
+  async purgeRetainedRows(limit: number): Promise<Record<string, number>> {
+    try {
+      return await purgeRetainedRows((sql, ...values) => this.database.$queryRawUnsafe<unknown[]>(sql, ...values), limit);
     } catch { throw new IdentityHttpError('SERVICE_UNAVAILABLE'); }
   }
   async insertRegistration(tx: IdentityTransaction, input: { userId: string; email: string; canonical: string; firstName: string; lastName: string; hash: string; accountRole: 'teacher' | 'student' }) {

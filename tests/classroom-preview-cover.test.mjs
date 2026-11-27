@@ -9,14 +9,15 @@ function previewFixture(change = {}) {
   const calls = [], tokens = [];
   const tx = { query: async (sql, ...params) => {
     calls.push({ sql, params });
-    if (sql.includes('code_digest=$1')) return change.missingCode ? [] : [code];
+    if (sql.includes('code_digest=ANY($1::text[])')) return change.missingCode ? [] : [code];
     if (sql.includes('SELECT c.*')) return [{ ...room, ...change.room }];
     if (sql.includes('FROM enrollments')) return change.enrolled ? [{ id: 'existing' }] : [];
     if (sql.includes('FROM classroom_codes')) return change.revoked ? [] : [code];
     if (sql.includes('clock_timestamp')) return [{ now: actor.now }];
     throw new Error('Unexpected SQL');
   } };
-  return { calls, tokens, capability: { run: async (_request, write, work) => { assert.equal(write, true); return work(tx, { ...actor, ...change.actor }); }, tokens: { issue: value => { tokens.push(value); return 'confirmation'; } } } };
+  return { calls, tokens, capability: { run: async (_request, write, work) => { assert.equal(write, true); return work(tx, { ...actor, ...change.actor }); }, tokens: { issue: value => { tokens.push(value); return 'confirmation'; } },
+    codeKeys: { signingKey: Buffer.alloc(32, 9) } } };
 }
 test('code preview returns the persisted cover and keeps confirmation scoped to actor/classroom', async () => {
   const { previewCodeOperation } = loadTsModule('apps/api/src/bootstrap/academic-management-composition.ts');

@@ -84,6 +84,17 @@ test('controls purge drains full batches up to a bound and contains failures', a
   failing.start(); t.mock.timers.tick(1000); await settle(); await failing.stop();
 });
 
+test('the periodic purge also runs data retention in bounded passes after the controls (S8)', async t => {
+  t.mock.timers.enable({ apis: ['setInterval'] });
+  const { IdentityControlsPurge } = loadTsModule('apps/api/src/bootstrap/identity-controls-purge.ts');
+  const events = [];
+  const purge = new IdentityControlsPurge({ purgeExpiredControls: async () => { events.push('controls'); return 0; },
+    purgeRetainedRows: async limit => { events.push(`retention:${limit}`); return { sessions: events.length < 4 ? limit : 0 }; } },
+  { rateLimits: {} }, { intervalMs: 1000 });
+  purge.start(); t.mock.timers.tick(1000); await settle(); await purge.stop();
+  assert.deepEqual(events, ['controls', 'retention:1000', 'retention:1000', 'retention:1000'], 'drains full batches, stops at a short one');
+});
+
 test('runtime host preserves public lifecycle entry points and delegates them to its mail lifecycle', async () => {
   const events = [];
   class MailLifecycle {

@@ -23,7 +23,7 @@ export function createMembershipCodeRepository(): MembershipCodeRepository { ret
         id: string;
         classroom_id: string;
         code_digest: string;
-      }>('SELECT id,classroom_id,code_digest FROM classroom_codes WHERE code_digest=$1 AND revoked_at IS NULL', input.digest); },
+      }>('SELECT id,classroom_id,code_digest FROM classroom_codes WHERE code_digest=ANY($1::text[]) AND revoked_at IS NULL', input.digests); },
   async readPreviewTime(tx, input) { return tx.query<{ now: Date }>('SELECT clock_timestamp() AS now'); },
   async lockPreviewClassroom(tx, input) { return tx.query<{
         name: string;

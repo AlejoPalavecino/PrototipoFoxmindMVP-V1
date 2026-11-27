@@ -74,7 +74,7 @@ test('empty visual claim and recovery leave admission available while budget is 
     const budget = await pool.connect();
     try {
       await budget.query('BEGIN');
-      await budget.query('SELECT pg_advisory_xact_lock(78123001)');
+      await budget.query('SELECT pg_advisory_xact_lock(78123001,hashtext(($1::uuid)::text))', [f.teacherActor]);
       const [claim, recovered, other] = await Promise.allSettled([visual.claim(), visual.recoverExpired(), extraction.claim()]);
       assert.equal(claim.status, 'fulfilled', String(claim.reason));
       assert.equal(claim.value, null);

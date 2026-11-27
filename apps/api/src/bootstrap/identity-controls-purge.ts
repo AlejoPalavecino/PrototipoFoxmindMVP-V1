@@ -4,12 +4,15 @@ const DAY_SECONDS = 86400;
 const BATCH = 1000;
 const MAX_BATCHES = 5;
 
-/** Periodic, nonoverlapping, bounded retention for account_action_controls. Never blocks requests or shutdown. */
+/**
+ * Periodic, nonoverlapping, bounded retention for account_action_controls and, when the store provides it,
+ * the data retention rules of platform/database/retention.ts (S8). Never blocks requests or shutdown.
+ */
 export class IdentityControlsPurge {
   private timer?: ReturnType<typeof setInterval>;
   private inFlight?: Promise<void>;
   private stopped = false;
-  constructor(private readonly store: Pick<IdentityStore, 'purgeExpiredControls'>,
+  constructor(private readonly store: Pick<IdentityStore, 'purgeExpiredControls'> & Partial<Pick<IdentityStore, 'purgeRetainedRows'>>,
     private readonly security: { readonly rateLimits?: unknown },
     private readonly options: { readonly intervalMs?: number } = {}) {}
   /** Rows are kept for 24 h after the longest configured window or cooldown could have ended. */
@@ -35,7 +38,11 @@ export class IdentityControlsPurge {
     try {
       const retention = this.retentionSeconds();
       for (let batch = 0; batch < MAX_BATCHES && !this.stopped; batch++) {
-        if (await this.store.purgeExpiredControls(retention, BATCH) < BATCH) return;
+        if (await this.store.purgeExpiredControls(retention, BATCH) < BATCH) break;
+      }
+      for (let batch = 0; this.store.purgeRetainedRows && batch < MAX_BATCHES && !this.stopped; batch++) {
+        const removed = await this.store.purgeRetainedRows(BATCH);
+        if (Object.values(removed).every(count => count < BATCH)) break;
       }
     } catch { /* Retention is best effort; never surface driver errors or crash the host. */ }
   }

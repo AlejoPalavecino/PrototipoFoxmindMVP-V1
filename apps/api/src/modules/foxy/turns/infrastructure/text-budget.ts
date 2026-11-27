@@ -1,4 +1,5 @@
 import { reserveAiTextBudget, settleAiTextBudget } from '../../../../platform/ai/text-budget.ts';
+import { lockAiBudget } from '../../../../platform/ai/admission.ts';
 import type { SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyPurpose } from '../../../../../../../src/core/domain/foxy/foxy-ai.ts';
 import type { FoxyTurnLease } from '../application/queue-contracts.ts';
@@ -29,7 +30,7 @@ function prices(row: Reservation, fallback: FoxyTextBudgetConfiguration): FoxyTe
 export function createFoxyTextBudget(options: { configuration: FoxyTextBudgetConfiguration }) {
   async function reserve(tx: SqlTransaction, lease: FoxyTurnLease, tokens: number): Promise<'RESERVED' | 'ALREADY_DISPATCHED' | 'NO_BUDGET' | 'NOT_CURRENT'> {
     if (!Number.isSafeInteger(tokens) || tokens < 1) throw new Error('INVALID_INPUT');
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+    await lockAiBudget(tx, lease.ownerId);
     const row = await current(tx, lease, true);
     if (!row) return 'NOT_CURRENT';
     if (row.dispatch_count > 0) return 'ALREADY_DISPATCHED';
@@ -43,14 +44,16 @@ export function createFoxyTextBudget(options: { configuration: FoxyTextBudgetCon
     return 'RESERVED';
   }
   async function settle(tx: SqlTransaction, lease: FoxyTurnLease, usage?: Usage): Promise<boolean> {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+    await lockAiBudget(tx, lease.ownerId);
     const row = await current(tx, lease, false);
     if (!row || BigInt(row.reserved_microusd) === 0n) return false;
     await settleAiTextBudget(tx, row, prices(row, options.configuration), usage, 'foxy_turns');
     return true;
   }
   async function settleExpired(tx: SqlTransaction, turnId: string): Promise<boolean> {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+    const [owner] = await tx.query<{ owner_id: string }>('SELECT owner_id FROM foxy_turns WHERE id=$1::uuid', turnId);
+    if (!owner) return false;
+    await lockAiBudget(tx, owner.owner_id);
     const [row] = await tx.query<Reservation>(`SELECT * FROM foxy_turns WHERE id=$1::uuid AND state='RUNNING'
       AND lease_until<=clock_timestamp() FOR UPDATE`, turnId);
     if (!row || BigInt(row.reserved_microusd) === 0n) return false;

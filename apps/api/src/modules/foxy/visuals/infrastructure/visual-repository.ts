@@ -40,7 +40,7 @@ export function createFoxyVisualRepository(options: { assets: FoxyPrivateAssetRe
     },
     async cancel(tx: SqlTransaction, owner: string, conversationId: string, jobId: string) {
       const args = [assetUuid(owner),assetUuid(conversationId),assetUuid(jobId)] as const;
-      if (!await tryLockAiBudget(tx)) return fail('CONFLICT');
+      if (!await tryLockAiBudget(tx,args[0])) return fail('CONFLICT');
       const [job] = await tx.query<Row & {reserved_microusd: bigint}>(`SELECT j.* FROM foxy_visual_jobs j
         JOIN foxy_conversations c ON c.id=j.conversation_id AND c.owner_id=j.owner_id
         WHERE j.owner_id=$1::uuid AND j.conversation_id=$2::uuid AND j.id=$3::uuid AND c.deleted_at IS NULL

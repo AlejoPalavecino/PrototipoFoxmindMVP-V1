@@ -154,6 +154,11 @@ export const suites = {
   'integration-owned': [
     'tests/ai-execution-policy-database.test.mjs',
     'tests/database-roles.test.mjs',
+    'tests/ai-budget-owner-lock-database.test.mjs',
+    'tests/foreign-key-indexes-database.test.mjs',
+    'tests/database-backup-restore.test.mjs',
+    'tests/classroom-code-digest-database.test.mjs',
+    'tests/data-retention-database.test.mjs',
     'tests/ai-study-profile-database.test.mjs',
     'tests/ai-study-reservation-database.test.mjs',
     'tests/home-order-database.test.mjs',

@@ -9,11 +9,13 @@ export class MembershipService {
   readonly run: ClassroomAccess['run'];
   readonly classroom: ClassroomAccess['classroom'];
   readonly tokens: PreviewTokenPort;
+  readonly codeKeys: { readonly signingKey?: Buffer; readonly codeDigestKey?: Buffer };
   private readonly newCode: (tx:Transaction,classroomId:string)=>Promise<string>;
-  constructor(context: Pick<ClassroomAccess, 'run' | 'classroom'> & { tokens: PreviewTokenPort }, dependencies: { newCode: (tx:Transaction,classroomId:string)=>Promise<string> }, private readonly repository: MembershipsRepository, private readonly operations: MembershipOperations) {
+  constructor(context: Pick<ClassroomAccess, 'run' | 'classroom'> & { tokens: PreviewTokenPort; ports?: { signingKey?: Buffer; codeDigestKey?: Buffer } }, dependencies: { newCode: (tx:Transaction,classroomId:string)=>Promise<string> }, private readonly repository: MembershipsRepository, private readonly operations: MembershipOperations) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
     this.tokens = context.tokens;
+    this.codeKeys = context.ports ?? {};
     this.newCode = dependencies.newCode;
   }
   readonly recordActivityEligibility: MembershipOperations['recordActivityEligibility'] = (...args) => this.operations.recordActivityEligibility(...args);

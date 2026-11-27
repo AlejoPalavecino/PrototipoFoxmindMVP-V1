@@ -48,4 +48,5 @@ export const migrationInventory = Object.freeze([
   '202611190001_study_strategy_sharing',
   '202611190002_teacher_writing_analysis',
   '202611260001_application_role',
+  '202611260002_foreign_key_indexes',
 ]);
