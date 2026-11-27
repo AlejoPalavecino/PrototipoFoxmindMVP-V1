@@ -27,6 +27,8 @@ Cabeceras reales con `next start apps/web --port 3471`, sin API: `GET /sign-in` 
 
 Retiro de los PNG originales: la prueba ampliada falló primero con los tres `-original.png` bajo `public/` y pasó 3/3 después. Se repitieron `tsc` (exit 0), `web:build` (exit 0), la suite `fast` (3227/3227) y `lint:boundaries` (exit 0). Con `next start` en el puerto 3471, los tres originales responden 404 y `classroom-world.webp` y `profile-docente.webp` siguen en 200. Las huellas del tablero se recalcularon antes de esta verificación y coinciden al cerrarla.
 
+Antes de publicar, la rama se rebasó sobre `7e192110` (F1, corte 1, de la coordinadora). Hubo conflictos sólo en `docs/documentation-map.json` y `scripts/ci-suites.mjs`, y se conservaron las entradas de ambos lados. Sobre esa base: `run-complete-suite --check` 749 entradas, `docs:check` 0 problemas, `tsc` y `web:build` exit 0, `fast` 3230/3230 y `lint:boundaries` exit 0. Las huellas del tablero se recalcularon porque la guía de frontend incorporó el texto de la coordinadora.
+
 El worktree no tenía dependencias propias: Node las encontraba subiendo al checkout principal, pero Turbopack rechaza rutas fuera de la raíz del worktree, también por junction. Se instaló con `npm ci` dentro del worktree; el cliente Prisma se genera en `.generated/` del propio worktree.
 
 ## Límites
@@ -37,4 +39,4 @@ El worktree no tenía dependencias propias: Node las encontraba subiendo al chec
 
 ## Pendiente
 
-Primer paso: que la sesión coordinadora revise e integre la rama `claude/audit-web-headers-3443a0` (commit local, sin push) y marque S13 y S16 en la auditoría. Push, PR o merge necesitan autorización explícita del usuario.
+Primer paso: que la sesión coordinadora revise e integre la rama `claude/audit-web-headers-3443a0` (publicada con PR a pedido del usuario) y marque S13 y S16 en la auditoría. Push, PR o merge necesitan autorización explícita del usuario.
