@@ -50,9 +50,7 @@ test('A4 invalid generation authority/scalars/counts/apply is rejected before up
   assert.equal(calls.length, 0);
 }));
 
-test('A4 generation routes reject unsupported methods and authority query strings', async () => fixture(async ({ send, calls }) => {
+test('A4 generation routes reject unsupported methods (query strings are the API\'s, see classroom-query-forwarding)', async () => fixture(async ({ send, calls }) => {
   assert.equal((await send(base, 'DELETE')).status, 405);
-  assert.equal((await send(`${base}/${job}?actor=${room}`, 'GET')).status, 400);
-  assert.equal((await send(`${base}/sources?teacher=${room}`, 'GET')).status, 400);
   assert.equal(calls.length, 0);
 }));

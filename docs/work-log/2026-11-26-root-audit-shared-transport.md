@@ -103,11 +103,31 @@ Suites integradas del corte 5, sobre `main` `7bea3829`: `fast` 3273/3273, `wrapp
 
 Suites integradas del corte 6, sobre `main` `0b1c897a`: `fast` 3273/3273, `owned-db` 969/969 y `wrappers` 19/19.
 
+## Corte 7 — F2, consultas de aulas
+
+Sesión en la nube del 2026-11-27, rama de trabajo `ccr-9af7730d-b67ekz` igual a `main` `0700d8d`, contenedor efímero con dependencias instaladas por `npm ci` y Docker propio (imagen de Postgres fijada por digest). No se leyó `.env` ni `.test-artifacts/`.
+
+- El [proxy de aulas](../../apps/web/src/application/server/classroom-proxy.ts) ya no valida consultas: retira `parseBrujulaSearchQuery`, `parseWallQuery`, `parseNotificationQuery` y `parseTeacherSupportQuery`, y también el rechazo de una consulta en rutas o métodos que no la admiten. Conserva rutas, métodos, el chequeo de ortografía cruda de la ruta (`%`, `\\`, `#`, `..`), tamaño, codificación, tipo de contenido, GET sin cuerpo, las reglas de cuerpos (TASK-008) y las de cabeceras de intento (TASK-009).
+- La API ya aplicaba los mismos parsers y la misma lista de rutas con consulta ([host de aulas](../../apps/api/src/bootstrap/academic-http.ts)), con 400 `INVALID_INPUT`: no hubo divergencia.
+- Orden: en aulas la API revisa la forma de la consulta antes que la sesión (la admisión no exige sesión y los servicios autentican dentro de la transacción), así que una consulta mal formada sin sesión sigue recibiendo 400. Lo único observable que cambia es el cuerpo del error: ahora es el de la API, sin el `requestId` que agregaba el proxy.
+- Pruebas ajustadas: diez pruebas del proxy exigían que la consulta no llegara a la API (`activity-ai-proxy`, `audit-wall-proxy`, `classroom-ai-proxy`, `p5-web-proxy`, `p7-questionnaire-proxy`, `p8-corrections-proxy`, `p8-grading-proxy`, `p8-progress-proxy`, `p8-publication-proxy` y `teacher-support-transport`). Esos casos pasaron a la prueba nueva, que comprueba el rechazo en la API y el reenvío en el proxy; `audit-wall-proxy` y `teacher-support-transport` ahora exigen el reenvío intacto. Las demás aserciones de esas pruebas no cambiaron.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `tests/classroom-query-forwarding.test.mjs` (nueva): 45 consultas (búsqueda, muro, notificaciones, apoyo docente y consultas en rutas sin consulta) | la parte de la API pasó ya con el código anterior (sin divergencia); por el web, el error lo armaba el proxy (con `requestId`) y la consulta no llegaba a la API | 2/2 |
+| las 10 pruebas de proxy ajustadas, más `brujula-search-transport` y `brujula-notifications-batch` | — | en verde |
+
+`npx tsc --noEmit -p apps/web/tsconfig.json`, `npm run lint:boundaries`, `run-complete-suite --check` (762 entradas) y `npm run docs:check` pasaron.
+
+Entorno de las suites: el contenedor traía Node 22 y el proyecto exige Node 24 (`engines`, CI). Con Node 22, `fast` cortó dos veces en `foxy-text-adapter` (5 subpruebas canceladas por «Promise resolution is still pending»; aislada, también falló una de cuatro corridas sin este cambio) y `api-build-pipeline` no reconoce `--test-isolation=none`. Se instaló Node 24.22.3 en el scratchpad, verificado con el `SHASUMS256.txt` oficial; con él `foxy-text-adapter` pasó 10/10. También se resolvieron tres faltantes del contenedor, sin tocar el repositorio: `initdb` se niega a correr como root, así que `initdb` y `pg_ctl` se envolvieron para correr con un usuario sin privilegios (con un `pg_config` que los apunta, porque el ejecutor sólo conserva `PATH`); la primera descarga de Mailpit falló y la segunda bajó; y el Playwright fijado (1.64.1) buscaba `chromium_headless_shell-1248`, que se enlazó al Chromium 1243 preinstalado.
+
+Suites integradas del corte 7, sobre `main` `0700d8d`: `fast` 3275/3275, `owned-db` 969/969 (las primeras corridas cortaron por `initdb` como root) y `wrappers` 19/19 (las dos primeras cortaron por la descarga de Mailpit y por el navegador).
+
 ## Estado al pausar (2026-11-27)
 
-- En `main`: cortes 5 (agenda, `0b1c897a`) y 6 (Home). Quedan los tres subcortes de aulas (TASK-007 a TASK-009).
+- En `main`: cortes 5 (agenda, `0b1c897a`), 6 (Home) y 7 (consultas de aulas, TASK-007). Quedan TASK-008 y TASK-009.
 - Mapa de aulas (lectura del código, sin ejecutar): consultas sin divergencias; en cuerpos, la API no rechaza como el proxy un `confirmation` no textual en `codes/confirm` (da 409) ni los temas repetidos con distinta mayúscula en la ruta sin `unitIds` (`activities/domain/topic-selection.ts`, termina en 503 por clave duplicada); en participación, `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Esas tres se llevan a la API antes de quitar la regla del proxy. El 409 antes que el 400 en actividades iniciadas o no publicadas quedó aceptado.
-- Primer paso al retomar: TASK-007 (consultas de aulas). Primero, pruebas HTTP de la API con el arnés de `tests/backend-academic-routes.test.mjs` para `parseWallQuery`, `parseNotificationQuery`, `parseBrujulaSearchQuery` y `parseTeacherSupportQuery`; después, RED en el proxy y retiro.
+- Primer paso al retomar: TASK-008 (cuerpos de autoría y aula). Antes de retirar reglas, llevar a la API las dos divergencias de cuerpos del mapa: `confirmation` no textual en `codes/confirm` y temas repetidos con distinta mayúscula en la ruta sin `unitIds`.
 
 ## Límites
 

@@ -18,6 +18,6 @@ test('publication proxy preserves session CSRF confirmation and rejects grade in
     const n = calls.length;
     for (const invalid of [{ ...body, confirm: false }, { revision: '1' }, { ...body, finalGrade: '10' }, { ...body, revision: '1e0' }]) assert.equal((await post(invalid)).status, 400);
     assert.equal((await post(body, { 'x-attempt-editor': 'a'.repeat(43) })).status, 400);
-    assert.equal((await fetch(root + '/result?private=true')).status, 400); assert.equal(calls.length, n);
+    assert.equal(calls.length, n);
   } finally { web.closeAllConnections(); upstream.closeAllConnections(); await Promise.all([new Promise(resolve => web.close(resolve)), new Promise(resolve => upstream.close(resolve))]); }
 });

@@ -28,7 +28,7 @@ test('el cliente obtiene lista, ficha y fuente como lecturas cancelables sin cac
   assert.ok(calls.every(({init})=>init.method==='GET' && init.cache==='no-store' && init.signal.aborted));
 });
 
-test('el proxy admite las tres lecturas y rechaza parámetros y escrituras fuera del contrato', async t => {
+test('el proxy admite las tres lecturas, deja los parámetros a la API y rechaza escrituras y cabeceras de intento', async t => {
   const calls=[];
   const upstream=createServer((req,res)=>{calls.push([req.url,req.headers.cookie]);res.setHeader('content-type','application/json');res.end('{}');});
   const listen=server=>new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -42,10 +42,11 @@ test('el proxy admite las tres lecturas y rechaza parámetros y escrituras fuera
     assert.equal((await fetch(root+path,{headers:{cookie:'foxmind_session=fixture'}})).status,200);
     assert.deepEqual(calls.at(-1),['/api/v1/classrooms'+path,'foxmind_session=fixture']);
   }
-  const before=calls.length;
   for(const path of [list+'?page=0',list+'?page=1&page=2',list+'?teacherId='+id,list+'?classroomId=x',detail+'?page=1']){
-    assert.equal((await fetch(root+path)).status,400);
+    assert.equal((await fetch(root+path)).status,200);
+    assert.equal(calls.at(-1)[0],'/api/v1/classrooms'+path);
   }
+  const before=calls.length;
   assert.equal((await fetch(root+detail,{method:'POST'})).status,405);
   assert.equal((await fetch(root+list,{headers:{'x-attempt-editor':'fixture'}})).status,400);
   assert.equal(calls.length,before);

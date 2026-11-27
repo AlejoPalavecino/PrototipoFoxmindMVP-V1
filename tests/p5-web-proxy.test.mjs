@@ -40,12 +40,11 @@ test('classroom proxy forwards exact routes/security headers and legitimate larg
   assert.equal(response.headers.get('set-cookie'), null);
 }));
 
-test('unknown paths/queries/methods/schema/encoding and excessive JSON never reach upstream', async () => {
+test('unknown paths/methods/schema/encoding and excessive JSON never reach upstream', async () => {
   let calls = 0;
   await fixture(async origin => {
     for (const [path, method, status, body, headers] of [
       ['/api/v1/classrooms/other', 'GET', 404],
-      ['/api/v1/classrooms?actor=other', 'GET', 400],
       [`/api/v1/classrooms/${id}/archive`, 'PATCH', 405, '{}'],
       [`/api/v1/classrooms/drafts/${id}`, 'PATCH', 400, '{"revision":"0","payload":{"owner":"other"}}'],
       ['/api/v1/classrooms/drafts', 'POST', 400, '{"owner":"other"}'],

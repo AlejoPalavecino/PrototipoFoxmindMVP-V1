@@ -54,7 +54,6 @@ test('C4 extraction proxy rejects extra authority, coerced scalars and malformed
 
 test('C4 extraction proxy keeps allowed methods/query boundaries and existing strict boolean operations', async () => fixture(async ({ send, calls }) => {
   assert.equal((await send(base, 'DELETE')).status, 405);
-  assert.equal((await send(`${base}/${job}?actor=${id}`, 'GET')).status, 400);
   const archive = `/api/v1/classrooms/${id}/archive`;
   assert.equal((await send(archive, 'POST', { revision: '1', archived: true })).status, 200);
   assert.equal((await send(archive, 'POST', { revision: '1', archived: 'true' })).status, 400);

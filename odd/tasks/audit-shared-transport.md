@@ -108,14 +108,14 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Blocker:** none
 
 ### TASK-007 — Aulas: consultas sin reglas de dominio en el proxy (F2)
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-006
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** por cada regla retirada del proxy, una prueba de la API que la rechaza con el mismo código, y una prueba del proxy que ya la reenvía
 - **Acceptance:** Las consultas de búsqueda, muro, notificaciones y apoyo docente se reenvían sin validar; la API las rechaza con el mismo código.
-- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts","tests/classroom-query-forwarding.test.mjs","tests/activity-ai-proxy.test.mjs","tests/audit-wall-proxy.test.mjs","tests/classroom-ai-proxy.test.mjs","tests/p5-web-proxy.test.mjs","tests/p7-questionnaire-proxy.test.mjs","tests/p8-corrections-proxy.test.mjs","tests/p8-grading-proxy.test.mjs","tests/p8-progress-proxy.test.mjs","tests/p8-publication-proxy.test.mjs","tests/teacher-support-transport.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json","docs/engineering/frontend/README.md"]
+- **Evidence:** {"command":"node --test tests/classroom-query-forwarding.test.mjs; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main 0700d8d","result":"API sin divergencia (45 consultas dan 400 INVALID_INPUT sin llegar al servicio, también con el proxy anterior); RED: por el web el error lo armaba el proxy (con requestId) y la consulta no llegaba a la API; GREEN: classroom-query-forwarding 2/2 y las 25 pruebas del proxy de aulas en verde; fast 3275/3275, owned-db 969/969, wrappers 19/19","candidate":"sha256:bd2c44e665d2d9601ae889a8ce70a1424a3afc7ea7366a927d70d1d28d281fdb (git diff --binary HEAD -- apps tests scripts)"}
 - **Blocker:** none
 
 ### TASK-008 — Aulas: cuerpos de autoría y aula sin reglas de dominio en el proxy (F2)

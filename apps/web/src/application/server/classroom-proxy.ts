@@ -1,17 +1,15 @@
 import { clientAddressHeaders } from './client-address.ts';
-import { parseTeacherSupportQuery } from '../../../../../src/core/domain/grading/teacher-support-query.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
 import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 import { generationSchema } from './activity-generation-proxy.ts';
 import { isClassroomCoverKey } from '../../../../../src/core/domain/classrooms/cover.ts';
-import { parseBrujulaSearchQuery } from '../../../../../src/core/domain/classrooms/brujula-search.ts';
 import { parseEvaluationRubric } from '../../../../../src/core/domain/grading/evaluation-rubric.ts';
 import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../../src/core/domain/curriculum/ai.ts';
-import { parseWallQuery, parseWallMutation } from '../../../../../src/core/domain/communication/wall.ts';
+import { parseWallMutation } from '../../../../../src/core/domain/communication/wall.ts';
 import { privateGradingInput, gradeCorrectionInput, gradePublicationInput } from '../../../../../src/core/domain/grading/grading.ts';
-import { parseNotificationQuery, PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/home/notifications.ts';
+import { PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/home/notifications.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;
@@ -224,24 +222,8 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if (!selected) { await reject(404, 'NOT_FOUND'); return; }
   const method = request.method ?? 'GET';
   if (!Object.hasOwn(selected.methods, method)) { await reject(405, 'METHOD_NOT_ALLOWED'); return; }
-  const wallPath = new RegExp(`^/api/v1/classrooms/${uuid}/wall(?:/${uuid}(?:/replies)?)?$`).test(url.pathname);
-  const notificationPage = url.pathname === '/api/v1/classrooms/notifications/page';
-  const searchPage = url.pathname === '/api/v1/classrooms/search';
+  // Query strings are forwarded unvalidated: the API owns which routes accept one and their contract (F2).
   const supportPage = url.pathname === '/api/v1/classrooms/teacher-support';
-  if (supportPage) {
-    try { parseTeacherSupportQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
-  }
-  if (url.search && (!(wallPath || notificationPage || searchPage || supportPage) || method !== 'GET')) { await reject(400, 'INVALID_INPUT'); return; }
-  if (searchPage && method === 'GET') {
-    try { parseBrujulaSearchQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
-  }
-  if (wallPath && method === 'GET') {
-    try { parseWallQuery(url.searchParams, url.pathname.endsWith('/replies') ? 'replies' : url.pathname.endsWith('/wall') ? 'feed' : 'thread'); }
-    catch { await reject(400, 'INVALID_INPUT'); return; }
-  }
-  if (notificationPage && method === 'GET') {
-    try { parseNotificationQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
-  }
   const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
   const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
   if (participation && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {

@@ -20,7 +20,7 @@ test('grading proxy forwards exact decimal JSON with session/CSRF and rejects un
     for (const invalid of [{ ...body, ownerId: id }, { ...body, overallGrade: '8.345' }, { ...body, overallGrade: '1e1' },
       { ...body, questions: [{ questionId: id, points: null, feedback: '', finalGrade: '10' }] }]) assert.equal((await post(invalid)).status, 400);
     assert.equal((await post(body, { 'x-attempt-editor': 'a'.repeat(43) })).status, 400);
-    assert.equal((await fetch(root + '/grading?publish=true')).status, 400); assert.equal(calls.length, n);
+    assert.equal(calls.length, n);
     assert.equal((await fetch(root + '/history')).status, 200);
   } finally { web.closeAllConnections(); upstream.closeAllConnections(); await Promise.all([new Promise(resolve => web.close(resolve)), new Promise(resolve => upstream.close(resolve))]); }
 });

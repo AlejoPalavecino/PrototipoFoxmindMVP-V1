@@ -31,13 +31,12 @@ test('proxy forwards only the paginated wall and targeted thread query contract'
   });
 });
 
-test('proxy rejects invalid limits, duplicate and foreign query keys without contacting upstream', async () => {
+test('proxy forwards invalid limits, duplicate and foreign query keys intact so the API rejects them (F2)', async () => {
   await fixture(async (root, calls) => {
     for (const path of ['?limit=0', '?limit=11', '?limit=1.5', '?limit=1&limit=2', '?actor=other', `/${post}/replies?limit=21`, `/${post}?replyId=invalid`]) {
-      const count = calls.length;
       const res = await fetch(root + path);
-      assert.ok([400, 404].includes(res.status), `${path}: ${res.status}`);
-      assert.equal(calls.length, count, path);
+      assert.equal(res.status, 200, path);
+      assert.equal(calls.at(-1).url, `/api/v1/classrooms/${room}/wall${path}`, path);
     }
   });
 });

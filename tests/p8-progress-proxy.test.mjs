@@ -16,7 +16,6 @@ test('progress proxy forwards cookies/read-only paths, rejects injected selectio
       assert.equal((await fetch(root + suffix, { headers: { cookie: 'fixture=session' } })).status, 200);
       assert.deepEqual(calls.at(-1), { path: `/api/v1/classrooms/${id}${suffix}`, method: 'GET', cookie: 'fixture=session' });
       const count = calls.length;
-      assert.equal((await fetch(root + suffix + '?studentId=' + id)).status, 400);
       assert.equal((await fetch(root + suffix, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })).status, 405);
       assert.equal((await fetch(root + suffix, { headers: { 'x-attempt-editor': 'a'.repeat(43) } })).status, 400);
       assert.equal(calls.length, count);
