@@ -1,6 +1,7 @@
 import type { SqlTransaction } from '../../../../../src/core/contracts/sql.ts';
 import type { AiExecutionSettings, AiExecutionTask } from '../../../../../src/core/contracts/ai-execution.ts';
 import { parseExecutionSnapshot } from './execution-snapshot.ts';
+import { lockAiBudget } from './admission.ts';
 import { reserveAiMonthlyBudget, settleAiMonthlyBudget, type MonthlyBudgetJob, type MonthlyBudgetMetadata } from './monthly-budget.ts';
 
 type Transaction = SqlTransaction;
@@ -32,6 +33,11 @@ export function tokenCost(tokens: number, rate: number): bigint {
   const [numerator, denominator] = decimal(rate);
   return (BigInt(tokens) * numerator + denominator - 1n) / denominator;
 }
+/** Every writer locks the shared global row before the owner's row, so concurrent owners never deadlock. */
+export async function lockAiDailyLedger(tx: Transaction, day: Date | string, ownerId: string) {
+  return tx.query<{ scope: string; reserved_microusd: bigint }>(`SELECT scope,reserved_microusd FROM ai_usage_daily
+    WHERE day=$1::date AND scope IN ('global',$2) AND capability='study-plan-v1' ORDER BY (scope='global') DESC FOR UPDATE`, day, ownerId);
+}
 async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigint, config: DailyLimits) {
   const [num, den] = decimal(config.dailyBudgetUsd), globalMaximum = num * 1000000n / den;
   // Without a dedicated per-actor cap the owner scope keeps sharing the global cap (previous behaviour).
@@ -53,7 +59,7 @@ async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigi
 
 export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count: number, config: ClassroomAiConfiguration,
   table: BudgetTable = 'classroom_curriculum_extractions', metadata?: Partial<MonthlyBudgetMetadata>): Promise<boolean> {
-  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  await lockAiBudget(tx, row.owner_id);
   const [existing] = await tx.query<{ dispatch_count: number; execution_profile?: unknown }>(`SELECT dispatch_count${tasks[table] ? ',execution_profile' : ''} FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
   if (!existing || existing.dispatch_count > 0) return false;
   config = pinnedPrices(config, table, existing.execution_profile);
@@ -95,6 +101,7 @@ export async function settleAiTextBudget(tx: Transaction, row: BudgetJob, config
     if (actual !== null) await settleAiMonthlyBudget(tx, job, actual);
     return;
   }
+  await lockAiDailyLedger(tx, reservation.day, row.owner_id);
   await tx.query(`UPDATE ai_usage_daily SET reserved_microusd=reserved_microusd-$3::bigint,
     consumed_microusd=consumed_microusd+$4::bigint,input_tokens=input_tokens+$5::bigint,output_tokens=output_tokens+$6::bigint
     WHERE day=$1::date AND scope IN ('global',$2) AND capability='study-plan-v1' RETURNING scope`, reservation.day, row.owner_id,
@@ -107,7 +114,7 @@ export async function settleAiTextBudget(tx: Transaction, row: BudgetJob, config
 /** Uses the same UTC operational quota for Study images, whose durable work lives in a domain receipt. */
 export async function reserveAiImageBudget(tx: Transaction, job: MonthlyBudgetJob, amount: bigint,
   metadata: MonthlyBudgetMetadata, limits: DailyLimits): Promise<boolean> {
-  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  await lockAiBudget(tx, job.ownerId);
   await requireDailyBudget(tx, job.ownerId, amount, limits);
   if (!await reserveAiMonthlyBudget(tx, job, amount, metadata)) return false;
   // Count the estimate immediately against the operational guard, even if the process dies before returning usage.
@@ -125,8 +132,7 @@ export async function settleAiImageBudget(tx: Transaction, job: MonthlyBudgetJob
   const [reservation] = await tx.query<{ day: string }>(`SELECT operational_day::text AS day
     FROM ai_monthly_reservations WHERE namespace=$1 AND job_id=$2::uuid AND owner_id=$3::uuid`, job.namespace, job.jobId, job.ownerId);
   if (!reservation) return;
-  await tx.query(`SELECT scope FROM ai_usage_daily WHERE day=$1::date AND scope IN ('global',$2)
-    AND capability='study-plan-v1' ORDER BY (scope='global') DESC FOR UPDATE`, reservation.day, job.ownerId);
+  await lockAiDailyLedger(tx, reservation.day, job.ownerId);
   const result = await settleAiMonthlyBudget(tx, job, actual);
   if (!result) return;
   await tx.query(`UPDATE ai_usage_daily SET consumed_microusd=consumed_microusd+$3::bigint

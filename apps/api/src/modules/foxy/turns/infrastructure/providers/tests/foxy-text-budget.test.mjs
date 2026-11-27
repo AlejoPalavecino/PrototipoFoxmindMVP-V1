@@ -14,7 +14,8 @@ function fake({ dispatchCount = 0, usageCount = 0, amount = 0n } = {}) {
   const usage = new Map([['global', { count: usageCount, reserved: 0n, consumed: 0n }]]);
   const tx = { query: async (sql, ...args) => {
     calls.push({ sql, args });
-    if (/pg_advisory_xact_lock\(78123001\)/u.test(sql)) return [{}];
+    if (/pg_advisory_xact_lock\(78123001,hashtext/u.test(sql)) return [{}];
+    if (/SELECT scope,reserved_microusd FROM ai_usage_daily[\s\S]*ORDER BY \(scope='global'\) DESC FOR UPDATE/u.test(sql)) return [];
     if (sql.includes('pg_advisory_xact_lock(78123003') || sql.includes('WITH expired AS')) return [];
     if (sql.includes('FROM period, users')) return [{ month: '2026-10-01', observed_at: day, budget: 5_000_000 }];
     if (sql.includes('GROUP BY capability')) return [];
@@ -73,7 +74,8 @@ test('reserve uses shared lock and ledger for default and all four existing tabl
   for (const table of [undefined, ...tables]) {
     const f = fake(), row = { id: randomUUID(), owner_id: randomUUID() };
     assert.equal(await reserve(f.tx, row, 11, config, table), true);
-    assert.equal(f.calls[0].sql, 'SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+    assert.equal(f.calls[0].sql, 'SELECT 1 FROM pg_advisory_xact_lock(78123001,hashtext(($1::uuid)::text))');
+    assert.deepEqual(f.calls[0].args, [row.owner_id]);
     const effective = table ?? tables[0];
     assert.ok(f.calls.some(c => c.sql.includes(`SELECT dispatch_count,execution_profile FROM ${effective}`)));
     assert.ok(f.calls.some(c => c.sql.includes(`UPDATE ${effective} SET reserved_microusd=`)));

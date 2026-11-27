@@ -10,7 +10,7 @@ const base = { maxOutputTokens: 100, inputUsdPerMillion: 0.1, outputUsdPerMillio
 function fake(ownerId, { globalUsed = 0n, actorUsed = 0n } = {}) {
   const day = new Date('2026-10-31T00:00:00.000Z'), usage = new Map([['global', globalUsed], [ownerId, actorUsed]]);
   return { async query(sql, ...args) {
-    if (/pg_advisory_xact_lock\(78123001\)/u.test(sql)) return [{}];
+    if (/pg_advisory_xact_lock\(78123001,hashtext/u.test(sql)) return [{}];
     if (sql.includes('pg_advisory_xact_lock(78123003') || sql.includes('WITH expired AS')) return [];
     if (sql.includes('FROM period, users')) return [{ month: '2026-10-01', observed_at: day, budget: 5_000_000 }];
     if (sql.includes('GROUP BY capability')) return [];

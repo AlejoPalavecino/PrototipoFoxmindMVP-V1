@@ -125,7 +125,7 @@ test('durable completion fences results and settles reservations atomically', { 
         sql => /\busers\b/iu.test(sql) && /FOR SHARE/iu.test(sql),
         sql => /\bclassrooms\b/iu.test(sql) && /FOR SHARE/iu.test(sql),
         sql => /\bfoxy_conversations\b/iu.test(sql) && /FOR SHARE/iu.test(sql),
-        sql => /pg_advisory_xact_lock\(78123001\)/iu.test(sql),
+        sql => /pg_advisory_xact_lock\(78123001,hashtext/iu.test(sql),
         sql => /\bfoxy_turns\b/iu.test(sql) && /FOR UPDATE/iu.test(sql)
       ];
       let last = -1;
@@ -196,7 +196,7 @@ test('grading reservation and Foxy completion avoid deadlock after lease rollove
       await hook(sql); return raw.$queryRawUnsafe(sql, ...args);
     } })) });
     const grading = createGradingAiSqlQueue({ database: wrap(async sql => {
-      if (sql.includes('pg_advisory_xact_lock(78123001)')) { reachedLegacy(); await gate; }
+      if (sql.includes('pg_advisory_xact_lock(78123001,hashtext')) { reachedLegacy(); await gate; }
     }), configuration: config });
     const reserving = grading.reserve(job, 100);
     try {

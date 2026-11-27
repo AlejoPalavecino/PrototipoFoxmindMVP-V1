@@ -31,7 +31,7 @@ export function createFoxyVisualQueue(options: { grounding: VisualGroundingPort;
         AND j.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp() AND (j.dispatch_count=1 OR (j.kind='IMAGE' AND $2) OR (j.kind='DIAGRAM' AND $3))
         AND ${noAiWorkForOwner('j')} ORDER BY j.created_at,j.id LIMIT 1`,config.maxJobAgeMs,config.enabled?.IMAGE ?? true,config.enabled?.DIAGRAM ?? true);
       if (!item) return null;
-      if (item.dispatch_count === 1 && !await tryLockAiBudget(tx)) return null;
+      if (item.dispatch_count === 1 && !await tryLockAiBudget(tx,item.owner_id)) return null;
       if (!await lock(tx,item)) return null;
       if (item.dispatch_count === 1 && !await options.budget.settleExpired(tx,item.id)) throw failure();
       const nonce=randomUUID(), [clock] = await tx.query<{until: Date}>("SELECT clock_timestamp()+interval '90 seconds' AS until");

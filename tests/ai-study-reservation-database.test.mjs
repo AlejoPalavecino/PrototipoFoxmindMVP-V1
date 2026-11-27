@@ -63,7 +63,7 @@ test('PostgreSQL: expired Study waits for reservation commit before releasing it
       await client.query('BEGIN');
       try {
         const result = await operation({ async $queryRawUnsafe(sql, ...values) {
-          if (sql.includes('pg_advisory_xact_lock(78123001)')) entered();
+          if (sql.includes('pg_advisory_xact_lock(78123001,hashtext')) entered();
           return (await client.query(sql, values)).rows;
         } });
         await client.query('COMMIT'); return result;
@@ -76,7 +76,7 @@ test('PostgreSQL: expired Study waits for reservation commit before releasing it
     const transport = { provider: 'gemini', async count() { return 10; }, async generate() { generates++; throw new Error('must not generate'); } };
     const locker = await pool.connect();
     await locker.query('BEGIN');
-    await locker.query('SELECT pg_advisory_xact_lock(78123001)');
+    await locker.query('SELECT pg_advisory_xact_lock(78123001,hashtext(($1::uuid)::text))', [ownerId]);
     let running;
     try {
       running = executeStudyAiText({ configuration, database, ownerId, requestId, transport,
