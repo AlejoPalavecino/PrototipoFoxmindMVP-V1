@@ -13,7 +13,7 @@ import { newClassroomCode } from './academic-management-composition.ts';
 import { createCatalogOperations } from '../modules/classrooms/catalog/public.ts';
 import { createCatalogRepository } from '../modules/classrooms/catalog/infrastructure/classroom-queries-repository.ts';
 import { decryptDelivery } from '../modules/classrooms/invitations/infrastructure/delivery-envelope.ts';
-import { digest } from '../platform/crypto/digest.ts';
+import { classroomCodeDigests } from '../platform/crypto/classroom-code-digest.ts';
 import { LibraryService } from './academic-materials-composition.ts';
 import { WallService } from './academic-communication-composition.ts';
 import { NotificationInboxService } from './academic-notifications-composition.ts';
@@ -55,10 +55,10 @@ function academicPorts(input: AcademicRuntimeInput): ClassroomPorts {
 export function createAcademicRuntime(input: AcademicRuntimeInput) {
   const ports = academicPorts(input);
   const access = new ClassroomCore(ports,
-    createCatalogOperations(createCatalogRepository(), { readCode: decryptDelivery, digest }));
+    createCatalogOperations(createCatalogRepository(), { readCode: decryptDelivery, codeDigests: classroomCodeDigests }));
   const drafts = new DraftService(access);
   const membership = new MembershipService(access, {
-    newCode: (tx, id) => newClassroomCode(tx, id, access.ports.deliveryKey),
+    newCode: (tx, id) => newClassroomCode(tx, id, access.ports),
   });
   const invitations = new InvitationService(access, { enroll: membership.enroll.bind(membership) });
   const readyClassroomFile = createReadyClassroomFile(access.ports.files);

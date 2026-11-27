@@ -4,8 +4,9 @@ type QueryAccess = Pick<ClassroomRuntimeAccess,'run'|'classroom'|'ports'> & { su
 import type { ClassroomRow } from '../../access/public.ts';
 
 
-export function createCatalogOperations(repository: CatalogRepository, dependencies: { readCode(key: Buffer, envelope: string, aad: string): { code?: unknown }; digest(text: string): string }) {
-const { readCode: decryptDelivery, digest } = dependencies;
+export function createCatalogOperations(repository: CatalogRepository, dependencies: { readCode(key: Buffer, envelope: string, aad: string): { code?: unknown };
+  codeDigests(keys: QueryAccess['ports'], code: string): string[] }) {
+const { readCode: decryptDelivery, codeDigests } = dependencies;
 function mine(context: QueryAccess, request: unknown) {
     return context.run(request, false, async (tx, actor) => {
       const rows = await repository.listAccessible(tx, { actorId: actor.id });
@@ -33,7 +34,7 @@ function detail(context: QueryAccess, request: unknown, id: string) {
         const [active]=await repository.readAccessCode(tx, { classroomId: id });
         if(active?.code_envelope)try{
           const decoded=decryptDelivery(context.ports.deliveryKey,active.code_envelope,`classroom-access:${id.toLowerCase()}`);
-          if(typeof decoded?.code==='string'&&digest(decoded.code)===active.code_digest)accessCode=decoded.code;
+          if(typeof decoded?.code==='string'&&codeDigests(context.ports,decoded.code).includes(active.code_digest))accessCode=decoded.code;
         }catch{/* Historical codes or changed key require explicit regeneration. */}
       }
       return { ...context.summary(row, actor.id), units, plans, studentCount: membership.count,

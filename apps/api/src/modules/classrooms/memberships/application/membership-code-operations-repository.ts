@@ -5,7 +5,7 @@ export interface MembershipCodeRepository {
   /** `subject` is `global` or `student:<id>`; each one is an independent failure window. */
   readCodeFailures(tx: Transaction, input: { subject: string; windowSeconds: number }): Promise<{ failures: number; retry_after: number }[]>;
   recordCodeFailure(tx: Transaction, input: { subject: string; windowSeconds: number }): Promise<{ request_count: number }[]>;
-  findLiveCode(tx: Transaction, input: { digest: string }): Promise<{
+  findLiveCode(tx: Transaction, input: { digests: string[] }): Promise<{
         id: string;
         classroom_id: string;
         code_digest: string;

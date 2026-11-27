@@ -39,6 +39,16 @@ test('classrooms opt in only with explicit positive bigint quota, durable keys a
   }
 });
 
+test('the classroom code HMAC key is required in production and distinct from the other keys (S7)', () => {
+  assert.equal(readClassroomsConfiguration(environment, origin).codeDigestKey, undefined, 'derived outside production');
+  assert.throws(() => readClassroomsConfiguration({ ...environment, NODE_ENV: 'production' }, origin));
+  const production = readClassroomsConfiguration({ ...environment, NODE_ENV: 'production', CLASSROOMS_CODE_DIGEST_KEY: key(3) }, origin);
+  assert.equal(production.codeDigestKey.toString('base64url'), key(3));
+  for (const bad of [key(1), key(2), 'a'.repeat(43), '']) {
+    assert.throws(() => readClassroomsConfiguration({ ...environment, CLASSROOMS_CODE_DIGEST_KEY: bad }, origin), bad);
+  }
+});
+
 test('main configuration preserves disabled P3 behavior and requires integrated P4 when P5 is enabled', () => {
   const base = { DATABASE_URL: 'postgres://fixture:fixture@127.0.0.1:59999/fixture', ...identityTestEnvironment() };
   const disabled = readConfiguration(base);
