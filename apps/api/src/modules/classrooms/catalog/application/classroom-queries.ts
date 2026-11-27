@@ -4,7 +4,7 @@ type QueryAccess = Pick<ClassroomRuntimeAccess,'run'|'classroom'|'ports'> & { su
 import type { ClassroomRow } from '../../access/public.ts';
 
 
-export function createCatalogOperations(repository: CatalogRepository, dependencies: { readCode(key: Buffer, envelope: string, aad: string): { code?: unknown }; digest(text: string): string }) {
+export function createCatalogOperations(repository: CatalogRepository, dependencies: { readCode(key: Buffer, envelope: string, aad: string, previous?: readonly Buffer[]): { code?: unknown }; digest(text: string): string }) {
 const { readCode: decryptDelivery, digest } = dependencies;
 function mine(context: QueryAccess, request: unknown) {
     return context.run(request, false, async (tx, actor) => {
@@ -32,7 +32,7 @@ function detail(context: QueryAccess, request: unknown, id: string) {
       if(row.teacher_id===actor.id){
         const [active]=await repository.readAccessCode(tx, { classroomId: id });
         if(active?.code_envelope)try{
-          const decoded=decryptDelivery(context.ports.deliveryKey,active.code_envelope,`classroom-access:${id.toLowerCase()}`);
+          const decoded=decryptDelivery(context.ports.deliveryKey,active.code_envelope,`classroom-access:${id.toLowerCase()}`,context.ports.previousDeliveryKeys);
           if(typeof decoded?.code==='string'&&digest(decoded.code)===active.code_digest)accessCode=decoded.code;
         }catch{/* Historical codes or changed key require explicit regeneration. */}
       }

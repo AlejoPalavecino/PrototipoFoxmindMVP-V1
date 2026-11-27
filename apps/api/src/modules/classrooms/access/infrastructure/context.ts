@@ -29,7 +29,9 @@ export class ClassroomCore {
       typeof ports.classroomQuotaBytes !== 'bigint' ||
       ports.classroomQuotaBytes < 1n ||
       !Buffer.isBuffer(ports.deliveryKey) ||
-      ports.deliveryKey.length !== 32
+      ports.deliveryKey.length !== 32 ||
+      (ports.previousDeliveryKeys !== undefined && (!Array.isArray(ports.previousDeliveryKeys) ||
+        ports.previousDeliveryKeys.some(key => !Buffer.isBuffer(key) || key.length !== 32)))
     )
       fail('SERVICE_UNAVAILABLE');
     const origin = new URL(ports.webOrigin);
@@ -44,7 +46,8 @@ export class ClassroomCore {
         ))
     )
       fail('SERVICE_UNAVAILABLE');
-    this.ports = { ...ports, deliveryKey: Buffer.from(ports.deliveryKey) };
+    this.ports = { ...ports, deliveryKey: Buffer.from(ports.deliveryKey),
+      previousDeliveryKeys: Object.freeze((ports.previousDeliveryKeys ?? []).map(key => Buffer.from(key))) };
     this.tokens = new PreviewTokens(ports.signingKey);
     this.runner = new ClassroomTransactionRunner(this.ports);
   }

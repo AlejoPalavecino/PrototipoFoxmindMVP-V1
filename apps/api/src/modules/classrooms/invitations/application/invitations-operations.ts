@@ -5,6 +5,23 @@ import type { ClassroomRuntimeAccess } from '../../access/public.ts';
 export type InvitationAccess = Pick<ClassroomRuntimeAccess, 'run' | 'classroom' | 'ports'>;
 type InvitationRow = { id: string; generation: bigint; can_resend: boolean };
 
+/** S6: recipients a teacher may have queued per rolling window (new invitations and resends, single or batch). */
+export const INVITATION_DELIVERY_BUDGETS = Object.freeze({
+  day: Object.freeze({ limit: 200, windowSeconds: 86400 }),
+  hour: Object.freeze({ limit: 60, windowSeconds: 3600 }),
+});
+
+/** Charges one queued delivery to the teacher. Only RATE_LIMITED keeps its wait; any other failure closes the door. */
+async function chargeDelivery(capability: InvitationAccess, actor: Actor) {
+  const admit = capability.ports.admitInvitationDelivery;
+  if (!admit) return;
+  try { await admit(actor.id); } catch (error) {
+    const { code, retryAfter } = (error ?? {}) as { code?: unknown; retryAfter?: unknown };
+    if (code === 'RATE_LIMITED') return fail('RATE_LIMITED', typeof retryAfter === 'number' ? retryAfter : undefined);
+    return fail('SERVICE_UNAVAILABLE');
+  }
+}
+
 export function createInvitationIssueOperations(repository: InvitationIssueRepository, dependencies: { randomUUID(): string; sealMessage(key: Buffer, value: { to: string; classroom: string; teacher: string; url: string }, aad: string): string }) {
 const { randomUUID, sealMessage: encryptDelivery } = dependencies;
 async function inviteOperation(capability: InvitationAccess, request: unknown, classroomId: string, input: unknown) {
@@ -52,6 +69,7 @@ async function createInvitation(tx: Transaction, classroomId: string, normalized
 
 async function enqueueInvitation(tx: Transaction, capability: InvitationAccess, invitation: { id: string; generation: string },
   email: string, classroom: string, actor: Actor) {
+  await chargeDelivery(capability, actor);
   const { id, generation } = invitation, aad = `p5:${id}:${generation}`;
   const envelope = encryptDelivery(capability.ports.deliveryKey, { to: email, classroom,
     teacher: `${actor.first_name} ${actor.last_name}`, url: `${capability.ports.webOrigin}/mis-aulas?invitacion=${id}` }, aad);

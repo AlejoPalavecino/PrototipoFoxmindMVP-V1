@@ -21,5 +21,9 @@ export interface ClassroomPorts {
   classroomQuotaBytes: bigint;
   signingKey: Buffer;
   deliveryKey: Buffer;
+  /** Retired delivery keys kept only to read envelopes sealed before a rotation. */
+  previousDeliveryKeys?: readonly Buffer[];
+  /** Charges one queued invitation email to the teacher (S6 quota); throws `{ code: 'RATE_LIMITED', retryAfter }` when exhausted. */
+  admitInvitationDelivery?(actorId: string): Promise<void>;
   webOrigin: string;
 }

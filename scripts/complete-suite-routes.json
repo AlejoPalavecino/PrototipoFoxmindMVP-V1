@@ -13,6 +13,7 @@
       "apps/api/src/modules/classrooms/drafts/application/publication.test.ts",
       "apps/api/src/modules/classrooms/drafts/infrastructure/classrooms-persistence.test.ts",
       "apps/api/src/modules/classrooms/invitations/application/batch-behavior.test.ts",
+      "apps/api/src/modules/classrooms/invitations/application/invitation-quota.test.ts",
       "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts",
       "apps/api/src/modules/communication/wall/application/wall.test.ts",
       "apps/api/src/modules/curriculum/generation/application/repository.test.mjs",
@@ -525,8 +526,10 @@
       "tests/teacher-support-transport.test.mjs",
       "tests/teacher-support-ui.test.mjs",
       "tests/teacher-writing-policy.test.mjs",
+      "tests/classroom-invitation-quota.test.mjs",
       "apps/web/src/features/foxy/resources/teacher-planning-model.test.mjs",
-      "apps/web/src/features/study/practice/presentation/study-practice-results.test.mjs"
+      "apps/web/src/features/study/practice/presentation/study-practice-results.test.mjs",
+      "apps/api/src/modules/classrooms/invitations/infrastructure/delivery-envelope.test.mjs"
     ]
   },
   {
