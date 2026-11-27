@@ -30,11 +30,19 @@ export function publicUser(user: User) {
 export class IdentityRuntime {
   constructor(
     readonly configuration: IdentityApplicationConfiguration,
-    readonly store: IdentityStorePort,
+    private readonly store: IdentityStorePort,
     readonly passwords: PasswordHasher,
     private readonly dependencies: IdentityApplicationDependencies,
     private readonly ports: IdentityRuntimePorts = {},
   ) {}
+  /** Resolves a session verifier for HTTP admission; hosts never reach the store directly. */
+  authenticateVerifier(verifier: string): Promise<AuthenticatedContext | null> {
+    return this.store.authenticate(verifier);
+  }
+  /** Charges host-specific buckets (for example, classroom codes and invitation batches). */
+  admitBuckets(buckets: readonly AdmissionBucket[]): Promise<void> {
+    return this.store.admit(this.configuration.security, buckets);
+  }
   async generalAdmission(ip: string, context: AuthenticatedContext | null): Promise<void> {
     const rule = this.configuration.security.rateLimits['general-identity'];
     const buckets: AdmissionBucket[] = [{ action: 'general-identity', namespace: 'ip', subject: ip, budget: rule.ip }];

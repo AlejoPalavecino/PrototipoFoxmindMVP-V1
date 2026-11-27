@@ -40,6 +40,10 @@ La migración conserva comportamiento, campos, mensajes, avatar, estilos y garan
 
 La reorganización backend y su evidencia sintética se registran en [TASK-013](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/blob/2ed07b6794cbe5b296ad3b65b7f8a91a4ce91d81/docs/work-log/2026-11-16-worker-backend-identity-capabilities.md). No acredita entrega real de correo ni verificación sobre datos retenidos.
 
+## Admisión de pedidos en los hosts
+
+Todos los hosts HTTP de la API admiten con [http-admission](../../../apps/api/src/bootstrap/http-admission.ts): `admitRequest` lee la cookie, autentica, borra una cookie inválida, resuelve la dirección del cliente (sin ella, 503), cobra el cupo general, exige sesión verificada y el rol del host, y pide origen y CSRF en toda escritura. Una escritura es lo que el handler marca como tal o cualquier método que no sea GET ni HEAD. Todo 429 lleva `Retry-After`. `identifyRequest` es la primera parte, sin cupo, para hosts con cupos propios (aulas: lotes de invitaciones y códigos). `authenticateInTransaction` repite las mismas comprobaciones dentro de la transacción del dominio, sin cobrar cupo. Los hosts conservan su propio mapeo de errores y el cierre de cuerpos grandes rechazados (archivos y aulas). `IdentityRuntime` no expone su `store`: ofrece `authenticateVerifier` y `admitBuckets`. La admisión anónima (`session: 'anonymous'`) de subidas, adjuntos y recordatorios sólo cobra el cupo, porque el servicio autoriza dentro de su transacción.
+
 ## Dirección del cliente en los límites por IP
 
 Los navegadores llegan a la API sólo a través de los proxies de Next. Sin más información, la API vería siempre la dirección del servidor web y todos los usuarios compartirían un único cupo por IP (`general-identity`, inicio de sesión y demás acciones). Para evitarlo, el proxy firma la dirección que observa en su conexión TCP y la API la acepta sólo si la firma es válida.

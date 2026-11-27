@@ -32,7 +32,8 @@ async function host(t, options = {}) {
     clientAddress: request => request.socket.remoteAddress,
     assertOrigin(origin) { if (origin !== 'http://localhost:3000') throw new IdentityHttpError('ORIGIN_NOT_ALLOWED'); },
     validateCsrf(raw, submitted) { return raw === verifier && submitted === 'valid'; } } },
-    store: { async authenticate() { authenticated++; return options.anonymous ? null : { verifier, sessionId: 'session', user: { id: 'user' } }; } },
+    authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, 
+    store: { async authenticate() { authenticated++; return options.anonymous ? null : { verifier, sessionId: 'session', user: { id: 'user', email_verified_at: new Date() } }; } },
     async generalAdmission(ip, context) { admitted++; assert.ok(ip); if (options.rateLimited) throw new IdentityHttpError('RATE_LIMITED', 17); } };
   const service = { async usage(request) {
     assert.equal(request, original);

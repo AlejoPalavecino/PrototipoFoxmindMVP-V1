@@ -146,7 +146,7 @@ export const suites = {
     'apps/web/src/features/study/model/study-sequence.test.mjs',
     'tests/pending-classrooms.test.mjs',
     'tests/p3-web-client.test.mjs', 'tests/p3-web-proxy.test.mjs', 'tests/p4-web-proxy.test.mjs', 'tests/web-security-headers.test.mjs',
-    'tests/agenda-proxy.test.mjs', 'tests/web-proxy-transport.test.mjs', 'tests/p9-home-client.test.mjs', 'tests/p6-wall-client.test.mjs',
+    'tests/agenda-proxy.test.mjs', 'tests/web-proxy-transport.test.mjs', 'tests/http-admission.test.mjs', 'tests/p9-home-client.test.mjs', 'tests/p6-wall-client.test.mjs',
     'tests/p7-authoring-proxy.test.mjs', 'tests/p8-grading-proxy.test.mjs',
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
     'tests/client-address.test.mjs', 'tests/proxy-client-address.test.mjs', 'tests/study-proxy-upload-streaming.test.mjs',

@@ -53,6 +53,30 @@ F2 se separó en una tarea propia (TASK-005): el proxy de aulas valida en el web
 
 Suites integradas del corte 3a: `fast` 3228/3228, `owned-db` 962/962 y `wrappers` 19/19 completos.
 
+## Corte 4 — una sola admisión en la API (D2)
+
+- [http-admission](../../apps/api/src/bootstrap/http-admission.ts) reemplaza la secuencia copiada en los 9 hosts y las 5 copias de `writeGuard`. Home, agenda, Foxy, cupo de IA, estudio y archivos usan `admitRequest`; aulas usa `identifyRequest` y conserva sus cupos propios con `admitBuckets`; las autenticaciones dentro de transacción usan `authenticateInTransaction`.
+- `IdentityRuntime.store` pasó a privado; `authenticateVerifier` y `admitBuckets` lo reemplazan.
+- Cambios de comportamiento: todo 429 lleva `Retry-After` (antes faltaba en home, agenda, Foxy y estudio); origen y CSRF en todo método que no sea GET ni HEAD (antes cada host usaba su propio criterio; por ejemplo, archivos sólo en POST y PUT); archivos exige correo verificado al ingresar (antes sólo lo chequeaba la custodia, con el mismo código); la admisión anónima de estudio ahora también borra una cookie inválida.
+- Se probó cerrar la conexión de los cuerpos rechazados en la admisión común, pero cortaba escrituras JSON chicas que llegan por el proxy web antes de que el proxy leyera el 403, y respondía 503. Ese cierre queda en archivos y aulas, que reciben cuerpos grandes.
+- Pruebas ajustadas: los dobles de `IdentityRuntime` en `p4-host`, `p5-host`, `foxy-host`, `agenda-client-http` y `study-runtime` suman `authenticateVerifier` y `admitBuckets`; el usuario de `p4-host` pasa a estar verificado; `agenda-client-http` comparte `http-admission` con sus clases de error; `study-runtime` verifica el código del error.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `tests/http-admission.test.mjs` (nueva) | el módulo no existía | 3/3 |
+| `p4-host`, `p5-host`, `p5-session-bridge`, `foxy-host`, `agenda-client-http`, `study-runtime` | — | 6/6, 7/7, 5/5, 2/2, 4/4, 8/8 |
+| `architecture-host`, `technical-backend-modules`, `exclusive-account-role`, `monthly-ai-quota-transport`, `backend-academic-routes`, `foxmind-3d-http`, `home-order`, `study http` | — | 5/5, 4/4, 6/6, 2/2, 83/83, 3/3, 4/4, 1/1 |
+
+2026-11-27: el corte 4 se rebasó sobre `main` con las PR #29 y #32 (`1065eff2`); el único conflicto, en `scripts/ci-suites.mjs`, fue una línea donde ambas partes agregaron una prueba y se conservaron las dos. Docker no había arrancado tras reiniciar la PC y una prueba de Foxy falló por eso; con Docker en marcha pasó. La primera corrida de `owned-db` falló en `p5-codes-invitation-batches`: dos dobles de `IdentityRuntime` sin `authenticateVerifier` ni `admitBuckets` respondían 500 (no era S7). Se adaptaron (11/11) y ya no queda ningún doble sin adaptar.
+
+Suites integradas del corte 4, sobre `main` `1065eff2`: `fast` 3238/3238, `owned-db` 969/969 (segunda corrida) y `wrappers` 19/19.
+
+## Estado al pausar (2026-11-27)
+
+- En `main`: cortes 1 (`7e192110`), 2 (`490105ff`) y 3a (`27d32c70`); PR #29, cabeceras web (`0ceab161`), y PR #32, base de datos (`1065eff2`), mergeadas con el CI en verde sobre la versión al día.
+- Corte 4 (D2): sólo en la copia local, sin commit. `fast` 3231/3231 y los 19 *wrappers* en verde (14 en la corrida completa; `p33-recovery-confirm` falló por un mail que no llegó a tiempo con la máquina cargada y pasó aislado, 8/8, junto con los cuatro de cambio de contraseña que no habían corrido). `owned-db` se repitió completo después de adaptar `foxy-management-host`.
+- Primer paso al retomar: confirmar el resultado de `owned-db`, traer `origin/main` (con #29 y #32) a la copia local, resolver el inventario de suites, recompilar, repetir `fast` y la prueba de admisión, y subir el corte 4. Después poner al día y mergear la PR #31 (choca con #32 en `academic-composition.ts` y `academic-management-composition.ts`; la resuelve su sesión) y la PR #30. Luego, F2 por subcortes.
+
 ## Límites
 
 - Algunas pruebas cargan los `.ts` con *strip-only*, que no admite propiedades en los parámetros del constructor; el núcleo las evita.

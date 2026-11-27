@@ -20,7 +20,7 @@ test('host authenticates persisted synthetic sessions once and preserves complet
       actors.push({id,token,cookie:`foxmind_session=${token}`,csrf:security.csrfToken(token)});
     }
     const admissions=[], calls=[], tx={query:async(sql,...args)=>(await pool.query(sql,args)).rows};
-    const runtime={configuration:{security},store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
+    const runtime={configuration:{security},authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
     const services={capabilities:async req=>{ calls.push(['capabilities',req.url]); return {textGeneration:{enabled:false},imageGeneration:{enabled:false},diagramGeneration:{enabled:false}}; },
       conversations:{create:async(req,input)=>{calls.push(['create',req.url,input]);return {created:true,conversation:{id:randomUUID(),title:input.title,context:input.context,revision:'0'}};}}};
     let mount, middleware; const app={use:(path,fn)=>{if(typeof path==='function'){mount='';middleware=path;}else{mount=path;middleware=fn;}}};
@@ -58,7 +58,7 @@ test('publication routes enforce real session, teacher role, origin and CSRF at 
    actors.push({id,cookie:`foxmind_session=${token}`,csrf:security.csrfToken(token)});
   }
   const tx={query:async(sql,...args)=>(await pool.query(sql,args)).rows},admissions=[],calls=[],resource=randomUUID(),publication=randomUUID(),classroom=randomUUID();
-  const runtime={configuration:{security},store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
+  const runtime={configuration:{security},authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
   const services={publications:{prepare:async(_req,id,input)=>{calls.push(['prepare',id]);return {created:true,publication:{id:publication}};},inspect:async(_req,id)=>{calls.push(['inspect',id]);return {publication:{id},classroomRevision:'0',classroomArchived:false,errorCode:null};},confirm:async(_req,id)=>{calls.push(['confirm',id]);return {publicationId:id,materialId:randomUUID(),publicationRevision:'1',classroomRevision:'1'};}}};
   let mount,middleware;const app={use:(path,fn)=>{if(typeof path==='function'){mount='';middleware=path;}else{mount=path;middleware=fn;}}};api.installFoxyTransport(app,runtime,services);
   const server=createServer((req,res)=>{req.originalUrl=req.url;if(mount&&req.url.startsWith(mount))req.url=req.url.slice(mount.length)||'/';middleware(req,res,()=>{res.statusCode=404;res.end();});});

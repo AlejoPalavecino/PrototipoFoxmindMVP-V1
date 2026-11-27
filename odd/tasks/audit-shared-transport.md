@@ -63,14 +63,14 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Blocker:** none
 
 ### TASK-004 — Una sola admisión en los hosts de la API
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-007
 - **Verification:** pruebas de hosts y wrappers de identidad
 - **Acceptance:** Los nueve hosts usan `admitRequest`; todo 429 lleva `Retry-After`; el origen y el CSRF se exigen en todos los métodos de escritura; ningún archivo fuera de identidad lee `IdentityRuntime.store`.
-- **Scope:** ["apps/api/src/bootstrap/http-admission.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/api/src/bootstrap/http-admission.ts", "apps/api/src/bootstrap/home-host.ts", "apps/api/src/bootstrap/agenda-transport.ts", "apps/api/src/bootstrap/foxy-host.ts", "apps/api/src/bootstrap/ai-quota-transport.ts", "apps/api/src/bootstrap/study-transport.ts", "apps/api/src/bootstrap/study-runtime.ts", "apps/api/src/bootstrap/files-host.ts", "apps/api/src/bootstrap/academic-host.ts", "apps/api/src/modules/identity/accounts/application/runtime.ts", "apps/api/src/modules/identity/accounts/presentation/transport.ts", "tests/http-admission.test.mjs", "tests/p4-host.test.mjs", "tests/p5-host.test.mjs", "tests/agenda-client-http.test.mjs", "tests/study-runtime.test.mjs", "tests/p5-codes-invitation-batches.test.mjs", "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-management-host.test.mjs", "scripts/ci-suites.mjs", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "apps/api/src/modules/foxy/conversations/infrastructure/tests/foxy-host.test.mjs", "docs/engineering/identity/README.md"]
+- **Evidence:** {"command":"node --test tests/http-admission.test.mjs y pruebas de hosts; run-complete-suite fast, owned-db, wrappers sobre main 1065eff2","result":"RED: modulo http-admission ausente; GREEN: http-admission 3/3, p4-host 6/6, p5-host 8/8, foxy-host 2/2, agenda-client-http 4/4, study-runtime 8/8, p5-codes 11/11; fast 3238/3238, owned-db 969/969, wrappers 19/19","candidate":"sha256:37a8ea2c6d37bee896a2c39cc1d8c536e680ea54f105e629f0f928aedf7500f3"}
 - **Blocker:** none
 
 ### TASK-005 — Reglas de dominio sólo en la API (F2)

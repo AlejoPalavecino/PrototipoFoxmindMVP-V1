@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
+import { admitRequest, assertWriteGuard } from './http-admission.ts';
 import type { IdentitySecurityConfiguration as IdentityConfiguration } from '../modules/identity/public.ts';
 import { IdentityHttpError, publicIdentityError } from '../modules/identity/domain/errors.ts';
 import type { IdentityRuntime } from '../modules/identity/accounts/application/runtime.ts';
@@ -16,13 +16,6 @@ import type { FileService } from '../modules/files/custody/infrastructure/servic
 import type { FileCleanupWorker } from '../modules/files/custody/infrastructure/cleanup-worker.ts';
 import { FileIdentityError } from '../modules/files/custody/infrastructure/store.ts';
 
-function writeGuard(security: IdentityConfiguration, request: IncomingMessage, verifier: string): void {
-  if (request.method !== 'POST' && request.method !== 'PUT') return;
-  try { security.assertOrigin(request.headers.origin); }
-  catch (error) { throw publicIdentityError(error); }
-  if (!security.validateCsrf(verifier, request.headers['x-csrf-token'])) throw new IdentityHttpError('CSRF_INVALID');
-}
-
 /** No admission or lifetime writes: every invocation uses exactly the caller-owned transaction. */
 export function createIdentityFileAccess(security: IdentityConfiguration, authorizeAttemptWrite?: AttemptWriteAuthorizer) {
   return createFileAccess({
@@ -31,7 +24,8 @@ export function createIdentityFileAccess(security: IdentityConfiguration, author
       const cookie = readSessionCookie(request.headers.cookie);
       const context = cookie.verifier ? await authenticateSession(tx, cookie.verifier) : null;
       if (!context) throw new FileIdentityError(new IdentityHttpError('AUTH_REQUIRED'));
-      try { writeGuard(security, request, context.verifier); }
+      // Email verification is enforced by the custody store under its own lock.
+      try { assertWriteGuard(security, request, context.verifier, false); }
       catch (error) { throw new FileIdentityError(publicIdentityError(error)); }
       return context.user.id;
     },
@@ -52,15 +46,7 @@ export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtim
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('X-Request-Id', requestId);
     void (async () => {
-      const security = runtime.configuration.security;
-      const cookie = readSessionCookie(request.headers.cookie);
-      const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
-      if (cookie.present && !context) response.setHeader('Set-Cookie', clearSessionCookie(security));
-      const ip = runtime.configuration.security.clientAddress(request);
-      if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
-      await runtime.generalAdmission(ip, context);
-      if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
-      writeGuard(security, request, context.verifier);
+      const context = (await admitRequest(runtime, request, response))!;
       owners.set(request, context.user.id);
       files(request, response, next);
     })().catch(error => {
