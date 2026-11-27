@@ -1,29 +1,20 @@
 import { clientAddressHeaders } from './client-address.ts';
+import { FILE_MAX_BYTES } from '../../../../../src/core/domain/documents/document-formats.ts';
+import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { Transform } from 'node:stream';
 
 const metadataLimit = 16_384;
-const binaryLimit = 50_000_000;
+const binaryLimit = FILE_MAX_BYTES;
+// Types the files API serves; anything else is relayed as a generic download, never as its own type.
+const binaryTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 'application/zip', 'application/msword', 'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/octet-stream']);
 const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const filePath = new RegExp(`^/api/v1/files/(${uuid})(/content)?$`, 'i');
 
-function destination(value: string | undefined): string {
-  if (!value) throw new Error('Missing configuration');
-  const parsed = new URL(value);
-  const local = ['127.0.0.1', '[::1]', 'localhost'].includes(parsed.hostname);
-  if (parsed.origin !== value || parsed.username || parsed.password ||
-    (parsed.protocol !== 'https:' && !(local && parsed.protocol === 'http:'))) throw new Error('Invalid configuration');
-  return parsed.origin;
-}
-function fail(response: ServerResponse, status: number, code: string) {
-  if (response.destroyed) return;
-  if (response.headersSent) { response.destroy(); return; }
-  const requestId = crypto.randomUUID();
-  response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store',
-    'X-Content-Type-Options': 'nosniff', 'X-Request-Id': requestId, ...(status === 503 ? { 'Retry-After': '3' } : {}) });
-  response.end(JSON.stringify({ error: { code, requestId } }));
-}
+const fail = sendError;
 function route(url: URL, method: string): { status?: number; binary?: boolean } {
   const match = filePath.exec(url.pathname);
   const root = url.pathname === '/api/v1/files';
@@ -60,17 +51,18 @@ function byteCounter(limit: number, expected?: number) {
 /** Binary-only ingress; P3 account routes and their transport remain unchanged. */
 export async function proxyFileRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
   let url: URL, origin: string, length: number | undefined;
-  const reject = (status: number, code: string) => {
-    // Rejected bodies are not drained into memory or forwarded to the backend.
-    if (!request.complete && !response.headersSent) { response.setHeader('Connection', 'close'); response.once('finish', () => request.destroy()); }
-    fail(response, status, code);
-  };
-  try { url = new URL(request.url ?? '/', 'http://web.invalid'); }
-  catch { reject(400, 'INVALID_UPLOAD'); return; }
+  // Rejected binaries are never drained into memory or forwarded: answer, then close the socket.
+  const reject = (status: number, code: string) => { void rejectRequest(request, response, new ProxyRejection(status, code), { budget: 0, mode: 'close' }); };
+  try {
+    const raw = request.url ?? '/';
+    // Same strict path rule as every other proxy: no escapes, encodings or traversal.
+    if (/[\\#]/.test(raw) || /%|\.\./.test(raw.split('?')[0]!)) throw new Error('Unsafe path');
+    url = new URL(raw, 'http://web.invalid');
+  } catch { reject(400, 'INVALID_UPLOAD'); return; }
   const method = request.method ?? 'GET';
   const selected = route(url, method);
   if (selected.status) { reject(selected.status, selected.status === 404 ? 'NOT_FOUND' : selected.status === 405 ? 'METHOD_NOT_ALLOWED' : 'INVALID_UPLOAD'); return; }
-  try { origin = destination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
+  try { origin = apiDestination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
   try { length = declaredLength(request.headers['content-length']); } catch { reject(400, 'INVALID_UPLOAD'); return; }
   if (request.headers['content-encoding'] && request.headers['content-encoding'] !== 'identity') { reject(400, 'INVALID_UPLOAD'); return; }
   if (method === 'GET' && (request.headers['transfer-encoding'] || (length ?? 0) !== 0)) { reject(400, 'INVALID_UPLOAD'); return; }
@@ -152,9 +144,9 @@ export async function proxyFileRequest(request: IncomingMessage, response: Serve
       try { expected = declaredLength(result.headers['content-length']); } catch { unavailable(); return; }
       if ((expected ?? 0) > (binary ? binaryLimit : metadataLimit) || result.headers['content-encoding']) { unavailable(); return; }
       const responseHeaders: Record<string, string | string[]> = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-      for (const name of ['content-type', 'retry-after', 'x-request-id', 'set-cookie']) {
-        const value = result.headers[name]; if (value !== undefined) responseHeaders[name] = value;
-      }
+      Object.assign(responseHeaders, relayHeaders(result, 'session-clear'));
+      const type = result.headers['content-type'];
+      if (type !== undefined) responseHeaders['content-type'] = binary && !binaryTypes.has(type.split(';')[0]!.trim().toLowerCase()) ? 'application/octet-stream' : type;
       if (binary) {
         for (const name of ['content-disposition', 'content-length']) {
           const value = result.headers[name]; if (value !== undefined) responseHeaders[name] = value;

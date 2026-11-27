@@ -47,17 +47,24 @@ export function sendError(response: ServerResponse, status: number, code: string
 }
 
 /**
- * A rejected request whose body is still arriving: answer, discard at most `budget` more bytes
- * until `deadline`, then close the socket so an oversized or slow body never ties up the server.
+ * A rejected request whose body is still arriving: discard at most `budget` more bytes until
+ * `deadline` without keeping them, then answer and close. A body beyond the budget or the deadline
+ * aborts the connection instead, so an oversized or slow body never ties up the server; a JSON
+ * error is not guaranteed for an arbitrarily large body.
  */
 export async function rejectRequest(request: IncomingMessage, response: ServerResponse, error: unknown,
-  options: { budget: number; deadline?: number }): Promise<void> {
+  options: { budget: number; deadline?: number; mode?: 'drain' | 'close' }): Promise<void> {
   const { status, code } = error instanceof ProxyRejection ? error : { status: 400, code: 'INVALID_INPUT' };
-  if (!request.complete && !request.readableEnded) {
+  // A body already known to be too large is never read: answer now, then close the socket.
+  if (options.mode === 'close' && !request.readableEnded) {
     response.setHeader('Connection', 'close');
+    response.once('finish', () => request.destroy());
     sendError(response, status, code);
-    await discardRejectedBody(request, response, options.budget, options.deadline ?? performance.now() + 10_000);
     return;
+  }
+  if (!request.readableEnded) {
+    response.setHeader('Connection', 'close');
+    if (!await discardRejectedBody(request, response, options.budget, options.deadline ?? performance.now() + 10_000)) return;
   }
   sendError(response, status, code);
 }

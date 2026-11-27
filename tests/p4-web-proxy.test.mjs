@@ -44,7 +44,8 @@ test('binary transfer preserves exact bytes, cookies, CSRF and safe response hea
     const download = await fetch(`${web.origin}/api/v1/files/${id}/content?mode=preview`);
     assert.deepEqual(Buffer.from(await download.arrayBuffer()), bytes);
     assert.equal(download.headers.get('content-type'), 'application/pdf'); assert.match(download.headers.get('content-disposition'), /inline/);
-    assert.equal(response.headers.get('x-private'), null); assert.equal(response.headers.get('cache-control'), 'no-store'); assert.match(response.headers.get('set-cookie'), /rotated/);
+    assert.equal(response.headers.get('x-private'), null); assert.equal(response.headers.get('cache-control'), 'no-store'); // Outside identity the API only ever clears the session; any other cookie is dropped by the proxy.
+    assert.equal(response.headers.get('set-cookie'), null);
   } finally { await web.close(); await backend.close(); }
 });
 test('redirects and unsafe backend configuration cannot forward credentials', async () => {

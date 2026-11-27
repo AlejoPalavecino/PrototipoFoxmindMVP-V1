@@ -1,3 +1,5 @@
+import { apiDestination } from './transport/api-transport.ts';
+
 /** Transport only: Nest remains the sole session, origin and permission authority. */
 const paths: Record<string, readonly string[]> = {
   '/auth/session': ['GET'], '/auth/csrf': ['GET'],
@@ -12,15 +14,6 @@ function failure(status: number, code: string): Response {
   const requestId = crypto.randomUUID();
   return new Response(JSON.stringify({ error: { code, requestId } }), { status,
     headers: { ...securityHeaders, 'X-Request-Id': requestId } });
-}
-function backendOrigin(value: string | undefined): string {
-  if (!value) throw new Error('Missing backend configuration.');
-  const url = new URL(value);
-  const local = ['127.0.0.1', '[::1]', 'localhost'].includes(url.hostname);
-  if (url.origin !== value || url.username || url.password || (url.protocol !== 'https:' && !(local && url.protocol === 'http:'))) {
-    throw new Error('Invalid backend configuration.');
-  }
-  return url.origin;
 }
 async function boundedBody(body: ReadableStream<Uint8Array> | null): Promise<Uint8Array | undefined> {
   if (!body) return undefined;
@@ -58,11 +51,14 @@ export async function proxyAccountRequest(request: Request, configuredOrigin: st
   if (!methods) return failure(404, 'NOT_FOUND');
   if (url.search) return failure(400, 'VALIDATION_ERROR');
   if (!methods.includes(request.method)) return failure(405, 'METHOD_NOT_ALLOWED');
+  // Bodies are relayed as received; a compressed body would bypass the size limit after decoding.
+  const encoding = request.headers.get('content-encoding');
+  if (encoding !== null && encoding !== 'identity') return failure(400, 'VALIDATION_ERROR');
   try {
-    const destination = backendOrigin(configuredOrigin);
+    const destination = apiDestination(configuredOrigin);
     if (Number(request.headers.get('content-length')) > limit) return failure(413, 'REQUEST_TOO_LARGE');
     const headers = new Headers();
-    for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type', 'content-encoding']) {
+    for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers.get(name);
       if (value !== null) headers.set(name, value);
     }
