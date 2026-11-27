@@ -1,5 +1,6 @@
 import type { AccountAvatarKey } from '../../../../../../src/core/domain/identity/account-avatar.ts';
 import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
+import { sessionChangedEvent } from '../../../../../../src/core/contracts/csrf.ts';
 export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student'; avatarKey?: AccountAvatarKey }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {
@@ -46,6 +47,9 @@ export function createAccountClient(fetcher: typeof fetch = fetch) {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (current.authenticated) headers['X-CSRF-Token'] = (await read<{ csrfToken: string }>('/auth/csrf')).csrfToken;
     const result = await read<T>(path, { method, headers, body: JSON.stringify(data) });
+    // Login, logout, verification, recovery and password changes may rotate the session: clients that
+    // keep a CSRF token drop it (see apps/web/src/shared/http/csrf.ts).
+    globalThis.dispatchEvent?.(new Event(sessionChangedEvent));
     // Never reuse a binding after login, verification, logout, reset or password rotation.
     // A failed post-mutation refresh cannot falsely label a committed action as failed.
     let refreshed: AccountSession | undefined;

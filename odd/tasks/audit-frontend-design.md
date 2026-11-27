@@ -85,15 +85,15 @@ Cortes en el orden de las tareas. Cada uno se verifica con `npx tsc --noEmit -p 
 - **Blocker:** none
 
 ### TASK-006 — Capa HTTP común del navegador (F5)
-- **State:** BLOCKED
+- **State:** DONE
 - **Depends on:** TASK-005
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** npm run test:complete -- --group fast
 - **Acceptance:** Los clientes usan el helper común y sus errores extienden la clase base; las pruebas de clientes siguen verdes.
-- **Scope:** ["apps/web/src/application/clients/agenda-client.ts", "apps/web/src/application/clients/classroom-client.ts", "apps/web/src/application/transport/classroom-client.ts", "apps/web/src/application/transport/json-request.ts", "apps/web/src/features/agenda/api/api.ts", "apps/web/src/features/files/api/client.ts", "apps/web/src/features/foxy/api/foxy-client.ts", "apps/web/src/features/home/api/home-api.ts", "apps/web/src/features/identity/api/account-client.ts", "apps/web/src/features/study/api/study-error.ts", "apps/web/src/shared/http/csrf.ts", "docs/engineering/frontend/README.md", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "src/core/contracts/client-error.ts", "tests/p5-web-client.test.mjs", "tests/web-http-shared.test.mjs"]
-- **Evidence:** {"command":"node --test tests/web-http-shared.test.mjs; navegador","result":"ClientError base de 6 clases; token CSRF reutilizado en aulas y agenda sin reenvio implicito; dos PATCH con un solo GET /auth/csrf en el navegador; fast 3231/3231","candidate":"sha256:939aaf7fc93d05182097921b1ca090828b0faefb4a09bb090f5f04a5edcc5fe1"}
-- **Blocker:** Decisión del usuario: Foxy, Estudio, Archivos y adjuntos siguen pidiendo CSRF en cada mutación; su API de feature sólo puede importar de src/core. Hay que llevar la fuente CSRF a src/core o inyectarla desde la composición.
+- **Scope:** ["apps/web/src/application/clients/agenda-client.ts", "apps/web/src/application/clients/classroom-client.ts", "apps/web/src/application/transport/classroom-client.ts", "apps/web/src/application/transport/json-request.ts", "apps/web/src/application/workflows/foxy-workspace/foxy-workspace.ts", "apps/web/src/application/workflows/private-files/PrivateFilePanel.tsx", "apps/web/src/features/agenda/api/api.ts", "apps/web/src/features/files/api/client.ts", "apps/web/src/features/foxy/api/foxy-client.ts", "apps/web/src/features/foxy/collections/use-foxy-catalog.ts", "apps/web/src/features/home/api/home-api.ts", "apps/web/src/features/identity/api/account-client.ts", "apps/web/src/features/study/api/study-error.ts", "apps/web/src/features/study/api/study-http.ts", "apps/web/src/features/study/api/study-upload-client.ts", "apps/web/src/features/study/folders/study-folder-persistence.ts", "apps/web/src/features/study/folders/study-folder-wizard.tsx", "apps/web/src/features/study/model/study-csrf.ts", "apps/web/src/features/study/ui/study-upload.tsx", "apps/web/src/features/study/ui/study-workspace.tsx", "apps/web/src/shared/chat-attachments.ts", "apps/web/src/shared/http/csrf.ts", "docs/engineering/frontend/README.md", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "src/core/contracts/client-error.ts", "src/core/contracts/csrf.ts", "tests/p5-web-client.test.mjs", "tests/web-http-shared.test.mjs"]
+- **Evidence:** {"command":"node --test tests/web-http-shared.test.mjs; navegador","result":"ClientError base de 6 clases; fuente CSRF reutilizada en aulas y agenda e inyectada desde la composicion en Foxy, Estudio, Archivos y adjuntos; mutaciones de cuenta la invalidan; fast 3239/3239; navegador: tres mutaciones de Foxy con un solo GET /auth/csrf","candidate":"sha256:0275876dc43cfea7baf1d1591a478985aea0daefd10be9f5e906e289b1240b5f"}
+- **Blocker:** none
 
 ### TASK-007 — Componentes grandes separados (F3)
 - **State:** DONE

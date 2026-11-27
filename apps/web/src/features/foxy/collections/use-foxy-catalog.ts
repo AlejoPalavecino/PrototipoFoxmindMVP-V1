@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createWebFoxyClient } from '../api/foxy-client';
+import { createSessionCsrfSource } from '../../../shared/http/csrf.ts';
 import { createFoxyCatalogController } from './foxy-catalog-controller';
 
 type Controller = ReturnType<typeof createFoxyCatalogController>;
@@ -13,7 +14,7 @@ export function useFoxyCatalog({ subjectId, onIdentityRequired, stamp }: { subje
     const controller = createFoxyCatalogController({
       client: createWebFoxyClient(fetch, code => {
         if (active && subject.current === subjectId) { active = false; controller.dispose(); setView(null); callback.current(code); }
-      }),
+      }, createSessionCsrfSource(fetch)),
       onChange: state => { if (active && subject.current === subjectId) setView({ subjectId, controller, state }); },
     });
     setView({ subjectId, controller, state: controller.getState() });

@@ -5,6 +5,7 @@ import { Notice } from '../../../../../shared-ui/feedback';
 import s from './study.module.css';
 import { studyUploadPolicy, validateStudyUpload } from '../model/study-file-policy';
 import { studyUploadRequest as call, type StudyUploadStatus as Status } from '../api/study-upload-client';
+import { studyCsrf } from '../model/study-csrf.ts';
 export function StudyUpload({
   purpose,
   ensureFolder,
@@ -43,8 +44,10 @@ export function StudyUpload({
         `/${folder.id}/uploads`,
         'POST',
         JSON.stringify({ name: file.name, bytes: file.size, purpose }),
+        undefined,
+        studyCsrf,
       );
-      const sent = await call(`/${folder.id}/uploads/${begin.id}`, 'PUT', file);
+      const sent = await call(`/${folder.id}/uploads/${begin.id}`, 'PUT', file, undefined, studyCsrf);
       Status(sent);
       if (sent.ready) onReady(sent.id, sent.name);
     } catch (e) {

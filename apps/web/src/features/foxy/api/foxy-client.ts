@@ -35,6 +35,7 @@ import {
 } from '../../../../../../src/core/domain/foxy/resource-validation.ts';
 import { type FoxySourceKind, type FoxySourceCursor } from '../../../../../../src/core/domain/foxy/source-query.ts';
 import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
+import type { CsrfTokenSource } from '../../../../../../src/core/contracts/csrf.ts';
 
 export interface FoxyConversation {
   id: string;
@@ -202,7 +203,11 @@ function params(values: Record<string, string | number | null | object>): string
     if (value !== null) query.set(name, typeof value === 'object' ? encodedCursor(value) : String(value));
   return `?${query}`;
 }
-export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityRequired?: (code: string) => void) {
+export function createWebFoxyClient(
+  fetcher: typeof fetch = fetch,
+  onIdentityRequired?: (code: string) => void,
+  csrf?: CsrfTokenSource,
+) {
   async function call<T>(path: string, method = 'GET', data?: unknown, signal?: AbortSignal): Promise<T> {
     const combined = signal ? AbortSignal.any([signal, AbortSignal.timeout(30000)]) : AbortSignal.timeout(30000);
     async function json<TResponse>(url: string, init: RequestInit): Promise<TResponse> {
@@ -221,21 +226,35 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
       }
       return result as TResponse;
     }
+    async function freshToken() {
+      const result = await json<{ csrfToken: string }>('/api/v1/auth/csrf', { method: 'GET' });
+      if (!result || typeof result.csrfToken !== 'string' || !result.csrfToken)
+        throw new FoxyClientError('SERVICE_UNAVAILABLE', 503);
+      return result.csrfToken;
+    }
+    async function sharedToken(source: CsrfTokenSource) {
+      try {
+        return await source.token(combined);
+      } catch (error) {
+        if (combined.aborted) throw error;
+        const { code, status } = error as { code?: unknown; status?: unknown };
+        if (typeof code === 'string' && safeCodes.has(code)) throw new FoxyClientError(code, typeof status === 'number' ? status : 503);
+        throw new FoxyClientError('SERVICE_UNAVAILABLE', 503);
+      }
+    }
     try {
       combined.throwIfAborted();
       const body = method === 'GET' ? undefined : JSON.stringify(data);
       const headers: Record<string, string> = {};
       if (method !== 'GET') {
-        const csrf = await json<{ csrfToken: string }>('/api/v1/auth/csrf', { method: 'GET' });
-        if (!csrf || typeof csrf.csrfToken !== 'string' || !csrf.csrfToken)
-          throw new FoxyClientError('SERVICE_UNAVAILABLE', 503);
-        headers['X-CSRF-Token'] = csrf.csrfToken;
+        headers['X-CSRF-Token'] = csrf ? await sharedToken(csrf) : await freshToken();
         headers['Content-Type'] = 'application/json';
       }
       return await json<T>(`${root}${path}`, { method, headers, ...(method === 'GET' ? {} : { body }) });
     } catch (error) {
       if (signal?.aborted) throw error;
       if (error instanceof FoxyClientError) {
+        if (error.code === 'CSRF_INVALID') csrf?.invalidate();
         if (error.code === 'AUTH_REQUIRED' || error.code === 'EMAIL_VERIFICATION_REQUIRED')
           onIdentityRequired?.(error.code);
         throw error;

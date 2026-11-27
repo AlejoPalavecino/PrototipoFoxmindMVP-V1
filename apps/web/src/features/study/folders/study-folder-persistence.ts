@@ -1,6 +1,7 @@
 import { createStudyClient } from '../api.ts';
 import type { StudyFolderInput } from '../model/study-commands.ts';
-const client = createStudyClient();
+import { studyCsrf } from '../model/study-csrf.ts';
+const client = createStudyClient(fetch, studyCsrf);
 export const studyDraftOperations = {
   load: client.get,
   create: (data: StudyFolderInput) => client.create(data),

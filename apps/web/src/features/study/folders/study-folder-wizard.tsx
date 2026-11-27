@@ -17,6 +17,7 @@ import type { StudyCollection, StudyFolder, StudyUnit } from '../model/study-con
 import { validateStudyPlan } from '../model/study-transitions.ts';
 import { studyUploadRequest, type StudyUploadStatus } from '../api/study-upload-client';
 import { requireStudyPlan, validateStudyUpload } from '../model/study-file-policy';
+import { studyCsrf } from '../model/study-csrf.ts';
 const api = studyDraftOperations;
 type Operation = 'upload' | 'check' | 'import' | 'analyze' | 'save' | 'create';
 type PlanFile = Pick<StudyUploadStatus, 'id' | 'name' | 'ready'>;
@@ -168,15 +169,14 @@ export function StudyWizard({ catalog, folder, initialClassroomId, onClose, onCr
         name: chosen.name,
         bytes: chosen.size,
         purpose: 'plan'
-
-      }));
+      }), undefined, studyCsrf);
       setFile({
         id: begun.id,
         name: chosen.name,
         ready: false
 
       });
-      applyFile(await studyUploadRequest(`${path}/${begun.id}`, 'PUT', chosen));
+      applyFile(await studyUploadRequest(`${path}/${begun.id}`, 'PUT', chosen, undefined, studyCsrf));
 
     });
 

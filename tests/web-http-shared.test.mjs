@@ -98,3 +98,75 @@ test('client errors share one base with code, status and retryAfter', () => {
   assert.equal(errorCode({ error: { code: 'FORBIDDEN' } }), 'FORBIDDEN');
   assert.equal(errorCode(null), 'SERVICE_UNAVAILABLE');
 });
+
+test('a session change announced by an account mutation drops every cached token', async () => {
+  const { forgetSessionCsrfTokens } = await import('../apps/web/src/shared/http/csrf.ts');
+  let reads = 0;
+  const source = createCsrfSource(async () => 'token-' + ++reads);
+  assert.equal(await source.token(), 'token-1');
+  assert.equal(await source.token(), 'token-1');
+  forgetSessionCsrfTokens();
+  assert.equal(await source.token(), 'token-2');
+});
+
+test('account mutations announce that the session may have changed', async () => {
+  const { createAccountClient } = await import('../apps/web/src/features/identity/api/account-client.ts');
+  const { sessionChangedEvent } = await import('../src/core/contracts/csrf.ts');
+  const events = [], original = globalThis.dispatchEvent;
+  globalThis.dispatchEvent = event => { events.push(event.type); return true; };
+  try {
+    const client = createAccountClient(async path => {
+      if (path.endsWith('/auth/session')) return Response.json({ authenticated: false });
+      return Response.json({ ok: true });
+    });
+    await client.mutate('/auth/login', { email: 'a@example.test', password: 'x'.repeat(16) });
+    assert.deepEqual(events, [sessionChangedEvent]);
+  } finally { globalThis.dispatchEvent = original; }
+});
+
+test('the session source keeps the API error code when the token cannot be read', async () => {
+  const { createSessionCsrfSource } = await import('../apps/web/src/shared/http/csrf.ts');
+  const denied = createSessionCsrfSource(async () => Response.json({ error: { code: 'AUTH_REQUIRED' } }, { status: 401 }));
+  await assert.rejects(denied.token(), { code: 'AUTH_REQUIRED', status: 401 });
+  let reads = 0;
+  const ok = createSessionCsrfSource(async path => { assert.equal(path, '/api/v1/auth/csrf'); reads++; return Response.json({ csrfToken: 'session-token' }); });
+  assert.equal(await ok.token(), 'session-token');
+  assert.equal(await ok.token(), 'session-token');
+  assert.equal(reads, 1);
+});
+
+test('Foxy, Study and Files clients reuse an injected token and drop it on CSRF_INVALID', async () => {
+  const { createWebFoxyClient } = loadTsModule('apps/web/src/features/foxy/api/foxy-client.ts');
+  const { createStudyClient } = loadTsModule('apps/web/src/features/study/api/study-http.ts');
+  const { createFileClient } = loadTsModule('apps/web/src/features/files/api/client.ts');
+  let reads = 0;
+  function source() { return createCsrfSource(async () => 'shared-' + ++reads); }
+  const sent = [];
+  let reject = false;
+  const fetcher = async (path, init = {}) => {
+    if (path.endsWith('/auth/csrf')) throw new Error('the injected source must be used');
+    sent.push(init.headers?.['X-CSRF-Token']);
+    if (reject) { reject = false; return Response.json({ error: { code: 'CSRF_INVALID' } }, { status: 403 }); }
+    return Response.json({ id: 'f', name: 'n', ready: false, validation: 'PENDING', scan: 'PENDING', rejectionCode: null });
+  };
+  const study = createStudyClient(fetcher, source());
+  await study.call('/x', 'POST', {});
+  await study.call('/x', 'POST', {});
+  reject = true;
+  await assert.rejects(study.call('/x', 'POST', {}), { code: 'CSRF_INVALID' });
+  await study.call('/x', 'POST', {});
+  assert.deepEqual(sent.splice(0), ['shared-1', 'shared-1', 'shared-1', 'shared-2']);
+  const files = createFileClient(fetcher, source());
+  const file = new File(['x'], 'a.pdf');
+  await files.begin({ kind: 'draft', id: 'd', purpose: 'plan' }, file);
+  await files.begin({ kind: 'draft', id: 'd', purpose: 'plan' }, file);
+  assert.deepEqual(sent.splice(0), ['shared-3', 'shared-3']);
+  const foxy = createWebFoxyClient(fetcher, undefined, source());
+  const id = '11111111-1111-4111-8111-111111111111';
+  await foxy.cancelVisual(id, id).catch(() => {});
+  await foxy.cancelVisual(id, id).catch(() => {});
+  reject = true;
+  await assert.rejects(foxy.cancelVisual(id, id), { code: 'CSRF_INVALID' });
+  await foxy.cancelVisual(id, id).catch(() => {});
+  assert.deepEqual(sent.splice(0), ['shared-4', 'shared-4', 'shared-4', 'shared-5']);
+});

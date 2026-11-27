@@ -94,15 +94,24 @@
 - Cortes 2–6: en Ajustes del aula se guardó dos veces seguidas (renombrar y restaurar). Los dos `PATCH .../settings` dieron 200 con un solo `GET /auth/csrf`. En Agenda, `/agenda?create=1` abrió el editor; el evento se creó (`PUT` 201) y apareció en el calendario.
 - Cortes 8–10: en Actividades carga el listado y se piden los contadores (`/progress` 200). «Crear actividad» abre el editor; tema, tipo y método se marcan y aparece «Cambios sin guardar». «Con ayuda de Foxy → Ajustes y fuentes» abre el diálogo y pide las fuentes (`/activity-generations/sources` 200). En modo manual, el título y «Guardar borrador» abren la ficha del borrador privado con su tema. En Foxy AI, la herramienta «Planificar una clase» abre y cierra en línea, el selector de contexto abre y «Abrir biblioteca» muestra la biblioteca de contexto. Sin errores en la consola.
 
+### Corte 11 · fuente CSRF inyectada en Foxy, Estudio, Archivos y adjuntos (F5, segunda parte)
+
+- Decisión del usuario (2026-11-27): inyectar la fuente desde la composición. `src/core/contracts/csrf.ts` define el contrato `CsrfTokenSource` y el evento `sessionChangedEvent`. `createSessionCsrfSource` (shared) lee `/api/v1/auth/csrf` y conserva el código de error de la API.
+- `createWebFoxyClient`, `createStudyClient`, `studyUploadRequest` y `createFileClient` aceptan la fuente como parámetro opcional; si no la reciben, se comportan como antes. La composición se la pasa: el workspace y el catálogo de Foxy, el panel de archivos privados, `study-csrf.ts` (una fuente para Estudio) y `chat-attachments`.
+- Riesgo que se cubrió, y que también afectaba a aulas y agenda: la app navega sin recargar después del login. Por eso `account-client.mutate` emite `sessionChangedEvent` después de cada mutación de cuenta exitosa, y todas las fuentes descartan su token. La API sólo rota la sesión en esas acciones (`runtime.ts`). Un cambio de contraseña en otra pestaña deja un token viejo en esta: la primera mutación muestra «La sesión cambió» y la siguiente lee uno nuevo.
+- La regla de F9 frenó dos archivos que crecían una línea por el import; se compensó con líneas en blanco sobrantes.
+- Pruebas: 4 casos nuevos en `tests/web-http-shared.test.mjs` (11 en total): cambio de sesión, evento emitido por la cuenta, error de la fuente de sesión y reutilización e invalidación con mutaciones reales de Foxy, Estudio y Archivos. Las 26 pruebas de los clientes tocados de la ruta `fast` dan 169/169.
+- Comprobación: `tsc` sin errores; `lint:boundaries` pasa; `api:build` y `web:build` exit 0; `test:complete --group fast` 3239/3239; `docs:check` 0 problemas.
+- Navegador (corrida `documentation-preview-066e2ede615d6b65`, IA sintética, cuenta docente sintética): en Foxy AI, crear la conversación (`POST` 201) y dos turnos (`POST` 202) usaron un único `GET /auth/csrf`, con Foxy respondiendo y sin errores en la consola. El caso de cerrar sesión y volver a entrar sin recargar está cubierto por pruebas, no se recorrió en el navegador.
+
 ## Integración
 
 - 2026-11-27: el usuario autorizó en esta sesión push y PR, sin merge. La rama se rebasó sobre `origin/main` (`490105ff`, cortes 1 y 2 de F1). No hubo conflictos: ningún corte de esta rama toca `application/server/`.
 - Después del rebase: `tsc` sin errores; `lint:boundaries` pasa; `docs:check` 0 problemas (248 archivos); `web:build` exit 0; `test:complete --group fast` 3235/3235. No se corrieron `owned-db`, `owned-browser` ni `wrappers`.
-- Tablero validado con `taskboard.py check`: 8 tareas. TASK-006 queda BLOCKED por la decisión pendiente de F5 y TASK-008 (F8) queda diferida.
+- Tablero validado con `taskboard.py check`: 8 tareas. TASK-006 (F5) quedó completa con el corte 11 y TASK-008 (F8) queda diferida.
 
 ## Pendiente
 
-1. F5, segunda parte: decidir si la fuente CSRF va a `src/core` o se inyecta desde la composición, y aplicarla a Foxy, Estudio, Archivos y adjuntos.
-2. F8: plazo de subida en la API, junto con el proxy de F1.
-3. Sacar `application/server/` de la exclusión de la regla de tamaño cuando F1 esté integrado.
-4. Bajar los 68 `set-state-in-effect` suprimidos y la línea base de tamaño; retirar de `useAgenda` las consultas `upcoming` y `afterDay`, que nunca se activan.
+1. F8: plazo de subida en la API, junto con el proxy de F1.
+2. Sacar `application/server/` de la exclusión de la regla de tamaño cuando F1 esté integrado.
+3. Bajar los 68 `set-state-in-effect` suprimidos y la línea base de tamaño; retirar de `useAgenda` las consultas `upcoming` y `afterDay`, que nunca se activan.

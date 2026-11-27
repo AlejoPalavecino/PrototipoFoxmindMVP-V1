@@ -28,7 +28,6 @@ import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { useChatAttachments } from '../../../shared/use-chat-attachments';
 import { studentAttachmentPath } from '../../../shared/chat-attachments';
 import { commitChatTiming } from '../../../shared/chat-timing';
-
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
@@ -43,6 +42,7 @@ import s from './study.module.css';
 import { startStudyConversation, studyInitialPreferences } from '../model/study-discovery';
 import type { StudyRun } from '../model/study-commands.ts';
 import { useStudyPractice } from '../practice/use-study-practice.ts';
+import { studyCsrf } from '../model/study-csrf.ts';
 async function fetchStudyChatPreview(folderId: string, requestId: string, signal: AbortSignal): Promise<string | null> {
   const response = await fetch(`/api/v1/study-folders/${encodeURIComponent(folderId)}/chat-previews/${encodeURIComponent(requestId)}`,
     { credentials: 'same-origin', cache: 'no-store', signal });
@@ -124,7 +124,7 @@ export function StudyWorkspace({
   const topics = f.units.flatMap((u) => u.topics);
   const active = !archived;
   const strategyRoom = active ? catalog.classrooms.find(room => room.id===f.linkedClassroomId && !room.archived) : undefined;
-  const strategyClient = useMemo(() => createStudyClient(),[]);
+  const strategyClient = useMemo(() => createStudyClient(fetch, studyCsrf),[]);
   useResetOnChange([f.status], () => setArchived(f.status === 'ARCHIVED'));
 
   const panelLauncher = useRef<HTMLButtonElement | null>(null);
