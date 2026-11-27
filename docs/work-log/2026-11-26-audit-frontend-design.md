@@ -50,3 +50,10 @@
 - `check-frontend-architecture.mjs` suma dos reglas: `application/transport` no importa de `application/clients`, y `application/navigation` no llama a `fetch` ni crea `EventSource`. Las dos pruebas nuevas de `tests/frontend-boundaries.test.mjs` fallaron primero (RED); sobre el código real, la regla marcó `transport/classroom-client.ts` → `clients/academic-response.ts` y `navigation/ai-quota-client.ts:59,77`.
 - GREEN: `academic-response.ts` pasa a `transport/`, que es quien decodifica, y `ai-quota-client.ts` pasa a `clients/`. Se actualizaron sus imports y dos pruebas. Sin cambio de comportamiento.
 - Comprobación: `tsc` sin errores; `lint:boundaries` pasa; `test:complete --group fast` 3221/3221 (+2 pruebas de la regla); `docs:check` 0 problemas.
+
+### Corte 5 · la regla de arquitectura controla tamaño (F9)
+
+- `check-frontend-architecture.mjs` mide el código de producción de web y shared-ui: líneas de hasta 200 caracteres, archivos de hasta 500 líneas y hasta 10 llamadas a `useState` por archivo (contadas en el AST). Los 108 archivos que hoy superan algún límite están en `scripts/frontend-size-baseline.json`, con su valor actual. Un valor que crece falla. Uno que baja también falla hasta que se achica la línea base con `--shrink-size-baseline`, que nunca agrega archivos ni sube valores.
+- `application/server/` queda fuera hasta que se integre F1; está avisado en la nota compartida de las sesiones.
+- Pruebas: tres casos nuevos en `tests/frontend-boundaries.test.mjs` (límites en archivos nuevos, línea base que sólo baja, exclusión de `server/`). Fallaron primero porque la función no existía.
+- Comprobación: `lint:boundaries` pasa; `test:complete --group fast` 3224/3224 (+3); `docs:check` 0 problemas.

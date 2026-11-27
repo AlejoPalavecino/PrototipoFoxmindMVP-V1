@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { checkFrontendArchitecture } from '../scripts/check-frontend-architecture.mjs';
+import { checkFrontendArchitecture, measureFrontendSize } from '../scripts/check-frontend-architecture.mjs';
 
 async function fixture(t, files) {
   const root = await mkdtemp(join(tmpdir(), 'foxmind-frontend-boundaries-'));
@@ -43,6 +43,41 @@ test('application navigation renders navigation and leaves HTTP to clients', asy
   const root = await fixture(t, { 'apps/web/src/application/navigation/quota.ts':
     "export const read = browser => browser.fetch('/api/v1/quota');" });
   assert.ok(checkFrontendArchitecture(root).some(value => value.includes('HTTP in navigation')));
+});
+
+const stateful = count => 'import { useState } from "react";\nexport function Big() {\n' +
+  Array.from({ length: count }, (_, i) => `  const [v${i}, s${i}] = useState(${i});\n`).join('') + '  return null;\n}\n';
+
+test('new frontend files respect line length, file length and state count', async t => {
+  const wide = 'export const wide = ' + JSON.stringify('x'.repeat(220)) + ';';
+  const root = await fixture(t, {
+    'apps/web/src/features/home/wide.tsx': wide + '\n',
+    'apps/web/src/features/home/long.ts': 'export const a = 1;\n'.repeat(501),
+    'apps/shared-ui/Stateful.tsx': stateful(11),
+    'apps/web/src/features/home/fine.tsx': stateful(10),
+  });
+  const findings = checkFrontendArchitecture(root);
+  assert.ok(findings.includes(`size limit: apps/web/src/features/home/wide.tsx lineLength ${wide.length} > 200`), findings.join('\n'));
+  assert.ok(findings.includes('size limit: apps/web/src/features/home/long.ts fileLines 501 > 500'), findings.join('\n'));
+  assert.ok(findings.includes('size limit: apps/shared-ui/Stateful.tsx useState 11 > 10'), findings.join('\n'));
+  assert.ok(!findings.some(value => value.includes('fine.tsx')));
+});
+
+test('size exceptions are a baseline that only shrinks', async t => {
+  const files = { 'apps/shared-ui/Stateful.tsx': stateful(12) };
+  const baseline = exceptions => JSON.stringify({ exceptions });
+  const at = async (exceptions, count) => checkFrontendArchitecture(await fixture(t, {
+    ...files, 'apps/shared-ui/Stateful.tsx': stateful(count), 'scripts/frontend-size-baseline.json': baseline(exceptions) }));
+  assert.deepEqual(await at({ 'apps/shared-ui/Stateful.tsx': { useState: 12 } }, 12), []);
+  assert.deepEqual(await at({ 'apps/shared-ui/Stateful.tsx': { useState: 12 } }, 13), ['size limit: apps/shared-ui/Stateful.tsx useState 13 > 12']);
+  assert.deepEqual(await at({ 'apps/shared-ui/Stateful.tsx': { useState: 12 } }, 11), ['size baseline can shrink: apps/shared-ui/Stateful.tsx useState 12 -> 11']);
+  assert.deepEqual(await at({ 'apps/shared-ui/Stateful.tsx': { useState: 12 } }, 9), ['size baseline can shrink: apps/shared-ui/Stateful.tsx useState 12 -> 10']);
+  assert.deepEqual(await at({ 'apps/shared-ui/Gone.tsx': { useState: 12 } }, 9), ['size baseline can shrink: apps/shared-ui/Gone.tsx removed']);
+});
+
+test('measureFrontendSize ignores the proxy owned by the server rewrite', async t => {
+  const root = await fixture(t, { 'apps/web/src/application/server/proxy.ts': 'x'.repeat(500) + '\n' });
+  assert.deepEqual(measureFrontendSize(root), {});
 });
 
 test('global composition is grouped and pure adapters remain permitted', async t => {
