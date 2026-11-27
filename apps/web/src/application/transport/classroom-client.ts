@@ -1,5 +1,5 @@
 import { createJsonRequest } from './json-request.ts';
-import { decodeAcademicResponse } from '../clients/academic-response.ts';
+import { decodeAcademicResponse } from './academic-response.ts';
 import { ApiError, type ClassroomClient } from '../../../../../src/core/contracts/academic-client.ts';
 import type { FileState } from '../../../../../src/core/contracts/materials.ts';
 

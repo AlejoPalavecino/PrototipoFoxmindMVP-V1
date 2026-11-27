@@ -33,6 +33,18 @@ test('generic shared styles cannot import feature-owned presentation', async t =
   assert.ok(checkFrontendArchitecture(root).some(value => value.includes('shared style dependency')));
 });
 
+test('application transport cannot depend on application clients', async t => {
+  const root = await fixture(t, { 'apps/web/src/application/transport/classroom-client.ts':
+    "import { decode } from '../clients/academic-response.ts';" });
+  assert.ok(checkFrontendArchitecture(root).some(value => value.includes('transport depends on clients')));
+});
+
+test('application navigation renders navigation and leaves HTTP to clients', async t => {
+  const root = await fixture(t, { 'apps/web/src/application/navigation/quota.ts':
+    "export const read = browser => browser.fetch('/api/v1/quota');" });
+  assert.ok(checkFrontendArchitecture(root).some(value => value.includes('HTTP in navigation')));
+});
+
 test('global composition is grouped and pure adapters remain permitted', async t => {
   const root = await fixture(t, {
     'apps/web/src/application/workflows/classroom-workspace/Workspace.tsx': "export const Workspace=()=>null;",

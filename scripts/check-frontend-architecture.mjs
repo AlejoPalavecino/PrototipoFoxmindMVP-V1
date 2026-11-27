@@ -29,17 +29,26 @@ export function checkFrontendArchitecture(root = process.cwd()) {
     }
     const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
     const typedPresentation = /^apps\/web\/src\/features\/(?:materials|activity-authoring|grading)\/.+\.tsx$/.test(file);
+    const transport = file.startsWith('apps/web/src/application/transport/');
+    const navigation = file.startsWith('apps/web/src/application/navigation/');
     const inspectImport = specifier => {
-      if (specifier && ts.isStringLiteralLike(specifier) && /^src\/core\/domain\/index(?:\.ts)?$/.test(target(specifier.text))) findings.push('global domain aggregate: ' + file);
+      if (!specifier || !ts.isStringLiteralLike(specifier)) return;
+      const imported = target(specifier.text);
+      if (/^src\/core\/domain\/index(?:\.ts)?$/.test(imported)) findings.push('global domain aggregate: ' + file);
+      // Composition (clients) builds on transport; the reverse edge is a cycle.
+      if (transport && imported.startsWith('apps/web/src/application/clients/')) findings.push('transport depends on clients: ' + file);
     };
+    const line = node => sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
     function visit(node) {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) inspectImport(node.moduleSpecifier);
       if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) inspectImport(node.argument.literal);
       if (ts.isCallExpression(node)) {
         if (node.expression.kind === ts.SyntaxKind.ImportKeyword) inspectImport(node.arguments[0]);
         const expression = node.expression.getText(sf);
-        if (typedPresentation && (expression === 'fetch' || /^(?:api|client)\.call$/.test(expression))) findings.push('raw HTTP in feature presentation: ' + file + ':' + (sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1));
+        if (typedPresentation && (expression === 'fetch' || /^(?:api|client)\.call$/.test(expression))) findings.push('raw HTTP in feature presentation: ' + file + ':' + line(node));
+        if (navigation && /(?:^|\.)fetch$/.test(expression)) findings.push('HTTP in navigation: ' + file + ':' + line(node));
       }
+      if (navigation && ts.isNewExpression(node) && /(?:^|\.)EventSource$/.test(node.expression.getText(sf))) findings.push('HTTP in navigation: ' + file + ':' + line(node));
       ts.forEachChild(node, visit);
     }
     visit(sf);

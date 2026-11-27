@@ -44,3 +44,9 @@
 - Documentación: `docs/design/README.md` apunta a los componentes que hoy implementan el selector de estado y los pasos. El registro del 12/11 enlaza `study-materials.tsx` en la versión anterior de Git. Los manifiestos y registros históricos conservan sus rutas de entonces.
 - Pendiente detectado: `useAgenda` conserva las consultas `upcoming` y `afterDay`, que `Agenda` nunca activa (`calendarOnly`); retirarlas cambia un hook vivo y queda para un corte propio.
 - Comprobación: `tsc` sin errores; `lint:boundaries` pasa; `docs:check` 0 problemas; `test:complete --group fast` 3219/3219 (8 casos menos, los del código retirado); ninguna suite ni script nombra los archivos retirados.
+
+### Corte 4 · capas de aplicación sin ciclo (F6)
+
+- `check-frontend-architecture.mjs` suma dos reglas: `application/transport` no importa de `application/clients`, y `application/navigation` no llama a `fetch` ni crea `EventSource`. Las dos pruebas nuevas de `tests/frontend-boundaries.test.mjs` fallaron primero (RED); sobre el código real, la regla marcó `transport/classroom-client.ts` → `clients/academic-response.ts` y `navigation/ai-quota-client.ts:59,77`.
+- GREEN: `academic-response.ts` pasa a `transport/`, que es quien decodifica, y `ai-quota-client.ts` pasa a `clients/`. Se actualizaron sus imports y dos pruebas. Sin cambio de comportamiento.
+- Comprobación: `tsc` sin errores; `lint:boundaries` pasa; `test:complete --group fast` 3221/3221 (+2 pruebas de la regla); `docs:check` 0 problemas.
