@@ -53,23 +53,45 @@ test('only the exact session clear crosses non-identity proxies; other API cooki
   });
 });
 
-test('a rejected body is answered, discarded within a budget and the connection closed', async () => {
+test('a rejected body is discarded within a budget before answering, and an oversized one aborts', async () => {
   const { proxyAgendaRequest } = load('agenda-proxy.ts');
   let reached = 0;
-  await through(proxyAgendaRequest, (req, res) => { reached++; res.end(); }, async web => {
-    const result = await new Promise((resolve, rejectRequest) => {
-      const req = httpRequest({ port: web.port, host: '127.0.0.1', method: 'POST', path: '/api/v1/agenda/open',
-        headers: { 'content-type': 'application/json', 'transfer-encoding': 'chunked' } }, res => {
-        const chunks = []; res.on('data', chunk => chunks.push(chunk));
-        res.on('end', () => resolve({ status: res.statusCode, connection: res.headers.connection, body: JSON.parse(Buffer.concat(chunks).toString()) }));
-      });
-      req.on('error', rejectRequest);
-      req.write(Buffer.alloc(40 * 1024, 32));
-      setTimeout(() => req.destroy(), 500);
+  const send = (port, chunks, headers) => new Promise(resolve => {
+    const req = httpRequest({ port, host: '127.0.0.1', method: 'POST', path: '/api/v1/agenda/open', headers }, res => {
+      const body = []; res.on('data', chunk => body.push(chunk));
+      res.on('end', () => resolve({ status: res.statusCode, connection: res.headers.connection, body: JSON.parse(Buffer.concat(body).toString()) }));
     });
-    assert.equal(result.status, 413);
-    assert.equal(result.body.error.code, 'REQUEST_TOO_LARGE');
-    assert.equal(result.connection, 'close');
+    req.on('error', error => resolve({ aborted: error.code }));
+    for (const chunk of chunks) req.write(chunk);
+    req.end();
+  });
+  await through(proxyAgendaRequest, (req, res) => { reached++; res.end(); }, async web => {
+    const small = await send(web.port, [Buffer.from('not json')], { 'content-type': 'text/plain', 'transfer-encoding': 'chunked' });
+    assert.equal(small.status, 400);
+    assert.equal(small.body.error.code, 'INVALID_INPUT');
+    assert.equal(small.connection, 'close');
+    const oversized = await send(web.port, [Buffer.alloc(80 * 1024, 32)], { 'content-type': 'application/json', 'transfer-encoding': 'chunked' });
+    assert.ok(oversized.aborted || oversized.status === 413, 'an oversized body is aborted or answered 413, never relayed');
   });
   assert.equal(reached, 0, 'a rejected request never reaches the API');
+});
+
+test('file downloads relay only types the files API serves and reject encoded or traversal paths', async () => {
+  const { proxyFileRequest } = load('file-proxy.ts');
+  const id = '11111111-1111-4111-8111-111111111111';
+  let type = 'text/html';
+  await through(proxyFileRequest, (req, res) => {
+    res.writeHead(200, { 'Content-Type': type, 'Content-Length': '4', 'Set-Cookie': 'planted=1; Path=/' }); res.end('abcd');
+  }, async web => {
+    const html = await fetch(`${web.origin}/api/v1/files/${id}/content`);
+    assert.equal(html.status, 200);
+    assert.equal(html.headers.get('content-type'), 'application/octet-stream', 'an unexpected type becomes a generic download');
+    assert.equal(html.headers.get('set-cookie'), null);
+    type = 'application/pdf';
+    assert.equal((await fetch(`${web.origin}/api/v1/files/${id}/content`)).headers.get('content-type'), 'application/pdf');
+    for (const path of [`/api/v1/files/${id}%2Fcontent`, `/api/v1/files/${id}/content/..`]) {
+      const response = await fetch(web.origin + path);
+      assert.ok([400, 404].includes(response.status), path);
+    }
+  });
 });

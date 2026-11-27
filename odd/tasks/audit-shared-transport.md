@@ -36,18 +36,19 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Verification:** tests/web-proxy-transport.test.mjs y las pruebas existentes de esos proxies
 - **Acceptance:** Los tres proxies usan el núcleo; un `Set-Cookie` arbitrario de la API no llega al navegador por home ni por agenda; los errores tienen la forma nueva; un cuerpo rechazado en agenda se descarta con presupuesto.
 - **Scope:** ["apps/web/src/application/server/transport/api-transport.ts", "apps/web/src/application/server/home-proxy.ts", "apps/web/src/application/server/agenda-proxy.ts", "apps/web/src/application/server/ai-quota-proxy.ts", "tests/web-proxy-transport.test.mjs", "tests/home-order.test.mjs", "scripts/ci-suites.mjs", "scripts/complete-suite-inventory.json", "scripts/complete-suite-routes.json", "docs/engineering/frontend/README.md"]
-- **Evidence:** {"command":"node --test tests/web-proxy-transport.test.mjs y pruebas de home, agenda y cupo de IA; run-complete-suite fast, owned-db, wrappers","result":"RED: error sin requestId y Set-Cookie arbitrario reenviado; GREEN: 3/3; fast 3227/3227 (segunda corrida tras ajustar home-order), owned-db 962/962, wrappers 19/19","candidate":"sha256:f210b852bfe37f9865e6724c9828bc69ee46d082535ed2bd264ad29ad8a41f19"}
+- **Evidence:** {"command":"web-proxy-transport, agenda-proxy, foxmind-3d-http, home-order, monthly-ai-quota-transport; run-complete-suite fast, owned-db, wrappers sobre el estado del corte 2","result":"web-proxy-transport 4/4, agenda 2/2, home 3/3, home-order 4/4; fast 3228/3228, owned-db 962/962, wrappers 19/19","candidate":"sha256:a035853fe81f324e42561769531d7cda91440b0d733c2c06ca92222f0ae5b99f"}
 - **Blocker:** none
+- **Reopen reason:** El corte 2 cambió el núcleo compartido (orden de rechazo y modo responder-y-cerrar) y su prueba; se repitieron las suites completas
 
 ### TASK-002 — Identidad, archivos, estudio y Foxy sobre el núcleo
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-001
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-002, REQ-003, REQ-004, REQ-005
 - **Verification:** pruebas existentes de esos proxies más los casos nuevos de cookies y límites
 - **Acceptance:** Los cuatro proxies usan el núcleo; archivos deja de reenviar cookies arbitrarias y su binario pasa a una lista de tipos permitidos; los 50 MB salen de una constante compartida.
-- **Scope:** ["apps/web/src/application/server/identity-proxy.ts", "apps/web/src/application/server/file-proxy.ts", "apps/web/src/application/server/study-proxy.ts", "apps/web/src/application/server/foxy-proxy.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/web/src/application/server/identity-proxy.ts", "apps/web/src/application/server/file-proxy.ts", "apps/web/src/application/server/study-proxy.ts", "apps/web/src/application/server/foxy-proxy.ts", "apps/web/src/application/server/transport/api-transport.ts", "src/core/domain/documents/document-formats.ts", "tests/web-proxy-transport.test.mjs", "tests/p4-web-proxy.test.mjs", "docs/engineering/frontend/README.md"]
+- **Evidence:** {"command":"pruebas de identidad, archivos, estudio y Foxy; web-proxy-transport; run-complete-suite fast, owned-db, wrappers","result":"RED: archivos reenviaba text/html (verificado contra el proxy anterior); GREEN: web-proxy-transport 4/4, p4 7/7, p3 11/11, foxy 17/17, rejection-lifecycle 14/14, study streaming 3/3; fast 3228/3228, owned-db 962/962, wrappers 19/19","candidate":"sha256:56b160fd266c03542845d7abbe6093a9b9891ee4a03aea12b125738c2aeb8676"}
 - **Blocker:** none
 
 ### TASK-003 — Aulas sobre el núcleo y reglas de dominio sólo en la API

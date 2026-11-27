@@ -1,21 +1,15 @@
 import { clientAddressHeaders } from './client-address.ts';
+import { DOCUMENT_MAX_BYTES, FILE_MAX_BYTES } from '../../../../../src/core/domain/documents/document-formats.ts';
+import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
+import { performance } from 'node:perf_hooks';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { Transform } from 'node:stream';
 
 const root = '/api/v1/study-folders', uuid = '[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}';
-const requestLimit=1048576,jsonLimit=4*1024*1024,binaryLimit=50*1024*1024;
-function fail(response: ServerResponse, status: number, code: string): void {
-  if (response.destroyed || response.writableEnded) return;
-  if (response.headersSent) { response.destroy(); return; }
-  response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
-  response.end(JSON.stringify({ error: { code } }));
-}
-function destination(value?: string): string {
-  const url = new URL(value ?? ''), local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
-  if (url.origin !== value || url.username || url.password || !(url.protocol === 'https:' || local && url.protocol === 'http:')) throw new Error();
-  return url.origin;
-}
+// The API stores at most FILE_MAX_BYTES per file and DOCUMENT_MAX_BYTES per chat attachment.
+const requestLimit=1048576,jsonLimit=4*1024*1024,binaryLimit=FILE_MAX_BYTES;
+const fail = sendError;
 function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;upload:boolean}{
  const raw=request.url??'',method=request.method??'GET';
  if(/[\\#%]/u.test(raw.split('?')[0]!)||raw.split('?')[0]!.includes('..'))throw new Error();
@@ -90,13 +84,8 @@ function counter(max: number, expected?: number): Transform {
     received += chunk.length; callback(received > max ? new RangeError() : expected !== undefined && received > expected ? new Error() : null, chunk);
   }, flush(callback) { callback(expected !== undefined && received !== expected ? new Error() : undefined); } });
 }
-function responseHeaders(result: IncomingMessage): Record<string, string> {
-  const headers: Record<string, string> = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-  for (const key of ['retry-after', 'x-request-id']) { const value = result.headers[key]; if (typeof value === 'string') headers[key] = value; }
-  const clearing = (result.headers['set-cookie'] ?? []).filter(value =>
-    /^foxmind_session=; Path=\/; HttpOnly; SameSite=Lax(?:; Secure)?; Max-Age=0$/u.test(value));
-  if (clearing.length === 1) headers['Set-Cookie'] = clearing[0]!;
-  return headers;
+function responseHeaders(result: IncomingMessage): Record<string, string | string[]> {
+  return { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...relayHeaders(result, 'session-clear') };
 }
 async function receive(result: IncomingMessage, response: ServerResponse, binary: boolean, privateImage: boolean): Promise<void> {
   const status = result.statusCode ?? 503, contentType = result.headers['content-type'] ?? '', expected = length(result.headers['content-length']);
@@ -168,16 +157,20 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
   });
 }
 export async function proxyStudyRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin?: string): Promise<void> {
+  const deadline = performance.now() + 10_000;
   let selected: ReturnType<typeof select>, content: Buffer | undefined, origin: string, stream: { limit: number; expected: number } | undefined;
   try { selected = select(request);
-    const uploadLimit = selected.url.pathname.startsWith('/api/v1/chat-attachments/') ? 20_000_000 : binaryLimit;
+    const uploadLimit = selected.url.pathname.startsWith('/api/v1/chat-attachments/') ? DOCUMENT_MAX_BYTES : binaryLimit;
     content = await metadata(request, selected.method, selected.upload, uploadLimit);
     if (selected.upload) stream = { limit: uploadLimit, expected: length(request.headers['content-length'])! }; }
   catch (error) {
     const status = error instanceof RangeError ? 413 : (error as { status?: number }).status ?? 400;
-    if (!request.complete) { response.setHeader('Connection', 'close'); request.resume(); }
-    fail(response, status, status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT'); return;
+    const code = status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT';
+    // Discard at most one JSON body more within the metadata window, then close the connection.
+    const declared = Number(request.headers['content-length'] ?? 0);
+    await rejectRequest(request, response, new ProxyRejection(status, code),
+      { budget: requestLimit + 1, deadline, mode: declared > requestLimit ? 'close' : 'drain' }); return;
   }
-  try { origin = destination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }
+  try { origin = apiDestination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }
   await forward(request, response, origin, selected, content, stream);
 }

@@ -1,4 +1,6 @@
 export const DOCUMENT_MAX_BYTES = 20_000_000;
+/** Largest private file the API stores (decimal 50 MB); proxies must not admit more. */
+export const FILE_MAX_BYTES = 50_000_000;
 
 export const documentMimeTypes = {
   pdf: 'application/pdf',

@@ -2,8 +2,9 @@ import { clientAddressHeaders } from './client-address.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
-import { discardRejectedBody } from './rejected-request-body.ts';
 import { Transform } from 'node:stream';
+import { FILE_MAX_BYTES } from '../../../../../src/core/domain/documents/document-formats.ts';
+import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 
 const root = '/api/v1/foxy-ai', uuid = '[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}';
 const conversation = new RegExp(`^${root}/conversations/${uuid}$`, 'i');
@@ -28,18 +29,8 @@ const publicationFile = new RegExp(`^${root}/publications/${uuid}/file$`, 'i');
 const confirmPublication = new RegExp(`^${root}/publications/${uuid}/confirm$`, 'i');
 const managementPublication = new RegExp(`^${root}/publications/${uuid}/management$`, 'i');
 const commandPublication = new RegExp(`^${root}/publications/${uuid}/(retry|discard)$`, 'i');
-const requestLimit = 1048576, jsonLimit = 2 * 1024 * 1024, binaryLimit = 50000000;
-function fail(response: ServerResponse, status: number, code: string): void {
-  if (response.destroyed || response.writableEnded) return;
-  if (response.headersSent) { response.destroy(); return; }
-  response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
-  response.end(JSON.stringify({ error: { code } }));
-}
-function destination(value?: string): string {
-  const url = new URL(value ?? ''), local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
-  if (url.origin !== value || url.username || url.password || !(url.protocol === 'https:' || local && url.protocol === 'http:')) throw new Error();
-  return url.origin;
-}
+const requestLimit = 1048576, jsonLimit = 2 * 1024 * 1024, binaryLimit = FILE_MAX_BYTES;
+const fail = sendError;
 function select(request: IncomingMessage): { url: URL; method: string; binary: boolean } {
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
@@ -108,13 +99,8 @@ function counter(max: number, expected?: number): Transform {
     received += chunk.length; callback(received > max || (expected !== undefined && received > expected) ? new Error() : null, chunk);
   }, flush(callback) { callback(expected !== undefined && received !== expected ? new Error() : undefined); } });
 }
-function responseHeaders(result: IncomingMessage): Record<string, string> {
-  const headers: Record<string, string> = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-  for (const key of ['retry-after', 'x-request-id']) { const value = result.headers[key]; if (typeof value === 'string') headers[key] = value; }
-  const clearing = (result.headers['set-cookie'] ?? []).filter(value =>
-    /^foxmind_session=; Path=\/; HttpOnly; SameSite=Lax(?:; Secure)?; Max-Age=0$/u.test(value));
-  if (clearing.length === 1) headers['Set-Cookie'] = clearing[0]!;
-  return headers;
+function responseHeaders(result: IncomingMessage): Record<string, string | string[]> {
+  return { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...relayHeaders(result, 'session-clear') };
 }
 async function receive(result: IncomingMessage, response: ServerResponse, binary: boolean, privateImage: boolean): Promise<void> {
   const status = result.statusCode ?? 503, contentType = result.headers['content-type'] ?? '', expected = length(result.headers['content-length']);
@@ -174,12 +160,9 @@ export async function proxyFoxyRequest(request: IncomingMessage, response: Serve
   try { selected = select(request); content = await metadata(request, selected.method, metadataDeadline); }
   catch (error) {
     const status = error instanceof RangeError ? 413 : (error as { status?: number }).status ?? 400;
-    if (!request.readableEnded) {
-      response.setHeader('Connection', 'close');
-      if (!await discardRejectedBody(request, response, requestLimit + 1, metadataDeadline)) return;
-    }
-    fail(response, status, status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT'); return;
+    const code = status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT';
+    await rejectRequest(request, response, new ProxyRejection(status, code), { budget: requestLimit + 1, deadline: metadataDeadline }); return;
   }
-  try { origin = destination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }
+  try { origin = apiDestination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }
   await forward(request, response, origin, selected, content);
 }

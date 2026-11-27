@@ -23,6 +23,24 @@ La primera corrida de `fast` falló en `home-order`, que exigía el error del pr
 
 Suites integradas del corte 1: `fast` 3227/3227 (segunda corrida), `owned-db` 962/962 y `wrappers` 19/19 completos.
 
+## Corte 2 — identidad, archivos, estudio y Foxy
+
+- El núcleo adoptó el orden de rechazo que ya tenían Foxy y aulas, documentado y fijado por `proxy-rejection-lifecycle`: descartar con presupuesto y después responder, o cortar si se excede. Se agregó el modo «responder y cerrar» para cuerpos cuyo tamaño declarado ya excede el límite, que conserva la respuesta 413 inmediata de las subidas binarias.
+- [Archivos](../../apps/web/src/application/server/file-proxy.ts): destino, error y rechazo del núcleo; chequeo estricto de ruta; deja de reenviar cookies que no sean el borrado de sesión; el binario sólo conserva los tipos que sirve la API, y otro tipo pasa a `application/octet-stream`.
+- [Estudio y adjuntos de chat](../../apps/web/src/application/server/study-proxy.ts): destino, error, cookies y rechazo del núcleo; deja de drenar sin límite; el binario pasa de `50*1024*1024` a `FILE_MAX_BYTES` (50.000.000, el valor de la API) y el adjunto usa `DOCUMENT_MAX_BYTES`.
+- [Foxy](../../apps/web/src/application/server/foxy-proxy.ts): destino, error, cookies y rechazo del núcleo, mismo comportamiento.
+- [Identidad](../../apps/web/src/application/server/identity-proxy.ts): conserva su transporte con `fetch`, porque sus pruebas le inyectan el `fetch` de la API; usa el destino del núcleo y rechaza `content-encoding` distinto de `identity` en vez de reenviarlo.
+- Se confirmó en la API que, fuera de identidad, sólo se emite `clearSessionCookie`; la rotación de sesión vive en el transporte de identidad. Por eso `p4-web-proxy` pasó de exigir una cookie rotada por archivos a exigir que no llegue.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `web-proxy-transport` (caso de archivos) | el proxy anterior reenviaba `text/html` | 4/4 |
+| `p4-web-proxy`, `p3-web-proxy`, `identity-composition` | — | 7/7, 11/11, 2/2 |
+| `study-proxy-upload-streaming`, `foxy-exact-attachment-transport`, `study-client`, `study-image-database` | — | 3/3, 3/3, 8/8, 1/1 |
+| `foxy-proxy`, `proxy-rejection-lifecycle`, `brujula-foxy-handoff-proxy`, `proxy-client-address` | — | 17/17, 14/14, 1/1, 12/12 |
+
+Suites integradas del corte 2: `fast` 3228/3228, `owned-db` 962/962 y `wrappers` 19/19 completos.
+
 ## Límites
 
 - Algunas pruebas cargan los `.ts` con *strip-only*, que no admite propiedades en los parámetros del constructor; el núcleo las evita.
