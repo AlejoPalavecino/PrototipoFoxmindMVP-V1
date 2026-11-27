@@ -61,7 +61,7 @@ test('Foxy text reservations share ledger and survive fenced transactional settl
 
     for (const scope of ['global', 'owner']) await check(`${scope} shared quota denies reservation`, async ({ f, query, lease, tx }) => {
       const quotaScope = scope === 'global' ? 'global' : f.teacherActor, cap = scope === 'global' ? config.dailyGlobalRequests : config.dailyActorRequests;
-      await query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count) VALUES((now() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1',$2)
+      await query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count) VALUES((now() AT TIME ZONE 'America/Argentina/Buenos_Aires')::date,$1,'study-plan-v1',$2)
         ON CONFLICT(day,scope,capability) DO UPDATE SET request_count=$2`, quotaScope, cap);
       const budget = api.createFoxyTextBudget({ configuration: config });
       await assert.rejects(budget.reserve(tx, lease, 100), {

@@ -1,5 +1,6 @@
 import type { SqlTransaction } from '../../../../../src/core/contracts/sql.ts';
 import type { AiMonthlyQuotaRejection, AiQuotaSnapshot } from '../../../../../src/core/contracts/ai-quota.ts';
+import { aiOperationalDaySql, aiQuotaZone } from './operational-day.ts';
 
 export interface MonthlyBudgetJob {
   namespace: string;
@@ -22,7 +23,7 @@ export interface MonthlyBudgetMetadata {
 
 export type MonthlyBudgetSnapshot = Omit<AiQuotaSnapshot, 'subjectId'>;
 
-const zone = "'America/Argentina/Buenos_Aires'";
+const zone = `'${aiQuotaZone}'`;
 const active = "('RESERVED', 'PENDING')";
 const actorLock = '78123003,hashtext(($1::uuid)::text)';
 
@@ -140,7 +141,7 @@ export async function reserveAiMonthlyBudget(tx: SqlTransaction, job: MonthlyBud
       INSERT INTO ai_monthly_reservations(namespace,job_id,owner_id,period_start,capability,provider,model,reserved_at,
         expires_at,reserved_microusd,pricing,operational_day,status)
       VALUES($1,$2::uuid,$3::uuid,$4::date,$5,$6,$7,$8::timestamptz,$8::timestamptz + interval '24 hours',$9::bigint,$10::jsonb,
-        (transaction_timestamp() AT TIME ZONE 'UTC')::date,'RESERVED')
+        ${aiOperationalDaySql},'RESERVED')
       ON CONFLICT(namespace,job_id) DO NOTHING RETURNING namespace,job_id,owner_id,reserved_microusd
     )
     INSERT INTO ai_monthly_budget_movements(namespace,job_id,owner_id,event,reserved_delta_microusd,actor_delta_microusd,platform_delta_microusd)

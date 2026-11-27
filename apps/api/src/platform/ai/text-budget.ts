@@ -2,6 +2,7 @@ import type { SqlTransaction } from '../../../../../src/core/contracts/sql.ts';
 import type { AiExecutionSettings, AiExecutionTask } from '../../../../../src/core/contracts/ai-execution.ts';
 import { parseExecutionSnapshot } from './execution-snapshot.ts';
 import { lockAiBudget } from './admission.ts';
+import { aiOperationalDaySql } from './operational-day.ts';
 import { reserveAiMonthlyBudget, settleAiMonthlyBudget, type MonthlyBudgetJob, type MonthlyBudgetMetadata } from './monthly-budget.ts';
 
 type Transaction = SqlTransaction;
@@ -44,11 +45,11 @@ async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigi
   const [actorNum, actorDen] = decimal(config.dailyActorBudgetUsd ?? config.dailyBudgetUsd), actorMaximum = actorNum * 1000000n / actorDen;
   for (const scope of ['global', ownerId]) {
     const maximum = scope === 'global' ? globalMaximum : actorMaximum;
-    await tx.query(`INSERT INTO ai_usage_daily(day,scope,capability) VALUES((transaction_timestamp() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1')
+    await tx.query(`INSERT INTO ai_usage_daily(day,scope,capability) VALUES(${aiOperationalDaySql},$1,'study-plan-v1')
       ON CONFLICT DO NOTHING RETURNING scope`, scope);
     const [usage] = await tx.query<{ request_count: number; total: string }>(`SELECT request_count,
       (reserved_microusd+consumed_microusd)::text AS total FROM ai_usage_daily
-      WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope=$1 AND capability='study-plan-v1' FOR UPDATE`, scope);
+      WHERE day=${aiOperationalDaySql} AND scope=$1 AND capability='study-plan-v1' FOR UPDATE`, scope);
     const cap = scope === 'global' ? config.dailyGlobalRequests : config.dailyActorRequests;
     if (usage!.request_count >= cap || BigInt(usage!.total) + amount > maximum) {
       const code = scope === 'global' ? 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' : 'AI_BUDGET_EXCEEDED';
@@ -76,9 +77,9 @@ export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count
     },
   })) return false;
   await tx.query(`UPDATE ai_usage_daily SET request_count=request_count+1,reserved_microusd=reserved_microusd+$2::bigint
-    WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`, row.owner_id, amount.toString());
+    WHERE day=${aiOperationalDaySql} AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`, row.owner_id, amount.toString());
   await tx.query(`UPDATE ${table} SET reserved_microusd=$2::bigint,
-    usage_day=(transaction_timestamp() AT TIME ZONE 'UTC')::date,input_tokens=$3,dispatch_started_at=clock_timestamp(),
+    usage_day=${aiOperationalDaySql},input_tokens=$3,dispatch_started_at=clock_timestamp(),
     dispatch_count=dispatch_count+1 WHERE id=$1::uuid RETURNING id`, row.id, amount.toString(), count);
   return true;
 }
@@ -111,7 +112,7 @@ export async function settleAiTextBudget(tx: Transaction, row: BudgetJob, config
   await settleAiMonthlyBudget(tx, job, actual);
 }
 
-/** Uses the same UTC operational quota for Study images, whose durable work lives in a domain receipt. */
+/** Uses the same daily operational quota for Study images, whose durable work lives in a domain receipt. */
 export async function reserveAiImageBudget(tx: Transaction, job: MonthlyBudgetJob, amount: bigint,
   metadata: MonthlyBudgetMetadata, limits: DailyLimits): Promise<boolean> {
   await lockAiBudget(tx, job.ownerId);
@@ -119,7 +120,7 @@ export async function reserveAiImageBudget(tx: Transaction, job: MonthlyBudgetJo
   if (!await reserveAiMonthlyBudget(tx, job, amount, metadata)) return false;
   // Count the estimate immediately against the operational guard, even if the process dies before returning usage.
   await tx.query(`UPDATE ai_usage_daily SET request_count=request_count+1,consumed_microusd=consumed_microusd+$2::bigint
-    WHERE day=(transaction_timestamp() AT TIME ZONE 'UTC')::date AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`,
+    WHERE day=${aiOperationalDaySql} AND scope IN ('global',$1) AND capability='study-plan-v1' RETURNING scope`,
   job.ownerId, amount.toString());
   return true;
 }

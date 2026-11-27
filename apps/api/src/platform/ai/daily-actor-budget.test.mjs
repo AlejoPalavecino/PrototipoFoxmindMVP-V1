@@ -49,3 +49,15 @@ test('AI_DAILY_ACTOR_BUDGET_USD is optional, positive and not above the global b
     assert.throws(() => readAiConfiguration({ ...env, AI_DAILY_ACTOR_BUDGET_USD: bad }), { code: 'AI_UNAVAILABLE' }, bad);
   }
 });
+
+test('daily AI quota days are Buenos Aires calendar days, like the monthly quota (B11)', async () => {
+  const owner = randomUUID(), calls = [], tx = fake(owner), query = tx.query;
+  tx.query = async (sql, ...args) => { calls.push(sql); return query(sql, ...args); };
+  assert.equal(await attempt(tx, owner, base), true);
+  const dayed = calls.filter(sql => /ai_usage_daily|usage_day=|operational_day/u.test(sql) && /transaction_timestamp\(\)/u.test(sql));
+  assert.ok(dayed.length >= 4, `expected day-bucketed statements, got ${dayed.length}`);
+  for (const sql of dayed) {
+    assert.doesNotMatch(sql, /AT TIME ZONE 'UTC'/u);
+    assert.match(sql, /AT TIME ZONE 'America\/Argentina\/Buenos_Aires'\)::date/u);
+  }
+});
