@@ -118,6 +118,8 @@ Tipado: en producción no hay `any`, `eslint-disable` ni `@ts-ignore`.
 
 El mismo día se resolvieron B1, B2, S10, S11, D13 y F10 (salvo el `PlanWorkspace.tsx` de `workflows`, que sólo alcanzan pruebas). El detalle y su verificación están en [arreglos acotados](2026-11-26-root-audit-bounded-fixes.md). S2–S5 se resolvieron después, según [cupos compartidos](2026-11-26-root-audit-shared-limits.md), y S1 (sin RLS) según [rol de base](2026-11-26-root-audit-database-role.md). Las tablas de arriba conservan el estado observado sobre `c5298e77`.
 
+S6, S9, S12, S17 y el reenvío de verificación se resolvieron en la rama `claude/audit-backend-security-a863ab`, según [seguridad de backend](2026-11-26-root-audit-backend-security.md); no están integrados en `main`.
+
 ## Decisiones pendientes del usuario
 
 - Adoptar NestJS con controllers, guard y filtro, o asumir el transporte propio y extraerlo a `apps/api/src/platform/http` (D3).
