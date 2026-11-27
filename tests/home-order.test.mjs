@@ -135,7 +135,10 @@ test('Home client and proxy send the direction, and both HTTP boundaries reject 
           '/modules/queries?timeZone=UTC&order=asc&order=desc', '/modules/review?timeZone=UTC&module=queries', '?timeZone=UTC&order=asc']) {
           const response = await fetch(`${origin}/api/v1/home${path}`);
           assert.equal(response.status, 400);
-          assert.deepEqual(await response.json(), { error: invalid });
+          const body = await response.json();
+          // The web proxy adds a requestId to every error; the API keeps its own shape.
+          if (origin === web) { assert.equal(body.error.code, invalid.code); assert.match(body.error.requestId, /^[0-9a-f-]{36}$/); }
+          else assert.deepEqual(body, { error: invalid });
         }
       }
       assert.equal(received.length, 3);
