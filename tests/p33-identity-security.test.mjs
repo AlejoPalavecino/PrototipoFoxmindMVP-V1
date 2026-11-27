@@ -49,6 +49,11 @@ test('S4 login and recovery limits separate each address from a wider per-identi
   assert.deepEqual(tuned.rateLimits.login.identifierPerIp, window(5));
 });
 
+test('verification resend separates each account+address from a wider address and account ceiling', () => {
+  const limits = configuration().rateLimits, window = limit => ({ limit, windowSeconds: 3600 });
+  assert.deepEqual(limits['verification-resend'], { ip: window(300), identifierPerIp: window(3), identifier: window(5), cooldownSeconds: 60 });
+});
+
 test('S2 names reject control and bidirectional characters but keep regular names', () => {
   for (const value of ['María José', "D'Angelo", 'Ñandú Pérez', 'Łukasz', '李 小龍', 'Ana-Lía']) assert.equal(api.validateName(value), value);
   for (const control of ['\u0000', '\u0007', '\t', '\n', '\u001f', '\u007f', '\u0085', '\u009f',

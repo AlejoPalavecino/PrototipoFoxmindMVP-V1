@@ -28,14 +28,17 @@ function decimal(value: number): [bigint, bigint] {
   return scale >= 0 ? [BigInt(whole! + fraction), 10n ** BigInt(scale)]
     : [BigInt(whole! + fraction) * 10n ** BigInt(-scale), 1n];
 }
+/** Default per-actor daily cap as a fraction (1/10) of the global cap when AI_DAILY_ACTOR_BUDGET_USD is unset. */
+export const DEFAULT_ACTOR_SHARE = 10n;
 export function tokenCost(tokens: number, rate: number): bigint {
   const [numerator, denominator] = decimal(rate);
   return (BigInt(tokens) * numerator + denominator - 1n) / denominator;
 }
 async function requireDailyBudget(tx: Transaction, ownerId: string, amount: bigint, config: DailyLimits) {
   const [num, den] = decimal(config.dailyBudgetUsd), globalMaximum = num * 1000000n / den;
-  // Without a dedicated per-actor cap the owner scope keeps sharing the global cap (previous behaviour).
-  const [actorNum, actorDen] = decimal(config.dailyActorBudgetUsd ?? config.dailyBudgetUsd), actorMaximum = actorNum * 1000000n / actorDen;
+  // Without a dedicated per-actor cap each owner gets one tenth of the global cap, so a few accounts cannot drain it for everyone.
+  const actorMaximum = config.dailyActorBudgetUsd === undefined ? globalMaximum / DEFAULT_ACTOR_SHARE
+    : (([actorNum, actorDen]) => actorNum * 1000000n / actorDen)(decimal(config.dailyActorBudgetUsd));
   for (const scope of ['global', ownerId]) {
     const maximum = scope === 'global' ? globalMaximum : actorMaximum;
     await tx.query(`INSERT INTO ai_usage_daily(day,scope,capability) VALUES((transaction_timestamp() AT TIME ZONE 'UTC')::date,$1,'study-plan-v1')

@@ -14,7 +14,7 @@ function positive(env: Record<string, string | undefined>, key: string, integer 
   if (!Number.isFinite(value) || value <= 0 || (integer && !Number.isSafeInteger(value))) throw new AiError('AI_UNAVAILABLE');
   return value;
 }
-/** Optional per-actor daily cap. Unset keeps the actor on the global cap; a value above the global cap is invalid. */
+/** Optional per-actor daily cap. Unset gives each actor one tenth of the global cap (text-budget.ts); a value above the global cap is invalid. */
 function optionalActorBudget(env: Record<string, string | undefined>, globalBudget: number): number | undefined {
   if (env.AI_DAILY_ACTOR_BUDGET_USD === undefined) return undefined;
   const value = positive(env, 'AI_DAILY_ACTOR_BUDGET_USD', false);

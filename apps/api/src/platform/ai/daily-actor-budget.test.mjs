@@ -31,10 +31,12 @@ test('an actor at its dedicated daily cap is rejected while the global scope sti
   await assert.rejects(attempt(fake(owner, { globalUsed: 99_999n }), owner, config), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });
 });
 
-test('without a per-actor cap the owner scope keeps the global cap', async () => {
+test('S17 without a per-actor cap each owner gets one tenth of the global cap by default', async () => {
   const owner = randomUUID();
-  assert.equal(await attempt(fake(owner, { actorUsed: 49_999n }), owner, base), true);
-  await assert.rejects(attempt(fake(owner, { actorUsed: 99_999n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
+  // Global 0.1 USD = 100000 microusd; default actor cap = 10000 microusd.
+  assert.equal(await attempt(fake(owner, { actorUsed: 9_996n }), owner, base), true);
+  await assert.rejects(attempt(fake(owner, { actorUsed: 9_997n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
+  await assert.rejects(attempt(fake(owner, { actorUsed: 49_999n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
 });
 
 test('AI_DAILY_ACTOR_BUDGET_USD is optional, positive and not above the global budget', () => {
