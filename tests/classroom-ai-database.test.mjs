@@ -19,7 +19,7 @@ export async function withAiDatabase(run) {
   try {
     docker('run', '-d', '--rm', '--pull=never', '--name', name, '--label', `foxmind.ai.owner=${owner}`,
       '--memory=512m', '--cpus=1', '--pids-limit=128', '-p', '127.0.0.1::5432',
-      '--tmpfs', '/var/lib/postgresql/data', '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_DB=classroom_ai_test', 'postgres:17.10-bookworm');
+      '--tmpfs', '/var/lib/postgresql/data', '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_DB=classroom_ai_test', 'postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f');
     created = true;
     const port = Number(docker('inspect', '--format', '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}', name));
     pool = new pg.Pool({ host: '127.0.0.1', port, user: 'postgres', password, database: 'classroom_ai_test',

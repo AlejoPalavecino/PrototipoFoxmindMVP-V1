@@ -38,7 +38,7 @@ export async function withP3BrowserRuntime(callback) {
     docker(['run', '--detach', '--rm', '--pull=never', '--name', name, '--label', `com.foxmind.p3-browser=${owner}`,
       '--publish', '127.0.0.1::5432', '--tmpfs', '/var/lib/postgresql/data', '--env', 'POSTGRES_PASSWORD',
       '--env', 'POSTGRES_DB=p3_browser', '--health-cmd', 'pg_isready -U postgres -d p3_browser',
-      '--health-interval', '1s', '--health-timeout', '1s', '--health-retries', '15', 'postgres:17.10-bookworm'], env);
+      '--health-interval', '1s', '--health-timeout', '1s', '--health-retries', '15', 'postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f'], env);
     const deadline = Date.now() + 20000;
     let healthy = false;
     while (Date.now() < deadline) {

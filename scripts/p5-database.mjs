@@ -45,7 +45,7 @@ export async function withP5Database(run) {
       'POSTGRES_PASSWORD',
       '-e',
       'POSTGRES_DB=p5',
-      'postgres:17.10-bookworm',
+      'postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f',
     );
     created = true;
     const port = Number(
