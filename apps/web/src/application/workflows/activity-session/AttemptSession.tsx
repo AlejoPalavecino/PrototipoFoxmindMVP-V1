@@ -53,13 +53,16 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
     try { await action(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   const ownsEditor = !!editor && data.attempt?.epoch === editor.epoch && data.canTransfer;
-  const activeEditor = ownsEditor ? editor : null;
+  // Operations follow the editor capability (token and epoch), not each refreshed copy of it.
+  const editorToken = ownsEditor ? editor.token : undefined, editorEpoch = ownsEditor ? editor.epoch : undefined;
+  const activeEditor = useMemo(() => editorToken !== undefined && editorEpoch !== undefined ? { token: editorToken, epoch: editorEpoch } : null, [editorToken, editorEpoch]);
+  const attemptId = data.attempt?.id ?? null;
   const readingOperations = useMemo(() => createAttemptReadingApi(api), [api]);
   const attemptOperations = useMemo(() => ({
-    questionnaire: createQuestionnaireAttemptApi(api, room.id, data.attempt?.id ?? null, activeEditor),
-    practical: createPracticalAttemptApi(api, room.id, data.attempt?.id ?? null, activeEditor),
-    attachments: createAttemptAttachmentsApi(api, room.id, data.attempt?.id ?? null, activeEditor),
-  }), [api, room.id, data.attempt?.id, activeEditor?.token, activeEditor?.epoch]);
+    questionnaire: createQuestionnaireAttemptApi(api, room.id, attemptId, activeEditor),
+    practical: createPracticalAttemptApi(api, room.id, attemptId, activeEditor),
+    attachments: createAttemptAttachmentsApi(api, room.id, attemptId, activeEditor),
+  }), [api, room.id, attemptId, activeEditor]);
   const { activity, attempt } = data;
   function requestClose() {
     if (exitRef.current?.busy) return;

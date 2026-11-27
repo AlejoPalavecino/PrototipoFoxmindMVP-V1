@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { InvitationBatchReceipt, InvitationBatchRecipient } from '../../../../../../src/core/contracts/classrooms.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
@@ -35,19 +35,20 @@ export function InvitationBatchDialog({ api, classroomId, onClose, onChanged }: 
       return null;
     }
   }
+  const recoverSaved = useEffectEvent((requestId: string) => recover(requestId));
   useEffect(() => {
     alive.current = true; stopped.current = false;
     let requestId: string | null = null;
     try { requestId = sessionStorage.getItem(storageKey); } catch { /* No saved batch. */ }
     if (requestId) {
       setRecoverId(requestId);
-      void recover(requestId).catch(cause => {
+      void recoverSaved(requestId).catch(cause => {
         if (!alive.current) return;
         setError('No pudimos consultar el lote anterior. Revisá su estado antes de enviar otro.');
       }).finally(() => { if (alive.current) setBusy(false); });
     } else setBusy(false);
     return () => { alive.current = false; stopped.current = true; };
-  }, [classroomId]);
+  }, [classroomId, storageKey]);
 
   async function run(initial?: InvitationBatchReceipt) {
     if (locked.current) return;

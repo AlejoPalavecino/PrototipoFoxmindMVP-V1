@@ -56,7 +56,7 @@ test('ayuda: una sola fila «Ayuda» que abre el mismo diálogo', async () => {
 test('saldo de IA: una fila con porcentaje y barra, conservando el nombre accesible', async () => {
   const snapshot = { remainingMicrousd: 820_000, limitMicrousd: 1_000_000, consumedMicrousd: 180_000, reservedMicrousd: 0, renewsAt: '2026-12-01T03:00:00.000Z', tools: [] };
   const { AiQuotaIndicator } = loadTsModule('apps/web/src/application/navigation/ai-quota-indicator.tsx', {
-    stubs: { './ai-quota-client.ts': { subscribeAiQuota: (_subject, set) => { set({ snapshot, connected: true }); return () => {}; } } },
+    stubs: { '../clients/ai-quota-client.ts': { subscribeAiQuota: (_subject, set) => { set({ snapshot, connected: true }); return () => {}; } } },
   });
   const view = hookView(AiQuotaIndicator, { subjectId: 'synthetic' });
   try {

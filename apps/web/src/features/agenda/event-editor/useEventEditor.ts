@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { seriesSchedules, type PrivateEvent } from '../../../../../../src/core/domain/agenda/index.ts';
 import type { AgendaClient } from '../api/api.ts';
 import { eventDraft, isDraftDirty } from './event-draft.ts';
@@ -21,11 +21,12 @@ export function useEventEditor(api: AgendaClient, original: PrivateEvent | undef
   const id = useRef(original?.id ?? crypto.randomUUID()), version = useRef(original);
   const locked = useRef(false), conflicted = useRef(false), completed = useRef(false);
   const previousOccurrence=useRef(occurrenceDate);
-  useEffect(()=>{
+  const resetOccurrence=useEffectEvent(()=>{
     if(previousOccurrence.current===occurrenceDate)return;
     previousOccurrence.current=occurrenceDate;
     const next=makeBaseline(version.current);setBaseline(next);setDraft(next);setError('');setIssues([]);setStored(undefined);conflicted.current=false;setConflict(false);
-  },[occurrenceDate]);
+  });
+  useEffect(()=>{resetOccurrence();},[occurrenceDate]);
   const dirty = isDraftDirty(draft, baseline);
   const run = async (operation: () => Promise<void>) => {
     if (locked.current) return;

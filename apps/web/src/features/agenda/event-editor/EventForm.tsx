@@ -16,7 +16,12 @@ import styles from './agenda-event-editor.module.css';
 type Scope = 'single' | 'series';
 type DiscardAction = 'close' | Scope;
 type EventFormProps = {
-  api: AgendaClient; event?: PrivateEvent; day: string; zone: string; onClose: () => void; onSaved: (outcome: EventEditorOutcome) => void;
+  api: AgendaClient;
+  event?: PrivateEvent;
+  day: string;
+  zone: string;
+  onClose: () => void;
+  onSaved: (outcome: EventEditorOutcome) => void;
   occurrenceDate?: string;
   initialScope?: Scope;
 };
@@ -53,52 +58,104 @@ export function EventForm({ api, event, day, zone, onClose, onSaved, occurrenceD
     if (editor.busy) return;
     if (!editor.dirty) return apply(action);
     const active = form.current?.ownerDocument?.activeElement;
-    returnFocus.current = active && 'focus' in active ? active as HTMLElement : null;
+    returnFocus.current = active && 'focus' in active ? (active as HTMLElement) : null;
     setDiscard(action);
   }
 
   const resume = () => setDiscard(null);
-  const close = () => discard ? resume() : request('close');
+  const close = () => (discard ? resume() : request('close'));
   const title = event ? 'Editar evento' : 'Un momento en tu agenda';
-  return <Dialog captureEscape title={discard ? '¿Descartás los cambios?' : title}
-    label={discard ? undefined : event ? 'Editar evento' : 'Crear evento'}
-    className={`agenda-dialog ${styles.editor}${discard ? ` ${styles.discard}` : ''}`} onClose={close}>
-    <div className={styles.content} hidden={!!discard}>
-      <p className="brujula-event-private">Elegí cuándo y cómo querés reconocerlo.</p>
-      <form ref={form} noValidate onSubmit={submit => { submit.preventDefault(); if (!discard) void editor.save(); }}>
-        <div className="agenda-form-body">
-          {!initialScope && event && event.repeat.kind !== 'NONE' && occurrenceDate ? <label className="agenda-occurrence-scope">Aplicar a<select aria-label="Aplicar cambios del evento" value={scope} disabled={editor.busy} onChange={e=>request(e.target.value as Scope)}><option value="single">Solo este evento</option><option value="series">Toda la serie</option></select></label> : !initialScope && event && event.repeat.kind !== 'NONE' ? <Notice>Estás editando toda la serie, incluidas sus fechas pasadas.</Notice> : null}
-          <div className="agenda-editor-grid">
-            <fieldset disabled={editor.busy} className="agenda-fields">
-              {editor.error ? <Notice error>{editor.error}</Notice> : null}
-              {editor.conflict ? <button type="button" onClick={() => void editor.review()}>Revisar versión guardada y conservar mis cambios</button> : null}
-              {editor.stored ? <StoredEvent event={editor.stored} zone={zone} /> : null}
-              <EventFields draft={editor.draft} onChange={editor.setDraft} issues={editor.issues} singleOccurrence={!!single}/>
-            </fieldset>
-            <EventPreview draft={editor.draft}/>
+  return (
+    <Dialog
+      captureEscape
+      title={discard ? '¿Descartás los cambios?' : title}
+      label={discard ? undefined : event ? 'Editar evento' : 'Crear evento'}
+      className={`agenda-dialog ${styles.editor}${discard ? ` ${styles.discard}` : ''}`}
+      onClose={close}
+    >
+      <div className={styles.content} hidden={!!discard}>
+        <p className="brujula-event-private">Elegí cuándo y cómo querés reconocerlo.</p>
+        <form
+          ref={form}
+          noValidate
+          onSubmit={submit => {
+            submit.preventDefault();
+            if (!discard) void editor.save();
+          }}
+        >
+          <div className="agenda-form-body">
+            {!initialScope && event && event.repeat.kind !== 'NONE' && occurrenceDate ? (
+              <label className="agenda-occurrence-scope">
+                Aplicar a
+                <select
+                  aria-label="Aplicar cambios del evento"
+                  value={scope}
+                  disabled={editor.busy}
+                  onChange={e => request(e.target.value as Scope)}
+                >
+                  <option value="single">Solo este evento</option>
+                  <option value="series">Toda la serie</option>
+                </select>
+              </label>
+            ) : !initialScope && event && event.repeat.kind !== 'NONE' ? (
+              <Notice>Estás editando toda la serie, incluidas sus fechas pasadas.</Notice>
+            ) : null}
+            <div className="agenda-editor-grid">
+              <fieldset disabled={editor.busy} className="agenda-fields">
+                {editor.error ? <Notice error>{editor.error}</Notice> : null}
+                {editor.conflict ? (
+                  <button type="button" onClick={() => void editor.review()}>
+                    Revisar versión guardada y conservar mis cambios
+                  </button>
+                ) : null}
+                {editor.stored ? <StoredEvent event={editor.stored} zone={zone} /> : null}
+                <EventFields
+                  draft={editor.draft}
+                  onChange={editor.setDraft}
+                  issues={editor.issues}
+                  singleOccurrence={!!single}
+                />
+              </fieldset>
+              <EventPreview draft={editor.draft} />
+            </div>
           </div>
-        </div>
-        <footer className="p5-form-footer">
-          <button type="button" disabled={editor.busy} onClick={close}>Cancelar</button>
-          <button className="primary" disabled={editor.busy || editor.conflict}>
-            <FoxmindIcon name="check"/>{editor.busy ? 'Guardando…' : event ? 'Guardar cambios' : 'Crear evento'}
-          </button>
-        </footer>
-      </form>
-    </div>
-    {discard ? <div className={styles.discardContent}>
-      <p className="brujula-event-private">{event
-        ? 'El evento conserva su versión anterior hasta que guardes.'
-        : 'Tu evento todavía no se guardó en la agenda.'}</p>
-      <div className={styles.summary}><FoxmindIcon name="edit"/>
-        <p><b>{editor.draft.title.trim() || 'Tu nuevo evento'}</b><small>Tenés cambios sin guardar.</small></p>
+          <footer className="p5-form-footer">
+            <button type="button" disabled={editor.busy} onClick={close}>
+              Cancelar
+            </button>
+            <button className="primary" disabled={editor.busy || editor.conflict}>
+              <FoxmindIcon name="check" />
+              {editor.busy ? 'Guardando…' : event ? 'Guardar cambios' : 'Crear evento'}
+            </button>
+          </footer>
+        </form>
       </div>
-      <footer className="p5-form-footer">
-        <button type="button" ref={keepEditing} onClick={resume}>Seguir editando</button>
-        <button type="button" className="danger" onClick={() => apply(discard)}>Descartar cambios</button>
-      </footer>
-    </div> : null}
-  </Dialog>;
+      {discard ? (
+        <div className={styles.discardContent}>
+          <p className="brujula-event-private">
+            {event
+              ? 'El evento conserva su versión anterior hasta que guardes.'
+              : 'Tu evento todavía no se guardó en la agenda.'}
+          </p>
+          <div className={styles.summary}>
+            <FoxmindIcon name="edit" />
+            <p>
+              <b>{editor.draft.title.trim() || 'Tu nuevo evento'}</b>
+              <small>Tenés cambios sin guardar.</small>
+            </p>
+          </div>
+          <footer className="p5-form-footer">
+            <button type="button" ref={keepEditing} onClick={resume}>
+              Seguir editando
+            </button>
+            <button type="button" className="danger" onClick={() => apply(discard)}>
+              Descartar cambios
+            </button>
+          </footer>
+        </div>
+      ) : null}
+    </Dialog>
+  );
 }
 
 function useIssueFocus(ref: RefObject<HTMLFormElement | null>, issues: readonly DraftIssue[], busy: boolean) {
@@ -115,10 +172,15 @@ function useIssueFocus(ref: RefObject<HTMLFormElement | null>, issues: readonly 
 }
 
 function StoredEvent({ event, zone }: { event: PrivateEvent; zone: string }) {
-  return <Notice><strong>Versión guardada: {event.title}</strong><p>{event.description || 'Sin notas.'}</p>
-    <p>{draftSummary(eventDraft(event, '', zone))}</p>
-    <p>Color: {eventColorLabel(event.color)}</p>
-    Tus campos se conservaron. Revisalos antes de guardar sobre esta versión.</Notice>;
+  return (
+    <Notice>
+      <strong>Versión guardada: {event.title}</strong>
+      <p>{event.description || 'Sin notas.'}</p>
+      <p>{draftSummary(eventDraft(event, '', zone))}</p>
+      <p>Color: {eventColorLabel(event.color)}</p>
+      Tus campos se conservaron. Revisalos antes de guardar sobre esta versión.
+    </Notice>
+  );
 }
 
 function EventPreview({ draft }: { draft: EventDraft }) {
@@ -127,26 +189,61 @@ function EventPreview({ draft }: { draft: EventDraft }) {
   const duration = useMemo(() => {
     if (allDay || !startTime || !endTime) return null;
     try {
-      const { startAt, endAt } = scheduleInstants({ kind: 'TIMED', timeZone: zone,
-        startLocal: `${startDate}T${startTime}`, endLocal: `${endDate}T${endTime}`,
-        startOffsetMinutes: startOffset, endOffsetMinutes: endOffset });
+      const { startAt, endAt } = scheduleInstants({
+        kind: 'TIMED',
+        timeZone: zone,
+        startLocal: `${startDate}T${startTime}`,
+        endLocal: `${endDate}T${endTime}`,
+        startOffsetMinutes: startOffset,
+        endOffsetMinutes: endOffset,
+      });
       const minutes = (Date.parse(endAt) - Date.parse(startAt)) / 60_000;
-      const hours = Math.floor(minutes / 60), remainder = minutes % 60;
+      const hours = Math.floor(minutes / 60),
+        remainder = minutes % 60;
       return hours ? `${hours} h${remainder ? ` ${remainder} min` : ''}` : `${minutes} min`;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }, [allDay, startDate, endDate, startTime, endTime, zone, startOffset, endOffset]);
 
-  return <aside className="agenda-form-preview" aria-label="Vista previa del evento">
-    <p>Así se verá en tu agenda</p>
-    <div className={`agenda-live-card ${eventColorClass({ category: draft.category, color })}`}>
-      <span className="agenda-live-type"><FoxmindIcon name={eventCategoryIcons[draft.category]}/>{categoryLabels[draft.category]}</span>
-      <h3>{draft.title.trim() || 'Tu próximo evento'}</h3>
-      <p><FoxmindIcon name="calendar"/><span>{validDraftDate(startDate) ? dayLabel(startDate) : 'Elegí una fecha'}
-        {endDate > startDate && validDraftDate(endDate) ? ` a ${dayLabel(endDate)}` : ''}</span></p>
-      <div className="agenda-live-time"><FoxmindIcon name="clock"/><b>{allDay ? 'Todo el día' : <>{startTime || '—'} <span>a</span> {endTime || '—'}</>}</b>
-        {duration ? <small>{duration}</small> : null}</div>
-      <div className="agenda-live-color"><i/>{eventColorLabel(color)}</div>
-    </div>
-    <p className="agenda-preview-private"><FoxmindIcon name="lock"/>Este evento es para vos. No cambia las actividades ni sus fechas de entrega.</p>
-  </aside>;
+  return (
+    <aside className="agenda-form-preview" aria-label="Vista previa del evento">
+      <p>Así se verá en tu agenda</p>
+      <div className={`agenda-live-card ${eventColorClass({ category: draft.category, color })}`}>
+        <span className="agenda-live-type">
+          <FoxmindIcon name={eventCategoryIcons[draft.category]} />
+          {categoryLabels[draft.category]}
+        </span>
+        <h3>{draft.title.trim() || 'Tu próximo evento'}</h3>
+        <p>
+          <FoxmindIcon name="calendar" />
+          <span>
+            {validDraftDate(startDate) ? dayLabel(startDate) : 'Elegí una fecha'}
+            {endDate > startDate && validDraftDate(endDate) ? ` a ${dayLabel(endDate)}` : ''}
+          </span>
+        </p>
+        <div className="agenda-live-time">
+          <FoxmindIcon name="clock" />
+          <b>
+            {allDay ? (
+              'Todo el día'
+            ) : (
+              <>
+                {startTime || '—'} <span>a</span> {endTime || '—'}
+              </>
+            )}
+          </b>
+          {duration ? <small>{duration}</small> : null}
+        </div>
+        <div className="agenda-live-color">
+          <i />
+          {eventColorLabel(color)}
+        </div>
+      </div>
+      <p className="agenda-preview-private">
+        <FoxmindIcon name="lock" />
+        Este evento es para vos. No cambia las actividades ni sus fechas de entrega.
+      </p>
+    </aside>
+  );
 }

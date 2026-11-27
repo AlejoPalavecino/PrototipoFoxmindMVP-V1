@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createWebFoxyClient } from '../../../features/foxy/api.ts';
 import { createWebClassroomClient } from '../../clients/classroom-client.ts';
+import { createSessionCsrfSource } from '../../../shared/http/csrf.ts';
 import { createFoxyWorkspaceRuntime } from '../../../features/foxy/index.ts';
 
 type Runtime = ReturnType<typeof createFoxyWorkspaceRuntime>;
@@ -13,7 +14,7 @@ export function useFoxyWorkspace({ subjectId, onIdentityRequired }: { subjectId:
     let active = true, initializing = true;
     const currentSubject = subjectId;
     const runtime = createFoxyWorkspaceRuntime({ subjectId: currentSubject,
-      createFoxyClient: notify => createWebFoxyClient(fetch, notify),
+      createFoxyClient: notify => createWebFoxyClient(fetch, notify, createSessionCsrfSource(fetch)),
       createClassroomClient: notify => createWebClassroomClient(fetch, notify),
       onChange: state => { if (active && subject.current === currentSubject && !state.closed) setView({ runtime, state, initializing }); },
       onIdentityRequired: code => { if (active && subject.current === currentSubject) { active = false; setView(null); callback.current(code); } },

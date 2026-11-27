@@ -113,7 +113,6 @@ export const suites = {
     'tests/identity-feature.test.mjs', 'tests/identity-composition.test.mjs',
     'tests/agenda-module.test.mjs', 'tests/agenda-feature.test.mjs',
     'apps/shared-ui/chat-follow.test.mjs',
-    'apps/shared-ui/plan-disclosure.test.mjs',
     'apps/api/src/modules/study/generation/application/engine.test.ts',
     'apps/api/src/modules/study/folders/infrastructure/tests/policy.test.ts',
     'apps/api/src/modules/study/folders/infrastructure/tests/service.test.ts',

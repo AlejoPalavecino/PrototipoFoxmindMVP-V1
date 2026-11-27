@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { subscribeAiQuota } from '../apps/web/src/application/navigation/ai-quota-client.ts';
+import { subscribeAiQuota } from '../apps/web/src/application/clients/ai-quota-client.ts';
 
 const base = { subjectId: 'account-a', version: 0, limitMicrousd: 3_000_000, consumedMicrousd: 0, reservedMicrousd: 0, remainingMicrousd: 3_000_000,
   periodStart: '2026-11-01T03:00:00.000Z', renewsAt: '2026-12-01T03:00:00.000Z', tools: [] };

@@ -5,7 +5,7 @@ import { renderStudyExamSessionEditor } from './study-exam-session-editor.tsx';
 import { renderStudyExamAgendaConfirmation } from './study-exam-agenda-confirmation.tsx';
 import type { StudyRun as Run, StudyAction, StudyCommandData } from '../../model/study-commands.ts';
 import type { StudyGenerationInput } from '../../model/study-generation.ts';
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import type { StudyDetail } from '../../model/study-contracts.ts';
 import { FoxmindIcon } from '../../../../../../shared-ui/FoxmindIcon';
 import { Notice } from '../../../../../../shared-ui/feedback';
@@ -48,15 +48,13 @@ export function StudyExamPlanner({ detail, busy, run, onDirtyChange, examId, onC
   const scheduled = new Map(detail.scheduledReviewSessions?.map(({ sessionId, eventId }) => [sessionId, eventId]));
   const pendingSelection = selection.filter(id => !scheduled.has(id));
   useEffect(() => onDirtyChange(dirty || saving), [dirty, saving, onDirtyChange]);
-  useEffect(() => {
-    if (exam) {
-      setSessions(exam.sessions);
-      setSelection(exam.sessions.filter(session => !scheduled.has(session.id)).map(session => session.id));
-      setDirty(false);
-
-    }
-
-  }, [exam?.id]);
+  const resetExam = useEffectEvent(() => {
+    if (!exam) return;
+    setSessions(exam.sessions);
+    setSelection(exam.sessions.filter(session => !scheduled.has(session.id)).map(session => session.id));
+    setDirty(false);
+  });
+  useEffect(() => { resetExam(); }, [exam?.id]);
   async function act<A extends StudyAction>(action: A, data: StudyCommandData[A]) {
     setError('');
     setSaving(true);

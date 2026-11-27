@@ -35,10 +35,12 @@ export function useClassroomResource<T>(api: ClassroomClient, path: string, enab
     return null;
   }, [api, path]);
   const reload = useCallback(async () => { await reloadWithResult(); }, [reloadWithResult]);
+  // Invalidates the request in flight so a late answer cannot replace newer state.
+  const cancel = useCallback(() => { generation.current++; active.current?.abort(); }, []);
   useEffect(() => {
     setState({ status: 'idle', data: null, error: '', key: path });
     if (enabled) void reload();
-    return () => { generation.current++; active.current?.abort(); };
-  }, [enabled, reload]);
+    return cancel;
+  }, [enabled, path, reload, cancel]);
   return { ...(state.key === path ? state : { status: 'idle' as const, data: null, error: '' }), reload, reloadWithResult };
 }

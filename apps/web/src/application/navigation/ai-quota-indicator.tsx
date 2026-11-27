@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Dialog } from '../../../../shared-ui/feedback.tsx';
-import { subscribeAiQuota, type AiQuotaState } from './ai-quota-client.ts';
+import { subscribeAiQuota, type AiQuotaState } from '../clients/ai-quota-client.ts';
 import styles from './ai-quota-indicator.module.css';
 
 const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', currencyDisplay: 'code', maximumFractionDigits: 6 });

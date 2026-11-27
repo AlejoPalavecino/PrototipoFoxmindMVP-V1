@@ -1,0 +1,272 @@
+{
+  "apps/shared-ui/AppNavbar.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/shared-ui/FoxyChatLayout.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/shared-ui/NavigationSearch.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/shared-ui/use-chat-follow.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/application/navigation/use-agenda-target.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/application/workflows/activity-session/Activities.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "apps/web/src/application/workflows/activity-session/AttemptHistory.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "apps/web/src/application/workflows/notification-review/NotificationReview.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/application/workflows/private-files/PrivateFilePanel.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/activity-authoring/generation/ActivityGeneration.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/activity-authoring/generation/use-activity-generation.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/agenda/calendar/Agenda.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/agenda/calendar/useAgenda.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/agenda/calendar/useAgendaEventTarget.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/agenda/calendar/useAgendaView.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/classrooms/creation/use-classroom-plan-file.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/classrooms/enrollment/InvitationBatchDialog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/communication/ui/Wall.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/curriculum/extraction/use-plan-extraction.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/curriculum/plan/use-plan-workspace.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/foxy/context/foxy-context-picker.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/foxy/workspace/foxy-workspace.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "apps/web/src/features/foxy/workspace/use-foxy-workspace-actions.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/ai-review/use-grading-ai-review.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/editing/use-grading-persistence.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/progress/Progress.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/progress/StudentAiSummary.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/publication/PublishedGradeCorrection.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/grading/results/PublishedResult.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/dashboard/HomeMiniagenda.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/home/dashboard/HomeRoomPicker.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/identity/profile/account-profile.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/materials/catalog/MaterialCatalog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 4
+    }
+  },
+  "apps/web/src/features/materials/publishing/MaterialForm.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/materials/publishing/MaterialPublishing.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/materials/reader/MaterialReader.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/materials/reader/MaterialReaderWorkspace.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/notifications/inbox/Notifications.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "apps/web/src/features/study/conversations/use-study-conversations.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/folders/use-study-folders.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/practice/exam-planning/StudyExamPlanner.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/ui/study-workspace.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/study/workspace/StudySharedStrategyDialog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/teacher-support/TeacherSupportDialog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/teacher-support/TeacherSupportWidget.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/features/teacher-support/TeacherWritingPanel.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/screens/agenda-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/screens/classrooms-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "apps/web/src/screens/foxy-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/screens/identity-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "apps/web/src/screens/notifications-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "apps/web/src/screens/study-screen.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  }
+}

@@ -8,7 +8,7 @@ export const text = node => typeof node === 'string' || typeof node === 'number'
 const expand = node => {
   if (Array.isArray(node)) return node.map(expand);
   if (!React.isValidElement(node)) return node;
-  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'ClassroomWizardCover', 'WizardReview', 'WizardCurriculum', 'ClassroomCurriculum', 'ClassroomProcessing', 'WizardSuggestions', 'PlanExtraction','CreationSteps','CreationReview'].includes(node.type?.name)) return expand(node.type(node.props));
+  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'ClassroomWizardCover', 'WizardReview', 'WizardCurriculum', 'ClassroomCurriculum', 'ClassroomProcessing', 'WizardSuggestions', 'PlanExtraction'].includes(node.type?.name)) return expand(node.type(node.props));
   return React.cloneElement(node, undefined, expand(node.props.children));
 };
 function mount(Component, props) {
@@ -16,10 +16,11 @@ function mount(Component, props) {
   const same = (a, b) => a && b && a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
   const hooks = {
     useState(initial) { const i = cursor++; slots[i] ??= { value: typeof initial === 'function' ? initial() : initial };
-      return [slots[i].value, next => { slots[i].value = typeof next === 'function' ? next(slots[i].value) : next; dirty = true; }]; },
+      return [slots[i].value, slots[i].set ??= next => { slots[i].value = typeof next === 'function' ? next(slots[i].value) : next; dirty = true; }]; },
     useRef(value) { return slots[cursor++] ??= { current: value }; },
     useMemo(factory, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value: factory(), deps }; return slots[i].value; },
     useCallback(value, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value, deps }; return slots[i].value; },
+    useEffectEvent(callback) { const slot = slots[cursor++] ??= {}; slot.callback = callback; return slot.event ??= (...args) => slot.callback(...args); },
     useEffect(effect, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) { slots[i] = { deps }; effects.push([i, effect]); } },
   };
   return {

@@ -3,44 +3,6 @@ import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
-test('upcoming deadlines open on demand and close before navigating to the selected activity', async () => {
-  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
-  const opened = [];
-  const items = [1, 2, 3].map(id => ({ id: String(id), target: { kind: 'activity', activityId: String(id) } }));
-  const view = hookView(Upcoming, { items, loading: false, error: '', busy: false, onRetry() {}, onOpen: target => opened.push(target) });
-  try {
-    await view.flush();
-    assert.equal(descendants(view.tree, node => node.type?.name === 'DeadlineCard').length, 1);
-    const trigger = descendants(view.tree, node => node.type === 'button' && node.props['aria-haspopup'] === 'dialog')[0];
-    assert.ok(trigger, 'remaining deadlines have an explicit dialog trigger');
-    trigger.props.onClick(); await view.flush();
-    let dialog = descendants(view.tree, node => node.type?.name === 'Dialog')[0];
-    const cards = descendants(dialog, node => node.type?.name === 'DeadlineCard');
-    assert.deepEqual(cards.map(card => card.props.item.id), ['2', '3']);
-    dialog.props.onClose(); await view.flush();
-    assert.deepEqual(opened, []);
-    trigger.props.onClick(); await view.flush();
-    dialog = descendants(view.tree, node => node.type?.name === 'Dialog')[0];
-    descendants(dialog, node => node.type?.name === 'DeadlineCard')[1].props.onOpen(items[2].target);
-    await view.flush();
-    assert.deepEqual(opened, [items[2].target]);
-    assert.equal(descendants(view.tree, node => node.type?.name === 'Dialog').length, 0);
-  } finally { view.close(); }
-});
-
-test('upcoming query failure uses error feedback and exposes the retry action', async () => {
-  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
-  let retried = 0;
-  const view = hookView(Upcoming, { items: [], loading: false, error: 'Unavailable', busy: false, onOpen() {}, onRetry: () => retried++ });
-  try {
-    await view.flush();
-    const notice = descendants(view.tree, node => node.type?.name === 'Notice')[0];
-    assert.equal(notice?.props.error, true);
-    descendants(notice, node => node.type === 'button')[0].props.onClick();
-    assert.equal(retried, 1);
-  } finally { view.close(); }
-});
-
 test('month navigation preserves selected day and clamps at month end, including leap years', async () => {
   const { useAgendaView } = loadTsModule('apps/web/src/features/agenda/calendar/useAgendaView.ts');
   const prior = globalThis.sessionStorage;

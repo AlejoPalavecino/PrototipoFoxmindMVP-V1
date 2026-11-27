@@ -5,8 +5,10 @@ import { createFileClient, FileClientError, fileState, type FileContext, type Fi
 import { Button } from '../../../../../shared-ui/primitives/button.tsx';
 import { Input } from '../../../../../shared-ui/primitives/input.tsx';
 import { Label } from '../../../../../shared-ui/primitives/label.tsx';
+import { createSessionCsrfSource } from '../../../shared/http/csrf.ts';
 
-const client = createFileClient();
+// One CSRF token for the panel; account mutations in this tab drop it.
+const client = createFileClient(fetch, createSessionCsrfSource());
 const accounts = createAccountClient();
 function bytes(value: string) { const count = Number(value); return Number.isFinite(count) ? `${(count / 1_000_000).toLocaleString('es', { maximumFractionDigits: 2 })} MB` : '—'; }
 

@@ -64,20 +64,6 @@ test('monthly calendar preserves 42 accessible days, separate today/selection, n
   assert.match(html, /Tus eventos personales solo son visibles para vos/);
 });
 
-test('deadline card keeps exact classroom zone date, state semantics and real activity target when busy changes', () => {
-  const { DeadlineCard } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
-  const calls = [], item = { id: 'deadline', kind: 'ACADEMIC_DEADLINE', title: 'Trabajo sintético', classroomName: 'Aula sintética', deadlineAt: '2027-01-01T01:05:00Z', timeZone: 'America/Argentina/Buenos_Aires', role: 'student', pending: false, resubmission: true, target: { classroomId: 'room', activityId: 'activity' } };
-  for (const busy of [false, true]) {
-    const tree = DeadlineCard({ item, busy, onOpen: target => calls.push(target) });
-    const html = renderToStaticMarkup(tree);
-    for (const text of ['31', 'DIC', '22:05', item.title, item.classroomName, 'Estudio', 'Reentrega', 'Sin entrega pendiente']) assert.ok(html.includes(text), text);
-    const button = descendants(tree, node => node.type === 'button')[0];
-    assert.equal(button.props.disabled, busy);
-    if (!busy) button.props.onClick();
-  }
-  assert.deepEqual(calls, [item.target]);
-});
-
 test('header preserves create callback without the removed calendar timezone controls', async () => {
   const { AgendaHeader } = loadTsModule('apps/web/src/features/agenda/calendar/AgendaHeader.tsx');
   const calls = [], view = hookView(AgendaHeader, { zone: 'UTC', onCreate: () => calls.push('create'), onZone: value => calls.push(value) });

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadTsModule} from './helpers/load-ts-module.mjs';
+import { loadPlanWorkspace } from './helpers/plan-workspace.mjs';
 import {hookView,descendants} from './agenda-ui-helpers.test.mjs';
 const text=node=>typeof node==='string'?node:Array.isArray(node)?node.map(text).join(''):node?.props?text(node.props.children):'';
 const topics=[{id:'one',name:'La célula',status:'NEXT'},{id:'two',name:'Ecosistemas',status:'PENDING'}];
@@ -9,7 +10,7 @@ test('Plan selection never changes teaching state; only the explicit state contr
   const writes=[],opened=[];
   const material={id:'material',title:'Guía',fileId:'file',topicId:'one',ready:true,deleted:false,extension:'pdf',previewable:true,fileName:'guia.pdf'};
   const activity={id:'activity',title:'Actividad del tema',topicId:'one',type:'ASSIGNMENT',status:'PUBLISHED',zone:'UTC',deadlineAt:null};
-  const {PlanWorkspace}=loadTsModule('apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx',{stubs:{"./use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[material],activities:[activity]}})}}});
+  const {PlanWorkspace}=loadPlanWorkspace({stubs:{"./use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[material],activities:[activity]}})}}});
   const view=hookView(PlanWorkspace,{api:{fileUrl:id=>'/files/'+id},room,onOpenActivity:id=>opened.push(id),onTopicState:(...args)=>writes.push(args)});
   try{
     await view.flush();

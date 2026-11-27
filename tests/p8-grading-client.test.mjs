@@ -5,6 +5,8 @@ import { readFile } from 'node:fs/promises';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
+// Whitespace is collapsed so these source checks do not depend on how the formatter wraps code.
+const flat = text => text.replace(/\s+/g, ' ');
 test('private correction client sends canonical decimal text with fresh CSRF, never an attempt capability', async () => {
   const calls = []; let csrf = 0;
   const client = createClassroomClient({ csrfToken: async () => String(++csrf), fetch: async (path, options) => { calls.push({ path, ...options }); return Response.json(gradingView); } });
@@ -17,7 +19,7 @@ test('private correction client sends canonical decimal text with fresh CSRF, ne
   await assert.rejects(() => malformed.call(`/${id}/attempts/${id}/grading`), { code: 'SERVICE_UNAVAILABLE' });
 });
 test('actual all-type history keeps private saving separate from explicit saved-state publication', async () => {
-  const history = await readFile(new URL('../apps/web/src/application/workflows/activity-session/AttemptHistory.tsx', import.meta.url), 'utf8');
+  const history = flat(await readFile(new URL('../apps/web/src/application/workflows/activity-session/AttemptHistory.tsx', import.meta.url), 'utf8'));
   const editor = await readFile(new URL('../apps/web/src/features/grading/editing/GradingEditor.tsx', import.meta.url), 'utf8');
   assert.match(history, /teacher && attempt.status === 'SUBMITTED'.*Corregir intento/);
   assert.match(history, /<GradingEditor/); assert.match(editor, /Guardar corrección privada/);

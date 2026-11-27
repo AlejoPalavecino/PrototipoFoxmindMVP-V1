@@ -64,7 +64,7 @@ export function useClassroomPlanFile(operations: ClassroomPlanFileOperations, pl
     };
     timer = setTimeout(check, delay);
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [operations, file, uploading]);
+  }, [operations, file, uploading, actionLock]);
   async function upload(chosen: File | undefined) {
     if (!chosen || actionLock.current) return;
     if (!/\.(pdf|doc|docx|ppt|pptx)$/i.test(chosen.name) || chosen.size > 20_000_000 || chosen.size === 0) {

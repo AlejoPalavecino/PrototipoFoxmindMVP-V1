@@ -1,7 +1,7 @@
 import { AsyncFeedback } from '../../../shared-ui/AsyncFeedback';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
 import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { authHref } from '../application/navigation/destinations';
@@ -41,14 +41,12 @@ export function StudyScreen() {
     }
     void router.replace('/carpetas-de-estudio', undefined, { shallow: true });
   }, [router, id, collection]);
-  useEffect(() => {
-    if (!router.isReady) return;
-    let active = true;
+  const openFolders = useEffectEvent((isActive: () => boolean) => {
     setError('');
     void (async () => {
       try {
         const current = await createAccountClient().session();
-        if (!active) return;
+        if (!isActive()) return;
         if (!current.authenticated) {
           void router.replace(authHref('sign-in', router.asPath));
           return;
@@ -62,10 +60,10 @@ export function StudyScreen() {
           return;
         }
         setSession(current);
-        const value = await folders.load(id, () => active);
-        if (active) setWizard(value?.folder.status === 'DRAFT');
+        const value = await folders.load(id, isActive);
+        if (isActive()) setWizard(value?.folder.status === 'DRAFT');
       } catch (e) {
-        if (active) {
+        if (isActive()) {
           if (
             e instanceof StudyError &&
             (e.status === 401 || e.code === 'EMAIL_VERIFICATION_REQUIRED')
@@ -82,6 +80,11 @@ export function StudyScreen() {
         }
       }
     })();
+  });
+  useEffect(() => {
+    if (!router.isReady) return;
+    let active = true;
+    openFolders(() => active);
     return () => {
       active = false;
     };

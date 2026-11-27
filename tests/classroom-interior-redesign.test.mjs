@@ -2,6 +2,7 @@ import { libraryFixtureView } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { loadPlanWorkspace } from './helpers/plan-workspace.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import React from 'react';
 
@@ -19,7 +20,7 @@ const text = node => typeof node === 'string' ? node : Array.isArray(node) ? nod
 const activity = { id:'a', title:'Una actividad', type:'ASSIGNMENT', status:'PUBLISHED', topicId:'cell', topicIds:['cell'], unitId:'unit', zone:'UTC' };
 const draft = { ...activity, status:'DRAFT' };
 function loadWorkspace() {
-  return loadTsModule('apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx', {stubs:{"./use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[],activities:[activity]}})}}}).PlanWorkspace;
+  return loadPlanWorkspace({stubs:{"./use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[],activities:[activity]}})}}}).PlanWorkspace;
 }
 test('teaching state stays independent from topic selection, opening activities and preparing a contextual upload', async()=>{
   const writes=[],opened=[],uploads=[],selected=[];
