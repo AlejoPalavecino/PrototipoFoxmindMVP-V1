@@ -1,11 +1,15 @@
-import { execFile } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import { DOCUMENT_MAX_BYTES } from '../../../../../../../src/core/domain/documents/document-formats.ts';
 import { FileError } from '../../domain/errors.ts';
 
 const compoundFile = Buffer.from('d0cf11e0a1b11ae1', 'hex');
-const image = 'foxmind-office-converter:local';
-let active = 0;
+/** Loopback broker (scripts/office-converter-broker.mjs) that alone may run the disposable converter container. */
+export interface OfficeConverterEndpoint { readonly url: string; readonly token: string }
+let endpoint: OfficeConverterEndpoint | undefined;
+
+/** Set by the files infrastructure composition; absent means .doc/.ppt conversion is unavailable. */
+export function configureLegacyOfficeConverter(value: OfficeConverterEndpoint | undefined): void {
+  endpoint = value ? Object.freeze({ url: value.url, token: value.token }) : undefined;
+}
 
 export function legacyOffice(extension: string): extension is 'doc' | 'ppt' {
   return extension === 'doc' || extension === 'ppt';
@@ -14,30 +18,21 @@ export function legacyOffice(extension: string): extension is 'doc' | 'ppt' {
 export async function convertLegacyOffice(bytes: Uint8Array, extension: 'doc' | 'ppt', signal?: AbortSignal) {
   if (bytes.length < 512 || bytes.length > DOCUMENT_MAX_BYTES
     || !Buffer.from(bytes.subarray(0, 8)).equals(compoundFile)) throw new FileError('FILE_REJECTED');
-  if (active >= 2 || signal?.aborted) throw new FileError('SERVICE_UNAVAILABLE');
-  const name = `foxmind-office-${randomUUID()}`;
-  const args = ['run', '--rm', '--interactive', '--pull=never', '--name', name, '--network=none',
-    '--read-only', '--tmpfs', '/scratch:rw,nosuid,nodev,noexec,size=96m,mode=1777',
-    '--tmpfs', '/tmp:rw,nosuid,nodev,noexec,size=16m,mode=1777', '--user=65534:65534',
-    '--security-opt=no-new-privileges', '--cap-drop=ALL', '--pids-limit=32', '--memory=512m',
-    '--memory-swap=512m', '--cpus=1', image, extension];
-  active++;
+  const target = endpoint;
+  if (!target || signal?.aborted) throw new FileError('SERVICE_UNAVAILABLE');
+  let response: Response;
   try {
-    const converted = await new Promise<Buffer>((resolve, reject) => {
-      const child = execFile('docker', args, { windowsHide: true, encoding: 'buffer', signal, timeout: 14_000, maxBuffer: DOCUMENT_MAX_BYTES },
-        (error, stdout) => {
-          if (error || !stdout.length) reject(new FileError(error?.code === 2 ? 'FILE_REJECTED' : 'SERVICE_UNAVAILABLE'));
-          else resolve(stdout);
-        });
-      // Docker may reject the operation before consuming stdin.
-      child.stdin?.on('error', () => {});
-      child.stdin?.end(bytes);
+    response = await fetch(`${target.url}/convert/${extension}`, {
+      method: 'POST', body: Buffer.from(bytes), redirect: 'error',
+      headers: { authorization: `Bearer ${target.token}`, 'content-type': 'application/octet-stream' },
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(16_000)]) : AbortSignal.timeout(16_000),
     });
-    return { bytes: converted, extension: extension === 'doc' ? 'docx' as const : 'pptx' as const };
-  } finally {
-    await new Promise<void>(resolve => {
-      execFile('docker', ['rm', '--force', name], { windowsHide: true, timeout: 3000 }, () => resolve());
-    });
-    active--;
-  }
+  } catch { throw new FileError('SERVICE_UNAVAILABLE'); }
+  if (response.status === 422) { await response.body?.cancel(); throw new FileError('FILE_REJECTED'); }
+  if (response.status !== 200) { await response.body?.cancel(); throw new FileError('SERVICE_UNAVAILABLE'); }
+  const declared = Number(response.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > DOCUMENT_MAX_BYTES) { await response.body?.cancel(); throw new FileError('SERVICE_UNAVAILABLE'); }
+  const converted = Buffer.from(await response.arrayBuffer());
+  if (!converted.length || converted.length > DOCUMENT_MAX_BYTES) throw new FileError('SERVICE_UNAVAILABLE');
+  return { bytes: converted, extension: extension === 'doc' ? 'docx' as const : 'pptx' as const };
 }

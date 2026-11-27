@@ -38,7 +38,7 @@ export function updateEnvironment(original, updates) {
 export function requireLocalOwner(value) {
   if(!value||!/^foxmind-local-[a-f0-9]{16}$/.test(value.project))throw Error('Invalid local owner');
   for(const name of ['database','storage','scanner','smtp','inbox'])if(!validPort(value.ports?.[name]))throw Error('Invalid local port');
-  for(const name of ['web','api'])if(value.ports[name]!==undefined&&!validPort(value.ports[name]))throw Error('Invalid local port');
+  for(const name of ['web','api','office'])if(value.ports[name]!==undefined&&!validPort(value.ports[name]))throw Error('Invalid local port');
   return value;
 }
 

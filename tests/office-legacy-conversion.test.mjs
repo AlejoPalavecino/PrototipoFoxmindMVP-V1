@@ -4,6 +4,9 @@ import { execFile } from 'node:child_process';
 import { inspectContent } from '../apps/api/src/modules/files/custody/infrastructure/content.ts';
 import { parseActivityDocument } from '../apps/api/src/modules/files/custody/infrastructure/activity-document.ts';
 import { parsePlanDocument } from '../apps/api/src/modules/files/custody/infrastructure/docx-text.ts';
+import { configureLegacyOfficeConverter } from '../apps/api/src/modules/files/custody/infrastructure/legacy-office.ts';
+import { createOfficeConverterBroker } from '../scripts/office-converter-broker.mjs';
+import { once } from 'node:events';
 
 const enabled = process.env.FOX_TEST_LEGACY_OFFICE === '1';
 const prose = 'Documento sintetico FoxMind';
@@ -31,6 +34,11 @@ function synthetic(extension) {
 }
 
 test('legacy Office validates and extracts DOC and PPT in a disposable converter', { skip: !enabled }, async () => {
+  // S12: the API reaches the disposable container only through the loopback broker.
+  const token = 'b'.repeat(43), broker = createOfficeConverterBroker({ token });
+  broker.listen(0, '127.0.0.1'); await once(broker, 'listening');
+  configureLegacyOfficeConverter({ url: `http://127.0.0.1:${broker.address().port}`, token });
+  try {
   for (const [extension, mime] of [['doc', 'application/msword'], ['ppt', 'application/vnd.ms-powerpoint']]) {
     const bytes = await synthetic(extension);
     assert.equal(await inspectContent(bytes, extension), mime);
@@ -39,4 +47,5 @@ test('legacy Office validates and extracts DOC and PPT in a disposable converter
     await assert.rejects(inspectContent(bytes, extension === 'doc' ? 'ppt' : 'doc'), { code: 'FILE_REJECTED' });
     await assert.rejects(inspectContent(bytes.subarray(0, 512), extension), { code: 'FILE_REJECTED' });
   }
+  } finally { configureLegacyOfficeConverter(undefined); await new Promise(resolve => broker.close(resolve)); }
 });

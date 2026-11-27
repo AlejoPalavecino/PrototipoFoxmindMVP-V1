@@ -2,10 +2,13 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { S3Storage } from './storage.ts';
 import { ClamdScanner } from './scanner.ts';
 import { FileError } from '../../domain/errors.ts';
+import { configureLegacyOfficeConverter, type OfficeConverterEndpoint } from './legacy-office.ts';
 
 export interface FileInfrastructureConfiguration {
   endpoint: string; region: string; bucket: string; accessKeyId: string; secretAccessKey: string;
   scannerHost: string; scannerPort: number;
+  /** Optional loopback broker for .doc/.ppt (S12); without it legacy Office stays unavailable. */
+  officeConverter?: OfficeConverterEndpoint;
 }
 export interface FileRuntimeConfiguration {
   readonly infrastructure: FileInfrastructureConfiguration;
@@ -25,6 +28,15 @@ function validateInfrastructure(configuration: FileInfrastructureConfiguration):
     || !/^[a-z0-9][a-z0-9-]{2,62}$/.test(configuration.bucket)) throw new FileError('SERVICE_UNAVAILABLE');
   return endpoint;
 }
+function officeConverter(url: string | undefined, token: string | undefined): OfficeConverterEndpoint | undefined {
+  if (url === undefined && token === undefined) return undefined;
+  let parsed: URL;
+  try { parsed = new URL(url ?? ''); } catch { throw new FileError('SERVICE_UNAVAILABLE'); }
+  if (parsed.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname) || !parsed.port
+    || parsed.username || parsed.password || parsed.search || parsed.hash || parsed.pathname !== '/'
+    || typeof token !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/u.test(token)) throw new FileError('SERVICE_UNAVAILABLE');
+  return Object.freeze({ url: parsed.origin, token });
+}
 /** Disabled by absence. Enabled configuration is complete and validated before any client is allocated. */
 export function readFilesConfiguration(env: Readonly<Record<string, string | undefined>>): FileRuntimeConfiguration | undefined {
   if (env.FILES_ENABLED === undefined) return undefined;
@@ -41,7 +53,9 @@ export function readFilesConfiguration(env: Readonly<Record<string, string | und
     endpoint: required('FILES_S3_ENDPOINT'), region: required('FILES_S3_REGION'), bucket: required('FILES_S3_BUCKET'),
     accessKeyId: required('FILES_S3_ACCESS_KEY_ID'), secretAccessKey: required('FILES_S3_SECRET_ACCESS_KEY'),
     scannerHost: required('FILES_SCANNER_HOST'), scannerPort: Number(scannerPort),
+    officeConverter: officeConverter(env.FILES_OFFICE_CONVERTER_URL, env.FILES_OFFICE_CONVERTER_TOKEN),
   };
+  if (!infrastructure.officeConverter) delete infrastructure.officeConverter;
   validateInfrastructure(infrastructure);
   return Object.freeze({ infrastructure: Object.freeze(infrastructure), draftQuotaBytes: BigInt(quota) });
 }
@@ -54,6 +68,7 @@ export function createFileInfrastructure(configuration: FileInfrastructureConfig
   try {
     const storage = new S3Storage(client, configuration.bucket);
     const scanner = new ClamdScanner(configuration.scannerHost, configuration.scannerPort);
+    configureLegacyOfficeConverter(configuration.officeConverter);
     return { storage, scanner, close: () => storage.close() };
   } catch { client.destroy(); throw new FileError('SERVICE_UNAVAILABLE'); }
 }
