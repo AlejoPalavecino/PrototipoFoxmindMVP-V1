@@ -41,6 +41,18 @@ Suites integradas del corte 1: `fast` 3227/3227 (segunda corrida), `owned-db` 96
 
 Suites integradas del corte 2: `fast` 3228/3228, `owned-db` 962/962 y `wrappers` 19/19 completos.
 
+## Corte 3a — aulas sobre el núcleo
+
+[Aulas](../../apps/web/src/application/server/classroom-proxy.ts) usa el destino, el error, el rechazo (mismo orden de descarte que ya tenía) y la política de cookies del núcleo. Deja de reenviar cookies que no sean el borrado de sesión, por eso `p5-web-proxy` pasó de exigir una cookie rotada a exigir que no llegue. Sus reglas de dominio no cambian en este corte.
+
+F2 se separó en una tarea propia (TASK-005): el proxy de aulas valida en el web borradores, actividades, preguntas, calificación, muro, notificaciones y participación, y unas 20 pruebas fijan esos rechazos del lado web. Retirar cada regla exige antes probar que la API la rechaza, así que va en subcortes por dominio.
+
+| Prueba | Resultado |
+| --- | --- |
+| Las 25 pruebas que usan el proxy de aulas | todas en verde; `p5-web-proxy` 9/9 tras ajustar la cookie |
+
+Suites integradas del corte 3a: `fast` 3228/3228, `owned-db` 962/962 y `wrappers` 19/19 completos.
+
 ## Límites
 
 - Algunas pruebas cargan los `.ts` con *strip-only*, que no admite propiedades en los parámetros del constructor; el núcleo las evita.
