@@ -42,6 +42,10 @@ Con `npm run test:complete -- --group <grupo>`:
 - 2026-11-27, tras mergear `origin/main` con #29 y #32 (S7: el digest de códigos convive con las claves anteriores de entrega, que tampoco pueden repetirlo): `fast` 3257/3257 y `owned-db` 969/969.
 - Tras el rebase no se repitieron `owned-db` ni `wrappers`: `main` sólo agregó cambios de `apps/web`, pruebas de ese transporte, documentación y una constante nueva (`FILE_MAX_BYTES`) que la API no usa en lo que cambia esta rama.
 
+## Integración
+
+La PR #31 se mergeó en `main` el 2026-11-27 (`7bea3829`), con el CI en verde sobre la cabeza exacta de la PR; ver el [tren de merges](2026-11-26-root-audit-shared-transport.md#tren-de-merges-2026-11-27). Antes de mergear, el cupo de invitaciones pasó de `IdentityRuntime.store` a `admitBuckets` (`ddcc667`) para compilar con la admisión única de D2. No implica despliegue.
+
 ## Límites
 
 - Los RED de S6, S9 y S12 fueron la ausencia de la funcionalidad (no compilaba o faltaba la exportación), no una corrida del comportamiento anterior.

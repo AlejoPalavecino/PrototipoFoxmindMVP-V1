@@ -10,7 +10,7 @@ El 2026-11-26 la sesión coordinadora encargó S6, S9, S12, S17 y el reenvío de
 
 ## Seguimiento Git
 
-Base `main` en `a06c9214`. Rama `claude/audit-backend-security-a863ab` (worktree propio). Commit autorizado sólo en esta rama.
+Base `main` en `a06c9214`. Rama `claude/audit-backend-security-a863ab` (worktree propio). Commit autorizado sólo en esta rama. Integrada en `main` el 2026-11-27 con la PR #31 (`7bea3829`).
 
 ## Especificacion
 
