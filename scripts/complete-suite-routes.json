@@ -490,6 +490,7 @@
       "tests/proxy-rejection-lifecycle.test.mjs",
       "tests/questionnaire-footer-clearance.test.mjs",
       "tests/react-state-helpers.test.mjs",
+      "tests/web-http-shared.test.mjs",
       "tests/student-ai-contract.test.mjs",
       "tests/student-ai-references.test.mjs",
       "tests/student-feedback-journey.test.mjs",

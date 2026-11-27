@@ -1,3 +1,4 @@
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
 export interface FileContext { kind: 'draft' | 'classroom'; id: string; purpose: 'plan' | 'material' }
 export interface PrivateFileStatus {
   id: string; name: string; sizeBytes: number; ready: boolean;
@@ -26,11 +27,9 @@ const messages: Record<string, string> = {
   FILE_NOT_READY: 'El archivo todavía no está listo.', UPLOAD_CONFLICT: 'Este archivo no se puede reemplazar. Reintenta con los mismos bytes.',
   INVALID_UPLOAD: 'No se pudo validar el archivo. Revisa su nombre y contenido.', RATE_LIMITED: 'Espera antes de volver a intentar.',
 };
-export class FileClientError extends Error {
-  readonly code: string; readonly status: number; readonly retryAfter: number;
+export class FileClientError extends ClientError {
   constructor(code: string, status: number, retryAfter = 0) {
-    super(messages[code] ?? 'No se pudo completar la operación. Vuelve a intentar en unos momentos.');
-    this.code = code; this.status = status; this.retryAfter = retryAfter;
+    super(code, status, messages[code] ?? 'No se pudo completar la operación. Vuelve a intentar en unos momentos.', retryAfter);
   }
 }
 export function createFileClient(fetcher: typeof fetch = fetch) {

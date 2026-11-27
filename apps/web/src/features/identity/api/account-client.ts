@@ -1,4 +1,5 @@
 import type { AccountAvatarKey } from '../../../../../../src/core/domain/identity/account-avatar.ts';
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
 export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student'; avatarKey?: AccountAvatarKey }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {
@@ -13,13 +14,9 @@ const messages: Record<string, string> = {
   REQUEST_TOO_LARGE: 'Los datos superan el tamaño permitido.',
   RATE_LIMITED: 'Se alcanzó el límite de intentos. Esperá antes de volver a intentar.',
 };
-export class AccountError extends Error {
-  readonly code: string;
-  readonly status: number;
-  readonly retryAfter: number;
+export class AccountError extends ClientError {
   constructor(code: string, status: number, retryAfter = 0) {
-    super(messages[code] ?? 'No pudimos conectar con FoxMind. Volvé a intentar en unos momentos.');
-    this.code = code; this.status = status; this.retryAfter = retryAfter;
+    super(code, status, messages[code] ?? 'No pudimos conectar con FoxMind. Volvé a intentar en unos momentos.', retryAfter);
   }
 }
 export function createAccountClient(fetcher: typeof fetch = fetch) {

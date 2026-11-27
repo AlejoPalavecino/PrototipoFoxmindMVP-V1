@@ -60,7 +60,7 @@ test('client maps transport and rate limit failures safely without hiding cancel
   await assert.rejects(down.call(''), e => e.code === 'SERVICE_UNAVAILABLE' && !e.message.includes('socket'));
 });
 
-test('web mutations acquire real CSRF every time and use accepted private-file routes', async () => {
+test('web mutations reuse the session CSRF token and use accepted private-file routes', async () => {
   const seen = [];
   let issued = 0;
   const api = createWebClassroomClient(async (path, init) => {
@@ -71,8 +71,9 @@ test('web mutations acquire real CSRF every time and use accepted private-file r
   await api.call('/drafts');
   await api.call('/drafts', 'POST', {});
   await api.call('/codes/preview', 'POST', { code: 'code' });
-  assert.deepEqual(seen.map(x => x.path), ['/api/v1/classrooms/drafts', '/api/v1/auth/csrf', '/api/v1/classrooms/drafts', '/api/v1/auth/csrf', '/api/v1/classrooms/codes/preview']);
-  assert.deepEqual(seen.filter(x => x.init.method === 'POST').map(x => x.init.headers['X-CSRF-Token']), ['real-1', 'real-2']);
+  // The token is derived from the session; one read serves every mutation until the API rejects it.
+  assert.deepEqual(seen.map(x => x.path), ['/api/v1/classrooms/drafts', '/api/v1/auth/csrf', '/api/v1/classrooms/drafts', '/api/v1/classrooms/codes/preview']);
+  assert.deepEqual(seen.filter(x => x.init.method === 'POST').map(x => x.init.headers['X-CSRF-Token']), ['real-1', 'real-1']);
   assert.equal(api.fileUrl('id', true), '/api/v1/files/id/content?mode=preview');
 });
 

@@ -57,3 +57,14 @@
 - `application/server/` queda fuera hasta que se integre F1; está avisado en la nota compartida de las sesiones.
 - Pruebas: tres casos nuevos en `tests/frontend-boundaries.test.mjs` (límites en archivos nuevos, línea base que sólo baja, exclusión de `server/`). Fallaron primero porque la función no existía.
 - Comprobación: `lint:boundaries` pasa; `test:complete --group fast` 3224/3224 (+3); `docs:check` 0 problemas.
+
+### Corte 6 · base común de los clientes HTTP (F5, primera parte)
+
+- `ClientError` (`src/core/contracts/client-error.ts`) es la base de `AccountError`, `AgendaClientError`, `HomeClientError`, `FileClientError`, `FoxyClientError` y `StudyError`: cada una conserva su clase y sus mensajes. Va en `src/core` porque la regla de capas sólo deja que la API de una feature importe de ahí. `ApiError` (core) no cambió.
+- `createCsrfSource` (`apps/web/src/shared/http/csrf.ts`): el token se lee una vez por instancia de cliente; quien cancela mientras se lee recibe `AbortError` sin afectar a otros. Lo usan el transporte académico (aulas, biblioteca, autoría, corrección) y el de agenda. Se comprobó en el código de la API (`configuration.ts`, HMAC de la sesión) que el token sirve hasta que la sesión rota.
+- Sin reintento implícito: `agenda-client-http.test.mjs` exige «un solo pedido de negocio». Ante `CSRF_INVALID` se descarta el token, el error llega a la persona y el intento siguiente lee uno nuevo. La primera versión reintentaba y esa prueba la frenó.
+- Contrato que cambia por la decisión del usuario: `p5-web-client.test.mjs` exigía pedir el CSRF en cada mutación; ahora exige reutilizarlo.
+- Identidad sigue pidiendo el token en cada mutación, a propósito (rota la sesión).
+- Pendiente (decisión del usuario): Foxy, Estudio, Archivos y adjuntos de chat siguen pidiendo el CSRF antes de cada mutación con su propio código. Sus API de feature no pueden importar `shared/`: hace falta llevar la fuente CSRF a `src/core` o inyectarla desde la composición.
+- Pruebas: `tests/web-http-shared.test.mjs` (7 casos: caché, cancelación, sin reenvío, transporte académico, agenda, base de errores), registrada en el inventario y en la ruta `fast`.
+- Comprobación: `tsc` sin errores; `api:build` exit 0; `lint:boundaries` pasa (la primera versión ponía `ClientError` en `shared/` y la regla de capas la rechazó); `test:complete --group fast` 3231/3231.

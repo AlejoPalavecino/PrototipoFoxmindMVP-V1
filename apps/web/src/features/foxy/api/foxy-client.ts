@@ -34,6 +34,7 @@ import {
   parseDiscardFoxyPublication,
 } from '../../../../../../src/core/domain/foxy/resource-validation.ts';
 import { type FoxySourceKind, type FoxySourceCursor } from '../../../../../../src/core/domain/foxy/source-query.ts';
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
 
 export interface FoxyConversation {
   id: string;
@@ -160,13 +161,9 @@ export interface FoxyCreation {
 type Page<T, C> = { items: T[]; next: C | null };
 type TurnPage = { items: FoxyTurn[]; nextAfterSequence: number | null };
 type TurnReceipt = { id: string; sequence: number; state: FoxyTurn['state'] };
-export class FoxyClientError extends Error {
-  readonly code: string;
-  readonly status: number;
+export class FoxyClientError extends ClientError {
   constructor(code: string, status: number) {
-    super('No se pudo completar la solicitud de Foxy AI.');
-    this.code = code;
-    this.status = status;
+    super(code, status, 'No se pudo completar la solicitud de Foxy AI.');
   }
 }
 const root = '/api/v1/foxy-ai';

@@ -5,6 +5,7 @@ import type { FileState } from '../../../../../src/core/contracts/materials.ts';
 
 export function createClassroomClient(options: {
   csrfToken: (signal?: AbortSignal) => Promise<string>;
+  invalidateCsrf?: () => void;
   fetch?: typeof fetch;
   prefix?: string;
 }): ClassroomClient {
