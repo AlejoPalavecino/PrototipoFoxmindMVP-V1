@@ -29,7 +29,8 @@ test('queued image and diagram profiles survive a policy upgrade while changed p
     },
   });
   const options={database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage,configuration:null,provider:null,
-   visualConfiguration:config,visualProviders:{IMAGE:provider('IMAGE'),DIAGRAM:provider('DIAGRAM')},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}};
+   // Several images of one owner in a day: pin the actor cap to the global one (S17 default is 1/10 with a one-reservation floor).
+   visualConfiguration:config,visualProviders:{IMAGE:provider('IMAGE'),DIAGRAM:provider('DIAGRAM')},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}};
   async function enqueue(runtime, profile) {
     const { kind } = profile;
     const { conversation } = await runtime.services.conversations.create(owner, { requestId: randomUUID(), title: 'Visual sintético', context: { kind: 'GENERAL' } });
