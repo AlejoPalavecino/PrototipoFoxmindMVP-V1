@@ -33,7 +33,7 @@ Las cabeceras se declaran en `next.config.mjs`, que ya cubre páginas, `/api` y 
 - **Verification:** tests/web-security-headers.test.mjs
 - **Acceptance:** La regla global trae `Permissions-Policy` y COOP `same-origin`; la única regla con HSTS exige `x-forwarded-proto: https`; con `next start` en puerto propio, una request HTTP no recibe HSTS y una con `x-forwarded-proto: https` sí; la CSP con nonce y la vista previa de PDF siguen funcionando.
 - **Scope:** ["apps/web/next.config.mjs", "tests/web-security-headers.test.mjs", "docs/engineering/frontend/README.md"]
-- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; next start apps/web --port 3471 + curl", "result": "RED: COOP ausente, 0 reglas HSTS; GREEN: 3/3; curl: HTTP sin HSTS, x-forwarded-proto https con HSTS, Permissions-Policy y COOP en pagina, /api y estatico, CSP con nonce intacta; run-complete-suite --group fast 3227/3227; reverificado tras retirar los PNG originales; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes", "candidate": "sha256:f3472ff157edee92fbf59fe0cf99ad36cc60d383b0b2d2336d8cb114eae174b3"}
+- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; next start apps/web --port 3471 + curl", "result": "RED: COOP ausente, 0 reglas HSTS; GREEN: 3/3; curl: HTTP sin HSTS, x-forwarded-proto https con HSTS, Permissions-Policy y COOP en pagina, /api y estatico, CSP con nonce intacta; run-complete-suite --group fast 3227/3227; reverificado tras retirar los PNG originales; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes; tras merge de 490105ff: fast 3231/3231, web:build, tsc, lint y cabeceras reales verdes", "candidate": "sha256:bc81fdf00385e9b4a88f07a5301107a74331f7eabd4b9391b002cd7383ea427b"}
 - **Blocker:** none
 
 ### TASK-002 — Los prompts de generación no se publican
@@ -44,7 +44,7 @@ Las cabeceras se declaran en `next.config.mjs`, que ya cubre páginas, `/api` y 
 - **Verification:** tests/web-security-headers.test.mjs
 - **Acceptance:** No hay `*.prompt.txt` bajo `apps/web/public/`; las tres copias de diseño existen y el README de diseño las enlaza; `GET /foxmind/classroom-world.prompt.txt` responde 404.
 - **Scope:** ["tests/web-security-headers.test.mjs", "design/foxmind-ui-lab/README.md", "docs/engineering/frontend/README.md"]
-- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; curl /foxmind/classroom-world.prompt.txt", "result": "RED: 3 prompt.txt en public; GREEN: 3/3; curl 404; docs:check 0 problemas; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes", "candidate": "sha256:742b928b934a3b8b3fa8e221a7dd9c1f9e5fdb6e3bebf943f78f94f5385c6dda"}
+- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; curl /foxmind/classroom-world.prompt.txt", "result": "RED: 3 prompt.txt en public; GREEN: 3/3; curl 404; docs:check 0 problemas; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes; tras merge de 490105ff: fast 3231/3231, web:build, tsc, lint y cabeceras reales verdes", "candidate": "sha256:8a433f13453bff1d92045153ef46b96a05533bb311788bf6a2f61dd21d46e4ef"}
 - **Blocker:** none
 
 ### TASK-003 — Los PNG originales sin uso no se publican
@@ -55,5 +55,5 @@ Las cabeceras se declaran en `next.config.mjs`, que ya cubre páginas, `/api` y 
 - **Verification:** tests/web-security-headers.test.mjs
 - **Acceptance:** No hay `*-original.png` bajo `apps/web/public/`; las tres copias de diseño existen; ningún código de la web ni prueba los referencia; `GET /foxmind/classroom-world-original.png` responde 404.
 - **Scope:** ["tests/web-security-headers.test.mjs", "design/foxmind-ui-lab/README.md", "docs/engineering/frontend/README.md"]
-- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; next start apps/web --port 3471 + curl", "result": "RED: 3 -original.png en public; GREEN: 3/3; curl: originales 404, WebP 200; tsc, web:build, lint:boundaries exit 0; run-complete-suite --group fast 3227/3227; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes", "candidate": "sha256:742b928b934a3b8b3fa8e221a7dd9c1f9e5fdb6e3bebf943f78f94f5385c6dda"}
+- **Evidence:** {"command": "node --test tests/web-security-headers.test.mjs; next start apps/web --port 3471 + curl", "result": "RED: 3 -original.png en public; GREEN: 3/3; curl: originales 404, WebP 200; tsc, web:build, lint:boundaries exit 0; run-complete-suite --group fast 3227/3227; tras rebase sobre 7e192110: fast 3230/3230, web:build, tsc y lint verdes; tras merge de 490105ff: fast 3231/3231, web:build, tsc, lint y cabeceras reales verdes", "candidate": "sha256:8a433f13453bff1d92045153ef46b96a05533bb311788bf6a2f61dd21d46e4ef"}
 - **Blocker:** none

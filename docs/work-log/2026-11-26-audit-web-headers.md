@@ -29,6 +29,8 @@ Retiro de los PNG originales: la prueba ampliada falló primero con los tres `-o
 
 Antes de publicar, la rama se rebasó sobre `7e192110` (F1, corte 1, de la coordinadora). Hubo conflictos sólo en `docs/documentation-map.json` y `scripts/ci-suites.mjs`, y se conservaron las entradas de ambos lados. Sobre esa base: `run-complete-suite --check` 749 entradas, `docs:check` 0 problemas, `tsc` y `web:build` exit 0, `fast` 3230/3230 y `lint:boundaries` exit 0. Las huellas del tablero se recalcularon porque la guía de frontend incorporó el texto de la coordinadora.
 
+A pedido de la coordinadora, la rama incorporó `490105ff` (F1, corte 2) con un merge sin conflictos; el push forzado que exigía un rebase quedó bloqueado por permisos y el usuario eligió el merge. El árbol resultante es idéntico al del rebase verificado. Sobre esa base: `run-complete-suite --check` con 749 entradas, `docs:check` sin problemas, `tsc` y `web:build` exit 0, `fast` 3231/3231 y `lint:boundaries` exit 0. Con `next start` en el puerto 3471, HSTS sale sólo con `x-forwarded-proto: https`, Permissions-Policy y COOP aparecen en páginas y `/api`, la CSP con nonce sigue igual, prompts y PNG originales dan 404 y el WebP 200. Las huellas se recalcularon porque cambió la guía de frontend.
+
 El worktree no tenía dependencias propias: Node las encontraba subiendo al checkout principal, pero Turbopack rechaza rutas fuera de la raíz del worktree, también por junction. Se instaló con `npm ci` dentro del worktree; el cliente Prisma se genera en `.generated/` del propio worktree.
 
 ## Límites
