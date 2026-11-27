@@ -1,5 +1,5 @@
 import surface from './agenda-surface.module.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import {expandAgendaEvent,seriesSchedules,type AgendaTarget,type PrivateEvent} from '../../../../../../src/core/domain/agenda/index.ts';
 import { Notice } from '../../../../../shared-ui/feedback.tsx';
 import type { AgendaClient } from '../api/api.ts';
@@ -46,11 +46,12 @@ export function Agenda({ api, onOpen, requestedEvent, onEventSelected, requested
     anchor?.focus({ preventScroll: true });
     dayPanel.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
   }, [mode, view.day, data.calendar.loading]);
+  const animatedDay = mode === 'MONTH' ? '' : view.day;
   useEffect(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     const animation = calendarBody.current?.animate?.([{ opacity: 0.65, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 160, easing: 'ease-out' });
     return () => animation?.cancel();
-  }, [mode, view.month, mode === 'MONTH' ? '' : view.day]);
+  }, [mode, view.month, animatedDay]);
   const selectDay = (day: string) => {
     view.select(day);
     if (mode !== 'MONTH' || !window.matchMedia?.('(max-width: 1050px)').matches) return;
@@ -65,7 +66,7 @@ export function Agenda({ api, onOpen, requestedEvent, onEventSelected, requested
   const [editing, setEditing] = useState<{ event?: PrivateEvent; occurrenceDate?: string;scope?:'single'|'series' } | null>(null);
   const requestApplied = useRef('');
   const destinationKey = requestedView ? `${requestedView.date ?? ''}:${requestedView.create ? 'create' : requestedView.view}` : '';
-  useEffect(() => {
+  const applyRequestedView = useEffectEvent(() => {
     if (!view.ready) return;
     if (!destinationKey) { requestApplied.current = ''; return; }
     if (requestApplied.current === destinationKey) return;
@@ -77,7 +78,8 @@ export function Agenda({ api, onOpen, requestedEvent, onEventSelected, requested
       setEditing({});
       onCreateLinkConsumed?.();
     }
-  }, [destinationKey, view.ready]);
+  });
+  useEffect(() => { applyRequestedView(); }, [destinationKey, view.ready]);
   const [details,setDetails]=useState<{event:PrivateEvent;occurrenceDate:string}|null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const editorRequest=useRef(0);
@@ -92,7 +94,7 @@ export function Agenda({ api, onOpen, requestedEvent, onEventSelected, requested
   const result = useAgendaResult(view, data.reload, () => setEditing(null));
   const requested = useAgendaEventTarget(api, requestedEvent, view.select);
   const hadRequested=useRef(false);
-  useEffect(()=>{
+  const showRequestedEvent = useEffectEvent(() => {
     const previous=hadRequested.current;hadRequested.current=!!requestedEvent;
     if(!requestedEvent){if(previous){setDetails(null);setEditing(null);}return;}
     if (!requested.event || requested.event.id !== requestedEvent.eventId) return;
@@ -114,7 +116,8 @@ export function Agenda({ api, onOpen, requestedEvent, onEventSelected, requested
       setDetails(null);
       setError('Este evento ya no está disponible. Podés consultar tu agenda.');
     }
-  },[requested.event,requestedEvent?.eventId,requestedEvent?.date,view.zone]);
+  });
+  useEffect(() => { showRequestedEvent(); }, [requested.event, requestedEvent?.eventId, requestedEvent?.date, view.zone]);
   const locked = useRef(false);
   const currentReload = useRef(data.reload);
   useEffect(() => { currentReload.current = data.reload; }, [data.reload]);

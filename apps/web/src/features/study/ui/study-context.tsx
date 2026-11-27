@@ -13,7 +13,8 @@ export function StudyContext({detail,catalog,busy,onReload,onClose,onLibrary,onS
  const sources=detail.sources.filter(source=>source.available&&(unchanged||source.origin==='OWN'));
  const creations=[...detail.creations,...detail.practices];
  const groups=[{key:'plan',icon:'book',title:'Plan de estudio',count:folder.units.flatMap(unit=>unit.topics).length,label:'temas'},{key:'materials',icon:'folder',title:'Materiales',count:sources.length,label:'disponibles'},{key:'creations',icon:'spark',title:'Creaciones',count:creations.length,label:'propias'}] as const;
- useEffect(()=>onSaveAvailability?.(!busy&&!saving&&folder.status==='ACTIVE'&&(mode!=='classroom'||!!room)),[busy,saving,folder.status,mode,room?.id,onSaveAvailability]);
+ const roomId=room?.id;
+ useEffect(()=>onSaveAvailability?.(!busy&&!saving&&folder.status==='ACTIVE'&&(mode!=='classroom'||!!roomId)),[busy,saving,folder.status,mode,roomId,onSaveAvailability]);
  useEffect(()=>onWorkingChange?.(saving),[saving,onWorkingChange]);
  async function save(){if(saving||busy)return;if(mode==='classroom'&&!room){setError('Elegí un aula disponible para continuar.');return;}setSaving(true);setError('');try{await studyFolderSettings.save(folder.id,{revision:folder.revision,linkedClassroomId:mode==='classroom'?link:null});await onReload();onClose();}catch(error){setError(error instanceof Error?error.message:'No pudimos guardar el vínculo. Tus materiales se conservan.');}finally{setSaving(false);}}
  return <form id="study-context-form" className="study-exact-context" onSubmit={event=>{event.preventDefault();void save();}}>

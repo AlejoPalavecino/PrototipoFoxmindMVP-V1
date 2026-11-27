@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useEffectEvent,useRef,useState} from 'react';
 import type {ReactNode} from 'react';
 import {openDialog} from '../../../../../shared-ui/dialog-focus';
 import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
@@ -26,7 +26,8 @@ export function FoxyVisualReaderDialog(props:Props){
     if(close)props.onClose();else setMode('read');
   };
   useEffect(()=>{if(openingModal&&ref.current)return openDialog(ref.current);},[openingModal]);
-  useEffect(()=>{if(!state.dirty&&!state.pending&&!state.loading)void actions.refresh();},[props.assetId,actions]);
+  const refreshIfIdle=useEffectEvent(()=>{if(!state.dirty&&!state.pending&&!state.loading)void actions.refresh();});
+  useEffect(()=>{refreshIfIdle();},[props.assetId,actions]);
   useEffect(()=>{const dialog=ref.current;if(mode==='edit')dialog?.querySelector<HTMLInputElement>('input')?.focus();else dialog?.querySelector<HTMLHeadingElement>('h2')?.focus();},[mode]);
   useEffect(()=>{if(state.conflict)setMode('edit');},[state.conflict]);
   const save=async()=>{if(await(state.pending?actions.retry():actions.save())){setMode('read');setNotice('Guardaste tu creación.');}};

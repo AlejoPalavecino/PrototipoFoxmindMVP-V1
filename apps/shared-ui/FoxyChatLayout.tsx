@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useEffectEvent, useId, useRef, useState, type ReactNode } from 'react';
 import { AccountAvatar } from './AccountAvatar';
 import { openDialog } from './dialog-focus';
 import { FoxmindIcon } from './FoxmindIcon';
@@ -58,6 +58,7 @@ function ToolsMenu({ open, onOpen, onClose, children }: { open: boolean; onOpen:
   const trigger = useRef<HTMLButtonElement>(null), menu = useRef<HTMLDivElement>(null), id = useId();
   const [place, setPlace] = useState<{ top: number; right: number }>();
   const items = () => [...(menu.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])];
+  const closeFromOutside = useEffectEvent(() => onClose());
   useEffect(() => {
     if (!open || typeof document === 'undefined') return;
     const measure = () => {
@@ -68,7 +69,7 @@ function ToolsMenu({ open, onOpen, onClose, children }: { open: boolean; onOpen:
     nextFrame(() => items()[0]?.focus({ preventScroll: true }));
     const outside = (event: PointerEvent) => {
       const target = event.target as Node;
-      if (!menu.current?.contains(target) && !trigger.current?.contains(target)) onClose();
+      if (!menu.current?.contains(target) && !trigger.current?.contains(target)) closeFromOutside();
     };
     document.addEventListener('pointerdown', outside);
     window.addEventListener('resize', measure);

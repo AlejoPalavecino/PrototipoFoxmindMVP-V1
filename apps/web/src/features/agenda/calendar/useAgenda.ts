@@ -51,11 +51,12 @@ export function useAgenda(api: AgendaClient, range: AgendaRange, calendarReady: 
   const afterStart = shiftDay(selectedDay ?? startDate, 1), afterEnd = shiftDay(selectedDay ?? startDate, 32);
   const afterDay = useAgendaQuery(useCallback((signal: AbortSignal) =>
     allItems(api, { startDate: afterStart, endDateExclusive: afterEnd, timeZone }, signal), [api, afterStart, afterEnd, timeZone]), !calendarOnly && calendarReady && Boolean(selectedDay));
+  const { reload: reloadCalendar } = calendar, { reload: reloadUpcoming } = upcoming, { reload: reloadAfterDay } = afterDay;
   const reload = useCallback(async () => {
-    if (calendarOnly) return calendar.reload();
-    const results = await Promise.all([calendar.reload(), selectedDay ? afterDay.reload() : upcoming.reload()]);
+    if (calendarOnly) return reloadCalendar();
+    const results = await Promise.all([reloadCalendar(), selectedDay ? reloadAfterDay() : reloadUpcoming()]);
     return results.every(Boolean);
-  }, [calendar.reload, upcoming.reload, afterDay.reload, selectedDay, calendarOnly]);
+  }, [reloadCalendar, reloadUpcoming, reloadAfterDay, selectedDay, calendarOnly]);
   useEffect(() => { const refresh = () => { void reload(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [reload]);
   return { calendar, upcoming, afterDay, reload };
 }

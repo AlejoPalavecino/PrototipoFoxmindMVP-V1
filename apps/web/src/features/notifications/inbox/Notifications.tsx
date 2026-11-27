@@ -67,8 +67,9 @@ export function Notifications({ api, refresh, onNavigate, onReviewProjected, pre
   }, [api, filter, current, publishCount]);
 
   useEffect(() => {
-    state.current.mounted = true;
-    return () => { state.current.mounted = false; state.current.generation++; state.current.controller?.abort(); };
+    const lifecycle = state.current;
+    lifecycle.mounted = true;
+    return () => { lifecycle.mounted = false; lifecycle.generation++; lifecycle.controller?.abort(); };
   }, []);
   useEffect(() => {
     if (typeof window === 'undefined') return;

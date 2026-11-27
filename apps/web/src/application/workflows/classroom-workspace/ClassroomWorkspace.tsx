@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useRef, type SetStateAction } from 'react';
+import { useState, useEffect, useEffectEvent, useMemo, useRef, type SetStateAction } from 'react';
 import { ApiError, type ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import { type AcademicTarget, type NotificationTarget } from '../../../../../../src/core/contracts/notifications.ts';
 import { type Detail, type Invitation, type Member } from '../../../../../../src/core/contracts/classrooms.ts';
@@ -134,7 +134,8 @@ export function ClassroomView({
     settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
   useEffect(() => { setSupportStudent(null); setConfirm(null); setInviting(false); setSummary(null); setRoomNotice(''); setActionStates({}); setCode(initialCode); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
   useEffect(() => { setSupportStudent(null); setConfirm(null); setInviting(false); setSummary(null); setPlanMaterial(null); setUploadContext(null); setRoomNotice(''); }, [tab]);
-  useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : initialSection ?? homeClassroomTab(activeHomeTarget)); }, [id]);
+  const openInitialTab = useEffectEvent(() => setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : initialSection ?? homeClassroomTab(activeHomeTarget)));
+  useEffect(() => { openInitialTab(); }, [id]);
   useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
   useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); if(activeHomeTarget.kind==='classroom' && activeHomeTarget.topicId)setSelectedTopic({roomId:id,id:activeHomeTarget.topicId}); } }, [activeHomeTarget, activeWallTarget,id]);
   async function action(task: () => Promise<void>, section = tab) {

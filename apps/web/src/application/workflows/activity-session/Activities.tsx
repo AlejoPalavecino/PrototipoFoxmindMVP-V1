@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import type { AcademicTarget } from '../../../../../../src/core/contracts/notifications.ts';
 import type { ActivityData, ActivitySummary } from '../../../../../../src/core/contracts/activities.ts';
 import type { AttemptSessionData } from '../../../../../../src/core/contracts/participation.ts';
@@ -80,15 +80,17 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     if (editing || generating) setPendingCreationContext(creationContext);
     else {setAssignment({ ...creationContext, topicIds: [...creationContext.topicIds] });setChoosing(true);}
   }, [creationContext, editing, generating]);
+  const libraryDraftContext = useEffectEvent(() => ({ assignment, room, consumed: onCreationContextConsumed }));
   useEffect(() => {
     if (!choosing || !writable || !active) return;
     const controller = new AbortController();
+    const { assignment: chosen, room: current, consumed } = libraryDraftContext();
     setError('');
     void api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, controller.signal).then(library => {
       if (controller.signal.aborted) return;
-      setMaterials(library); setEditorContext({ ...assignment, topicIds: [...assignment.topicIds] });
-      setEditorReview(false); setEditorContent(false); setEditing(localActivityDraft(room, 'ASSIGNMENT'));
-      setChoosing(false); onCreationContextConsumed?.();
+      setMaterials(library); setEditorContext({ ...chosen, topicIds: [...chosen.topicIds] });
+      setEditorReview(false); setEditorContent(false); setEditing(localActivityDraft(current, 'ASSIGNMENT'));
+      setChoosing(false); consumed?.();
     }).catch(error => { if (!controller.signal.aborted) { setError(error.message); setChoosing(false); } });
     return () => controller.abort();
   }, [choosing, writable, active, api, room.id]);

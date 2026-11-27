@@ -81,13 +81,13 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
   const attachmentPath = !draftMode && state.current ? teacherAttachmentPath(state.current.id) : undefined;
   const attachments = useChatAttachments(attachmentPath);
   const preparedSources = useRef<string | undefined>(undefined);
+  const activeConversation = state.current, activeId = activeConversation?.id, activeKind = activeConversation?.context.kind;
   useEffect(()=>{
-    const id=state.current?.id;
-    if(draftMode||!id||state.current?.context.kind!=='CLASSROOM'||!state.curriculum||preparedSources.current===id)return;
-    preparedSources.current=id;
+    if(draftMode||!activeId||activeKind!=='CLASSROOM'||!state.curriculum||preparedSources.current===activeId)return;
+    preparedSources.current=activeId;
     controller.setFullClassroom?.(true);
     void controller.loadSources?.('MATERIAL');
-  },[draftMode,state.current?.id,state.curriculum,controller]);
+  },[draftMode,activeId,activeKind,state.curriculum,controller]);
   const draftAttachmentRequest = useRef<string | undefined>(undefined);
   async function attach(id: string, file: File) {
     await attachments.upload(async () => {
@@ -107,16 +107,16 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
   const enabled = mode === 'DIAGRAM' ? Boolean(onCreateDiagram && state.capabilities?.diagramGeneration.enabled) : Boolean(state.capabilities?.textGeneration.enabled), disabled = attachments.busy || preparingContext || !!starting || state.busy || Boolean(state.activeTurn || state.pending) || !enabled
     || (!draftMode && state.current?.context.kind === 'CLASSROOM' && !state.curriculum?.canGenerate);
   useEffect(() => {
-    const requested = requestedContext.current, current = state.current;
+    const requested = requestedContext.current, current = activeConversation;
     // Guarded navigation can finish after the initial callback returned false.
     if (requested && current?.id !== requested.previousId && current?.context.kind === 'CLASSROOM' && current.context.classroomId === requested.id) {
       requestedContext.current = null; setNewChat(false);
     }
-  }, [state.current]);
+  }, [activeConversation]);
   useEffect(() => {
     if (!starting || !startReady || state.busy || creationBlocked) return;
     setStarting(null); setStartReady(false);
-    const current = state.current;
+    const current = activeConversation;
     const matchingContext = current?.context.kind === 'GENERAL' ? starting.context === 'GENERAL'
       : current?.context.kind === 'CLASSROOM' && current.context.classroomId === starting.context;
     if (!current || current.id === starting.previousId || current.title !== starting.title || !matchingContext) {setSubmittedMessage(null);return;}
@@ -129,7 +129,7 @@ export function FoxyWorkspace({ panel, onClosePanel, visualTimeline, previewCont
     void Promise.resolve(controller.send(starting.purpose, starting.message, state.selection ?? { topicIds: [], sourceIds: [] })).then(result => {
       if (result === 'accepted' || result === 'uncertain') { setText(value => value === starting.text ? '' : value); setMode(null); } else setSubmittedMessage(null);
     });
-  }, [starting, startReady, state.busy, state.current, state.selection, controller, onCreateDiagram, creationBlocked]);
+  }, [starting, startReady, state.busy, activeConversation, state.selection, controller, onCreateDiagram, creationBlocked]);
   const drafts = useRef(new Map<string,string>());
   const draftKey = draftMode ? `new:${context}` : state.current!.id;
   const saveDraft = () => drafts.current.set(draftKey,text);

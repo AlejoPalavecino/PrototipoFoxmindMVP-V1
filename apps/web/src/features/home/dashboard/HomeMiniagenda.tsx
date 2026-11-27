@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import type { AgendaItem, HomeResponse, HomeTarget } from '../../../../../../src/core/domain/home/home.ts';
 import type { HomeClient } from '../api/home-api.ts';
 import type { HomeAgendaReader } from '../api/home-api.ts';
@@ -7,12 +7,13 @@ import { homeCalendarWeek, homeGreetingDate, homeAgendaTime, homeEventDuration }
 import { HomeReferenceIcon as FoxmindIcon } from '../../../../../shared-ui/HomeReferenceIcon.tsx';
 export function HomeMiniagenda({data,agendaClient,onAction,onAgenda,onUnauthorized,busy}:{data:HomeResponse;teacher:boolean;client?:HomeClient;agendaClient?:HomeAgendaReader;onAction:(target:HomeTarget)=>void;onAgenda:()=>void;onRetry:()=>void;onUnauthorized:()=>void;busy?:boolean}){
   const [upcoming,setEvents]=useState<AgendaItem[]>([]),[dates,setDates]=useState(new Set<string>()),[loading,setLoading]=useState(true),[failed,setFailed]=useState(false),[revision,setRevision]=useState(0);
+  const unauthorized=useEffectEvent(()=>onUnauthorized());
   useEffect(()=>{
    const controller=new AbortController();setLoading(true);setFailed(false);setEvents([]);setDates(new Set());
    if(!agendaClient){setFailed(true);setLoading(false);return;}
    void readHomeDay(agendaClient,data.generatedAt,data.timeZone,controller.signal).then(result=>{setEvents(result.events);setDates(result.dates);}).catch(error=>{
     if(controller.signal.aborted)return;
-    setFailed(true);if(['AUTH_REQUIRED','EMAIL_VERIFICATION_REQUIRED','FORBIDDEN'].includes(error?.code))onUnauthorized();
+    setFailed(true);if(['AUTH_REQUIRED','EMAIL_VERIFICATION_REQUIRED','FORBIDDEN'].includes(error?.code))unauthorized();
    }).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
    return()=>controller.abort();
   },[agendaClient,data.generatedAt,data.timeZone,data.subjectId,revision]);

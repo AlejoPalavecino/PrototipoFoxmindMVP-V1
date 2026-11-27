@@ -29,6 +29,7 @@ export function hookView(Component, props) {
       if (!same(slots[i]?.deps, deps)) slots[i] = { value: create(), deps };
       return slots[i].value;
     },
+    useEffectEvent(callback) { const slot = slots[cursor++] ??= {}; slot.callback = callback; return slot.event ??= (...args) => slot.callback(...args); },
     useEffect(effect, deps) {
       const i = cursor++;
       if (!same(slots[i]?.deps, deps)) { slots[i] = { deps }; effects.push([i, effect]); }

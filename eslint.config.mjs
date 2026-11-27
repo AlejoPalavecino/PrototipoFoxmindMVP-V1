@@ -4,6 +4,7 @@ const require = createRequire(process.env.FOXMIND_LINT_TOOLCHAIN
   ? resolve(process.env.FOXMIND_LINT_TOOLCHAIN, 'package.json') : import.meta.url);
 const boundaries = require('eslint-plugin-boundaries');
 const parser = require('@typescript-eslint/parser');
+const reactHooks = require('eslint-plugin-react-hooks');
 
 // Complementary precise edge and inheritance rules live in check-boundaries.mjs.
 export default [{
@@ -25,4 +26,12 @@ export default [{
     { from: 'domain', disallow: ['backend', 'ui'] },
     { from: 'ui', disallow: ['backend'] },
   ] }] },
+}, {
+  files: ['apps/shared-ui/**/*.{ts,tsx}', 'apps/web/{src,pages}/**/*.{ts,tsx}'],
+  plugins: { 'react-hooks': reactHooks },
+  rules: {
+    'react-hooks/rules-of-hooks': 2,
+    'react-hooks/exhaustive-deps': 2,
+    'react-hooks/set-state-in-effect': 2,
+  },
 }];

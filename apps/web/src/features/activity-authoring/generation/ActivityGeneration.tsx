@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { ActivityProposal } from '../../../../../../src/core/domain/activities/activity-generation.ts';
 import type { ActivityGenerationOperations } from '../model/authoring-operations.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
@@ -45,12 +45,13 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     }).finally(() => setSending(false));
   }
   const initialStarted = useRef(false);
+  const prepareInitial = useEffectEvent((request: typeof form) => { void prepare(request); });
   useEffect(() => {
     let cancelled = false;
     if (initialRequest) queueMicrotask(() => {
       if (cancelled || initialStarted.current) return;
       initialStarted.current = true;
-      void prepare(initialRequest);
+      prepareInitial(initialRequest);
     });
     return () => { cancelled = true; };
   }, [initialRequest]);
@@ -75,13 +76,15 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     if (next.proposal) { setReview({ id: next.id, proposal: structuredClone(next.proposal) }); setDirty(false); }
   }
   const handedOff = useRef<string | null>(null);
+  const applyProposal = useEffectEvent((...args: Parameters<typeof generation.apply>) => { void generation.apply(...args); });
+  const busy = generation.busy;
   useEffect(() => {
-    if (!initialRequest || generation.busy || !initialStarted.current || view?.state !== 'READY' || !view.proposal || handedOff.current !== null) return;
+    if (!initialRequest || busy || !initialStarted.current || view?.state !== 'READY' || !view.proposal || handedOff.current !== null) return;
     try { parseEvaluationRubric(view.proposal.evaluationRubric); } catch { return; }
     handedOff.current = view.id;
     // Applying creates a private draft only. Review and publication remain in the shared editor.
-    void generation.apply(view.id, view.proposal);
-  }, [initialRequest, view, generation.busy]);
+    applyProposal(view.id, view.proposal);
+  }, [initialRequest, view, busy]);
   const editable = room.role === 'teacher' && !room.archived;
   let invalidRubric = false;
   try { parseEvaluationRubric(review?.proposal.evaluationRubric ?? []); }

@@ -20,6 +20,7 @@ function mount(Component, props) {
     useRef(value) { return slots[cursor++] ??= { current: value }; },
     useMemo(factory, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value: factory(), deps }; return slots[i].value; },
     useCallback(value, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value, deps }; return slots[i].value; },
+    useEffectEvent(callback) { const slot = slots[cursor++] ??= {}; slot.callback = callback; return slot.event ??= (...args) => slot.callback(...args); },
     useEffect(effect, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) { slots[i] = { deps }; effects.push([i, effect]); } },
   };
   return {
