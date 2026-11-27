@@ -19,7 +19,7 @@ return async function withAgendaDatabase(operation) {
     attempted = true;
     docker('run', '-d', '--rm', '--pull=never', '--name', name, '--label', `foxmind.agenda.owner=${owner}`,
       '--memory=512m', '--cpus=1', '--pids-limit=128', '-p', '127.0.0.1::5432', '--tmpfs', '/var/lib/postgresql/data',
-      '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_DB=agenda_test', 'postgres:17.10-bookworm');
+      '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_DB=agenda_test', 'postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f');
     const port = Number(docker('inspect', '--format', '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}', name));
     pool = new pg.Pool({ host: '127.0.0.1', port, user: 'postgres', password, database: 'agenda_test', max: 5, application_name: 'foxmind-api-ai-execution-v1',
       connectionTimeoutMillis: 1000, statement_timeout: 5000, idle_in_transaction_session_timeout: 6000 });
@@ -41,7 +41,7 @@ return async function withAgendaDatabase(operation) {
         return await callback({ connection, database, query });
       } finally { await connection.query('ROLLBACK'); connection.release(); }
     };
-    return await operation({ pool, transaction,
+    return await operation({ pool, transaction, container: name,
       databaseUrl: `postgresql://postgres:${password}@127.0.0.1:${port}/agenda_test` });
   } finally {
     try { await pool?.end(); } finally {

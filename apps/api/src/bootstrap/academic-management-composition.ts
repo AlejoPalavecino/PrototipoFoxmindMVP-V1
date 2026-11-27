@@ -15,14 +15,15 @@ import { createInvitationIssueRepository } from '../modules/classrooms/invitatio
 import { createInvitationBatchRepository } from '../modules/classrooms/invitations/infrastructure/invitation-batches-repository.ts';
 import { decryptDelivery, encryptDelivery } from '../modules/classrooms/invitations/infrastructure/delivery-envelope.ts';
 import { digest } from '../modules/classrooms/access/infrastructure/policy.ts';
+import { classroomCodeDigests, type ClassroomCodeKeys } from '../platform/crypto/classroom-code-digest.ts';
 import { recordActivityEligibility } from '../modules/participation/attempts/infrastructure/activity-eligibility.ts';
 import type { ClassroomRuntimeAccess, Transaction } from '../modules/classrooms/access/public.ts';
 
 const publication = createDraftPublicationOperations(createPublicationRepository(), {
- randomUUID, newClassroomCode: (tx, id, key) => generateClassroomCode(tx, id, key, digest, encryptDelivery),
+ randomUUID, newClassroomCode: (tx, id, keys) => newClassroomCode(tx, id, keys),
 });
 const settings = createSettingsOperations(createSettingsRepository());
-const codes = createMembershipCodeOperations(createMembershipCodeRepository(), { digest });
+const codes = createMembershipCodeOperations(createMembershipCodeRepository(), { codeDigests: classroomCodeDigests });
 const lifecycle = createMembershipLifecycleOperations(createMembershipLifecycleRepository());
 const issues = createInvitationIssueOperations(createInvitationIssueRepository(), { randomUUID, sealMessage: encryptDelivery });
 
@@ -51,6 +52,6 @@ export const { publishDraftOperation } = publication;
 export const { updateSettingsOperation } = settings;
 export const { previewCodeOperation, confirmCodeOperation } = codes;
 export const { endMembershipOperation, membersOperation } = lifecycle;
-export function newClassroomCode(tx: Transaction, classroomId: string, key: Buffer) {
- return generateClassroomCode(tx, classroomId, key, digest, encryptDelivery);
+export function newClassroomCode(tx: Transaction, classroomId: string, keys: ClassroomCodeKeys & { deliveryKey: Buffer }) {
+ return generateClassroomCode(tx, classroomId, keys.deliveryKey, code => classroomCodeDigests(keys, code), encryptDelivery);
 }

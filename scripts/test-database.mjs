@@ -3,7 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { setTimeout } from "node:timers/promises";
 
 // This runner never accepts DATABASE_URL: it owns a fresh disposable container.
-const image = "postgres:17.10-bookworm";
+const image = "postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f";
 const password = randomBytes(24).toString("hex");
 const name = `foxmind-test-${randomBytes(8).toString("hex")}`;
 const empty = process.argv.includes("--empty");

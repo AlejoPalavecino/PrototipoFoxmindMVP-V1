@@ -10,7 +10,7 @@ const base = { maxOutputTokens: 100, inputUsdPerMillion: 0.1, outputUsdPerMillio
 function fake(ownerId, { globalUsed = 0n, actorUsed = 0n } = {}) {
   const day = new Date('2026-10-31T00:00:00.000Z'), usage = new Map([['global', globalUsed], [ownerId, actorUsed]]);
   return { async query(sql, ...args) {
-    if (/pg_advisory_xact_lock\(78123001\)/u.test(sql)) return [{}];
+    if (/pg_advisory_xact_lock\(78123001,hashtext/u.test(sql)) return [{}];
     if (sql.includes('pg_advisory_xact_lock(78123003') || sql.includes('WITH expired AS')) return [];
     if (sql.includes('FROM period, users')) return [{ month: '2026-10-01', observed_at: day, budget: 5_000_000 }];
     if (sql.includes('GROUP BY capability')) return [];
@@ -60,4 +60,16 @@ test('S17 the default per-actor cap never blocks the first request of the day, a
   await assert.rejects(attempt(fake(owner, { actorUsed: 1n }), owner, big), { code: 'AI_BUDGET_EXCEEDED' });
   const huge = { ...base, maxOutputTokens: 6_000_000 }; // 120002 microusd, above the global cap
   await assert.rejects(attempt(fake(owner), owner, huge), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });
+});
+
+test('daily AI quota days are Buenos Aires calendar days, like the monthly quota (B11)', async () => {
+  const owner = randomUUID(), calls = [], tx = fake(owner), query = tx.query;
+  tx.query = async (sql, ...args) => { calls.push(sql); return query(sql, ...args); };
+  assert.equal(await attempt(tx, owner, base), true);
+  const dayed = calls.filter(sql => /ai_usage_daily|usage_day=|operational_day/u.test(sql) && /transaction_timestamp\(\)/u.test(sql));
+  assert.ok(dayed.length >= 4, `expected day-bucketed statements, got ${dayed.length}`);
+  for (const sql of dayed) {
+    assert.doesNotMatch(sql, /AT TIME ZONE 'UTC'/u);
+    assert.match(sql, /AT TIME ZONE 'America\/Argentina\/Buenos_Aires'\)::date/u);
+  }
 });

@@ -56,5 +56,8 @@ test('S9 CLASSROOMS_DELIVERY_PREVIOUS_KEYS is optional and only accepts distinct
   for (const bad of ['', 'short', `${old1},${old1}`, env.CLASSROOMS_DELIVERY_KEY, env.CLASSROOMS_SIGNING_KEY,
     [key(), key(), key(), key()].join(',')]) {
     assert.throws(() => readClassroomsConfiguration({ ...env, CLASSROOMS_DELIVERY_PREVIOUS_KEYS: bad }, origin), { code: 'SERVICE_UNAVAILABLE' }, bad);
-  }
+  }  // A previous delivery key must not reuse the classroom-code digest key (S7) either.
+  const digest = key();
+  assert.throws(() => readClassroomsConfiguration({ ...env, CLASSROOMS_CODE_DIGEST_KEY: digest, CLASSROOMS_DELIVERY_PREVIOUS_KEYS: digest }, origin), { code: 'SERVICE_UNAVAILABLE' });
+  assert.equal(readClassroomsConfiguration({ ...env, CLASSROOMS_CODE_DIGEST_KEY: digest, CLASSROOMS_DELIVERY_PREVIOUS_KEYS: key() }, origin).previousDeliveryKeys.length, 1);
 });

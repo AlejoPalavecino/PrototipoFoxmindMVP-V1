@@ -1,5 +1,5 @@
 import type { VisualGroundingPort } from '../application/grounding-port.ts';
-import { lockAiAdmission } from '../../../../platform/ai/admission.ts';
+import { lockAiAdmission, lockAiBudget } from '../../../../platform/ai/admission.ts';
 import { isDeepStrictEqual } from 'node:util';
 import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/contracts/sql.ts';
 import type { FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../../../../src/core/domain/foxy/grounding.ts';
@@ -43,7 +43,7 @@ export function createFoxyVisualClaimAuthority(options: { grounding: VisualGroun
       const s = state(capability,signal);
       if (tx) {
         await lockAiAdmission(tx);
-        await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+        await lockAiBudget(tx,s.lease.ownerId);
         await tx.query('SELECT id FROM users WHERE id=$1::uuid FOR SHARE',s.lease.ownerId);
         if (s.snapshot.context.kind === 'CLASSROOM') await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR SHARE',s.snapshot.context.classroomId);
         await tx.query('SELECT id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid FOR SHARE',s.lease.conversationId,s.lease.ownerId);

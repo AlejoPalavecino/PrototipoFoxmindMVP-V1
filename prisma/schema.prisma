@@ -433,6 +433,7 @@ model StudyPlanVersion {
   file           FileObject @relation("Plan_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
 
   @@unique([classroom_id, version_number])
+  @@index([file_id], map: "study_plan_versions_file_id_idx")
   @@map("study_plan_versions")
 }
 
@@ -470,6 +471,7 @@ model Material {
   @@unique([id, classroom_id])
   @@index([classroom_id, unit_id, topic_id])
   @@index([deleted_at, deletion_lease_until])
+  @@index([file_id], map: "materials_file_id_idx")
   @@map("materials")
 }
 
@@ -606,6 +608,7 @@ model ActivityInstructionFile {
   file         FileObject @relation("Instruction_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
 
   @@id([activity_id, file_id])
+  @@index([file_id], map: "activity_instruction_files_file_id_idx")
   @@map("activity_instruction_files")
 }
 
@@ -733,6 +736,7 @@ model Answer {
 
   @@unique([attempt_id, question_id])
   @@unique([id, question_id])
+  @@index([question_id], map: "answers_question_id_idx")
   @@map("answers")
 }
 
@@ -746,6 +750,7 @@ model AnswerSelection {
   option      QuestionOption @relation("Selection_option", fields: [option_id, question_id], references: [id, question_id], onDelete: Restrict, onUpdate: NoAction)
 
   @@id([answer_id, option_id])
+  @@index([option_id], map: "answer_selections_option_id_idx")
   @@map("answer_selections")
 }
 
@@ -810,6 +815,7 @@ model QuestionGrade {
   question           Question     @relation("QuestionGrade_question", fields: [question_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
 
   @@unique([attempt_grade_id, question_id])
+  @@index([question_id], map: "question_grades_question_id_idx")
   @@map("question_grades")
 }
 
@@ -1209,6 +1215,7 @@ model GradingAiJob {
   owner User @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([state, created_at], map: "grading_ai_jobs_state_created_idx")
+  @@index([attempt_id], map: "grading_ai_jobs_attempt_id_idx")
   @@map("grading_ai_jobs")
 }
 
@@ -1625,6 +1632,7 @@ model StudyReviewSession {
   agenda_event AgendaEvent? @relation(fields:[agenda_event_id],references:[id],onDelete:SetNull,onUpdate:NoAction)
   // Partial study_review_due index is maintained by SQL migration 005.
   @@index([owner_id,notified_at],map:"study_review_owner")
+  @@index([agenda_event_id], map: "study_review_sessions_agenda_event_id_idx")
   @@map("study_review_sessions")
 }
 

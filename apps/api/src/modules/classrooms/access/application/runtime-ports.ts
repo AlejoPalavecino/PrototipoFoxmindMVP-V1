@@ -25,5 +25,6 @@ export interface ClassroomPorts {
   previousDeliveryKeys?: readonly Buffer[];
   /** Charges one queued invitation email to the teacher (S6 quota); throws `{ code: 'RATE_LIMITED', retryAfter }` when exhausted. */
   admitInvitationDelivery?(actorId: string): Promise<void>;
+  codeDigestKey?: Buffer;
   webOrigin: string;
 }

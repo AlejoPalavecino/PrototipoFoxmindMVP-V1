@@ -30,7 +30,7 @@ test('provider-free recovery settles dispatched lease once, atomically and under
     assert.equal(row.state,'FAILED'); assert.equal(row.error_code,'PROVIDER_OUTCOME_UNKNOWN'); assert.equal(row.reserved,'0');
     const ledger=await x.query("SELECT reserved_microusd::text AS reserved,consumed_microusd::text AS consumed,request_count FROM ai_usage_daily WHERE scope IN ('global',$1)",x.f.teacherActor);
     assert.equal(ledger.length,2); for(const item of ledger) { assert.equal(item.reserved,'0'); assert.equal(item.consumed,'500'); assert.equal(item.request_count,1); }
-    let last=-1; for(const pattern of [/pg_advisory_xact_lock\(78123002\)/iu,/pg_advisory_xact_lock\(78123001\)/iu,/\bfoxy_turns\b[\s\S]*FOR UPDATE/iu]) {
+    let last=-1; for(const pattern of [/pg_advisory_xact_lock\(78123002\)/iu,/\bfoxy_turns\b[\s\S]*FOR UPDATE/iu,/pg_try_advisory_xact_lock\(78123001,hashtext/iu]) {
       const index=queries.findIndex((sql,i)=>i>last && pattern.test(sql)); assert.ok(index>last); last=index;
     }
   });
