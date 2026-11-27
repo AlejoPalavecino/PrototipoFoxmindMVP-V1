@@ -136,9 +136,8 @@ test('Home client and proxy send the direction, and both HTTP boundaries reject 
           const response = await fetch(`${origin}/api/v1/home${path}`);
           assert.equal(response.status, 400);
           const body = await response.json();
-          // The web proxy adds a requestId to every error; the API keeps its own shape.
-          if (origin === web) { assert.equal(body.error.code, invalid.code); assert.match(body.error.requestId, /^[0-9a-f-]{36}$/); }
-          else assert.deepEqual(body, { error: invalid });
+          // F2: the web proxy forwards the query unchanged, so the error is the API's own body (a proxy error would carry a requestId).
+          assert.deepEqual(body, { error: invalid }, `${origin === web ? "web" : "api"} ${path}`);
         }
       }
       assert.equal(received.length, 3);

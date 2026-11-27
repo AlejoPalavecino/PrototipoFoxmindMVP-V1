@@ -1,23 +1,16 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { parseHomeQuery, parseHomePageQuery, parseHomeResponse, parseHomeModuleResponse } from '../../../../../src/core/domain/home/validation.ts';
+import { parseHomeResponse, parseHomeModuleResponse } from '../../../../../src/core/domain/home/validation.ts';
 import { apiDestination, forward, reject, rejectRequest, relayJson, requireNoBody, strictPath, upstreamHeaders } from './transport/api-transport.ts';
 
 const MAX_RESPONSE = 2 * 1024 * 1024, TIMEOUT_MS = 30_000;
 const modulePath = /^\/api\/v1\/home\/modules\/(pending|review|feedback|agenda|queries|materials|classrooms|drafts|submitted)$/;
 
+/** Transport only (F2): the API validates the query; the proxy still validates the API's 200 body before relaying it. */
 function route(request: IncomingMessage): { url: URL; module: boolean } {
   const url = strictPath(request.url), match = modulePath.exec(url.pathname);
   if (url.pathname !== '/api/v1/home' && !match) reject(404, 'NOT_FOUND');
   if (request.method !== 'GET') reject(405, 'METHOD_NOT_ALLOWED');
   requireNoBody(request);
-  const query = Object.fromEntries(url.searchParams);
-  if ([...url.searchParams.keys()].length !== Object.keys(query).length) reject(400, 'INVALID_INPUT');
-  try {
-    if (match) {
-      if (Object.hasOwn(query, 'module')) throw new Error();
-      parseHomePageQuery({ ...query, module: match[1], cursor: query.cursor ?? null });
-    } else parseHomeQuery(query);
-  } catch { reject(400, 'INVALID_INPUT'); }
   return { url, module: Boolean(match) };
 }
 

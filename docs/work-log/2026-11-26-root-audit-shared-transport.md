@@ -91,6 +91,24 @@ Decisiones del usuario al abrir F2: la API decide el orden (sesión y permisos a
 
 Suites integradas del corte 5, sobre `main` `7bea3829`: `fast` 3273/3273, `wrappers` en verde y `owned-db` 969/969 (segunda corrida; la primera cortó en la prueba 421 por un `docker run` de Foxy que pasó los 20 s con la máquina cargada, y esa prueba pasó 2/2 aislada). Como los merges y este corte cambiaron archivos del alcance de TASK-001 a TASK-004, esas tareas se volvieron a verificar sobre el candidato actual con sus pruebas declaradas (26/26, 24/24, 89/89 y 44/44) antes de cerrar TASK-005.
 
+## Corte 6 — F2, Home
+
+- El [proxy de Home](../../apps/web/src/application/server/home-proxy.ts) ya no valida la consulta (claves repetidas, `module`, orden, zona horaria, cursor). Conserva rutas, GET sin cuerpo y, por decisión del usuario, la validación de la respuesta 200 de la API.
+- La API usa los mismos parsers y los mismos chequeos de claves repetidas y de `module`, así que no hubo divergencia.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `home-order`: las 5 consultas inválidas dan 400 `INVALID_INPUT` en la API y, por el web, el cuerpo es el de la API | el proxy respondía con su propio error (con `requestId`) | 4/4 |
+| `foxmind-3d-http`, `proxy-client-address`, `web-proxy-transport` | — | 3/3, 12/12, 4/4 |
+
+Suites integradas del corte 6, sobre `main` `0b1c897a`: `fast` 3273/3273, `owned-db` 969/969 y `wrappers` 19/19.
+
+## Estado al pausar (2026-11-27)
+
+- En `main`: cortes 5 (agenda, `0b1c897a`) y 6 (Home). Quedan los tres subcortes de aulas (TASK-007 a TASK-009).
+- Mapa de aulas (lectura del código, sin ejecutar): consultas sin divergencias; en cuerpos, la API no rechaza como el proxy un `confirmation` no textual en `codes/confirm` (da 409) ni los temas repetidos con distinta mayúscula en la ruta sin `unitIds` (`activities/domain/topic-selection.ts`, termina en 503 por clave duplicada); en participación, `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Esas tres se llevan a la API antes de quitar la regla del proxy. El 409 antes que el 400 en actividades iniciadas o no publicadas quedó aceptado.
+- Primer paso al retomar: TASK-007 (consultas de aulas). Primero, pruebas HTTP de la API con el arnés de `tests/backend-academic-routes.test.mjs` para `parseWallQuery`, `parseNotificationQuery`, `parseBrujulaSearchQuery` y `parseTeacherSupportQuery`; después, RED en el proxy y retiro.
+
 ## Límites
 
 - Algunas pruebas cargan los `.ts` con *strip-only*, que no admite propiedades en los parámetros del constructor; el núcleo las evita.
