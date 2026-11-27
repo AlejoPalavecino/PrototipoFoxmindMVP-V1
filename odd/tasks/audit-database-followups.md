@@ -63,45 +63,45 @@ Lock de presupuesto en forma de dos claves `(78123001, hashtext(owner_id))`; fil
 - **Blocker:** none
 
 ### TASK-004 — B11, S7 y S8 quedan con propuesta y decisión pendiente
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-005
 - **Verification:** revisión del registro y de docs/engineering/data-model.md
 - **Acceptance:** El registro explica cada hallazgo, recomienda una opción y lista qué decide el usuario; no hay cambios de datos ni de comportamiento visible.
 - **Scope:** ["docs/work-log/2026-11-26-audit-database-followups.md", "docs/engineering/data-model.md"]
-- **Evidence:** {"command":"npm run docs:check","result":"0 problemas; propuestas entregadas; el usuario eligió lo recomendado (TASK-005 a TASK-007)"}
+- **Evidence:** {"command":"npm run docs:check","result":"0 problemas; propuestas entregadas; el usuario eligió lo recomendado (TASK-005 a TASK-007); suites tras rebase fast 3232/3232, owned-db 969/969, wrappers 19/19","candidate":"sha256:838ddf8ca8ad082c6daa66d7e59c99f95fc54f7f8ad4f9753a4aec86864010aa"}
 - **Blocker:** none
 
 ### TASK-005 — El cupo diario de IA se renueva a la medianoche de Buenos Aires
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-001
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** apps/api/src/platform/ai/daily-actor-budget.test.mjs y apps/web/src/features/study/api/study-client.test.mjs
 - **Acceptance:** Toda sentencia que fija el día de `ai_usage_daily`, `usage_day` u `operational_day` usa `AT TIME ZONE 'America/Argentina/Buenos_Aires'` y ninguna UTC; el aviso de cupo de Estudio dice «medianoche, hora de Buenos Aires».
 - **Scope:** ["apps/api/src/platform/ai/operational-day.ts", "apps/api/src/platform/ai/text-budget.ts", "apps/api/src/platform/ai/monthly-budget.ts", "apps/web/src/features/study/api/study-error.ts", "apps/api/src/platform/ai/daily-actor-budget.test.mjs", "apps/web/src/features/study/api/study-client.test.mjs", "tests/grading-ai-sql.test.mjs", "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-text-budget.test.mjs"]
-- **Evidence:** {"command":"node --test apps/api/src/platform/ai/daily-actor-budget.test.mjs apps/web/src/features/study/api/study-client.test.mjs","result":"RED: AT TIME ZONE 'UTC' y aviso 00:00 UTC; GREEN: 12/12"}
+- **Evidence:** {"command":"node --test apps/api/src/platform/ai/daily-actor-budget.test.mjs apps/web/src/features/study/api/study-client.test.mjs","result":"RED: AT TIME ZONE 'UTC' y aviso 00:00 UTC; GREEN: 12/12; suites tras rebase fast 3232/3232, owned-db 969/969, wrappers 19/19","candidate":"sha256:117e00448d4b405a4de47dd4ba86195d41a1f35fb2723cbb2da9248588a64c47"}
 - **Blocker:** none
 
 ### TASK-006 — Los códigos de aula no se recuperan con una copia de la base
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-007
 - **Verification:** tests/classroom-code-digest-database.test.mjs y tests/p5-host.test.mjs
 - **Acceptance:** Un código nuevo queda como `h1:` + 64 hex y distinto de su SHA-256; la vista previa encuentra uno nuevo y uno anterior; el recálculo pasa el vigente a HMAC, deja el revocado con SHA-256, una segunda corrida no cambia nada y un sobre que no coincide queda como `skipped`; el comando sin `--apply` no escribe; en producción sin `CLASSROOMS_CODE_DIGEST_KEY` la configuración es inválida.
-- **Scope:** ["apps/api/src/platform/crypto/classroom-code-digest.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/code-digest-migration.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/memberships.ts", "apps/api/src/modules/classrooms/application/management-operations.ts", "apps/api/src/modules/classrooms/drafts/application/drafts-operations.ts", "apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts", "apps/api/src/modules/classrooms/access/infrastructure/configuration.ts", "apps/api/src/modules/classrooms/access/application/runtime-ports.ts", "apps/api/src/bootstrap/academic-management-composition.ts", "apps/api/src/bootstrap/academic-composition.ts", "scripts/rehash-classroom-codes.mjs", "tests/classroom-code-digest-database.test.mjs", "tests/brujula-data-database.test.mjs", "tests/p5-host.test.mjs", "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts", "docs/engineering/classrooms/README.md"]
-- **Evidence:** {"command":"tests/classroom-code-digest-database.test.mjs, brujula-data-database, exclusive-account-role, membership-behavior, p5-host","result":"RED: modulos inexistentes; GREEN: 16/16 y 2/2; configuracion sin RED observado"}
+- **Scope:** ["apps/api/src/platform/crypto/classroom-code-digest.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/code-digest-migration.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/memberships.ts", "apps/api/src/modules/classrooms/application/management-operations.ts", "apps/api/src/modules/classrooms/drafts/application/drafts-operations.ts", "apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts", "apps/api/src/modules/classrooms/access/infrastructure/configuration.ts", "apps/api/src/modules/classrooms/access/application/runtime-ports.ts", "apps/api/src/bootstrap/academic-management-composition.ts", "apps/api/src/bootstrap/academic-composition.ts", "scripts/rehash-classroom-codes.mjs", "tests/classroom-code-digest-database.test.mjs", "tests/brujula-data-database.test.mjs", "tests/p5-host.test.mjs", "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts", "docs/engineering/classrooms/README.md", "tests/classroom-preview-cover.test.mjs", "apps/api/src/modules/classrooms/drafts/infrastructure/classrooms-persistence.test.ts"]
+- **Evidence:** {"command":"tests/classroom-code-digest-database.test.mjs, brujula-data-database, exclusive-account-role, membership-behavior, p5-host","result":"RED: modulos inexistentes; GREEN: 16/16 y 2/2; configuracion sin RED observado; suites tras rebase fast 3232/3232, owned-db 969/969, wrappers 19/19","candidate":"sha256:122551452063e5eb8cd6183dc7103fec61e8ad16e6aa7e3ce40ca1efead821d9"}
 - **Blocker:** none
 
 ### TASK-007 — Lo que ya no sirve se purga sin tocar lo vigente
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-008
 - **Verification:** tests/data-retention-database.test.mjs y apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs
 - **Acceptance:** Se borran la sesión vencida y la revocada hace más de 30 días, el token consumido, el aviso leído hace 200 días, el despacho DONE, el trabajo COMPLETED y el contador de hace 14 meses; se conservan la sesión vigente, la vencida hace 5 días, el token vigente, el aviso sin leer y el leído hace 5 días, el despacho RUNNING, el trabajo PENDING y el contador de hace 11 meses; ninguna tabla borra más de un lote por pasada; la purga periódica ejecuta la retención después de los controles y para ante un lote corto.
 - **Scope:** ["apps/api/src/platform/database/retention.ts", "apps/api/src/bootstrap/identity-controls-purge.ts", "apps/api/src/modules/identity/accounts/infrastructure/persistence.ts", "tests/data-retention-database.test.mjs", "apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs", "docs/engineering/data-model.md"]
-- **Evidence:** {"command":"tests/data-retention-database.test.mjs y runtime-lifecycle.test.mjs con flags del runner","result":"RED: modulo inexistente; retencion no invocada; GREEN: 10/10 junto con S7"}
+- **Evidence:** {"command":"tests/data-retention-database.test.mjs y runtime-lifecycle.test.mjs con flags del runner","result":"RED: modulo inexistente; retencion no invocada; GREEN: 10/10 junto con S7; suites tras rebase fast 3232/3232, owned-db 969/969, wrappers 19/19","candidate":"sha256:31f8777f89306284ae3b1ec937e6f6e39b8a1487786a2858d2ee2ae4d7530e69"}
 - **Blocker:** none

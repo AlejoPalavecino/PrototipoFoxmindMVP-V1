@@ -104,4 +104,8 @@ Commit en la rama `claude/audit-database-fd9d93`, sin push, PR ni merge. Primer 
 
 ### Segunda tanda
 
-Pendiente de completar al correr las suites.
+La rama se rebasó sin conflictos sobre `origin/main` (`490105ff`, con F1 cortes 1 y 2). Sobre ese resultado: `fast` 3232/3232, `owned-db` 969/969 y `wrappers` 19/19 completas; `api:build`, `lint:boundaries`, `docs:check` (0 problemas) y `run-complete-suite --check` (754 pruebas en 23 rutas) en verde.
+
+La primera corrida de `fast` tras el rebase falló en dos pruebas que fijaban el SQL anterior de la búsqueda de códigos: `classrooms-persistence.test.ts` (además su tipo de casos no admitía arreglos, lo que cortó el build de `wrappers`) y `classroom-preview-cover.test.mjs`, que además armaba la vista previa sin claves. Se actualizaron y se repitieron `fast` y `wrappers` completas; `owned-db` no incluye esos archivos.
+
+Commits en `claude/audit-database-fd9d93`; push y PR contra `main` autorizados por el usuario a través de la coordinación. Sin merge ni auto-merge.
