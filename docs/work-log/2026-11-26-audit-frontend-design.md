@@ -68,3 +68,10 @@
 - Pendiente (decisión del usuario): Foxy, Estudio, Archivos y adjuntos de chat siguen pidiendo el CSRF antes de cada mutación con su propio código. Sus API de feature no pueden importar `shared/`: hace falta llevar la fuente CSRF a `src/core` o inyectarla desde la composición.
 - Pruebas: `tests/web-http-shared.test.mjs` (7 casos: caché, cancelación, sin reenvío, transporte académico, agenda, base de errores), registrada en el inventario y en la ruta `fast`.
 - Comprobación: `tsc` sin errores; `api:build` exit 0; `lint:boundaries` pasa (la primera versión ponía `ClientError` en `shared/` y la regla de capas la rechazó); `test:complete --group fast` 3231/3231.
+
+### Corte 8 · `ActivityAuthoring` separa estado y render (F3)
+
+- Restricción de diseño: muchas pruebas renderizan estos componentes con un simulador de hooks que no expande subcomponentes con estado. Partir el render en componentes las rompería sin mejorar el diseño, así que F3 separa responsabilidades de estado en hooks con nombre propio y el render queda igual.
+- `use-activity-draft.ts`: los 16 campos editables del borrador viven en un solo estado, con setters estables que tienen el mismo contrato que los de `useState`, y el objeto `draft` que consume la persistencia. `use-generation-request.ts`: método (a mano o con Foxy), idea, opciones y carga de fuentes de la biblioteca. `use-authoring-operation.ts`: una operación por vez con `busy` y `error`.
+- Resultado: `ActivityAuthoring.tsx` pasa de 35 a 10 `useState` y de 911 a 843 líneas; la línea base de tamaño bajó. La primera versión de `use-activity-draft` tenía 16 `useState` y la regla de F9 la rechazó.
+- Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 15 pruebas de autoría de la ruta `fast` dan 129/129; `test:complete --group fast` 3231/3231. Navegador: pendiente para el cierre de F3.

@@ -1,6 +1,5 @@
 'use client';
-import type { GenerationSource } from '../generation/generation-feedback.ts';
-import { activityDate, activityMinute } from '../../../../../shared-ui/academic-date.ts';
+import { activityDate } from '../../../../../shared-ui/academic-date.ts';
 import { useEffect, useRef, useState } from 'react';
 import type { ActivityData, DeadlineResolution } from '../../../../../../src/core/contracts/activities.ts';
 import type { ActivityAuthoringOperations } from '../model/authoring-operations.ts';
@@ -11,17 +10,19 @@ import { ActivityAssignment, ActivityTypeChoice } from './activity-Assignment.ts
 import type { ClassroomCreationContext } from '../../../../../../src/core/contracts/academic-context.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import { EvaluationRubric, EvaluationRubricEditor } from './EvaluationRubric.tsx';
-import { selectedActivityTopics, type ActivityScope } from '../model/activity-scope.ts';
+import { selectedActivityTopics } from '../model/activity-scope.ts';
 import styles from './ActivityAuthoring.module.css';
 import {
   ActivityGenerationForm,
   defaultGenerationCounts,
-  defaultGenerationForm,
   teacherBriefLimit,
   type GenerationFormValue,
 } from '../generation/ActivityGenerationForm.tsx';
 import { activityReviewProblem, assertDraftRubric, buildActivityDraftPayload } from './draft-rules.ts';
 import { createAuthoringPersistence } from '../publication/authoring-persistence.ts';
+import { useActivityDraft } from './use-activity-draft.ts';
+import { useGenerationRequest } from './use-generation-request.ts';
+import { useAuthoringOperation } from './use-authoring-operation.ts';
 import { selectAuthoringDeadline } from '../publication/authoring-deadline.ts';
 
 export const activityTypeLabels = {
@@ -57,71 +58,31 @@ export function ActivityAuthoring({
   onGenerate?: (value: GenerationFormValue) => void;
 }) {
   const activity = data.activity;
-  const [title, setTitle] = useState(activity.title ?? '');
-  const [scope, setScope] = useState<ActivityScope>(() => ({
-    unitIds: [],
-    topicIds: creationContext?.topicIds ?? activity.topicIds ?? (activity.topicId ? [activity.topicId] : []),
-  }));
+  const {
+    draft, title, setTitle, scope, setScope, instructions, setInstructions, attachmentRequired, setRequired,
+    objective, setObjective, teacherComment, setTeacherComment, draftType, setDraftType, typeChosen, setTypeChosen,
+    evaluationRubric, setEvaluationRubric, questions, setQuestions, materialIds, setMaterialIds,
+    local, setLocal, allowLate, setLate, offset, setOffset,
+  } = useActivityDraft(activity, room, creationContext);
   const selectedUnits = selectedActivityTopics(room.units, scope);
-  const [instructions, setInstructions] = useState(activity.instructions ?? ''),
-    [attachmentRequired, setRequired] = useState(activity.attachmentRequired);
-  const [objective, setObjective] = useState(activity.objective ?? ''),
-    [teacherComment, setTeacherComment] = useState(activity.teacherComment ?? '');
-  const [draftType, setDraftType] = useState(activity.type);
-  const [typeChosen, setTypeChosen] = useState(Boolean(activity.id || activity.title || activity.instructions));
-  const [aiGradingRubric] = useState(activity.aiGradingRubric ?? '');
-  const [evaluationRubric, setEvaluationRubric] = useState(activity.evaluationRubric ?? []);
-  const [questions, setQuestions] = useState(activity.questions),
-    [files] = useState(activity.instructionFiles);
-  const [materialIds, setMaterialIds] = useState(activity.materials.map(m => m.id));
-  const [local, setLocal] = useState(activityMinute(activity.deadlineAt, room.timezone)),
-    [allowLate, setLate] = useState(activity.allowLate);
-  const [offset, setOffset] = useState<number | null>(() =>
-    activity.deadlineAt
-      ? (Date.parse(`${activityMinute(activity.deadlineAt, room.timezone)}:00Z`) - Date.parse(activity.deadlineAt)) /
-        60000
-      : null,
-  );
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null);
-  const [error, setError] = useState(''),
-    [busy, setBusy] = useState(false),
-    [dirty, setDirty] = useState(Boolean(creationContext?.unitId || creationContext?.topicIds.length));
+  const { error, setError, busy, run } = useAuthoringOperation();
+  const [dirty, setDirty] = useState(Boolean(creationContext?.unitId || creationContext?.topicIds.length));
   const persistence = useRef(createAuthoringPersistence(api, { id: activity.id, revision: data.revision }));
   const [persisted, setPersisted] = useState(Boolean(activity.id));
   const [publicationConfirmed, setPublicationConfirmed] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const locked = activity.locked || room.archived;
   const [step, setStep] = useState(initialReview ? 2 : initialContent ? 1 : 0);
-  const [method, setMethod] = useState<'manual' | 'ai' | null>(
-    activity.id || activity.title || !onGenerate ? 'manual' : null,
-  );
-  const [generationOptions, setGenerationOptions] = useState(defaultGenerationForm);
-  const [optionsOpen, setOptionsOpen] = useState(false);
-  const [generationSources, setGenerationSources] = useState<GenerationSource[]>([]);
-  const [sourcesError, setSourcesError] = useState('');
-  useEffect(() => {
-    if (!optionsOpen) return;
-    const controller = new AbortController();
-    void api.generation
-      .sources(controller.signal)
-      .then(result => {
-        if (!controller.signal.aborted) {
-          setGenerationSources(result.sources);
-          setSourcesError('');
-        }
-      })
-      .catch(error => {
-        if (!controller.signal.aborted) setSourcesError(error.message);
-      });
-    return () => controller.abort();
-  }, [optionsOpen, api, room.id]);
-  const [teacherBrief, setTeacherBrief] = useState(activity.teacherBrief ?? '');
+  const {
+    method, setMethod, options: generationOptions, setOptions: setGenerationOptions, optionsOpen, setOptionsOpen,
+    sources: generationSources, sourcesError, teacherBrief, setTeacherBrief,
+  } = useGenerationRequest(api, room.id, activity, Boolean(onGenerate));
   const [contentTab, setContentTab] = useState<'instructions' | 'questions' | 'rubric'>('instructions');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [publishDialog, setPublishDialog] = useState(false);
   const [reference, setReference] = useState<'idea' | 'answers' | null>(null);
   const selectedQuestion = questions[questionIndex];
-  const operationLock = useRef(false);
   const generationRequested = useRef(false);
   const stageHeading = useRef<HTMLHeadingElement>(null);
   const errorNotice = useRef<HTMLDivElement>(null);
@@ -133,41 +94,12 @@ export function ActivityAuthoring({
     if (error && !leaving) errorNotice.current?.focus();
   }, [error, leaving]);
   const mark = () => setDirty(true);
-  async function run(operation: () => Promise<void>) {
-    if (operationLock.current) return;
-    operationLock.current = true;
-    setBusy(true);
-    setError('');
-    try {
-      await operation();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      operationLock.current = false;
-      setBusy(false);
-    }
-  }
   async function deadline() {
     if (!local) return null;
     const current = await api.resolveDeadline(local);
     setResolution(current);
     return selectAuthoringDeadline(current, offset, local);
   }
-  const draft = {
-    title,
-    objective,
-    teacherComment,
-    scope,
-    instructions,
-    type: draftType,
-    attachmentRequired,
-    aiGradingRubric,
-    evaluationRubric,
-    files,
-    materialIds,
-    allowLate,
-    questions,
-  };
   function validateScope() {
     if (!typeChosen || !selectedUnits.length) {
       setError(typeChosen ? 'Elegí al menos un tema o una unidad con temas.' : 'Elegí un tipo de actividad.');

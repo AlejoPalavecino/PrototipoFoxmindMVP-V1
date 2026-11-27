@@ -71,8 +71,7 @@
       "lineLength": 232
     },
     "apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx": {
-      "fileLines": 911,
-      "useState": 34
+      "fileLines": 843
     },
     "apps/web/src/features/activity-authoring/drafting/EvaluationRubric.tsx": {
       "lineLength": 320
