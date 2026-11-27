@@ -17,8 +17,12 @@ const securityErrors = loadTsModule('apps/api/src/modules/identity/domain/securi
 const identityErrors = loadTsModule('apps/api/src/modules/identity/domain/errors.ts', {
   stubs: { './security/errors.ts': securityErrors },
 });
+// Shared ingress admission must see the same identity error classes as the transports.
+const admission = loadTsModule('apps/api/src/bootstrap/http-admission.ts', {
+  stubs: { '../modules/identity/public.ts': identityErrors },
+});
 const { installAgendaTransport } = loadTsModule('apps/api/src/bootstrap/agenda-transport.ts', {
-  stubs: { '../modules/identity/domain/errors.ts': identityErrors },
+  stubs: { '../modules/identity/domain/errors.ts': identityErrors, './http-admission.ts': admission },
 });
 const { installIdentityTransport, readSessionCookie } = loadTsModule('apps/api/src/modules/identity/accounts/presentation/transport.ts', {
   stubs: { '../../domain/errors.ts': identityErrors },
@@ -38,7 +42,7 @@ async function fixture(run) {
     const actor = { verifier, user: { id: randomUUID(), email_verified_at: verified ? new Date(now) : null } };
     sessions.set(verifier, actor); return actor;
   });
-  const runtime = { configuration: { security }, store: { authenticate: async verifier => sessions.get(verifier) ?? null },
+  const runtime = { configuration: { security }, authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, store: { authenticate: async verifier => sessions.get(verifier) ?? null },
     async generalAdmission() {} };
   const target = { classroomId: randomUUID(), activityId: randomUUID() };
   const deadline = { kind: 'ACADEMIC_DEADLINE', id: randomUUID(), target, classroomName: 'Aula sintética',

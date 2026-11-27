@@ -281,6 +281,7 @@
     "tests/agenda-polish-presentation.test.mjs",
     "tests/agenda-proxy.test.mjs",
     "tests/web-proxy-transport.test.mjs",
+    "tests/http-admission.test.mjs",
     "tests/agenda-recurrence.test.mjs",
     "tests/agenda-reference-selection.test.mjs",
     "tests/agenda-regressions.test.mjs",

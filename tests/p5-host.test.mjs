@@ -104,6 +104,7 @@ async function host(t, options = {}) {
   const runtime = { configuration: { security: { secureCookies: false, clientAddress: request => request.socket.remoteAddress,
     assertOrigin(value) { if (value !== origin) throw new IdentityHttpError('ORIGIN_NOT_ALLOWED'); },
     validateCsrf(raw, submitted) { return raw === verifier && submitted === 'valid'; } } },
+    authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, 
     store: { async authenticate() { authenticated++; return options.anonymous ? null : {
       verifier, sessionId: 'session', user: { id: 'user', email_verified_at: options.unverified ? null : new Date() } }; } },
     async generalAdmission(ip) { admitted++; assert.ok(ip); if (options.rateLimited) throw new IdentityHttpError('RATE_LIMITED', 17); } };

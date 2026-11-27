@@ -259,7 +259,7 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       const runtime = { configuration: { security: {
         abuseDigest: hash, assertOrigin() {}, validateCsrf: (_, csrf) => csrf === 'valid',
         clientAddress: request => request.socket.remoteAddress,
-      } }, store, async generalAdmission() {} };
+      } }, store, authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit(this.configuration.security, buckets); }, async generalAdmission() {} };
       const app = createRequire(import.meta.url)('express')();
       let reached = 0;
       installClassroomsTransport(app, runtime, { async previewCode() {
@@ -305,7 +305,7 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
       const runtime = { configuration: { security: {
         abuseDigest: hash, assertOrigin() {}, validateCsrf: (_, csrf) => csrf === 'valid',
         clientAddress: request => request.socket.remoteAddress,
-      } }, store, async generalAdmission() {
+      } }, store, authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit(this.configuration.security, buckets); }, async generalAdmission() {
         if (++general > 240) throw new IdentityHttpError('RATE_LIMITED', 60);
       } };
       const app = createRequire(import.meta.url)('express')();

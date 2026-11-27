@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
+import { assertWriteGuard, authenticateInTransaction, identifyRequest } from './http-admission.ts';
 import { type IdentityConfiguration } from '../modules/identity/accounts/infrastructure/security/configuration.ts';
 import { IdentityHttpError, publicIdentityError } from '../modules/identity/domain/errors.ts';
 import type { IdentityRuntime } from './identity-runtime.ts';
@@ -15,24 +15,14 @@ import { createClassroomsHandler } from './academic-http.ts';
 import type { ActivityAiService } from '../modules/activities/generation/infrastructure/activity-ai/service.ts';
 import type { ClassroomAiService } from '../modules/curriculum/generation/infrastructure/ai/service.ts';
 
-function writeGuard(security: IdentityConfiguration, request: IncomingMessage, verifier: string, write: boolean): void {
-  if (!write && !['POST', 'PUT', 'PATCH'].includes(request.method ?? '')) return;
-  try { security.assertOrigin(request.headers.origin); }
-  catch (error) { throw publicIdentityError(error); }
-  if (!security.validateCsrf(verifier, request.headers['x-csrf-token'])) throw new IdentityHttpError('CSRF_INVALID');
-}
+const writeGuard = assertWriteGuard;
 
 /** Repeatable under the domain's user lock: same P3 digest/clock/policy, no admission or lifetime writes. */
 export function createIdentityClassroomAuthentication(security: IdentityConfiguration): ClassroomPorts['authenticate'] {
   return async (tx, input, write) => {
     const request = input as IncomingMessage;
     try {
-      const cookie = readSessionCookie(request.headers.cookie);
-      const context = cookie.verifier ? await authenticateSession(tx, cookie.verifier) : null;
-      if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
-      if (!context.user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
-      writeGuard(security, request, context.verifier, write);
-      return context.user.id;
+      return await authenticateInTransaction(security, tx, request, write);
     } catch (error) {
       // SQL/programming errors are sanitized by ClassroomCore, not mislabeled authentication failures.
       if (error instanceof IdentityHttpError) throw new ClassroomIdentityError(error);
@@ -48,12 +38,8 @@ export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
     ai: options.ai, activityAi: options.activityAi,
     async admit(request, write, response) {
       try {
-        const security = runtime.configuration.security;
-        const cookie = readSessionCookie(request.headers.cookie);
-        const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
-        if (cookie.present && !context) response.setHeader('Set-Cookie', clearSessionCookie(security));
-        const ip = runtime.configuration.security.clientAddress(request);
-        if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
+        // Invitation batches and classroom codes add their own budgets, so this host composes the steps.
+        const { context, ip, security } = await identifyRequest(runtime, request, response);
         const pathname = new URL(request.url ?? '/', 'http://classrooms.invalid').pathname;
         const [, , , collection, resource] = pathname.split('/');
         if (collection === 'invitations' && resource === 'batch' &&
@@ -64,7 +50,7 @@ export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
             throw error;
           }
           // A classroom-sized batch behind Next shares its socket peer with unrelated app traffic.
-          await runtime.store.admit(security, [
+          await runtime.admitBuckets([
             { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation-batch:account:${context.user.id}`,
               budget: { limit: 120, windowSeconds: 60 } },
             { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation-batch:peer:${ip}`,
@@ -79,7 +65,7 @@ export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
         if (request.method === 'POST' && pathname === '/classrooms/codes/preview' && context.user.account_role === 'student') {
           // Reuse committed identity admission so unsuccessful guesses still count across processes.
           // The socket peer may be a shared web proxy. Client-supplied forwarding headers carry no authority.
-          await runtime.store.admit(security, [
+          await runtime.admitBuckets([
             { action: 'general-identity', namespace: 'identifier', subject: `classroom-code:account-minute:${context.user.id}`,
               budget: { limit: 10, windowSeconds: 60 } },
             { action: 'general-identity', namespace: 'identifier', subject: `classroom-code:account-hour:${context.user.id}`,

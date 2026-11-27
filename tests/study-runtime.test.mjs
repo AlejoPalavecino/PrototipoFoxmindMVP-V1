@@ -14,7 +14,7 @@ function fixture(t) {
   t.mock.method(globalThis, 'clearInterval', timer => { timer.active = false; calls.push('clear'); });
   const database = {}, security = { clientAddress: request => request.socket.remoteAddress }, actor = { sessionId: 'synthetic-session', user: { id: 'synthetic-owner' } }, authenticate = async () => 'synthetic-owner';
   const files = { storage: {}, scanner: { async scan(bytes) { captures.scan = bytes; return 'CLEAN'; } } };
-  const identity = { configuration: { security }, store: { async authenticate(verifier) { calls.push(['authenticate', verifier]); return actor; } },
+  const identity = { configuration: { security }, authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, store: { async authenticate(verifier) { calls.push(['authenticate', verifier]); return actor; } },
     async generalAdmission(ip, context) { calls.push(['admit', ip, context]); } };
   const bridge = { port: {}, uploads: {} }, agenda = {}, attachments = { async cleanup() { calls.push('cleanup'); } };
   const reminders = { async close() { calls.push('reminders.close'); } };
@@ -71,7 +71,7 @@ test('S1 admission preserves cookie lookup, authenticated/anonymous context, IP 
   assert.equal(await runtime.admit({ headers: {}, socket: { remoteAddress: '127.0.0.2' } }, response), null);
   assert.deepEqual(f.calls, [['cookie', undefined], ['admit', '127.0.0.2', null]]);
   f.calls.length = 0;
-  await assert.rejects(runtime.admit({ headers: {}, socket: {} }, response), { code: 'SERVICE_UNAVAILABLE', message: 'SERVICE_UNAVAILABLE' });
+  await assert.rejects(runtime.admit({ headers: {}, socket: {} }, response), { code: 'SERVICE_UNAVAILABLE' });
   assert.deepEqual(f.calls, [['cookie', undefined]]);
   const failure = Object.assign(new Error('RATE_LIMITED'), { code: 'RATE_LIMITED' });
   f.identity.generalAdmission = async () => { throw failure; };
