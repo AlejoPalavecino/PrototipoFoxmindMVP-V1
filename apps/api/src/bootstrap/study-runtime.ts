@@ -16,7 +16,7 @@ import { executeStudy, generateDevelopmentFeedback } from '../../../../src/core/
 import type { StudyProvider } from '../../../../src/core/domain/study/engine.ts';
 import { createGeminiStudyProvider } from '../modules/study/generation/infrastructure/providers/study-adapter.ts';
 import { createStudyChatPreviews } from '../modules/study/generation/infrastructure/study-chat-previews.ts';
-import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
+import { admitRequest } from './http-admission.ts';
 import { createStudyImages } from './study-images.ts';
 import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
 
@@ -66,15 +66,9 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources,
       provider(context, 'feedback'), input.history) });
   const reminders = createStudyReminderRuntime({ database, authenticate });
-  const admit = async (request: IncomingMessage, response: ServerResponse) => {
-    void response;
-    const cookie = readSessionCookie(request.headers.cookie);
-    const context = cookie.verifier ? await identity.store.authenticate(cookie.verifier) : null;
-    const ip = identity.configuration.security.clientAddress(request);
-    if (!ip) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
-    await identity.generalAdmission(ip, context);
-    return context?.user.id ?? null;
-  };
+  // Uploads, attachments and reminders authorize inside their own transactions; ingress only admits.
+  const admit = async (request: IncomingMessage, response: ServerResponse) =>
+    (await admitRequest(identity, request, response, { session: 'anonymous' }))?.user.id ?? null;
   let cleanup: Promise<void> | undefined;
   const timer = setInterval(() => {
     if (!cleanup) cleanup = attachments.cleanup()

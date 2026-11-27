@@ -10,7 +10,7 @@ import pg from 'pg';
 export const P4_IMAGES = {
   storage: 'chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d',
   scanner: 'clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6',
-  database: 'postgres:17.10-bookworm',
+  database: 'postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f',
 };
 export const P4_SCANNER_START = 'freshclam --stdout --config-file=/etc/clamav/p4-freshclam.conf || true; exec clamd --foreground --config-file=/etc/clamav/clamd.conf';
 /** Own all fixture resources. Never attach to existing development containers/volumes. */

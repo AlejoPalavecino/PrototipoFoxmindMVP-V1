@@ -1,3 +1,0 @@
-Generated with built-in image_gen.imagegen; 2026-11-15. Synthetic demo portrait. Original PNG retained; WebP encoded at 192×192 for offline delivery.
-
-Use case: photorealistic-natural. Create one square profile photo for a fictional demo account named Lucía in an educational app. A fictional adult woman teacher about 35 with shoulder-length dark brown hair, warm natural smile, simple muted terracotta top, soft pale warm beige studio background. Head and shoulders, face centered with generous safe space for circular avatar crop, direct eye contact, diffuse natural light, realistic skin, friendly professional and understated. No text, props, collage, border or logo. This is a synthetic demo person, not an existing real person.

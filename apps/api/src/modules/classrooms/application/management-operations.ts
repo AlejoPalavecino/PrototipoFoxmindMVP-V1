@@ -10,6 +10,8 @@ export interface DraftOperations {
 }
 export interface MembershipAccess extends Pick<ClassroomAccess, 'run' | 'classroom'>, EnrollmentPort {
  tokens: PreviewTokenPort;
+ /** Keys of the classroom code HMAC (S7). */
+ codeKeys?: { readonly signingKey?: Buffer; readonly codeDigestKey?: Buffer };
  membershipEvent(tx: Transaction, enrollmentId: string, periodId: string, event: string): Promise<void>;
  recordActivityEligibility(tx: Transaction, classroomId: string, event: {enrollment: string} | {publication: string}): Promise<void>;
 }

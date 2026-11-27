@@ -4,6 +4,8 @@ export interface ClassroomRuntimeConfiguration {
   readonly classroomQuotaBytes: bigint;
   readonly signingKey: Buffer;
   readonly deliveryKey: Buffer;
+  /** HMAC key of classroom codes (S7). Required in production; derived from the signing key elsewhere. */
+  readonly codeDigestKey?: Buffer;
   readonly webOrigin: string;
 }
 function invalid(): never { throw new ClassroomError('SERVICE_UNAVAILABLE'); }
@@ -28,5 +30,9 @@ export function readClassroomsConfiguration(env: Readonly<Record<string, string 
   } catch { return invalid(); }
   const signingKey = key(env.CLASSROOMS_SIGNING_KEY), deliveryKey = key(env.CLASSROOMS_DELIVERY_KEY);
   if (signingKey.equals(deliveryKey)) return invalid();
-  return Object.freeze({ classroomQuotaBytes: BigInt(quota), signingKey, deliveryKey, webOrigin });
+  const rawDigestKey = env.CLASSROOMS_CODE_DIGEST_KEY;
+  if (rawDigestKey === undefined && env.NODE_ENV === 'production') return invalid();
+  const codeDigestKey = rawDigestKey === undefined ? undefined : key(rawDigestKey);
+  if (codeDigestKey && (codeDigestKey.equals(signingKey) || codeDigestKey.equals(deliveryKey))) return invalid();
+  return Object.freeze({ classroomQuotaBytes: BigInt(quota), signingKey, deliveryKey, ...(codeDigestKey ? { codeDigestKey } : {}), webOrigin });
 }

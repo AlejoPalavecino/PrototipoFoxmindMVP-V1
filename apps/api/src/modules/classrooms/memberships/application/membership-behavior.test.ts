@@ -15,7 +15,7 @@ test('code confirmation keeps classroom/code/enrollment order and repeats token 
   const capability = { run: async (_: unknown, write: boolean, action: Function) => { assert.equal(write, true); return action(tx, { id: studentId, account_role: 'student', now }); },
    tokens: { read: (_: unknown, actor: string, time: number) => { assert.equal(actor, studentId); assert.equal(time, now.getTime()); events.push('token'); return { classroomId, codeId, digest: 'digest' }; } },
    enroll: async (seen: unknown, _actor: unknown, id: string, invitation: null) => { assert.equal(seen, tx); assert.equal(id, classroomId); assert.equal(invitation, null); events.push('enroll'); } };
-  const operations = createMembershipCodeOperations(repository as any, { digest: value => value });
+  const operations = createMembershipCodeOperations(repository as any, { codeDigests: (_keys: unknown, value: string) => [value] });
   const call = operations.confirmCodeOperation(capability as any, {}, 'confirmation');
   if (archived) await assert.rejects(call, { code: 'ENROLLMENT_UNAVAILABLE' }); else assert.deepEqual(await call, { id: classroomId });
   assert.deepEqual(events, ['token', 'classroom-lock', 'code', 'enrollment', 'clock', 'token', ...(archived ? [] : ['enroll'])]);
@@ -48,7 +48,7 @@ test('code misses limit each student and only legacy 6-digit guesses share the g
   findLiveCode: async () => [],
  };
  const capability = (id: string) => ({ run: async (_: unknown, _write: boolean, action: Function) => action({}, { id, account_role: 'student', now: new Date() }) });
- const operations = createMembershipCodeOperations(repository as any, { digest: value => value });
+ const operations = createMembershipCodeOperations(repository as any, { codeDigests: (_keys: unknown, value: string) => [value] });
  const preview = (id: string, code: string) => operations.previewCodeOperation(capability(id) as any, {}, code);
  const first = '44444444-4444-4444-8444-444444444444', second = '55555555-5555-4555-8555-555555555555';
  for (let n = 0; n < 20; n++) await assert.rejects(preview(first, 'ABCD-EFGH'), { code: 'ENROLLMENT_UNAVAILABLE' });

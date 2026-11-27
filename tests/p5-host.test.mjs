@@ -39,6 +39,16 @@ test('classrooms opt in only with explicit positive bigint quota, durable keys a
   }
 });
 
+test('the classroom code HMAC key is required in production and distinct from the other keys (S7)', () => {
+  assert.equal(readClassroomsConfiguration(environment, origin).codeDigestKey, undefined, 'derived outside production');
+  assert.throws(() => readClassroomsConfiguration({ ...environment, NODE_ENV: 'production' }, origin));
+  const production = readClassroomsConfiguration({ ...environment, NODE_ENV: 'production', CLASSROOMS_CODE_DIGEST_KEY: key(3) }, origin);
+  assert.equal(production.codeDigestKey.toString('base64url'), key(3));
+  for (const bad of [key(1), key(2), 'a'.repeat(43), '']) {
+    assert.throws(() => readClassroomsConfiguration({ ...environment, CLASSROOMS_CODE_DIGEST_KEY: bad }, origin), bad);
+  }
+});
+
 test('main configuration preserves disabled P3 behavior and requires integrated P4 when P5 is enabled', () => {
   const base = { DATABASE_URL: 'postgres://fixture:fixture@127.0.0.1:59999/fixture', ...identityTestEnvironment() };
   const disabled = readConfiguration(base);
@@ -94,6 +104,7 @@ async function host(t, options = {}) {
   const runtime = { configuration: { security: { secureCookies: false, clientAddress: request => request.socket.remoteAddress,
     assertOrigin(value) { if (value !== origin) throw new IdentityHttpError('ORIGIN_NOT_ALLOWED'); },
     validateCsrf(raw, submitted) { return raw === verifier && submitted === 'valid'; } } },
+    authenticateVerifier(verifier) { return this.store.authenticate(verifier); }, admitBuckets(buckets) { return this.store.admit?.(this.configuration.security, buckets); }, 
     store: { async authenticate() { authenticated++; return options.anonymous ? null : {
       verifier, sessionId: 'session', user: { id: 'user', email_verified_at: options.unverified ? null : new Date() } }; } },
     async generalAdmission(ip) { admitted++; assert.ok(ip); if (options.rateLimited) throw new IdentityHttpError('RATE_LIMITED', 17); } };

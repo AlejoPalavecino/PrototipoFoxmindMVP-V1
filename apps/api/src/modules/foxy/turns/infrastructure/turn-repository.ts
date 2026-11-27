@@ -122,7 +122,7 @@ export function createFoxyTurnRepository() {
     async cancel(tx: SqlTransaction, owner: string, conversationId: string, turnId: string) {
       id(owner); id(conversationId); id(turnId);
       // The API holds the actor lock. Do not wait on a worker holding the budget lock.
-      if (!await tryLockAiBudget(tx)) return fail('CONFLICT');
+      if (!await tryLockAiBudget(tx, owner)) return fail('CONFLICT');
       const [row] = await tx.query<ReadRow & FoxyTurnReservation>(`SELECT t.* FROM foxy_turns t
         JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
         WHERE t.owner_id=$1::uuid AND t.conversation_id=$2::uuid AND t.id=$3::uuid AND c.deleted_at IS NULL

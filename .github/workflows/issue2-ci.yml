@@ -40,7 +40,7 @@ jobs:
         run: node --test tests/issue2-ci-workflow.test.mjs
       - name: Pull fixture images
         run: |
-          docker pull postgres:17.10-bookworm
+          docker pull postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f
           docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
           docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
       - name: Run affected P7/P8 regressions
@@ -124,7 +124,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Pull owned fixture images
         run: |
-          docker pull postgres:17.10-bookworm
+          docker pull postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f
           docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
           docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
       - name: Run owned disposable integration suite
@@ -151,7 +151,7 @@ jobs:
       - if: matrix.group != 'fast'
         name: Pull disposable fixture images
         run: |
-          docker pull postgres:17.10-bookworm
+          docker pull postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f
           docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
           docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
           docker pull axllent/mailpit:v1.31.6
@@ -182,7 +182,7 @@ jobs:
       - if: matrix.group != 'fast'
         name: Pull disposable fixture images
         run: |
-          docker pull postgres:17.10-bookworm
+          docker pull postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f
           docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
           docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
           docker pull axllent/mailpit:v1.31.6

@@ -20,7 +20,7 @@ test('internal AI quota explains renewal and retry uses a fresh request identity
   });
   const data = { message: 'Hola' };
   await assert.rejects(api.command(id, '1', 'CHAT', data), {
-    code: 'AI_BUDGET_EXCEEDED', status: 429, message: /cupo diario de IA.*00:00 UTC/u,
+    code: 'AI_BUDGET_EXCEEDED', status: 429, message: /cupo diario de IA.*medianoche, hora de Buenos Aires/u,
   });
   assert.equal((await api.command(id, '3', 'CHAT', data)).result.status, 'COMPLETED');
   assert.notEqual(requests[0].requestId, requests[1].requestId);

@@ -21,5 +21,6 @@ export interface ClassroomPorts {
   classroomQuotaBytes: bigint;
   signingKey: Buffer;
   deliveryKey: Buffer;
+  codeDigestKey?: Buffer;
   webOrigin: string;
 }

@@ -19,7 +19,7 @@ import { pathToFileURL } from 'node:url';
 const node = process.execPath;
 const nodeTest = file => [node, ['--experimental-transform-types', '--disable-warning=ExperimentalWarning', '--test', '--test-concurrency=1', file], 360_000];
 const npm = (args, timeout = 1_800_000) => ({ shell: true, command: `npm ${args}`, timeout });
-const images = ['postgres:17.10-bookworm', 'chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d',
+const images = ['postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f', 'chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d',
   'clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6'];
 const mailpit = ['axllent/mailpit:v1.31.6', 'axllent/mailpit:v1.31.6@sha256:23fe39e81bde596a918000b3135c0f85dc8bb4c9ea6be274b051143f3e300387'];
 export const gitleaksImage = 'ghcr.io/gitleaks/gitleaks:v8.24.3@sha256:e1b35e12a8c6fa8901f060459cfb6b2fc4c484d3afbe3b029733a3bbfab07055';

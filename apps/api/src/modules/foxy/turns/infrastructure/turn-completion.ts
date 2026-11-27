@@ -3,7 +3,7 @@ import type { SqlDatabase, SqlTransaction } from '../../../../../../../src/core/
 import type { FoxyAnswer } from '../../../../../../../src/core/domain/foxy/resource.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
 import { checkClaimStatus } from './claim-authority-check.ts';
-import { lockAiAdmission } from '../../../../platform/ai/admission.ts';
+import { lockAiAdmission, lockAiBudget } from '../../../../platform/ai/admission.ts';
 
 type Usage = { inputTokens: number | null; outputTokens: number | null };
 type Result = { state: 'READY'; answer: FoxyAnswer; referenceMap: unknown[]; sourceReport: unknown[]; usage?: Usage }
@@ -28,7 +28,7 @@ async function acquire(tx: SqlTransaction, lease: FoxyTurnLease): Promise<Locked
     'SELECT classroom_id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid', lease.conversationId, lease.ownerId);
   if (scope?.classroom_id) await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR SHARE', scope.classroom_id);
   await tx.query('SELECT id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid FOR SHARE', lease.conversationId, lease.ownerId);
-  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  await lockAiBudget(tx, lease.ownerId);
   const [row] = await tx.query<Locked>(`SELECT reserved_microusd,dispatch_count FROM foxy_turns WHERE id=$1::uuid AND owner_id=$2::uuid
     AND conversation_id=$3::uuid AND lease_nonce=$4::uuid AND state='RUNNING' AND lease_until>clock_timestamp() FOR UPDATE`,
   lease.turnId, lease.ownerId, lease.conversationId, lease.leaseNonce);

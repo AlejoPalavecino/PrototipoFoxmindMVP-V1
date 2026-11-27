@@ -16,7 +16,7 @@ test('management routes enforce real sessions, roles, CSRF, validation and stabl
    actors.push({id,cookie:`foxmind_session=${token}`,csrf:security.csrfToken(token)});
   }
   const tx={query:async(sql,...args)=>(await pool.query(sql,args)).rows},admissions=[],calls=[],resource=randomUUID(),publication=randomUUID(),classroom=randomUUID();
-  const runtime={configuration:{security},store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
+  const runtime={configuration:{security},authenticateVerifier(verifier){return this.store.authenticate(verifier);},admitBuckets(buckets){return this.store.admit?.(this.configuration.security,buckets);},store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
   const receipt={publicationId:publication,publicationRevision:'1',action:'RETRY'},services={publicationManagement:{inspect:async(_req,id)=>{calls.push(['inspect',id]);return {publicationId:id,publicationRevision:'0',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'};},
    retry:async(_req,id,input)=>{calls.push(['retry',id,input]);return receipt;},discard:async(_req,id,input)=>{calls.push(['discard',id,input]);return {...receipt,action:'DISCARD'};}}};
   let mount,middleware;const app={use:(path,fn)=>{if(typeof path==='function'){mount='';middleware=path;}else{mount=path;middleware=fn;}}};api.installFoxyTransport(app,runtime,services);

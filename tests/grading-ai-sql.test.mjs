@@ -65,7 +65,7 @@ test('SQL durable grading AI en PostgreSQL efímero aislado', { timeout: 120000 
     });
     await t.test('presupuesto ya consumido por otras capacidades impide reservar y no despacha', async () => {
       const f = await setup(pool), q = await queue(database), claimed = await q.claim(); assert.equal(claimed.id, f.job);
-      await pool.query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count) VALUES((now() AT TIME ZONE 'UTC')::date,'global','study-plan-v1',$1)
+      await pool.query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count) VALUES((now() AT TIME ZONE 'America/Argentina/Buenos_Aires')::date,'global','study-plan-v1',$1)
         ON CONFLICT(day,scope,capability) DO UPDATE SET request_count=$1`, [configuration.dailyGlobalRequests]);
       // The rejection carries its reason so the runtime can persist it as the job's retryable error code.
       await assert.rejects(q.reserve(claimed, 30), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });

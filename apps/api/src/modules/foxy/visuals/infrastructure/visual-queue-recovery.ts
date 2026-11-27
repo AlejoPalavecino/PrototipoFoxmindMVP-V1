@@ -45,7 +45,7 @@ export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJ
           AND j.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp() AND c.deleted_at IS NULL AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
           AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id AND r.archived_at IS NULL)))
         ORDER BY j.lease_until,j.id LIMIT 1`,maxJobAgeMs);
-      if (!ref || !await tryLockAiBudget(tx)) return false;
+      if (!ref || !await tryLockAiBudget(tx,ref.owner_id)) return false;
       const context=await authorized(tx,ref);
       const [job]=await tx.query<Job>("SELECT snapshot,selection,kind,aspect_ratio FROM foxy_visual_jobs WHERE id=$1::uuid AND state='RUNNING' AND dispatch_count=1 AND lease_until<=clock_timestamp() FOR UPDATE",ref.id);
       if (!job) return unavailable();

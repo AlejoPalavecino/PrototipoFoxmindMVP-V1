@@ -1,23 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
-import { IdentityHttpError } from '../modules/identity/domain/errors.ts';
 import { type IdentityRuntime } from './identity-runtime.ts';
-import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
+import { admitRequest } from './http-admission.ts';
 import { createHomeHandler } from '../modules/home/dashboard/presentation/http.ts';
 import type { HomeService } from '../modules/home/public.ts';
 export function installHomeTransport(app: Pick<INestApplication,'use'>, runtime: IdentityRuntime, service: HomeService): void {
-  const handler = createHomeHandler(service,{ async admit(request, _write, response) {
-    const cookie = readSessionCookie(request.headers.cookie);
-    const context = cookie.verifier ? await runtime.store.authenticate(cookie.verifier) : null;
-    if (cookie.present && !context) response.setHeader('Set-Cookie',clearSessionCookie(runtime.configuration.security));
-    const ip = runtime.configuration.security.clientAddress(request);
-    if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
-    await runtime.generalAdmission(ip,context);
-    if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
-    if (!context.user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
-  } });
+  const handler = createHomeHandler(service,{ async admit(request, write, response) { await admitRequest(runtime, request, response, { write }); } });
   app.use('/api/v1',(request:IncomingMessage,response:ServerResponse,next:()=>void) => {
     const path = request.url?.split('?')[0];
     if (path !== '/home' && !path?.startsWith('/home/')) { next(); return; }

@@ -36,7 +36,8 @@ test('classroom proxy forwards exact routes/security headers and legitimate larg
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   assert.equal(response.headers.get('retry-after'), '8');
-  assert.match(response.headers.get('set-cookie'), /rotated/);
+  // Outside identity the API only ever clears the session; any other cookie is dropped by the proxy.
+  assert.equal(response.headers.get('set-cookie'), null);
 }));
 
 test('unknown paths/queries/methods/schema/encoding and excessive JSON never reach upstream', async () => {

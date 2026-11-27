@@ -3,7 +3,7 @@ import { parseTeacherSupportQuery } from '../../../../../src/core/domain/grading
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
-import { discardRejectedBody } from './rejected-request-body.ts';
+import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 import { generationSchema } from './activity-generation-proxy.ts';
 import { isClassroomCoverKey } from '../../../../../src/core/domain/classrooms/cover.ts';
 import { parseBrujulaSearchQuery } from '../../../../../src/core/domain/classrooms/brujula-search.ts';
@@ -81,22 +81,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/invitations/${uuid}/revoke`, { POST: [] }), rule(`/${uuid}/leave`, { POST: [] }),
   rule(`/${uuid}/members/${uuid}/remove`, { POST: [] }),
 ];
-function destination(value: string | undefined): string {
-  if (!value) throw new Error('Missing configuration');
-  const url = new URL(value);
-  const local = ['127.0.0.1', '[::1]', 'localhost'].includes(url.hostname);
-  if (url.origin !== value || url.username || url.password ||
-    (url.protocol !== 'https:' && !(local && url.protocol === 'http:'))) throw new Error('Invalid configuration');
-  return url.origin;
-}
-function fail(response: ServerResponse, status: number, code: string) {
-  if (response.destroyed || response.writableEnded) return;
-  if (response.headersSent) { response.destroy(); return; }
-  const requestId = crypto.randomUUID();
-  response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store',
-    'X-Content-Type-Options': 'nosniff', 'X-Request-Id': requestId, ...(status === 503 ? { 'Retry-After': '3' } : {}) });
-  response.end(JSON.stringify({ error: { code, requestId } }));
-}
+const fail = sendError;
 function length(value: string | string[] | undefined): number | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== 'string' || !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) throw new Error('Invalid length');
@@ -225,13 +210,8 @@ function activitySchema(value: unknown): boolean {
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
 export async function proxyClassroomRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
   const metadataDeadline = performance.now() + 10_000;
-  const reject = async (status: number, code: string) => {
-    if (!request.readableEnded && !response.headersSent) {
-      response.setHeader('Connection', 'close');
-      if (!await discardRejectedBody(request, response, requestLimit + 1, metadataDeadline)) return;
-    }
-    fail(response, status, code);
-  };
+  const reject = (status: number, code: string) =>
+    rejectRequest(request, response, new ProxyRejection(status, code), { budget: requestLimit + 1, deadline: metadataDeadline });
   let url: URL;
   try {
     // Validate raw spelling before WHATWG normalization can erase traversal segments.
@@ -291,7 +271,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     await reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
-  try { origin = destination(configuredOrigin); } catch { await reject(503, 'SERVICE_UNAVAILABLE'); return; }
+  try { origin = apiDestination(configuredOrigin); } catch { await reject(503, 'SERVICE_UNAVAILABLE'); return; }
   try { expected = length(request.headers['content-length']); } catch { await reject(400, 'INVALID_INPUT'); return; }
   if (request.headers['content-encoding'] && request.headers['content-encoding'] !== 'identity') { await reject(400, 'INVALID_INPUT'); return; }
   if ((expected ?? 0) > requestLimit) { await reject(413, 'REQUEST_TOO_LARGE'); return; }
@@ -367,7 +347,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         JSON.parse(content.toString('utf8'));
         if (settled) return;
         const output: Record<string, string | string[]> = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-        for (const name of ['retry-after', 'x-request-id', 'set-cookie']) { const value = result.headers[name]; if (value !== undefined) output[name] = value; }
+        Object.assign(output, relayHeaders(result, 'session-clear'));
         response.writeHead(status, output); response.end(content);
       })().catch(unavailable);
     });

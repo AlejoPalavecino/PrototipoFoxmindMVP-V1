@@ -4,9 +4,17 @@ export async function lockAiAdmission(tx: SqlTransaction): Promise<void> {
   await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
 }
 
+// Budget work is serialized per owner (two-key form, so it never meets the single-key queue locks).
+// The exact global daily cap is kept by the global ai_usage_daily row, always locked before the owner's row.
+const budgetLock = '78123001,hashtext(($1::uuid)::text)';
+
+export async function lockAiBudget(tx: SqlTransaction, ownerId: string): Promise<void> {
+  await tx.query(`SELECT 1 FROM pg_advisory_xact_lock(${budgetLock})`, ownerId);
+}
+
 /** When admission is already held, defer budget work instead of blocking other queues. */
-export async function tryLockAiBudget(tx: SqlTransaction): Promise<boolean> {
-  const [result] = await tx.query<{ acquired: boolean }>('SELECT pg_try_advisory_xact_lock(78123001) AS acquired');
+export async function tryLockAiBudget(tx: SqlTransaction, ownerId: string): Promise<boolean> {
+  const [result] = await tx.query<{ acquired: boolean }>(`SELECT pg_try_advisory_xact_lock(${budgetLock}) AS acquired`, ownerId);
   return result?.acquired === true;
 }
 
