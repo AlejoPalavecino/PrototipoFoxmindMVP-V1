@@ -1,5 +1,6 @@
 import styles from '../styles/classroom-secondary.module.css';
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
 import { Cover, coverOptions } from '../../../../../shared-ui/academic-cover.tsx';
@@ -25,7 +26,7 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
   [room.name, room.subject, room.division, room.academicYear, room.aiGradingEnabled, room.coverKey]);
   const [savedSettings, setSavedSettings] = useState(persistedSettings);
   const [saved, setSaved] = useState(false);
-  useEffect(() => { setSavedSettings(persistedSettings); }, [id, persistedSettings]);
+  useResetOnChange([id, persistedSettings], () => setSavedSettings(persistedSettings));
   const dirty = (Object.keys(settings) as (keyof Settings)[]).some(key => settings[key] !== savedSettings[key]);
   const covers = coverOptions(room.coverKey);
   // The service may be unavailable: then it can still be turned off, never on.

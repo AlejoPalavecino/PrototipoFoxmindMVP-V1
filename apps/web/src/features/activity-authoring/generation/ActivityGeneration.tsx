@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import type { ActivityProposal } from '../../../../../../src/core/domain/activities/activity-generation.ts';
 import type { ActivityGenerationOperations } from '../model/authoring-operations.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
@@ -67,7 +68,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     else { focusSettings.current = true; setSettingsOpen(true); }
   }
   const uncertain = view?.error === 'PROVIDER_OUTCOME_UNKNOWN';
-  useEffect(() => { setCharge(false); }, [view?.id]);
+  useResetOnChange([view?.id], () => setCharge(false));
   useEffect(() => {
     if (!review && view?.state === 'READY' && view.proposal) setReview({ id: view.id, proposal: structuredClone(view.proposal) });
   }, [review, view]);

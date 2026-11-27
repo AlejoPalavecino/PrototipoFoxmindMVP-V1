@@ -31,6 +31,7 @@ import { commitChatTiming } from '../../../shared/chat-timing';
 
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import Link from 'next/link';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback';
 import type { StudyCreation, StudyDetail, StudyCollection } from '../model/study-contracts.ts';
@@ -124,7 +125,7 @@ export function StudyWorkspace({
   const active = !archived;
   const strategyRoom = active ? catalog.classrooms.find(room => room.id===f.linkedClassroomId && !room.archived) : undefined;
   const strategyClient = useMemo(() => createStudyClient(),[]);
-  useEffect(() => setArchived(f.status === 'ARCHIVED'), [f.status]);
+  useResetOnChange([f.status], () => setArchived(f.status === 'ARCHIVED'));
 
   const panelLauncher = useRef<HTMLButtonElement | null>(null);
   function openPanelFrom(next: 'context' | 'library' | 'options', launcher: HTMLButtonElement) {

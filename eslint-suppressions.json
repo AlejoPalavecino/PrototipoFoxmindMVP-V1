@@ -1,12 +1,12 @@
 {
   "apps/shared-ui/AppNavbar.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/shared-ui/FoxyChatLayout.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 3
+      "count": 1
     }
   },
   "apps/shared-ui/NavigationSearch.tsx": {
@@ -39,11 +39,6 @@
       "count": 1
     }
   },
-  "apps/web/src/application/workflows/foxy-workspace/FoxyResourceWorkspace.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 3
-    }
-  },
   "apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 2
@@ -61,7 +56,7 @@
   },
   "apps/web/src/features/activity-authoring/generation/ActivityGeneration.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/features/activity-authoring/generation/use-activity-generation.ts": {
@@ -99,11 +94,6 @@
       "count": 1
     }
   },
-  "apps/web/src/features/classrooms/settings/ClassroomSettings.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "apps/web/src/features/communication/ui/Wall.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -120,11 +110,6 @@
     }
   },
   "apps/web/src/features/foxy/context/foxy-context-picker.tsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "apps/web/src/features/foxy/visuals/foxy-visual-reader-dialog.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -196,7 +181,7 @@
   },
   "apps/web/src/features/materials/publishing/MaterialPublishing.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 3
+      "count": 1
     }
   },
   "apps/web/src/features/materials/reader/MaterialReader.tsx": {
@@ -231,7 +216,7 @@
   },
   "apps/web/src/features/study/ui/study-workspace.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 2
+      "count": 1
     }
   },
   "apps/web/src/features/study/workspace/StudySharedStrategyDialog.tsx": {

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { classroomHomeHref } from '../../navigation/destinations';
 import { DocumentEditor } from '../../../../../shared-ui/document-editor';
 import { DocumentReader } from '../../../../../shared-ui/document-reader';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import { DocumentDownloads } from '../../../../../shared-ui/document-downloads';
 import { resourceBodyWithoutRepeatedTitle } from '../../../../../../src/core/domain/documents/resource-markdown.ts';
 import type { DocumentIllustration } from '../../../../../shared-ui/document-pdf';
@@ -45,13 +46,10 @@ export function FoxyResourceWorkspace(props: Props) {
   const conflict = !!resource.conflict || resource.errorCode === 'CONFLICT';
   const showEditor = !quiz && (editingOpen || conflict || resource.dirty);
   const resourceId = resource.resource?.id;
-  useEffect(() => {
-    setEditingOpen(false);
-    setSharingOpen(false);
-    setHandoffOpen(false);
-  }, [resourceId]);
-  useEffect(() => { if (conflict) setEditingOpen(true); }, [resourceId, conflict]);
-  useEffect(() => { if (props.initialHandoffMode) { setSharingOpen(true); setHandoffOpen(true); } }, [resourceId, props.initialHandoffMode]);
+  // Same order as the former effects: a new resource closes everything, then a conflict or a handoff reopens.
+  useResetOnChange([resourceId], () => { setEditingOpen(false); setSharingOpen(false); setHandoffOpen(false); }, true);
+  useResetOnChange([resourceId, conflict], () => { if (conflict) setEditingOpen(true); }, true);
+  useResetOnChange([resourceId, props.initialHandoffMode], () => { if (props.initialHandoffMode) { setSharingOpen(true); setHandoffOpen(true); } }, true);
   useEffect(() => {
     const dialog = ref.current; if (!dialog || props.panel) return;
     const doc = dialog.ownerDocument, parent = doc.activeElement?.closest('dialog') as HTMLDialogElement | null;

@@ -1,4 +1,5 @@
 import {useEffect,useEffectEvent,useRef,useState} from 'react';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import type {ReactNode} from 'react';
 import {openDialog} from '../../../../../shared-ui/dialog-focus';
 import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
@@ -29,7 +30,7 @@ export function FoxyVisualReaderDialog(props:Props){
   const refreshIfIdle=useEffectEvent(()=>{if(!state.dirty&&!state.pending&&!state.loading)void actions.refresh();});
   useEffect(()=>{refreshIfIdle();},[props.assetId,actions]);
   useEffect(()=>{const dialog=ref.current;if(mode==='edit')dialog?.querySelector<HTMLInputElement>('input')?.focus();else dialog?.querySelector<HTMLHeadingElement>('h2')?.focus();},[mode]);
-  useEffect(()=>{if(state.conflict)setMode('edit');},[state.conflict]);
+  useResetOnChange([state.conflict],()=>{if(state.conflict)setMode('edit');},true);
   const save=async()=>{if(await(state.pending?actions.retry():actions.save())){setMode('read');setNotice('Guardaste tu creación.');}};
   const heading=mode==='edit'?'Dale tu mirada':mode==='share'?'Directo a tu Biblioteca':mode==='discard'?'¿Descartás tus cambios?':'Antes de salir';
   const subtitle=mode==='edit'?'Los cambios quedan en tu creación privada.':mode==='share'?'Revisá el destino. No necesitás descargar ni volver a subir el archivo.':mode==='discard'?'La versión guardada se conserva.':'La solicitud puede haberse completado.';

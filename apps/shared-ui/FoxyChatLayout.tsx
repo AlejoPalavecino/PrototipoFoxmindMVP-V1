@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent, useId, useRef, useState, type ReactNode } from 'react';
+import { useResetOnChange } from './use-reset-on-change.ts';
 import { AccountAvatar } from './AccountAvatar';
 import { openDialog } from './dialog-focus';
 import { FoxmindIcon } from './FoxmindIcon';
@@ -116,8 +117,8 @@ export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenK
     window.dispatchEvent?.(new Event('foxmind:chat-enter'));
     return () => { window.dispatchEvent?.(new Event('foxmind:chat-exit')); };
   }, []);
-  useEffect(() => setHistoryVisible(false), [historyKey]);
-  useEffect(() => { if(historyOpenKey) setHistoryVisible(true); }, [historyOpenKey]);
+  useResetOnChange([historyKey], () => setHistoryVisible(false), true);
+  useResetOnChange([historyOpenKey], () => { if (historyOpenKey) setHistoryVisible(true); }, true);
   const close = () => { setHistoryVisible(false); onView('chat'); };
   const tray = historyVisible ? 'history' : view === 'creations' ? 'creations' : null;
   const fold = (next: boolean) => {
