@@ -533,6 +533,7 @@
     "tests/p3-browser.test.mjs",
     "tests/p3-web-client.test.mjs",
     "tests/p3-web-proxy.test.mjs",
+    "tests/web-security-headers.test.mjs",
     "tests/p31-contracts.test.mjs",
     "tests/p32-mail-capture.test.mjs",
     "tests/p32-mail-command.test.mjs",

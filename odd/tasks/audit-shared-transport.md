@@ -51,15 +51,15 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Evidence:** {"command":"pruebas de identidad, archivos, estudio y Foxy; web-proxy-transport; run-complete-suite fast, owned-db, wrappers","result":"RED: archivos reenviaba text/html (verificado contra el proxy anterior); GREEN: web-proxy-transport 4/4, p4 7/7, p3 11/11, foxy 17/17, rejection-lifecycle 14/14, study streaming 3/3; fast 3228/3228, owned-db 962/962, wrappers 19/19","candidate":"sha256:56b160fd266c03542845d7abbe6093a9b9891ee4a03aea12b125738c2aeb8676"}
 - **Blocker:** none
 
-### TASK-003 — Aulas sobre el núcleo y reglas de dominio sólo en la API
-- **State:** PLANNED
+### TASK-003 — Aulas sobre el núcleo
+- **State:** DONE
 - **Depends on:** TASK-002
 - **Owner:** orchestrator
-- **Requirements:** REQ-001, REQ-006
-- **Verification:** pruebas de aulas y, por cada regla retirada del proxy, una prueba de que la API la rechaza
-- **Acceptance:** El proxy de aulas usa el núcleo y no valida reglas de dominio que la API ya valida.
-- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts"]
-- **Evidence:** none
+- **Requirements:** REQ-001, REQ-003
+- **Verification:** las 25 pruebas que usan el proxy de aulas y las suites completas
+- **Acceptance:** El proxy de aulas usa destino, error, rechazo y cookies del núcleo; deja de reenviar cookies que no sean el borrado de sesión; sus reglas de dominio siguen sin cambios hasta TASK-005.
+- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts", "tests/p5-web-proxy.test.mjs"]
+- **Evidence:** {"command":"las 25 pruebas que usan el proxy de aulas; run-complete-suite fast, owned-db, wrappers","result":"RED: p5-web-proxy con la nueva asercion de cookie falla contra el proxy anterior, que reenviaba la cookie rotada; GREEN: 25 archivos en verde (p5-web-proxy 9/9); fast 3228/3228, owned-db 962/962, wrappers 19/19","candidate":"sha256:f2f51c0a26dfcce264c6e73066c29dc60605d0d506363e2aefc4048fae10533b"}
 - **Blocker:** none
 
 ### TASK-004 — Una sola admisión en los hosts de la API
@@ -70,5 +70,16 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Verification:** pruebas de hosts y wrappers de identidad
 - **Acceptance:** Los nueve hosts usan `admitRequest`; todo 429 lleva `Retry-After`; el origen y el CSRF se exigen en todos los métodos de escritura; ningún archivo fuera de identidad lee `IdentityRuntime.store`.
 - **Scope:** ["apps/api/src/bootstrap/http-admission.ts"]
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-005 — Reglas de dominio sólo en la API (F2)
+- **State:** PLANNED
+- **Depends on:** TASK-003
+- **Owner:** orchestrator
+- **Requirements:** REQ-006
+- **Verification:** por cada regla retirada de un proxy, una prueba de que la API la rechaza con el mismo código
+- **Acceptance:** Los proxies de aulas, agenda, home, archivos y Foxy conservan rutas, métodos, tamaño y tipo de contenido, y no validan reglas de dominio que la API ya valida. Se hace en subcortes por dominio.
+- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts"]
 - **Evidence:** none
 - **Blocker:** none
