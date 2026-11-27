@@ -16,7 +16,7 @@ function mount(Component, props) {
   const same = (a, b) => a && b && a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
   const hooks = {
     useState(initial) { const i = cursor++; slots[i] ??= { value: typeof initial === 'function' ? initial() : initial };
-      return [slots[i].value, next => { slots[i].value = typeof next === 'function' ? next(slots[i].value) : next; dirty = true; }]; },
+      return [slots[i].value, slots[i].set ??= next => { slots[i].value = typeof next === 'function' ? next(slots[i].value) : next; dirty = true; }]; },
     useRef(value) { return slots[cursor++] ??= { current: value }; },
     useMemo(factory, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value: factory(), deps }; return slots[i].value; },
     useCallback(value, deps) { const i = cursor++; if (!same(slots[i]?.deps, deps)) slots[i] = { value, deps }; return slots[i].value; },

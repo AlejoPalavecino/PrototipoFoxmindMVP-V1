@@ -30,8 +30,7 @@
       "lineLength": 268
     },
     "apps/web/src/application/workflows/activity-session/Activities.tsx": {
-      "fileLines": 817,
-      "useState": 23
+      "fileLines": 810
     },
     "apps/web/src/application/workflows/activity-session/ActivityPreview.tsx": {
       "lineLength": 302

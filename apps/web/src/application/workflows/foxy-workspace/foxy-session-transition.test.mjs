@@ -8,7 +8,7 @@ import { deferred } from "../../../../../../tests/agenda-ui-helpers.test.mjs";
 function hookView(Component) {
   const slots=[], cleanups=new Map(); let cursor=0,dirty=true,tree,effects=[];
   const same=(a,b)=>a && b && a.length===b.length && a.every((x,i)=>Object.is(x,b[i]));
-  const hooks={useState(initial){const i=cursor++;if(!slots[i])slots[i]={value:typeof initial==='function'?initial():initial};return [slots[i].value,next=>{const value=typeof next==='function'?next(slots[i].value):next;if(!Object.is(value,slots[i].value)){slots[i].value=value;dirty=true;}}];},
+  const hooks={useState(initial){const i=cursor++;if(!slots[i])slots[i]={value:typeof initial==='function'?initial():initial};return [slots[i].value,slots[i].set??=next=>{const value=typeof next==='function'?next(slots[i].value):next;if(!Object.is(value,slots[i].value)){slots[i].value=value;dirty=true;}}];},
     useRef(value){const i=cursor++;return slots[i]??={current:value};},
     useCallback(value,deps){const i=cursor++;if(!same(slots[i]?.deps,deps))slots[i]={value,deps};return slots[i].value;},
     useEffectEvent(callback) { const slot = slots[cursor++] ??= {}; slot.callback = callback; return slot.event ??= (...args) => slot.callback(...args); },

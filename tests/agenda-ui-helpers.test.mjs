@@ -12,7 +12,8 @@ export function hookView(Component, props) {
     useState(initial) {
       const i = cursor++;
       if (!slots[i]) slots[i] = { value: typeof initial === 'function' ? initial() : initial };
-      return [slots[i].value, next => {
+      // Like React, the setter keeps its identity across renders.
+      return [slots[i].value, slots[i].set ??= next => {
         const value = typeof next === 'function' ? next(slots[i].value) : next;
         if (!Object.is(value, slots[i].value)) { slots[i].value = value; dirty = true; }
       }];

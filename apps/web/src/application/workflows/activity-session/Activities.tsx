@@ -1,14 +1,12 @@
 'use client';
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import type { AcademicTarget } from '../../../../../../src/core/contracts/notifications.ts';
 import type { ActivityData, ActivitySummary } from '../../../../../../src/core/contracts/activities.ts';
 import type { AttemptSessionData } from '../../../../../../src/core/contracts/participation.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
-import type { ProgressData } from '../../../../../../src/core/contracts/grading.ts';
 import type { Material } from '../../../../../../src/core/contracts/materials.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
-import type { GenerationFormValue } from '../../../features/activity-authoring/index.ts';
 import { ActivityAuthoring, activityTypeLabels } from '../../../features/activity-authoring/index.ts';
 import { ActivityGeneration } from '../../../features/activity-authoring/index.ts';
 import { createActivityAuthoringApi } from '../../../features/activity-authoring/api.ts';
@@ -21,6 +19,8 @@ import { openActivitySession } from '../../../features/participation/index.ts';
 import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
 import { localActivityDraft } from '../../../features/activity-authoring/index.ts';
 import { consumeActivityResponse } from '../../../features/participation/index.ts';
+import { useActivityList, useDeliveryCounts } from './use-activity-list.ts';
+import { useActivityEditorState } from './use-activity-editor-state.ts';
 
 const teacherViews = [
   { key: 'PUBLISHED', label: 'Compartidas' },
@@ -61,25 +61,34 @@ export function Activities({
   active?: boolean;
 }) {
   const authoringApi = useMemo(() => createActivityAuthoringApi(api, room.id), [api, room.id]);
-  const [assignment, setAssignment] = useState<ClassroomCreationContext>(
-    creationContext ?? { unitId: '', topicIds: [] },
-  );
-  const [editorContext, setEditorContext] = useState<ClassroomCreationContext | null>(null);
-  const [editorReview, setEditorReview] = useState(false);
-  const seenCreationContext = useRef<ClassroomCreationContext | null>(null);
-  const [pendingCreationContext, setPendingCreationContext] = useState<ClassroomCreationContext | null>(null);
-  const [generating, setGenerating] = useState(false);
-  const [generationStart, setGenerationStart] = useState<GenerationFormValue | null>(null);
-  const [editorContent, setEditorContent] = useState(false);
-  const [choosing, setChoosing] = useState(false);
-  const [activities, setActivities] = useState<ActivitySummary[]>([]),
-    [loaded, setLoaded] = useState(false);
-  const [editing, setEditing] = useState<ActivityData | null>(null),
-    [preview, setPreview] = useState<ActivityData | null>(null);
-  const [materials, setMaterials] = useState<Material[]>([]);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
+  const {
+    assignment,
+    setAssignment,
+    editorContext,
+    setEditorContext,
+    editorReview,
+    setEditorReview,
+    pendingCreationContext,
+    setPendingCreationContext,
+    generating,
+    setGenerating,
+    generationStart,
+    setGenerationStart,
+    editorContent,
+    setEditorContent,
+    choosing,
+    setChoosing,
+    editing,
+    setEditing,
+    materials,
+    setMaterials,
+  } = useActivityEditorState(creationContext);
+  const seenCreationContext = useRef<ClassroomCreationContext | null>(null);
+  const { activities, loaded, load } = useActivityList(api, room.id, setError);
+  const [preview, setPreview] = useState<ActivityData | null>(null);
   const [consultation, setConsultation] = useState<AttemptSessionData | null>(null);
   const [session, setSession] = useState<AttemptSessionData | null>(null),
     [authorization, setAuthorization] = useState<string | null>(null);
@@ -120,30 +129,11 @@ export function Activities({
       setAuthorization(null);
       setConfirm(null);
     }
-  }, [active]);
+  }, [active, setChoosing]);
   const teacher = room.role === 'teacher',
     writable = teacher && !room.archived;
   const visibleActivities = teacher ? activities.filter(activity => activity.status === view) : activities;
-  const [deliveryCounts, setDeliveryCounts] = useState<Record<string, number>>({});
-  useEffect(() => {
-    if (!teacher || !loaded) return;
-    const controller = new AbortController();
-    void api
-      .call<ProgressData>(`/${room.id}/progress`, 'GET', undefined, controller.signal)
-      .then(progress => {
-        if (controller.signal.aborted || progress.scope !== 'classroom') return;
-        const counts: Record<string, number> = Object.fromEntries(activities.map(activity => [activity.id, 0]));
-        for (const student of progress.students)
-          for (const activity of student.activities) {
-            if (activity.firstSubmission) counts[activity.id] = (counts[activity.id] ?? 0) + 1;
-          }
-        setDeliveryCounts(counts);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setDeliveryCounts({});
-      });
-    return () => controller.abort();
-  }, [api, room.id, teacher, loaded, activities]);
+  const deliveryCounts = useDeliveryCounts(api, room.id, teacher && loaded, activities);
   const visibility = useRef({ active });
   if (visibility.current.active !== active) visibility.current = { active };
   useEffect(() => {
@@ -154,7 +144,7 @@ export function Activities({
       setAssignment({ ...creationContext, topicIds: [...creationContext.topicIds] });
       setChoosing(true);
     }
-  }, [creationContext, editing, generating]);
+  }, [creationContext, editing, generating, setAssignment, setChoosing, setPendingCreationContext]);
   const libraryDraftContext = useEffectEvent(() => ({ assignment, room, consumed: onCreationContextConsumed }));
   useEffect(() => {
     if (!choosing || !writable || !active) return;
@@ -180,31 +170,22 @@ export function Activities({
         }
       });
     return () => controller.abort();
-  }, [choosing, writable, active, api, room.id]);
+  }, [
+    choosing,
+    writable,
+    active,
+    api,
+    room.id,
+    setChoosing,
+    setEditing,
+    setEditorContent,
+    setEditorContext,
+    setEditorReview,
+    setMaterials,
+  ]);
   useEffect(() => {
     if (active && openAuthoring && writable) setChoosing(true);
-  }, [active, openAuthoring, writable]);
-  const load = useCallback(
-    async (signal?: AbortSignal) => {
-      const result = await api.call<{ activities: ActivitySummary[] }>(
-        `/${room.id}/activities`,
-        'GET',
-        undefined,
-        signal,
-      );
-      if (signal?.aborted) return;
-      setActivities(result.activities);
-      setLoaded(true);
-    },
-    [api, room.id],
-  );
-  useEffect(() => {
-    const controller = new AbortController();
-    void load(controller.signal).catch(e => {
-      if (!controller.signal.aborted) setError(e.message);
-    });
-    return () => controller.abort();
-  }, [load]);
+  }, [active, openAuthoring, writable, setChoosing]);
   useEffect(() => {
     if (!target) {
       handledTarget.current = null;
@@ -270,7 +251,19 @@ export function Activities({
           if (!controller.signal.aborted) setError(e.message);
         });
     return () => controller.abort();
-  }, [api, room.id, submissionFilter, target, teacher, writable, active]);
+  }, [
+    api,
+    room.id,
+    submissionFilter,
+    target,
+    teacher,
+    writable,
+    active,
+    setEditing,
+    setEditorContext,
+    setEditorReview,
+    setMaterials,
+  ]);
   async function run(operation: () => Promise<void>) {
     setBusy(true);
     setError('');

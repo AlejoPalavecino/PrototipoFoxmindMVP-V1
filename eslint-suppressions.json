@@ -26,7 +26,7 @@
   },
   "apps/web/src/application/workflows/activity-session/Activities.tsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 6
+      "count": 3
     }
   },
   "apps/web/src/application/workflows/activity-session/AttemptHistory.tsx": {

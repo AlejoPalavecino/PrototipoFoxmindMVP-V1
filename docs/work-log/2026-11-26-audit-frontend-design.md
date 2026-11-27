@@ -75,3 +75,9 @@
 - `use-activity-draft.ts`: los 16 campos editables del borrador viven en un solo estado, con setters estables que tienen el mismo contrato que los de `useState`, y el objeto `draft` que consume la persistencia. `use-generation-request.ts`: método (a mano o con Foxy), idea, opciones y carga de fuentes de la biblioteca. `use-authoring-operation.ts`: una operación por vez con `busy` y `error`.
 - Resultado: `ActivityAuthoring.tsx` pasa de 35 a 10 `useState` y de 911 a 843 líneas; la línea base de tamaño bajó. La primera versión de `use-activity-draft` tenía 16 `useState` y la regla de F9 la rechazó.
 - Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 15 pruebas de autoría de la ruta `fast` dan 129/129; `test:complete --group fast` 3231/3231. Navegador: pendiente para el cierre de F3.
+
+### Corte 9 · `Activities` separa listado, contadores y editor (F3)
+
+- `use-activity-list.ts`: `useActivityList` (listado y carga) y `useDeliveryCounts` (primeras entregas por actividad, sólo para el docente). `use-activity-editor-state.ts`: con qué se abre el editor (borrador, contexto curricular, paso y pedido a Foxy). `Activities.tsx` pasa de 23 a 10 `useState` y de 817 a 810 líneas; sus `set-state-in-effect` suprimidos bajan de 6 a 3 (68 en total).
+- Los setters que vienen del hook entraron en las dependencias de sus efectos (son estables, así que nada se dispara de más). Eso destapó una diferencia del simulador de hooks de las pruebas: creaba un setter nuevo en cada render y React no. `agenda-ui-helpers`, `wizard-reference/component-harness` y `foxy-session-transition` ahora devuelven setters estables, como React.
+- Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 27 pruebas de actividades de la ruta `fast` dan 274/274; `test:complete --group fast` 3231/3231.
