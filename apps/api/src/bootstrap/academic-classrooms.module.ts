@@ -29,8 +29,8 @@ import { createDiagnosticSink } from '../platform/diagnostics.ts';
 import { INVITATION_DELIVERY_BUDGETS } from '../modules/classrooms/invitations/application/invitations-operations.ts';
 
 /** S6: durable per-teacher invitation quota in the shared identity admission store (no new table). */
-export function invitationDeliveryAdmission(runtime: Pick<IdentityRuntime, 'store' | 'configuration'>) {
-  return (actorId: string) => runtime.store.admit(runtime.configuration.security, [
+export function invitationDeliveryAdmission(runtime: Pick<IdentityRuntime, 'admitBuckets'>) {
+  return (actorId: string) => runtime.admitBuckets([
     { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation:day:${actorId}`, budget: INVITATION_DELIVERY_BUDGETS.day },
     { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation:hour:${actorId}`, budget: INVITATION_DELIVERY_BUDGETS.hour },
   ]);
