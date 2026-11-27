@@ -1,4 +1,6 @@
 import type { AccountAvatarKey } from '../../../../../../src/core/domain/identity/account-avatar.ts';
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
+import { sessionChangedEvent } from '../../../../../../src/core/contracts/csrf.ts';
 export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student'; avatarKey?: AccountAvatarKey }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {
@@ -13,13 +15,9 @@ const messages: Record<string, string> = {
   REQUEST_TOO_LARGE: 'Los datos superan el tamaño permitido.',
   RATE_LIMITED: 'Se alcanzó el límite de intentos. Esperá antes de volver a intentar.',
 };
-export class AccountError extends Error {
-  readonly code: string;
-  readonly status: number;
-  readonly retryAfter: number;
+export class AccountError extends ClientError {
   constructor(code: string, status: number, retryAfter = 0) {
-    super(messages[code] ?? 'No pudimos conectar con FoxMind. Volvé a intentar en unos momentos.');
-    this.code = code; this.status = status; this.retryAfter = retryAfter;
+    super(code, status, messages[code] ?? 'No pudimos conectar con FoxMind. Volvé a intentar en unos momentos.', retryAfter);
   }
 }
 export function createAccountClient(fetcher: typeof fetch = fetch) {
@@ -49,6 +47,9 @@ export function createAccountClient(fetcher: typeof fetch = fetch) {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (current.authenticated) headers['X-CSRF-Token'] = (await read<{ csrfToken: string }>('/auth/csrf')).csrfToken;
     const result = await read<T>(path, { method, headers, body: JSON.stringify(data) });
+    // Login, logout, verification, recovery and password changes may rotate the session: clients that
+    // keep a CSRF token drop it (see apps/web/src/shared/http/csrf.ts).
+    globalThis.dispatchEvent?.(new Event(sessionChangedEvent));
     // Never reuse a binding after login, verification, logout, reset or password rotation.
     // A failed post-mutation refresh cannot falsely label a committed action as failed.
     let refreshed: AccountSession | undefined;

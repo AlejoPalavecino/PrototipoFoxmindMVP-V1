@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useScopedValue } from '../../shared/use-scoped-value.ts';
 import { useRouter } from 'next/router';
 import { AppNavbar } from '../../../../shared-ui/AppNavbar.tsx';
 import Link from 'next/link';
@@ -24,7 +25,7 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   const router = useRouter();
   const api = useMemo(() => createWebClassroomClient(), []);
   const user = session?.authenticated ? session.user : undefined;
-  const search = useMemo(() => createBrujulaSearchClient(api), [api, user?.id]);
+  const search = useScopedValue(() => createBrujulaSearchClient(api), [api, user?.id]);
   const verified = Boolean(user?.emailVerified);
   const [rooms,setRooms]=useState<{subject:string;items:Classroom[]}|null>(null);
   useEffect(()=>{

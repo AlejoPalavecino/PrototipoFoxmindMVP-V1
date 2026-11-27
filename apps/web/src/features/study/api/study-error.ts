@@ -1,4 +1,5 @@
 import { readAiMonthlyQuotaRejection } from '../../../../../../src/core/contracts/ai-quota.ts';
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
 
 const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', currencyDisplay: 'code', maximumFractionDigits: 6 });
 const messages: Record<string, string> = {
@@ -30,16 +31,14 @@ const messages: Record<string, string> = {
   INVALID_INPUT: 'Revisá los datos ingresados.',
   NOT_FOUND: 'No encontramos la carpeta o el recurso.',
 };
-export class StudyError extends Error {
-  readonly code: string;
-  readonly status: number;
+export class StudyError extends ClientError {
   constructor(code: string, status: number, detail?: unknown) {
     const quota = code === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(detail) : undefined;
     super(
+      code,
+      status,
       quota ? `Te quedan ${usd.format(quota.availableMicrousd / 1_000_000)} de IA este mes. Para esta generación hacen falta ${usd.format(quota.requiredMicrousd / 1_000_000)}. Revisá tu cuota en la cabecera.`
         : messages[code] ?? 'No pudimos completar la acción. Conservamos lo que escribiste; volvé a intentar.',
     );
-    this.code = code;
-    this.status = status;
   }
 }

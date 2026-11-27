@@ -1,4 +1,5 @@
 import type { AcademicDeadline, AgendaPage, AgendaRange, AgendaTarget, EventPayload, PrivateEvent } from '../../../../../../src/core/domain/agenda/index.ts';
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
 
 export interface AgendaClient {
   list(range: AgendaRange, cursor?: string | null, signal?: AbortSignal): Promise<AgendaPage>;
@@ -21,8 +22,10 @@ const messages: Record<string, string> = {
   SERVICE_UNAVAILABLE: 'No pudimos confirmar la respuesta del servidor. Conservamos tus cambios.',
 };
 
-export class AgendaClientError extends Error {
-  constructor(readonly code: string, readonly status = 0, readonly details?: unknown) {
-    super(messages[code] ?? 'No se pudo completar la acción. Volvé a intentar.');
+export class AgendaClientError extends ClientError {
+  readonly details?: unknown;
+  constructor(code: string, status = 0, details?: unknown) {
+    super(code, status, messages[code] ?? 'No se pudo completar la acción. Volvé a intentar.');
+    this.details = details;
   }
 }

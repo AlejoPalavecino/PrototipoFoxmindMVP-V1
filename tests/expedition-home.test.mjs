@@ -102,11 +102,12 @@ test('Inicio: el contador de cada pestaña centra su número dentro del círculo
 
 test('Inicio: los enlaces «Ver …» llevan la flecha después del texto, todos del mismo lado', () => {
   const sources = ['dashboard/HomeClassCards.tsx', 'dashboard/HomeMiniagenda.tsx', 'queue/HomePriorities.tsx']
-    .map(file => readFileSync(`apps/web/src/features/home/${file}`, 'utf8'));
-  const links = sources.flatMap(source => [...source.matchAll(/className="text-button"[^>]*>(.*?)<\/button>/g)].map(match => match[1]))
+    // Whitespace is collapsed so the check does not depend on how the formatter wraps JSX.
+    .map(file => readFileSync(`apps/web/src/features/home/${file}`, 'utf8').replace(/\s+/g, ' '));
+  const links = sources.flatMap(source => [...source.matchAll(/className="text-button"[^>]*>(.*?)<\/button>/g)].map(match => match[1].trim()))
     .filter(body => body.includes('arrow-right'));
   assert.ok(links.length >= 3);
-  for (const body of links) assert.match(body, /^[^<]+<FoxmindIcon name="arrow-right"\/>$/, body);
+  for (const body of links) assert.match(body, /^[^<]+<FoxmindIcon name="arrow-right" ?\/>$/, body);
 });
 
 test('Inicio estudiante: la fecha de entrega cae en la misma línea con o sin barra de avance', () => {

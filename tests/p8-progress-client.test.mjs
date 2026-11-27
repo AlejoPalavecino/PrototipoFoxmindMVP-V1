@@ -4,6 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
+// Whitespace is collapsed so these source checks do not depend on how the formatter wraps code.
+const flat = text => text.replace(/\s+/g, ' ');
 test('progress client reads self/class and explicit teacher member paths with no write body/editor/CSRF', async () => {
   const calls = []; let csrf = 0;
   const client = createClassroomClient({ prefix: '/api/v1', csrfToken: async () => String(++csrf), fetch: async (path, options) => { calls.push({ path, ...options }); return Response.json({}); } });
@@ -18,8 +20,8 @@ test('progress client reads self/class and explicit teacher member paths with no
   assert.equal(csrf, 0);
 });
 test('progress extends existing shell, captures member identity separately and clears stale data on refresh failure', async () => {
-  const source = await readFile(new URL('../apps/web/src/features/grading/progress/Progress.tsx', import.meta.url), 'utf8');
-  const shell = await readFile(new URL('../apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx', import.meta.url), 'utf8');
+  const source = flat(await readFile(new URL('../apps/web/src/features/grading/progress/Progress.tsx', import.meta.url), 'utf8'));
+  const shell = flat(await readFile(new URL('../apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx', import.meta.url), 'utf8'));
   const roster = await readFile(new URL('../apps/web/src/features/classrooms/members/ClassroomRoster.tsx', import.meta.url), 'utf8');
   const dialogs = await readFile(new URL('../apps/web/src/application/workflows/classroom-workspace/ClassroomDialogs.tsx', import.meta.url), 'utf8');
   for (const label of ['Cumplimiento de entregas', 'Rendimiento académico', 'Avance del plan', 'Reintentar progreso']) assert.ok(source.includes(label));
@@ -31,5 +33,5 @@ test('progress extends existing shell, captures member identity separately and c
   assert.equal(classroomSections(false).find(item=>item.key==='progress').label,'Mi progreso');
   assert.match(shell,/tab === 'progress'/);
   assert.match(roster, /studentId: member.studentId!/); assert.match(dialogs, /summary=\{summary\}/);
-  assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
+  assert.match(source, /data.scope === 'classroom' \? \(? ?<section aria-label="Estudiantes actuales"/);
 });

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { loadPlanWorkspace } from './helpers/plan-workspace.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : text(node?.props?.children ?? '');
@@ -98,7 +99,7 @@ for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${account
 });
 
 test('Compact topic chooser uses the same selected context without issuing writes', async () => {
-  const { PlanWorkspace } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx");
+  const { PlanWorkspace } = loadPlanWorkspace();
   const calls = [], extended = { ...room, units: [{ ...room.units[0], topics: [...room.units[0].topics, { id: 'second', name: 'Ecosistemas', status: 'PENDING' }] }] };
   const view = hookView(PlanWorkspace, { room: extended, onOpenActivity() {}, api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/library') ? [] : { activities: [] }; } } });
   try {

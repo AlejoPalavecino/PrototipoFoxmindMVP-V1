@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { createFoxyWorkspaceActions } from './foxy-workspace-actions';
 import type { createFoxyWorkspaceRuntime } from './foxy-workspace-runtime';
 
@@ -30,9 +30,10 @@ export function useFoxyWorkspaceActions({ runtime, state, onNavigate }: {
     setBinding({ runtime, subjectId, actions, ui: structuredClone(actions.getState()) });
     return () => { active = false; actions.dispose(); };
   }, [runtime, subjectId, coherent]);
-  useEffect(() => {
+  const syncBinding = useEffectEvent(() => {
     if (binding && runtime === binding.runtime && matches(runtime, state, binding.subjectId)) binding.actions.sync();
-  }, [runtime, state]);
+  });
+  useEffect(() => { syncBinding(); }, [runtime, state]);
   const valid = !!binding && binding.runtime === runtime && matches(runtime, state, binding.subjectId);
   return { actions: valid ? binding.actions : null, ui: valid ? binding.ui : null };
 }

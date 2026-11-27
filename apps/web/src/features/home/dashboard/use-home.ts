@@ -55,11 +55,12 @@ export function useHome(client:HomeClient|undefined,subjectId?:string,focusedCla
       lastLoaded.current=Date.now();setState({owner:subjectId,data,error:'',loading:false});
     }catch(error){if(!current.signal.aborted && generation.current===version)setState({owner:subjectId,data:null,error:(error as Error).message,loading:false});}
   },[client,subjectId,timeZone]);
+  const cancel=useCallback(()=>{generation.current++;controller.current?.abort();},[]);
   useEffect(()=>{
     void refresh();const focus=()=>{if(Date.now()-lastLoaded.current>=60_000)void refresh();};
     window.addEventListener('focus',focus);
-    return()=>{generation.current++;controller.current?.abort();window.removeEventListener('focus',focus);};
-  },[refresh]);
+    return()=>{cancel();window.removeEventListener('focus',focus);};
+  },[refresh,cancel]);
   const retry=useCallback(async(module:HomeModuleName,requestedOrder?:'asc'|'desc')=>{
     if(!client)return;const current=controller.current,version=generation.current;
     const sequence=(sequences.current[module]??0)+1;sequences.current[module]=sequence;

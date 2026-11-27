@@ -1,10 +1,71 @@
-import {FoxmindIcon} from '../../../../../shared-ui/FoxmindIcon';
-import type {StudyGenerationRequest} from '../model/study-generation';
-import {StudyError} from '../api/study-error';
+import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
+import type { StudyGenerationRequest } from '../model/study-generation';
+import { StudyError } from '../api/study-error';
 
-export function StudyGenerationStatus({request,disabled,cancelling,onStop,onRetry,superseded=false,needsMaterial=false,onAddMaterial}:{request:StudyGenerationRequest;disabled:boolean;cancelling:boolean;onStop:()=>void;onRetry:()=>void;superseded?:boolean;needsMaterial?:boolean;onAddMaterial?:(launcher:HTMLButtonElement)=>void}){
- if(request.status==='COMPLETE')return null;
- if(request.status==='PENDING')return <div className="study-exact-generation" role="status"><img src="/brujula/foxy-logotipo-redondo.webp" alt="Foxy"/><div><small>Foxy está trabajando en tu idea</small><strong>Preparando tu propuesta</strong><span className="study-exact-generation-track" aria-hidden="true"/><p>Tu solicitud está guardada en esta conversación.</p></div><button type="button" disabled={cancelling} onClick={onStop}>{cancelling?'Deteniendo…':'Detener'}</button></div>;
- const message=request.status==='CANCELLED'?'La preparación se detuvo. Tu idea sigue en esta conversación.':request.status==='INSUFFICIENT'?'Faltan materiales para preparar esta propuesta. Sumá las fuentes necesarias antes de reintentar.':request.reason==='INTERRUPTED'?'La preparación se interrumpió. Tu indicación está guardada y podés volver a intentarlo.':'No pudimos completar la propuesta. Tu indicación está guardada y podés reintentar.';
- return <section className="study-exact-generation-notice" role={request.status==='CANCELLED'?'status':'alert'}><p>{request.errorCode ? new StudyError(request.errorCode,429,request.quota).message : message}</p>{request.missingInformation?.length?<ul>{request.missingInformation.map((item,index)=><li key={index}>{item}</li>)}</ul>:null}{superseded?null:request.status==='INSUFFICIENT'&&needsMaterial&&onAddMaterial?<button type="button" onClick={event=>onAddMaterial(event.currentTarget)}><FoxmindIcon name="book"/>Agregar material</button>:<button type="button" disabled={disabled} onClick={onRetry}><FoxmindIcon name="refresh"/>Reintentar</button>}</section>;
+export function StudyGenerationStatus({
+  request,
+  disabled,
+  cancelling,
+  onStop,
+  onRetry,
+  superseded = false,
+  needsMaterial = false,
+  onAddMaterial,
+}: {
+  request: StudyGenerationRequest;
+  disabled: boolean;
+  cancelling: boolean;
+  onStop: () => void;
+  onRetry: () => void;
+  superseded?: boolean;
+  needsMaterial?: boolean;
+  onAddMaterial?: (launcher: HTMLButtonElement) => void;
+}) {
+  if (request.status === 'COMPLETE') return null;
+  if (request.status === 'PENDING')
+    return (
+      <div className="study-exact-generation" role="status">
+        <img src="/brujula/foxy-logotipo-redondo.webp" alt="Foxy" />
+        <div>
+          <small>Foxy está trabajando en tu idea</small>
+          <strong>Preparando tu propuesta</strong>
+          <span className="study-exact-generation-track" aria-hidden="true" />
+          <p>Tu solicitud está guardada en esta conversación.</p>
+        </div>
+        <button type="button" disabled={cancelling} onClick={onStop}>
+          {cancelling ? 'Deteniendo…' : 'Detener'}
+        </button>
+      </div>
+    );
+  const message =
+    request.status === 'CANCELLED'
+      ? 'La preparación se detuvo. Tu idea sigue en esta conversación.'
+      : request.status === 'INSUFFICIENT'
+        ? 'Faltan materiales para preparar esta propuesta. Sumá las fuentes necesarias antes de reintentar.'
+        : request.reason === 'INTERRUPTED'
+          ? 'La preparación se interrumpió. Tu indicación está guardada y podés volver a intentarlo.'
+          : 'No pudimos completar la propuesta. Tu indicación está guardada y podés reintentar.';
+  return (
+    <section className="study-exact-generation-notice" role={request.status === 'CANCELLED' ? 'status' : 'alert'}>
+      <p>{request.errorCode ? new StudyError(request.errorCode, 429, request.quota).message : message}</p>
+      {request.missingInformation?.length ? (
+        <ul>
+          {request.missingInformation.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      ) : null}
+      {superseded ? null : request.status === 'INSUFFICIENT' && needsMaterial && onAddMaterial ? (
+        <button type="button" onClick={event => onAddMaterial(event.currentTarget)}>
+          <FoxmindIcon name="book" />
+          Agregar material
+        </button>
+      ) : (
+        <button type="button" disabled={disabled} onClick={onRetry}>
+          <FoxmindIcon name="refresh" />
+          Reintentar
+        </button>
+      )}
+    </section>
+  );
 }

@@ -92,11 +92,11 @@ Pestañas, calendarios y diálogos ajustan los controles compartidos a cada fluj
 
 | Elemento | Implementación |
 |---|---|
-| Selector Activas, Archivadas y Borradores | [CollectionStateFilter](../../apps/shared-ui/CollectionStateFilter.tsx) |
+| Selector Activas, Archivadas y Borradores | [Filtros de aulas](../../apps/web/src/features/classrooms/collection/ClassroomCollectionFilters.tsx) y [colección de carpetas](../../apps/web/src/features/study/folders/study-folder-collection.tsx) |
 | Navegación y chat | [AppNavbar](../../apps/shared-ui/AppNavbar.tsx) y [FoxyChatLayout](../../apps/shared-ui/FoxyChatLayout.tsx) |
 | Herramientas y espera | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) y [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx) |
 | Posición de lectura y mensajes nuevos | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
-| Pasos, portadas y revisión | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx) y [estilos del asistente](../../apps/web/src/features/classrooms/styles/brujula-wizard.css) |
+| Pasos, portadas y revisión | [Asistente de aula](../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx) y [estilos del asistente](../../apps/web/src/features/classrooms/styles/brujula-wizard.css) |
 | Carga de programa y análisis al crear aula | [ClassroomProcessing](../../apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx), estados reales e indeterminados; [comparación con UI Lab](../verification/product-parity/classrooms-collection/README.md#carga-del-programa-y-análisis-de-foxy) |
 | Confirmaciones de Estudio | [StudyConfirmation](../../apps/web/src/features/study/ui/study-confirmation.tsx) |
 

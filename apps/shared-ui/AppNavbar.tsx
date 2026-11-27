@@ -1,4 +1,5 @@
 import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { useResetOnChange } from './use-reset-on-change.ts';
 import { FoxmindBrand } from './FoxmindBrand';
 import { HomeReferenceIcon as FoxmindIcon } from './HomeReferenceIcon';
 import { NavbarDrawer, ShellLinks, ShellAccount, ShellHelp } from './NavbarParts';
@@ -38,7 +39,7 @@ export function AppNavbar(props: AppNavbarProps) {
   // Private screens share one navigation policy, including future callers.
   const privateShell = props.links.some(link => link.href === '/mis-aulas');
   const homeNavigation = privateShell || props.homeNavigation === true;
-  useEffect(() => { setOpen(false); }, [homeNavigation, props.currentPath]);
+  useResetOnChange([homeNavigation, props.currentPath], () => setOpen(false));
   useEffect(() => {
     if (!open || !window.matchMedia) return;
     const desktop = window.matchMedia('(min-width: 1001px)');

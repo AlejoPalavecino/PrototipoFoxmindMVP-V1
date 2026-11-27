@@ -8,8 +8,9 @@ import type {
 import { StudyError } from './study-error.ts';
 import { isAiBudgetRejectionCode } from '../../../../../../src/core/contracts/ai-quota.ts';
 import type { PutSharedStudyStrategy, SharedStudyStrategyView } from '../../../../../../src/core/contracts/study-shared-strategy.ts';
+import type { CsrfTokenSource } from '../../../../../../src/core/contracts/csrf.ts';
 
-export function createStudyClient(fetcher: typeof fetch = fetch) {
+export function createStudyClient(fetcher: typeof fetch = fetch, csrf?: CsrfTokenSource) {
   const requests = new Map<string, string>();
   async function call<T>(path = '', method = 'GET', body?: unknown, signal?: AbortSignal): Promise<T> {
     let response: Response;
@@ -18,14 +19,7 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
       const timeout = AbortSignal.timeout(120000);
       const requestSignal = signal ? AbortSignal.any([signal,timeout]) : timeout;
       if (method !== 'GET') {
-        const csrf = await fetcher('/api/v1/auth/csrf', {
-          credentials: 'same-origin',
-          cache: 'no-store',
-          signal: requestSignal,
-        });
-        const data = await csrf.json();
-        if (!csrf.ok) throw new StudyError(data?.error?.code ?? 'AUTH_REQUIRED', csrf.status);
-        headers['X-CSRF-Token'] = data.csrfToken;
+        headers['X-CSRF-Token'] = csrf ? await sharedToken(csrf, requestSignal) : await freshToken(requestSignal);
         if (body !== undefined) headers['Content-Type'] = 'application/json';
       }
       response = await fetcher(`/api/v1/study-folders${path}`, {
@@ -41,8 +35,26 @@ export function createStudyClient(fetcher: typeof fetch = fetch) {
         throw new StudyError(result?.error?.code ?? 'SERVICE_UNAVAILABLE', response.status, result?.error?.quota);
       return result as T;
     } catch (e) {
-      if (e instanceof StudyError) throw e;
+      if (e instanceof StudyError) {
+        if (e.code === 'CSRF_INVALID') csrf?.invalidate();
+        throw e;
+      }
       throw new StudyError('SERVICE_UNAVAILABLE', 503);
+    }
+  }
+  async function freshToken(signal: AbortSignal) {
+    const response = await fetcher('/api/v1/auth/csrf', { credentials: 'same-origin', cache: 'no-store', signal });
+    const data = await response.json();
+    if (!response.ok) throw new StudyError(data?.error?.code ?? 'AUTH_REQUIRED', response.status);
+    return data.csrfToken as string;
+  }
+  async function sharedToken(source: CsrfTokenSource, signal: AbortSignal) {
+    try {
+      return await source.token(signal);
+    } catch (error) {
+      const { code, status } = error as { code?: unknown; status?: unknown };
+      if (typeof code === 'string' && typeof status === 'number') throw new StudyError(code, status);
+      throw error;
     }
   }
   return {

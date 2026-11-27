@@ -1,3 +1,5 @@
+import { ClientError } from '../../../../../../src/core/contracts/client-error.ts';
+import type { CsrfTokenSource } from '../../../../../../src/core/contracts/csrf.ts';
 export interface FileContext { kind: 'draft' | 'classroom'; id: string; purpose: 'plan' | 'material' }
 export interface PrivateFileStatus {
   id: string; name: string; sizeBytes: number; ready: boolean;
@@ -26,14 +28,12 @@ const messages: Record<string, string> = {
   FILE_NOT_READY: 'El archivo todavía no está listo.', UPLOAD_CONFLICT: 'Este archivo no se puede reemplazar. Reintenta con los mismos bytes.',
   INVALID_UPLOAD: 'No se pudo validar el archivo. Revisa su nombre y contenido.', RATE_LIMITED: 'Espera antes de volver a intentar.',
 };
-export class FileClientError extends Error {
-  readonly code: string; readonly status: number; readonly retryAfter: number;
+export class FileClientError extends ClientError {
   constructor(code: string, status: number, retryAfter = 0) {
-    super(messages[code] ?? 'No se pudo completar la operación. Vuelve a intentar en unos momentos.');
-    this.code = code; this.status = status; this.retryAfter = retryAfter;
+    super(code, status, messages[code] ?? 'No se pudo completar la operación. Vuelve a intentar en unos momentos.', retryAfter);
   }
 }
-export function createFileClient(fetcher: typeof fetch = fetch) {
+export function createFileClient(fetcher: typeof fetch = fetch, csrf?: CsrfTokenSource) {
   async function read<T>(path: string, init: RequestInit = {}): Promise<T> {
     try {
       const response = await fetcher(`/api/v1${path}`, { ...init, credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(65_000) });
@@ -46,9 +46,22 @@ export function createFileClient(fetcher: typeof fetch = fetch) {
     } catch (error) { throw error instanceof FileClientError ? error : new FileClientError('SERVICE_UNAVAILABLE', 503); }
   }
   async function mutate(path: string, body: BodyInit, method: 'POST' | 'PUT', contentType: string) {
-    const { csrfToken } = await read<{ csrfToken: string }>('/auth/csrf');
+    const csrfToken = csrf ? await sharedToken(csrf) : (await read<{ csrfToken: string }>('/auth/csrf')).csrfToken;
     if (typeof csrfToken !== 'string' || !csrfToken) throw new FileClientError('AUTH_REQUIRED', 401);
-    return read<PrivateFileStatus>(path, { method, body, headers: { 'Content-Type': contentType, 'X-CSRF-Token': csrfToken } });
+    try {
+      return await read<PrivateFileStatus>(path, { method, body, headers: { 'Content-Type': contentType, 'X-CSRF-Token': csrfToken } });
+    } catch (error) {
+      if ((error as FileClientError).code === 'CSRF_INVALID') csrf?.invalidate();
+      throw error;
+    }
+  }
+  async function sharedToken(source: CsrfTokenSource) {
+    try {
+      return await source.token();
+    } catch (error) {
+      const { code, status } = error as { code?: unknown; status?: unknown };
+      throw new FileClientError(typeof code === 'string' ? code : 'SERVICE_UNAVAILABLE', typeof status === 'number' ? status : 503);
+    }
   }
   const contentUrl = (id: string, mode: 'preview' | 'download') => {
     if (!uuid.test(id)) throw new FileClientError('INVALID_UPLOAD', 400);

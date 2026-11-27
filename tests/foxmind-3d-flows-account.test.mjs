@@ -17,7 +17,7 @@ function fixture(session) {
     '../features/identity/index': { ...account, createAccountClient: () => client }, '../lib/classroom-client': navigation,
   };
   for (const name of ['./ui/button', './ui/input', './ui/label', '../application/navigation/account-navbar',
-    '../../../shared-ui/VerificationGuidance', '../../../shared-ui/AccountStory', '../../../shared-ui', '../../../shared-ui/index',
+    '../../../shared-ui/VerificationGuidance', '../../../shared-ui', '../../../shared-ui/index',
     '../../../shared-ui/FoxmindIllustration']) ports[name] = placeholder;
   return { AccountScreen: componentWithPorts('apps/web/src/screens/identity-screen.tsx', ports).AccountScreen, calls, routes };
 }

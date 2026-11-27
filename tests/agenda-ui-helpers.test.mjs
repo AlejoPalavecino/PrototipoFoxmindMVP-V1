@@ -12,7 +12,8 @@ export function hookView(Component, props) {
     useState(initial) {
       const i = cursor++;
       if (!slots[i]) slots[i] = { value: typeof initial === 'function' ? initial() : initial };
-      return [slots[i].value, next => {
+      // Like React, the setter keeps its identity across renders.
+      return [slots[i].value, slots[i].set ??= next => {
         const value = typeof next === 'function' ? next(slots[i].value) : next;
         if (!Object.is(value, slots[i].value)) { slots[i].value = value; dirty = true; }
       }];
@@ -29,6 +30,7 @@ export function hookView(Component, props) {
       if (!same(slots[i]?.deps, deps)) slots[i] = { value: create(), deps };
       return slots[i].value;
     },
+    useEffectEvent(callback) { const slot = slots[cursor++] ??= {}; slot.callback = callback; return slot.event ??= (...args) => slot.callback(...args); },
     useEffect(effect, deps) {
       const i = cursor++;
       if (!same(slots[i]?.deps, deps)) { slots[i] = { deps }; effects.push([i, effect]); }
@@ -53,7 +55,7 @@ export function descendants(node, predicate) {
   if (!React.isValidElement(node)) return [];
   // Expand shared, stateless presentation just as the DOM renderer does.
   if ([
-    'FoxyToolPicker', 'CollectionStateFilter', 'CreationSteps', 'AgendaToolbar',
+    'FoxyToolPicker', 'AgendaToolbar',
     'StudyToolsPanel', 'StudyMaterialAlert', 'StudyCreationsPanel', 'StudyPracticePreview',
     'StudyHistoryPanel', 'StudyConversation', 'StudyChatWelcome', 'StudyMessageList',
     'StudyChatProgress', 'StudyChatComposer', 'StudySourcesDialog', 'StudyRenameDialog',

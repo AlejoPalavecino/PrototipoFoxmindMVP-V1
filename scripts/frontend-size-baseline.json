@@ -1,0 +1,346 @@
+{
+  "limits": {
+    "lineLength": 200,
+    "fileLines": 500,
+    "useState": 10
+  },
+  "exceptions": {
+    "apps/shared-ui/AiProgress.tsx": {
+      "lineLength": 305
+    },
+    "apps/shared-ui/AppNavbar.tsx": {
+      "lineLength": 368
+    },
+    "apps/shared-ui/ChatAttachmentControls.tsx": {
+      "lineLength": 271
+    },
+    "apps/shared-ui/FoxyChatLayout.tsx": {
+      "lineLength": 285
+    },
+    "apps/shared-ui/HomeReferenceIcon.tsx": {
+      "lineLength": 250
+    },
+    "apps/shared-ui/NavigationSearch.tsx": {
+      "lineLength": 284
+    },
+    "apps/shared-ui/academic-plan.tsx": {
+      "lineLength": 327
+    },
+    "apps/web/src/application/navigation/account-navbar.tsx": {
+      "lineLength": 268
+    },
+    "apps/web/src/application/workflows/activity-session/Activities.tsx": {
+      "fileLines": 810
+    },
+    "apps/web/src/application/workflows/activity-session/ActivityPreview.tsx": {
+      "lineLength": 302
+    },
+    "apps/web/src/application/workflows/activity-session/AttemptHistory.tsx": {
+      "fileLines": 748,
+      "useState": 12
+    },
+    "apps/web/src/application/workflows/activity-session/AttemptSession.tsx": {
+      "lineLength": 274,
+      "useState": 15
+    },
+    "apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx": {
+      "lineLength": 394,
+      "useState": 18
+    },
+    "apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx": {
+      "fileLines": 643,
+      "useState": 11
+    },
+    "apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx": {
+      "lineLength": 202,
+      "fileLines": 669,
+      "useState": 15
+    },
+    "apps/web/src/application/workflows/foxy-workspace/FoxyResourceWorkspace.tsx": {
+      "fileLines": 844
+    },
+    "apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx": {
+      "lineLength": 331,
+      "useState": 13
+    },
+    "apps/web/src/application/workflows/private-files/PrivateFilePanel.tsx": {
+      "lineLength": 290
+    },
+    "apps/web/src/features/activity-authoring/api.ts": {
+      "lineLength": 232
+    },
+    "apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx": {
+      "fileLines": 843
+    },
+    "apps/web/src/features/activity-authoring/drafting/EvaluationRubric.tsx": {
+      "lineLength": 320
+    },
+    "apps/web/src/features/activity-authoring/drafting/QuestionEditor.tsx": {
+      "lineLength": 242
+    },
+    "apps/web/src/features/activity-authoring/generation/ActivityGeneration.tsx": {
+      "useState": 12
+    },
+    "apps/web/src/features/activity-authoring/generation/ActivityGenerationForm.tsx": {
+      "lineLength": 231
+    },
+    "apps/web/src/features/activity-authoring/generation/ActivityGenerationProposal.tsx": {
+      "lineLength": 362
+    },
+    "apps/web/src/features/activity-authoring/model/authoring-operations.ts": {
+      "lineLength": 215
+    },
+    "apps/web/src/features/agenda/calendar/Agenda.tsx": {
+      "lineLength": 328
+    },
+    "apps/web/src/features/agenda/calendar/AgendaDay.tsx": {
+      "lineLength": 229
+    },
+    "apps/web/src/features/agenda/calendar/agendaRows.tsx": {
+      "lineLength": 204
+    },
+    "apps/web/src/features/agenda/event-editor/EventFields.tsx": {
+      "lineLength": 248
+    },
+    "apps/web/src/features/agenda/event-editor/EventWhenFields.tsx": {
+      "lineLength": 341
+    },
+    "apps/web/src/features/agenda/event-editor/event-validation.ts": {
+      "lineLength": 215
+    },
+    "apps/web/src/features/agenda/event-editor/useEventEditor.ts": {
+      "lineLength": 211
+    },
+    "apps/web/src/features/classrooms/creation/ClassroomProcessing.tsx": {
+      "lineLength": 238
+    },
+    "apps/web/src/features/classrooms/creation/WizardReview.tsx": {
+      "lineLength": 334
+    },
+    "apps/web/src/features/classrooms/creation/use-classroom-plan-file.ts": {
+      "lineLength": 292
+    },
+    "apps/web/src/features/classrooms/creation/wizard-validation.ts": {
+      "lineLength": 247
+    },
+    "apps/web/src/features/classrooms/enrollment/InvitationBatchDialog.tsx": {
+      "lineLength": 304
+    },
+    "apps/web/src/features/classrooms/workspace/ClassroomNavigation.tsx": {
+      "lineLength": 215
+    },
+    "apps/web/src/features/communication/ui/Wall.tsx": {
+      "fileLines": 566,
+      "useState": 11
+    },
+    "apps/web/src/features/curriculum/plan/Plan.tsx": {
+      "lineLength": 345
+    },
+    "apps/web/src/features/files/api/client.ts": {
+      "lineLength": 222
+    },
+    "apps/web/src/features/foxy/api.ts": {
+      "lineLength": 271
+    },
+    "apps/web/src/features/foxy/collections/foxy-catalog-controller.ts": {
+      "lineLength": 217
+    },
+    "apps/web/src/features/foxy/context/foxy-source-report.tsx": {
+      "lineLength": 243
+    },
+    "apps/web/src/features/foxy/conversations/foxy-chat-controller.ts": {
+      "lineLength": 341
+    },
+    "apps/web/src/features/foxy/conversations/foxy-transcript.tsx": {
+      "lineLength": 284
+    },
+    "apps/web/src/features/foxy/conversations/foxy-wait.tsx": {
+      "lineLength": 259
+    },
+    "apps/web/src/features/foxy/conversations/foxy-welcome.tsx": {
+      "lineLength": 314
+    },
+    "apps/web/src/features/foxy/index.ts": {
+      "lineLength": 271
+    },
+    "apps/web/src/features/foxy/model/classroom-port.ts": {
+      "lineLength": 202
+    },
+    "apps/web/src/features/foxy/publication/foxy-publication-confirmation-controller.ts": {
+      "lineLength": 266
+    },
+    "apps/web/src/features/foxy/publication/foxy-publication-management-controller.ts": {
+      "lineLength": 282
+    },
+    "apps/web/src/features/foxy/resources/foxy-resource-controller.ts": {
+      "lineLength": 234
+    },
+    "apps/web/src/features/foxy/tools/foxy-tool-dialog.tsx": {
+      "lineLength": 373
+    },
+    "apps/web/src/features/foxy/tools/foxy-tool-options.ts": {
+      "lineLength": 348
+    },
+    "apps/web/src/features/foxy/visuals/foxy-visual-controller.ts": {
+      "lineLength": 266
+    },
+    "apps/web/src/features/foxy/visuals/foxy-visual-editor-controller.ts": {
+      "lineLength": 232
+    },
+    "apps/web/src/features/foxy/visuals/foxy-visual-publication-controller.ts": {
+      "fileLines": 546
+    },
+    "apps/web/src/features/foxy/visuals/foxy-visual-reader-dialog.tsx": {
+      "lineLength": 202
+    },
+    "apps/web/src/features/foxy/workspace/foxy-workspace-actions.ts": {
+      "lineLength": 226
+    },
+    "apps/web/src/features/foxy/workspace/foxy-workspace-runtime.ts": {
+      "lineLength": 249
+    },
+    "apps/web/src/features/foxy/workspace/foxy-workspace.tsx": {
+      "fileLines": 935
+    },
+    "apps/web/src/features/grading/ai-review/GradingAiReview.tsx": {
+      "lineLength": 372
+    },
+    "apps/web/src/features/grading/api.ts": {
+      "lineLength": 336
+    },
+    "apps/web/src/features/grading/editing/GradingEditor.tsx": {
+      "lineLength": 274
+    },
+    "apps/web/src/features/grading/progress/Progress.tsx": {
+      "fileLines": 693
+    },
+    "apps/web/src/features/grading/progress/StudentRecord.tsx": {
+      "lineLength": 291
+    },
+    "apps/web/src/features/grading/results/PublishedResult.tsx": {
+      "lineLength": 369
+    },
+    "apps/web/src/features/grading/ui/brujula-grading-rubric.tsx": {
+      "lineLength": 208
+    },
+    "apps/web/src/features/home/dashboard/HomeClassCards.tsx": {
+      "lineLength": 353
+    },
+    "apps/web/src/features/home/dashboard/HomeFocus.tsx": {
+      "lineLength": 367
+    },
+    "apps/web/src/features/home/index.ts": {
+      "lineLength": 252
+    },
+    "apps/web/src/features/home/queue/HomePriorities.tsx": {
+      "lineLength": 222
+    },
+    "apps/web/src/features/home/queue/HomeWorkList.tsx": {
+      "lineLength": 386
+    },
+    "apps/web/src/features/home/queue/home-queue.ts": {
+      "lineLength": 255
+    },
+    "apps/web/src/features/identity/authentication/account-flow-forms.tsx": {
+      "lineLength": 373
+    },
+    "apps/web/src/features/identity/authentication/register-steps.tsx": {
+      "lineLength": 236
+    },
+    "apps/web/src/features/identity/controls/account-field.tsx": {
+      "lineLength": 256
+    },
+    "apps/web/src/features/materials/publishing/MaterialPublishing.tsx": {
+      "lineLength": 296,
+      "useState": 18
+    },
+    "apps/web/src/features/materials/reader/MaterialReader.tsx": {
+      "lineLength": 218
+    },
+    "apps/web/src/features/notifications/inbox/NotificationCenter.tsx": {
+      "lineLength": 218
+    },
+    "apps/web/src/features/notifications/inbox/Notifications.tsx": {
+      "useState": 12
+    },
+    "apps/web/src/features/participation/api.ts": {
+      "lineLength": 212
+    },
+    "apps/web/src/features/participation/receipts/AttemptReceipt.tsx": {
+      "lineLength": 212
+    },
+    "apps/web/src/features/study/api/study-error.ts": {
+      "lineLength": 208
+    },
+    "apps/web/src/features/study/folders/study-folder-collection.tsx": {
+      "lineLength": 267
+    },
+    "apps/web/src/features/study/folders/study-folder-wizard.tsx": {
+      "fileLines": 527,
+      "useState": 17
+    },
+    "apps/web/src/features/study/folders/wizard/study-folder-shell.tsx": {
+      "lineLength": 353
+    },
+    "apps/web/src/features/study/index.ts": {
+      "lineLength": 223
+    },
+    "apps/web/src/features/study/model/study-discovery.ts": {
+      "lineLength": 378
+    },
+    "apps/web/src/features/study/model/study-generation.ts": {
+      "lineLength": 221
+    },
+    "apps/web/src/features/study/model/study-time.ts": {
+      "lineLength": 236
+    },
+    "apps/web/src/features/study/model/use-study-generation.ts": {
+      "lineLength": 250
+    },
+    "apps/web/src/features/study/practice/exam-planning/StudyExamPlanner.tsx": {
+      "useState": 16
+    },
+    "apps/web/src/features/study/practice/exam-planning/study-exam-sessions.tsx": {
+      "lineLength": 211
+    },
+    "apps/web/src/features/study/practice/exam-planning/study-exam-setup.tsx": {
+      "lineLength": 253
+    },
+    "apps/web/src/features/study/practice/presentation/StudyPracticeView.tsx": {
+      "lineLength": 231
+    },
+    "apps/web/src/features/study/practice/presentation/study-practice-feedback.tsx": {
+      "lineLength": 222
+    },
+    "apps/web/src/features/study/practice/presentation/study-practice-footer.tsx": {
+      "lineLength": 253
+    },
+    "apps/web/src/features/study/ui/study-workspace.tsx": {
+      "fileLines": 761,
+      "useState": 18
+    },
+    "apps/web/src/features/study/workspace/StudySharedStrategyDialog.tsx": {
+      "lineLength": 222
+    },
+    "apps/web/src/features/teacher-support/TeacherSupportDialog.tsx": {
+      "lineLength": 232
+    },
+    "apps/web/src/features/teacher-support/TeacherSupportWidget.tsx": {
+      "lineLength": 214,
+      "useState": 11
+    },
+    "apps/web/src/screens/classrooms-screen.tsx": {
+      "lineLength": 308
+    },
+    "apps/web/src/screens/files-screen.tsx": {
+      "lineLength": 269
+    },
+    "apps/web/src/screens/foxy-screen.tsx": {
+      "lineLength": 261
+    },
+    "apps/web/src/screens/identity-screen.tsx": {
+      "lineLength": 268,
+      "useState": 11
+    }
+  }
+}

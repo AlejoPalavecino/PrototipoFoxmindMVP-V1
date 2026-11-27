@@ -6,6 +6,7 @@ import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useScopedValue } from '../../../shared/use-scoped-value.ts';
 import { createWebClassroomClient } from '../../clients/classroom-client';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms';
 import type { Material } from '../../../../../../src/core/contracts/materials';
@@ -98,7 +99,7 @@ export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, 
   const [quizSource, setQuizSource] = useState<{ conversationId: string; turnId: string; status: 'loading' | 'ready' | 'unavailable' }>();
   const { state, runtime, initializing } = useFoxyWorkspace({ subjectId, onIdentityRequired });
   const { actions, ui } = useFoxyWorkspaceActions({ runtime, state, onNavigate: onNavigate ?? (() => {}) });
-  const previewClient = useMemo(() => createWebClassroomClient(fetch, onIdentityRequired), [subjectId, onIdentityRequired]);
+  const previewClient = useScopedValue(() => createWebClassroomClient(fetch, onIdentityRequired), [subjectId, onIdentityRequired]);
   const previewContext = useCallback(async (id: string, signal: AbortSignal) => {
     const [room, materials, activityPage] = await Promise.all([
       previewClient.call<Detail>(`/${id}`, 'GET', undefined, signal),

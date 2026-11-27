@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useResetOnChange } from '../../../../../shared-ui/use-reset-on-change.ts';
 import type { MaterialChange, MaterialMetadata as Metadata, MaterialsOperations } from '../model/materials-operations.ts';
 import { type Detail } from '../../../../../../src/core/contracts/classrooms.ts';
 import { type FileState, type Material } from '../../../../../../src/core/contracts/materials.ts';
@@ -80,15 +81,13 @@ export function MaterialPublishing({ api, room, reload, refresh, onPublished, on
         setConfirmDiscard(false);
         setUploadVersion(value => value + 1);
     };
-    useEffect(() => { if (!active) {
+    useResetOnChange([active], () => { if (!active) {
         setEditing(null);
         setDeleting(null);
         setUploadExpanded(false);
         setConfirmDiscard(false);
-    } }, [active]);
-    useEffect(() => { if (active && openUpload) {
-        setUploadExpanded(true);
-    } }, [active, openUpload]);
+    } }, true);
+    useResetOnChange([active, openUpload], () => { if (active && openUpload) setUploadExpanded(true); }, true);
     const writable = room.role === 'teacher' && !room.archived;
     useEffect(() => {
         if (!uploadContext || uploadContext === consumedContext.current || !writable)

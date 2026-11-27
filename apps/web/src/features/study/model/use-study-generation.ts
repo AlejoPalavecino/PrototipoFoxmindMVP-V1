@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useEffectEvent,useRef,useState} from 'react';
 import type {StudyConversation,StudyDetail} from './study-contracts.ts';
 import {requestStudyGeneration,studyGenerationRequests,studyGenerationRetryData,type StudyGenerationInput,type StudyGenerationRequest,type StudyGenerationRun} from './study-generation';
 
@@ -14,7 +14,8 @@ export function useStudyGeneration(options:Options){
  const visibleLocal=receipt?undefined:local;
  function updateLocal(value:LocalIntent|undefined){localRef.current=value;if(mounted.current)setLocal(value);}
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
- useEffect(()=>{if(receipt)updateLocal(undefined);},[receipt?.requestId,receipt?.status]);
+ const clearReceived=useEffectEvent(()=>{if(receipt)updateLocal(undefined);});
+ useEffect(()=>{clearReceived();},[receipt?.requestId,receipt?.status]);
  const pollKey=allRequests.filter(request=>request.status==='PENDING').map(request=>request.requestId).sort().join(',')+
   (visibleLocal&&['SYNCING','UNCERTAIN','CANCELLED'].includes(visibleLocal.phase)?`:${visibleLocal.requestId}:${visibleLocal.phase}`:'');
  useEffect(()=>{

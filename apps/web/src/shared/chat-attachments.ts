@@ -1,5 +1,8 @@
 import type { ChatAttachment } from '../../../../src/core/contracts/chat-attachments.ts';
+import { createSessionCsrfSource } from './http/csrf.ts';
 
+// One CSRF token for the tab's attachments; account mutations in this tab drop it.
+const csrf = createSessionCsrfSource();
 const root = '/api/v1/chat-attachments';
 export const teacherAttachmentPath = (conversationId: string) => `${root}/teacher/${encodeURIComponent(conversationId)}`;
 export const teacherAttachmentFilePath = (conversationId: string, attachmentId: string) =>
@@ -21,13 +24,17 @@ const messages: Record<string, string> = {
 export async function requestChatAttachment<T>(path: string, method: 'GET' | 'PUT' | 'DELETE', signal: AbortSignal, body?: File) {
   const headers: Record<string, string> = {};
   if (method !== 'GET') {
-    const csrf = await fetch('/api/v1/auth/csrf', { signal, cache: 'no-store' });
-    if (!csrf.ok) throw new Error(messages.AUTH_REQUIRED);
-    headers['X-CSRF-Token'] = (await csrf.json()).csrfToken;
+    try {
+      headers['X-CSRF-Token'] = await csrf.token(signal);
+    } catch (error) {
+      if (signal.aborted) throw error;
+      throw new Error(messages.AUTH_REQUIRED);
+    }
     if (body) headers['Content-Type'] = 'application/octet-stream';
   }
   const response = await fetch(path, { method, headers, body, signal, cache: 'no-store', credentials: 'same-origin' });
   const data = await response.json();
+  if (!response.ok && data.error?.code === 'CSRF_INVALID') csrf.invalidate();
   if (!response.ok) throw new Error(messages[data.error?.code] ?? 'No pudimos completar el cambio. Volvé a intentar.');
   return data as T;
 }

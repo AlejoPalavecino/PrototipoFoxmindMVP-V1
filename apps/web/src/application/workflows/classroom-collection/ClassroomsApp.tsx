@@ -1,6 +1,7 @@
 'use client';
 import surface from '../../shell/styles/classrooms-surface.module.css';
 import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, type ReactNode } from 'react';
+import { useScopedValue } from '../../../shared/use-scoped-value.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Draft, Invitation } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { NotificationTarget } from '../../../../../../src/core/contracts/notifications.ts';
@@ -86,8 +87,8 @@ export function ClassroomsApp({
   const requestedInvitationId = requestedInvitation?.toLowerCase();
   const pendingInvitationId = requestedInvitationId === resolvedInvitation ? undefined : requestedInvitationId;
   const supportClient = useMemo(() => createTeacherSupportClient(api), [api]);
-  const homeAgendaClient=useMemo(()=>createWebAgendaClient(),[subjectId]);
-  const searchContent = useMemo(() => createBrujulaSearchClient(api), [api, subjectId]);
+  const homeAgendaClient = useScopedValue(() => createWebAgendaClient(), [subjectId]);
+  const searchContent = useScopedValue(() => createBrujulaSearchClient(api), [api, subjectId]);
   const operations = useMemo(() => createClassroomCollectionOperations(api), [api]);
   const enrollment = useMemo(() => createEnrollmentOperations(api), [api]);
   const { data, setData, errors: collectionErrors, load, invalidate } = useClassroomCollection(operations);
