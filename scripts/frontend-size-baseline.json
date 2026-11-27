@@ -200,8 +200,7 @@
       "lineLength": 249
     },
     "apps/web/src/features/foxy/workspace/foxy-workspace.tsx": {
-      "fileLines": 953,
-      "useState": 23
+      "fileLines": 935
     },
     "apps/web/src/features/grading/ai-review/GradingAiReview.tsx": {
       "lineLength": 372

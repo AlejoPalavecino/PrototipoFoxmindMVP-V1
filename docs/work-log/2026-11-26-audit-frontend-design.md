@@ -81,3 +81,9 @@
 - `use-activity-list.ts`: `useActivityList` (listado y carga) y `useDeliveryCounts` (primeras entregas por actividad, sólo para el docente). `use-activity-editor-state.ts`: con qué se abre el editor (borrador, contexto curricular, paso y pedido a Foxy). `Activities.tsx` pasa de 23 a 10 `useState` y de 817 a 810 líneas; sus `set-state-in-effect` suprimidos bajan de 6 a 3 (68 en total).
 - Los setters que vienen del hook entraron en las dependencias de sus efectos (son estables, así que nada se dispara de más). Eso destapó una diferencia del simulador de hooks de las pruebas: creaba un setter nuevo en cada render y React no. `agenda-ui-helpers`, `wizard-reference/component-harness` y `foxy-session-transition` ahora devuelven setters estables, como React.
 - Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 27 pruebas de actividades de la ruta `fast` dan 274/274; `test:complete --group fast` 3231/3231.
+
+### Corte 10 · `foxy-workspace` separa paneles, herramienta y arranque (F3)
+
+- `use-workspace-panels.ts`: paneles y diálogos laterales (contexto, biblioteca, alcance, fuentes, renombrar). `use-tool-dialog.ts`: el diálogo de herramientas. `use-conversation-start.ts`: el primer mensaje que espera a que exista su conversación. Paneles y herramienta se usan como objeto (`panels.*`, `toolState.*`) porque desestructurados el archivo crecía de líneas y la regla de F9 no lo deja crecer.
+- `foxy-workspace.tsx` pasa de 24 a 9 `useState` y de 953 a 935 líneas.
+- Comprobación: `tsc` sin errores; `lint:boundaries` pasa; las 18 pruebas de Foxy de la ruta `fast` dan 183/183; `test:complete --group fast` 3231/3231; `web:build` exit 0.
