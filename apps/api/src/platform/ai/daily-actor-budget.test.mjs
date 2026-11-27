@@ -51,3 +51,13 @@ test('AI_DAILY_ACTOR_BUDGET_USD is optional, positive and not above the global b
     assert.throws(() => readAiConfiguration({ ...env, AI_DAILY_ACTOR_BUDGET_USD: bad }), { code: 'AI_UNAVAILABLE' }, bad);
   }
 });
+
+test('S17 the default per-actor cap never blocks the first request of the day, and stays under the global cap', async () => {
+  const owner = randomUUID();
+  // A reservation of 40000 microusd exceeds one tenth (10000) of the 0.1 USD global cap.
+  const big = { ...base, maxOutputTokens: 2_000_000 }; // ceil(11*0.1)+ceil(2e6*0.02) = 2 + 40000
+  assert.equal(await attempt(fake(owner), owner, big), true);
+  await assert.rejects(attempt(fake(owner, { actorUsed: 1n }), owner, big), { code: 'AI_BUDGET_EXCEEDED' });
+  const huge = { ...base, maxOutputTokens: 6_000_000 }; // 120002 microusd, above the global cap
+  await assert.rejects(attempt(fake(owner), owner, huge), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });
+});

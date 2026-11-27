@@ -52,7 +52,7 @@ Las llamadas de Foxy usan los adaptadores reales, sin overrides. La habilitació
 
 El comportamiento habitual conserva Gemini y las variables `AI_MODEL`, límites y tarifas existentes. `AI_TEXT_PROFILES_JSON` permite sobrescribir por tarea textual el proveedor/modelo, versión de perfil, límites/plazo y tarifas. Las claves de tarea y los campos admitidos están en la [guía de configuración](../ai/README.md#configurar-perfiles-textuales); no configura visuales. Cambiar proveedor o modelo exige declarar `inputUsdPerMillion` y `outputUsdPerMillion`, sin precios inferidos.
 
-Opcionalmente, `AI_DAILY_ACTOR_BUDGET_USD` limita el gasto diario en dólares de cada usuario (debe ser menor o igual que `AI_DAILY_BUDGET_USD`); si no se define, cada usuario tiene la décima parte del tope global. Detalles en la [guía de IA](../ai/README.md#tope-diario-por-usuario).
+Opcionalmente, `AI_DAILY_ACTOR_BUDGET_USD` limita el gasto diario en dólares de cada usuario (debe ser menor o igual que `AI_DAILY_BUDGET_USD`); si no se define, cada usuario tiene la décima parte del tope global, y siempre puede hacer al menos un pedido por día. Detalles en la [guía de IA](../ai/README.md#tope-diario-por-usuario).
 
 Claude es opt-in: requiere `AI_ANTHROPIC_ENABLED=true`, `AI_ANTHROPIC_API_KEY` y un perfil `provider: "anthropic"` con modelo y tarifas. Una clave sin habilitación no se usa. La base Gemini sigue siendo obligatoria; omitir Anthropic no impide trabajar con Gemini. Guardar claves sólo en la configuración privada existente, nunca en JSON de perfiles, registros o variables públicas. Configurar estos valores no autoriza una prueba paga por sí mismo.
 
