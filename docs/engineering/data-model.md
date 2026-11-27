@@ -1,12 +1,20 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Al 26 de noviembre de 2026 hay 71 modelos Prisma y 71 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Al 26 de noviembre de 2026 hay 71 modelos Prisma y 72 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
 
 ## Roles de base
 
 La [migración 202611260001](../../prisma/migrations/202611260001_application_role/migration.sql) crea el rol sin login `foxmind_app`: `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre las tablas y vistas de `public`, uso de secuencias, y los mismos permisos sobre lo que cree después el rol que migra (`ALTER DEFAULT PRIVILEGES`). No puede crear objetos, alterar ni truncar tablas, ni tocar `_prisma_migrations`; `public` deja de admitir `CREATE` para `PUBLIC`. Las migraciones corren con `MIGRATION_DATABASE_URL` (si falta, con `DATABASE_URL`) y siempre con el mismo rol dueño, para que los permisos por defecto alcancen a las tablas nuevas. La app usa en `DATABASE_URL` un login miembro de `foxmind_app`, que se crea fuera de las migraciones porque lleva contraseña. Con `NODE_ENV=production` la API no arranca si esa conexión es superusuario, puede crear roles, bases u objetos en `public`, saltea RLS o es dueña de algún objeto. [Prueba de privilegios](../../tests/database-roles.test.mjs). RLS no está activo: el aislamiento entre cuentas sigue en los filtros de cada consulta.
 
 Para un servidor nuevo: aplicar las migraciones con el rol dueño y después crear el login de la app, por ejemplo `CREATE ROLE foxmind_app_prod LOGIN PASSWORD '…' IN ROLE foxmind_app;`.
+
+## Índices de claves foráneas
+
+Una clave foránea cuenta como indexada cuando un índice no parcial empieza por su primera columna. La [migración 202611260002](../../prisma/migrations/202611260002_foreign_key_indexes/migration.sql) indexa las ocho que el SQL de la app lee o que recorre el borrado del padre: `file_id` de `materials`, `study_plan_versions` y `activity_instruction_files` (comprobación de referencias antes de limpiar un archivo), `question_id` de `answers` y `question_grades` y `option_id` de `answer_selections` (borrado de preguntas y opciones), `study_review_sessions.agenda_event_id` (borrar un evento pone NULL) y `grading_ai_jobs.attempt_id` (búsqueda del trabajo de un intento). Las otras 56 quedan sin índice a propósito: ninguna consulta filtra por ellas y sus padres no se borran físicamente. La [prueba de índices](../../tests/foreign-key-indexes-database.test.mjs) mantiene esa lista explícita: una clave foránea nueva sin índice la hace fallar hasta que se decida y se agregue.
+
+## Backup y restauración
+
+Ver [backup y restauración](database-backup.md): imagen de Postgres fijada por digest, volcado desde el contenedor y restauración en una base vacía que recrea el rol `foxmind_app`.
 
 ## Entidades por dominio
 
@@ -117,6 +125,18 @@ Estas declaraciones describen código y migración versionados. No acreditan apl
 ## Conservación y eliminación
 
 No hay una regla global de borrado en cascada para todo el producto. Las relaciones restrictivas, períodos, tombstones de comunicación, revisiones y auditorías preservan historia; los servicios definen qué puede eliminarse y cuándo limpiar bytes incompletos. Las políticas de [archivos](files/README.md), [participación](activities/participation.md), [calificaciones](grading/README.md) y [Foxy](ai/foxy.md) deben consultarse antes de diseñar una eliminación.
+
+### Cortes de día
+
+Los contadores diarios de IA (`ai_usage_daily.day`, `usage_day` de cada trabajo y `operational_day` de las reservas mensuales) cortan a las 00:00 UTC, que son las 21:00 en Buenos Aires. La cuota mensual corta al comienzo del mes en `America/Argentina/Buenos_Aires`. Unificar el corte es una decisión pendiente: ver [propuesta B11](../work-log/2026-11-26-audit-database-followups.md#b11-corte-diario-y-borrado-lógico).
+
+### Borrado lógico
+
+Conviven varias formas, sin una convención única: `deleted_at` (`materials`, `classroom_drafts`, `foxy_conversations`), `archived_at` (`classrooms`), `removed_at` con su autor (`wall_posts`, `wall_replies`, `chat_attachments`, `foxy_chat_attachment_links`), `discarded_at` (`foxy_publications`, `foxy_visual_assets`), fin de vigencia con `revoked_at`, `ended_at` o `cancelled_at` (`sessions`, `invitations`, `classroom_codes`, `membership_periods`, `study_review_sessions`) y `blob_deleted_at`, que sólo marca bytes eliminados (`files`, `foxy_visual_assets`). Cada forma tiene reglas propias en su dominio; no se reescriben sin una decisión.
+
+### Retención y códigos de aula
+
+No hay purga ni borrado de cuenta: sesiones, tokens, turnos de Foxy y trabajos de IA se acumulan. La política por tabla y el paso de los códigos de aula de SHA-256 a HMAC con clave son decisiones pendientes con propuesta en el [registro de seguimiento](../work-log/2026-11-26-audit-database-followups.md#decisiones-pendientes).
 
 La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo ni privacidad. Las [pruebas de base](local-development/database.md) acreditan ese nivel; su éxito no verifica toda la aplicación.
 
