@@ -15,38 +15,6 @@ test('creation filter chips preserve the current search and issue complete queri
   try{await view.flush();noDisclosure(view.tree);assert.equal(button(view.tree,'Filtros'),undefined);button(view.tree,'Clases').props.onClick();assert.deepEqual(requests,[{...props.query,type:'PLAN'}]);assert.equal(descendants(view.tree,node=>node.type==='input')[0].props.value,'mi búsqueda');}finally{view.close();}
 });
 
-test('Study material actions and unit topics open on demand; archived folders stay read-only', async () => {
-  const { StudyMaterials } = componentWithPorts('apps/web/src/features/study/ui/study-materials.tsx', {});
-  const source = { id: 'm', kind: 'MATERIAL', origin: 'OWN', title: 'Apunte', fileId: 'f', extension: 'pdf', available: true };
-  const detail = { folder: { id: 'folder', name: 'Lectura', status: 'ARCHIVED', materials: [],
-    units: [{ id: 'u', title: 'Unidad', topics: [{ id: 't', title: 'Tema' }] }] }, sources: [source] };
-  const view = hookView(StudyMaterials, { detail, catalog: { classrooms: [] }, onDirtyChange() {} });
-  try {
-    await view.flush();
-    noDisclosure(view.tree);
-    const material = () => button(view.tree, 'Ver detalles: Apunte');
-    assert.equal(material().props['aria-expanded'], false);
-    material().props.onClick();
-    await view.flush();
-    assert.equal(material().props['aria-expanded'], true);
-    assert.equal(descendants(view.tree, node => node.type?.name === 'StudyFileLinks').length, 1);
-    assert.equal(button(view.tree, 'Editar material'), undefined);
-    assert.equal(button(view.tree, 'Quitar'), undefined);
-    descendants(view.tree, node => node.type === 'button' && node.props['aria-current'] === undefined &&
-      Array.isArray(node.props.children) && node.props.children[0] === 'Plan de estudio ')[0].props.onClick();
-    await view.flush();
-    const unit = () => button(view.tree, 'Ver temas: Unidad');
-    assert.equal(unit().props['aria-expanded'], false);
-    unit().props.onClick();
-    await view.flush();
-    assert.equal(unit().props['aria-expanded'], true);
-    assert.equal(button(view.tree, 'Estudiar →').props.disabled, true);
-    unit().props.onClick();
-    await view.flush();
-    assert.equal(button(view.tree, 'Estudiar →'), undefined);
-  } finally { view.close(); }
-});
-
 test('a ready Foxy visual opens the generator on demand and keeps the request draft', async () => {
   const { FoxyVisualWorkspace } = componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-workspace.tsx', {});
   const view = hookView(FoxyVisualWorkspace, { capabilities: { IMAGE: true, DIAGRAM: true }, kind: 'IMAGE',

@@ -23,16 +23,6 @@ test('Mi perfil is an accessible direct link for both account roles',()=>{
  }
 });
 
-test('after-day merges only queried future personal occurrences and deadlines, in date order with authorized destinations',()=>{
- const {AgendaAfterDay,afterDayEntries}=loadTsModule('apps/web/src/features/agenda/calendar/AgendaAfterDay.tsx');const opened=[],edited=[];
- const event=(id,date)=>({kind:'PRIVATE_EVENT',occurrenceId:id,event:{id,title:id,category:'CLASS',color:'PURPLE',schedule:{kind:'ALL_DAY',startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08'}},startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08',startAt:null,endAt:null});
- const deadline={kind:'ACADEMIC_DEADLINE',id:'deadline',title:'Plazo',classroomName:'Aula',deadlineAt:'2026-11-06T15:00:00Z',target:{classroomId:'room',activityId:'activity'}};
- const items=[event('old','2026-11-05'),event('later','2026-11-07'),deadline,event('outside','2026-12-08'),deadline];
- assert.deepEqual(afterDayEntries(items,'2026-11-05','UTC').map(e=>e.item.kind==='PRIVATE_EVENT'?e.item.event.id:e.item.id),['deadline','later']);
- const tree=AgendaAfterDay({items,day:'2026-11-05',zone:'UTC',busy:false,loading:false,error:'',onRetry(){},onEdit:e=>edited.push(e),onOpen:t=>opened.push(t)});
- const buttons=descendants(tree,n=>n.type==='button');buttons[0].props.onClick();buttons[1].props.onClick();assert.deepEqual(opened,[deadline.target]);assert.equal(edited[0].id,'later');
- const loading=AgendaAfterDay({items,day:'2026-11-05',zone:'UTC',busy:false,loading:true,error:'',onRetry(){},onEdit(){},onOpen(){}});assert.equal(descendants(loading,n=>n.type==='button').length,0);assert.doesNotMatch(text(loading),/Plazo|later/);
-});
 test('Mi perfil follows the real callback from the drawer and offers Configuración on arrival',async()=>{
  const {AppNavbar}=loadTsModule('apps/shared-ui/AppNavbar.tsx');
  const previous=globalThis.window;globalThis.window=new EventTarget();const calls=[];

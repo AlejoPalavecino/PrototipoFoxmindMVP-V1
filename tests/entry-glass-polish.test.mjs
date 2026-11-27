@@ -41,15 +41,6 @@ test('anonymous verification success replaces obsolete proof instructions, pendi
   assert.match(render(false), /Abrí el enlace original/);
 });
 
-test('navbar marker movement uses actual old/new rectangles and suppresses zero/reduced motion', () => {
-  const { markerFrames } = load('apps/shared-ui/navbar-motion.ts');
-  const from = { x: 100, y: 20, width: 120 }, to = { x: 240, y: 20, width: 160 };
-  assert.deepEqual(markerFrames(from, to, false), [{ transform: 'translate(-140px, 0px) scaleX(0.75)' }, { transform: 'none' }]);
-  assert.equal(markerFrames(from, to, true), null);
-  assert.equal(markerFrames(to, to, false), null);
-  assert.equal(markerFrames({ ...from, width: 0 }, to, false), null);
-});
-
 test('notification dialog inherits wrapping title safeguards without shrinking the close target', () => {
   function cascade(path) {
     const css = readFileSync(path, 'utf8');

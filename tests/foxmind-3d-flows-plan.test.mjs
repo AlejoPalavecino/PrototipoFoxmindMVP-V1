@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { loadPlanWorkspace } from './helpers/plan-workspace.mjs';
 import { hookView, descendants, deferred } from './agenda-ui-helpers.test.mjs';
 
 const room = { id: 'room', role: 'teacher', archived: false, units: [{ id: 'unit', name: 'Unidad', topics: [
@@ -9,7 +10,7 @@ const room = { id: 'room', role: 'teacher', archived: false, units: [{ id: 'unit
 const text = value => typeof value === 'string' ? value : Array.isArray(value) ? value.map(text).join(' ') : value?.props ? text(value.props.children) : '';
 
 test('D4 contextual Plan filters real multitema activities/materials by the chosen topic and opens explicitly without writes', async () => {
-  const { PlanWorkspace } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx");
+  const { PlanWorkspace } = loadPlanWorkspace();
   const calls = [], opened = [], api = { fileUrl: (id, preview) => `/protected/${id}?preview=${preview}`,
     call: async (...args) => { calls.push(args); return args[0].endsWith('/library') ? [
       { id: 'visible', title: 'Documento visible', topicId: 'next', fileId: 'file', ready: true, deleted: false, previewable: true, extension: 'pdf' },
@@ -41,7 +42,7 @@ test('D4 contextual Plan filters real multitema activities/materials by the chos
 });
 
 test('D4 contextual Plan failure is visible and never fabricates empty success', async () => {
-  const { PlanWorkspace } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/PlanWorkspace.tsx");
+  const { PlanWorkspace } = loadPlanWorkspace();
   const view = hookView(PlanWorkspace, { api: { call: async () => { throw new Error('Lectura no disponible'); } }, room, onOpenActivity() {} });
   try { await view.flush(); assert.ok(descendants(view.tree, node => node.props.role === 'alert').length > 0 || /no disponible|No se pudo/i.test(text(view.tree))); }
   finally { view.close(); }

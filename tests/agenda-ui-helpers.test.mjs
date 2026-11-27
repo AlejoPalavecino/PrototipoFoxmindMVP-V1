@@ -54,7 +54,7 @@ export function descendants(node, predicate) {
   if (!React.isValidElement(node)) return [];
   // Expand shared, stateless presentation just as the DOM renderer does.
   if ([
-    'FoxyToolPicker', 'CollectionStateFilter', 'CreationSteps', 'AgendaToolbar',
+    'FoxyToolPicker', 'AgendaToolbar',
     'StudyToolsPanel', 'StudyMaterialAlert', 'StudyCreationsPanel', 'StudyPracticePreview',
     'StudyHistoryPanel', 'StudyConversation', 'StudyChatWelcome', 'StudyMessageList',
     'StudyChatProgress', 'StudyChatComposer', 'StudySourcesDialog', 'StudyRenameDialog',

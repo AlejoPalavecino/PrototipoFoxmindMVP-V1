@@ -15,7 +15,7 @@ for (const viewName of ['settings','recover-password']) {
     const noop=()=>null, placeholder=new Proxy({default:noop},{get:(target,key)=>key==='__esModule'?true:target[key]??noop});
     const ports={'next/head':placeholder,'next/link':placeholder,'next/router':{useRouter:()=>({isReady:true,query:{},push:async()=>{}})},
       '../features/identity/index':{...account,createAccountClient:()=>({session:async()=>({authenticated:true,user}),mutate:async(path,fields)=>{calls.push({path,fields});return {result:user};}})},'../application/academic-classroom-client.ts':navigation};
-    for(const name of ['./ui/button','./ui/input','./ui/label','../application/navigation/account-navbar','../../../shared-ui/AccountStory','../../../shared-ui','../../../shared-ui/index','../../../shared-ui/FoxmindIllustration'])ports[name]=placeholder;
+    for(const name of ['./ui/button','./ui/input','./ui/label','../application/navigation/account-navbar','../../../shared-ui','../../../shared-ui/index','../../../shared-ui/FoxmindIllustration'])ports[name]=placeholder;
     const {AccountScreen}=componentWithPorts('apps/web/src/screens/identity-screen.tsx',ports);
     const view=hookView(AccountScreen,{view:viewName});
     try {
