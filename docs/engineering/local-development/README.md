@@ -40,6 +40,8 @@ La compilación API de `local:up` y `local:restart` usa `node scripts/local-api-
 
 El propietario y puertos persistentes se registran en `.test-artifacts/local-app/owner.json`; la configuración completa queda en `.env`. Docker usa un proyecto propio `foxmind-local-<id>` con PostgreSQL, SeaweedFS, ClamAV y Mailpit, publicado sólo en loopback. No reutiliza la antigua copia P3/P4 ni opera sobre sus volúmenes. El arranque rechaza otra DATABASE_URL y puertos web/API ocupados, en lugar de detener procesos desconocidos. Los archivos de ClamAV se normalizan a LF en el directorio privado para funcionar desde Windows.
 
+La conversión de `.doc` y `.ppt` usa la imagen `foxmind-office-converter:local` (ver la [guía de archivos](../files/README.md)). El supervisor inicia, junto con API y web, el intermediario `scripts/office-converter-broker.mjs` en un puerto de loopback propio (`ports.office` del propietario, asignado en el próximo `local:up` si falta). `local:up` agrega a `.env` `FILES_OFFICE_CONVERTER_URL` y una clave aleatoria `FILES_OFFICE_CONVERTER_TOKEN`; la API no ejecuta Docker.
+
 El primer arranque crea cuentas/aula sintéticas y guarda el acceso en `.test-artifacts/local-app/accounts.json`, ignorado. No recrea cuentas ni cambia secretos en reinicios. No publicar el contenido de ese archivo. No eliminar `.env` ni el directorio local para reiniciar: contienen secretos e identidad de los recursos persistentes. `npm run api:start` también carga `.env` si existe; requiere servicios configurados y API compilada.
 
 Ejecutá los comandos desde el checkout que querés probar. Para usar ambos roles a la vez, abrí una ventana privada para uno de ellos. Detené la instancia propia antes de reconstruir `.next` para que las páginas abiertas no queden apuntando a chunks de la compilación anterior.
@@ -50,7 +52,7 @@ Las llamadas de Foxy usan los adaptadores reales, sin overrides. La habilitació
 
 El comportamiento habitual conserva Gemini y las variables `AI_MODEL`, límites y tarifas existentes. `AI_TEXT_PROFILES_JSON` permite sobrescribir por tarea textual el proveedor/modelo, versión de perfil, límites/plazo y tarifas. Las claves de tarea y los campos admitidos están en la [guía de configuración](../ai/README.md#configurar-perfiles-textuales); no configura visuales. Cambiar proveedor o modelo exige declarar `inputUsdPerMillion` y `outputUsdPerMillion`, sin precios inferidos.
 
-Opcionalmente, `AI_DAILY_ACTOR_BUDGET_USD` limita el gasto diario en dólares de cada usuario (debe ser menor o igual que `AI_DAILY_BUDGET_USD`); si no se define, cada usuario comparte el tope global. Detalles en la [guía de IA](../ai/README.md#tope-diario-por-usuario).
+Opcionalmente, `AI_DAILY_ACTOR_BUDGET_USD` limita el gasto diario en dólares de cada usuario (debe ser menor o igual que `AI_DAILY_BUDGET_USD`); si no se define, cada usuario tiene la décima parte del tope global, y siempre puede hacer al menos un pedido por día. Detalles en la [guía de IA](../ai/README.md#tope-diario-por-usuario).
 
 Claude es opt-in: requiere `AI_ANTHROPIC_ENABLED=true`, `AI_ANTHROPIC_API_KEY` y un perfil `provider: "anthropic"` con modelo y tarifas. Una clave sin habilitación no se usa. La base Gemini sigue siendo obligatoria; omitir Anthropic no impide trabajar con Gemini. Guardar claves sólo en la configuración privada existente, nunca en JSON de perfiles, registros o variables públicas. Configurar estos valores no autoriza una prueba paga por sí mismo.
 

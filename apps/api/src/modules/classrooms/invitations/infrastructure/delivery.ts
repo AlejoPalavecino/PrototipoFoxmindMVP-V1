@@ -19,6 +19,8 @@ interface Job {
 export interface DeliveryOptions {
   database: FileDatabase;
   key: Buffer;
+  /** Retired delivery keys, only for jobs sealed before a rotation. */
+  previousKeys?: readonly Buffer[];
   send: Send;
 }
 export class InvitationDeliveryWorker {
@@ -31,10 +33,11 @@ export class InvitationDeliveryWorker {
       !options?.database ||
       typeof options.send !== 'function' ||
       !Buffer.isBuffer(options.key) ||
-      options.key.length !== 32
+      options.key.length !== 32 ||
+      (options.previousKeys ?? []).some(key => !Buffer.isBuffer(key) || key.length !== 32)
     )
       fail('SERVICE_UNAVAILABLE');
-    this.options = { ...options, key: Buffer.from(options.key) };
+    this.options = { ...options, key: Buffer.from(options.key), previousKeys: (options.previousKeys ?? []).map(key => Buffer.from(key)) };
   }
   private tx<T>(operation: (tx: FileTransaction) => Promise<T>) {
     return this.options.database.$transaction(
@@ -111,6 +114,7 @@ export class InvitationDeliveryWorker {
           this.options.key,
           job.payload.envelope,
           `p5:${job.payload.invitationId}:${job.payload.generation}`,
+          this.options.previousKeys,
         );
         const to = this.validateMailbox(message.to);
         const text = `${message.teacher} te invitó al aula «${message.classroom}» en FoxMind.\n\nRegistrate con este correo y verificá tu cuenta. Después, aceptá explícitamente la invitación desde Mis Aulas.\n\n${message.url}\n\nLa invitación vence a los siete días. Crear o verificar la cuenta no te inscribe automáticamente.`;

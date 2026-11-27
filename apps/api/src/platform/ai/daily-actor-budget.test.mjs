@@ -31,10 +31,12 @@ test('an actor at its dedicated daily cap is rejected while the global scope sti
   await assert.rejects(attempt(fake(owner, { globalUsed: 99_999n }), owner, config), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });
 });
 
-test('without a per-actor cap the owner scope keeps the global cap', async () => {
+test('S17 without a per-actor cap each owner gets one tenth of the global cap by default', async () => {
   const owner = randomUUID();
-  assert.equal(await attempt(fake(owner, { actorUsed: 49_999n }), owner, base), true);
-  await assert.rejects(attempt(fake(owner, { actorUsed: 99_999n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
+  // Global 0.1 USD = 100000 microusd; default actor cap = 10000 microusd.
+  assert.equal(await attempt(fake(owner, { actorUsed: 9_996n }), owner, base), true);
+  await assert.rejects(attempt(fake(owner, { actorUsed: 9_997n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
+  await assert.rejects(attempt(fake(owner, { actorUsed: 49_999n }), owner, base), { code: 'AI_BUDGET_EXCEEDED' });
 });
 
 test('AI_DAILY_ACTOR_BUDGET_USD is optional, positive and not above the global budget', () => {
@@ -48,6 +50,16 @@ test('AI_DAILY_ACTOR_BUDGET_USD is optional, positive and not above the global b
   for (const bad of ['2.01', '0', '-1', 'abc', '', '1e1']) {
     assert.throws(() => readAiConfiguration({ ...env, AI_DAILY_ACTOR_BUDGET_USD: bad }), { code: 'AI_UNAVAILABLE' }, bad);
   }
+});
+
+test('S17 the default per-actor cap never blocks the first request of the day, and stays under the global cap', async () => {
+  const owner = randomUUID();
+  // A reservation of 40000 microusd exceeds one tenth (10000) of the 0.1 USD global cap.
+  const big = { ...base, maxOutputTokens: 2_000_000 }; // ceil(11*0.1)+ceil(2e6*0.02) = 2 + 40000
+  assert.equal(await attempt(fake(owner), owner, big), true);
+  await assert.rejects(attempt(fake(owner, { actorUsed: 1n }), owner, big), { code: 'AI_BUDGET_EXCEEDED' });
+  const huge = { ...base, maxOutputTokens: 6_000_000 }; // 120002 microusd, above the global cap
+  await assert.rejects(attempt(fake(owner), owner, huge), { code: 'AI_GLOBAL_DAILY_BUDGET_EXCEEDED' });
 });
 
 test('daily AI quota days are Buenos Aires calendar days, like the monthly quota (B11)', async () => {

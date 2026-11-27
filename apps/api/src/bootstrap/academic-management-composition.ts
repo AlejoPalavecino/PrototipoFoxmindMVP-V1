@@ -43,7 +43,7 @@ export class InvitationService extends InvitationApplication {
  constructor(context: Pick<ClassroomRuntimeAccess,'run'|'classroom'|'ports'>, dependencies: ConstructorParameters<typeof InvitationApplication>[1]) {
   super(context, dependencies, createInvitationsRepository(), { invite: (request,id,input)=>issues.inviteOperation(context,request,id,input),
    batch: new InvitationBatchOperations(context, createInvitationBatchRepository(), issues, { sealReceipt: encryptDelivery, openReceipt: decryptDelivery }),
-   recipient: (envelope,aad)=>context.ports.validateMailbox(decryptDelivery(context.ports.deliveryKey,envelope,aad).to) });
+   recipient: (envelope,aad)=>context.ports.validateMailbox(decryptDelivery(context.ports.deliveryKey,envelope,aad,context.ports.previousDeliveryKeys).to) });
  }
 }
 

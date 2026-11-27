@@ -25,7 +25,7 @@ async function distinctMailboxes(repository: InvitationBatchRepository, tx: Tran
 export class InvitationBatchOperations {
   constructor(private readonly access: InvitationAccess, private readonly repository: InvitationBatchRepository,
     private readonly operations: ReturnType<typeof createInvitationIssueOperations>,
-    private readonly envelopes: { sealReceipt(key: Buffer, value: InvitationBatchReceipt, aad: string): string; openReceipt(key: Buffer, envelope: string, aad: string): InvitationBatchReceipt }) {}
+    private readonly envelopes: { sealReceipt(key: Buffer, value: InvitationBatchReceipt, aad: string): string; openReceipt(key: Buffer, envelope: string, aad: string, previous?: readonly Buffer[]): InvitationBatchReceipt }) {}
 
   async reserve(request: unknown, classroomId: string, input: unknown): Promise<InvitationBatchReceipt> {
     const { requestId, emails } = object(input, ['requestId', 'emails']);
@@ -88,7 +88,7 @@ export class InvitationBatchOperations {
 
   private async readReceipt(tx: Transaction, classroomId: string, requestId: string): Promise<InvitationBatchReceipt | undefined> {
     const [row] = await this.repository.readReceipt(tx, { classroomId: classroomId, requestId: requestId });
-    if (row) return this.envelopes.openReceipt(this.access.ports.deliveryKey, row.receipt_envelope, this.aad(classroomId, requestId));
+    if (row) return this.envelopes.openReceipt(this.access.ports.deliveryKey, row.receipt_envelope, this.aad(classroomId, requestId), this.access.ports.previousDeliveryKeys);
   }
 
   private seal(classroomId: string, receipt: InvitationBatchReceipt) {

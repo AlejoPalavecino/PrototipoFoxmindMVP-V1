@@ -18,7 +18,7 @@ export interface IdentityRuntimePorts {
   readonly beforePasswordChangeCommit?: () => Promise<void>;
 }
 /** Address, identifier+address and identifier ceilings. Someone else's attempts only exhaust their own address. */
-function identifierBuckets(action: 'login' | 'recovery-request', rule: RateRule, ip: string, canonical: string): AdmissionBucket[] {
+function identifierBuckets(action: 'login' | 'recovery-request' | 'verification-resend', rule: RateRule, ip: string, canonical: string): AdmissionBucket[] {
   const buckets: AdmissionBucket[] = [{ action, namespace: 'ip', subject: ip, budget: rule.ip }];
   if (rule.identifierPerIp) buckets.push({ action, namespace: 'identifier-ip', subject: `${canonical}\0${ip}`, budget: rule.identifierPerIp });
   if (rule.identifier) buckets.push({ action, namespace: 'identifier', subject: canonical, budget: rule.identifier });
@@ -149,9 +149,7 @@ export class IdentityRuntime {
     if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
     if (context.user.email_verified_at) throw new IdentityHttpError('EMAIL_ALREADY_VERIFIED');
     const rule = this.configuration.security.rateLimits['verification-resend'];
-    const buckets: AdmissionBucket[] = [{ action: 'verification-resend', namespace: 'ip', subject: ip, budget: rule.ip }];
-    if (rule.identifier) buckets.push({ action: 'verification-resend', namespace: 'identifier', subject: context.user.id, budget: rule.identifier });
-    await this.store.admit(this.configuration.security, buckets);
+    await this.store.admit(this.configuration.security, identifierBuckets('verification-resend', rule, ip, context.user.id));
     await this.store.transaction(async tx => {
       await this.store.lockUsers(tx, [context.user.id]);
       if (!await this.store.activeInTransaction(tx, context)) throw new IdentityHttpError('AUTH_REQUIRED');

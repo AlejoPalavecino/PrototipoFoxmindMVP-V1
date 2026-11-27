@@ -26,6 +26,15 @@ import { createGradingAiProvider } from '../modules/grading/assistance/infrastru
 import { validateActivityGeneration } from '../modules/activities/generation/infrastructure/activity-ai/provenance.ts';
 import type { AiConfiguration } from '../platform/ai/configuration.ts';
 import { createDiagnosticSink } from '../platform/diagnostics.ts';
+import { INVITATION_DELIVERY_BUDGETS } from '../modules/classrooms/invitations/application/invitations-operations.ts';
+
+/** S6: durable per-teacher invitation quota in the shared identity admission store (no new table). */
+export function invitationDeliveryAdmission(runtime: Pick<IdentityRuntime, 'admitBuckets'>) {
+  return (actorId: string) => runtime.admitBuckets([
+    { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation:day:${actorId}`, budget: INVITATION_DELIVERY_BUDGETS.day },
+    { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation:hour:${actorId}`, budget: INVITATION_DELIVERY_BUDGETS.hour },
+  ]);
+}
 
 function integratedClassrooms(ports: ClassroomPorts, files: FileService): AcademicRuntime {
   // Publication checks existing provenance even while generation/provider configuration is disabled.
@@ -72,6 +81,7 @@ export class ClassroomsModule {
           gradingAiAvailable: !!ai && (!override || !!override.gradingProvider),
           teacherWritingEnabled: !!ai && (!override || !!override.teacherWritingProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
+          admitInvitationDelivery: invitationDeliveryAdmission(runtime),
         }, fileService) },
       { provide: ACADEMIC_FOXY_ACCESS, inject: [ACADEMIC_RUNTIME], useFactory: academicFoxyAccess },
       { provide: ACADEMIC_STUDENT_PROGRESS, inject: [ACADEMIC_RUNTIME], useFactory: academicStudentProgress },
@@ -79,7 +89,7 @@ export class ClassroomsModule {
       { provide: InvitationService, inject: [ACADEMIC_RUNTIME], useFactory: (runtime: AcademicRuntime) => runtime.classrooms.invitations },
       { provide: InvitationDeliveryWorker, inject: [PrismaService],
         useFactory: (database: PrismaService) => new InvitationDeliveryWorker({
-          database, key: configuration.deliveryKey, send: sender.send,
+          database, key: configuration.deliveryKey, previousKeys: configuration.previousDeliveryKeys, send: sender.send,
         }) },
       { provide: LibraryCleanupWorker, inject: [PrismaService, FileService],
         useFactory: (database: PrismaService, files: FileService) => new LibraryCleanupWorker(database, files.storage) },
@@ -91,7 +101,7 @@ export class ClassroomsModule {
   }
   static register(
     ports: ClassroomPorts,
-    delivery: Omit<DeliveryOptions, 'database' | 'key'>,
+    delivery: Omit<DeliveryOptions, 'database' | 'key' | 'previousKeys'>,
   ): DynamicModule {
     return {
       module: ClassroomsModule,
@@ -107,6 +117,7 @@ export class ClassroomsModule {
             ...delivery,
             database: ports.database,
             key: ports.deliveryKey,
+            previousKeys: ports.previousDeliveryKeys,
           }),
         },
       ],

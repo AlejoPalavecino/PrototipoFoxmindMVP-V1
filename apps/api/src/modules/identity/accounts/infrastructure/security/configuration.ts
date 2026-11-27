@@ -13,7 +13,8 @@ const defaults = {
   // A whole school can share one address; the identifier+address bucket stops targeted lockouts.
   login: { ip: budget(300, 900), identifierPerIp: budget(10, 900), identifier: budget(100, 900) },
   'recovery-request': { ip: budget(20, 900), identifierPerIp: budget(3, 900), identifier: budget(10, 900), cooldownSeconds: 60 },
-  'verification-resend': { ip: budget(60, 3600), identifier: budget(5, 3600), cooldownSeconds: 60 },
+  // Same split as login/recovery: one shared school address must not block every pending resend.
+  'verification-resend': { ip: budget(300, 3600), identifierPerIp: budget(3, 3600), identifier: budget(5, 3600), cooldownSeconds: 60 },
   'token-redemption': { ip: budget(30, 900) },
   'password-change': { ip: budget(20, 900), identifier: budget(5, 900) },
   'profile-update': { ip: budget(120, 900), identifier: budget(30, 900) },

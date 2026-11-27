@@ -10,6 +10,7 @@
     "apps/api/src/modules/classrooms/drafts/application/publication.test.ts",
     "apps/api/src/modules/classrooms/drafts/infrastructure/classrooms-persistence.test.ts",
     "apps/api/src/modules/classrooms/invitations/application/batch-behavior.test.ts",
+    "apps/api/src/modules/classrooms/invitations/application/invitation-quota.test.ts",
     "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts",
     "apps/api/src/modules/communication/wall/application/wall.test.ts",
     "apps/api/src/modules/curriculum/generation/application/repository.test.mjs",
@@ -28,6 +29,7 @@
     "apps/api/src/modules/files/custody/infrastructure/tests/foxy-s3-owned-send.test.mjs",
     "apps/api/src/modules/files/custody/infrastructure/tests/foxy-storage-startup-close.test.mjs",
     "apps/api/src/modules/files/custody/infrastructure/tests/pdf-inflate-bomb.test.mjs",
+    "apps/api/src/modules/files/custody/infrastructure/legacy-office.test.mjs",
     "apps/api/src/modules/files/uploads/application/file-use-cases.test.mjs",
     "apps/api/src/modules/files/uploads/application/receive-authorization.test.mjs",
     "apps/api/src/modules/files/uploads/application/receive-http.test.mjs",
@@ -755,7 +757,10 @@
     "tests/foxy-chat-layout-tools-rail.test.mjs",
     "tests/study-folder-progress.test.mjs",
     "tests/study-collection-progress.test.mjs",
-    "tests/foxy-quiz-format.test.mjs"
+    "tests/foxy-quiz-format.test.mjs",
+    "tests/classroom-invitation-quota.test.mjs",
+    "tests/office-converter-broker.test.mjs",
+    "apps/api/src/modules/classrooms/invitations/infrastructure/delivery-envelope.test.mjs"
   ],
   "exclusions": [
     {

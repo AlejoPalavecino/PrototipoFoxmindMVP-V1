@@ -78,6 +78,9 @@ test('ambiguous environment updates and foreign resource owners are rejected',()
   const owner={project:'foxmind-local-0123456789abcdef',ports:{database:54321,storage:54322,scanner:54323,smtp:54324,inbox:54325}};
   assert.equal(requireLocalOwner(owner),owner);assert.throws(()=>requireLocalOwner({...owner,project:'foxmind-p4-files'}));
   assert.throws(()=>requireLocalOwner({...owner,ports:{...owner.ports,database:0}}));
+  // S12: the Office broker port is optional for owners created earlier, and validated when present.
+  assert.equal(requireLocalOwner({...owner,ports:{...owner.ports,office:54326}}).ports.office,54326);
+  assert.throws(()=>requireLocalOwner({...owner,ports:{...owner.ports,office:80}}));
 });
 
 test('a checkout can keep its own web and API ports while older owners keep 3000/3001',()=>{
