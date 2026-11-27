@@ -295,6 +295,8 @@
     "tests/ai-budget-owner-lock-database.test.mjs",
     "tests/foreign-key-indexes-database.test.mjs",
     "tests/database-backup-restore.test.mjs",
+    "tests/classroom-code-digest-database.test.mjs",
+    "tests/data-retention-database.test.mjs",
     "tests/ai-chat-latency.test.mjs",
     "tests/ai-execution-snapshot.test.mjs",
     "tests/ai-foxy-execution-snapshot.test.mjs",

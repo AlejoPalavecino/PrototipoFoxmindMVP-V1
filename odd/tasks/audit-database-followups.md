@@ -19,6 +19,9 @@ Base `a06c9214`. Commit en la rama `claude/audit-database-fd9d93`; sin push, PR 
 - **REQ-003:** (B12) Toda referencia a la imagen de Postgres está fijada por un único digest.
 - **REQ-004:** (B12) Un backup de una base migrada se restaura en una base vacía de un clúster nuevo con las mismas filas, el historial de migraciones y los permisos del rol de app; restaurar sobre una base con tablas se rechaza.
 - **REQ-005:** (B11, S7, S8) Cada uno queda con propuesta, recomendación y decisión pendiente explícita; no se cambian datos ni comportamiento visible.
+- **REQ-006:** (B11) Los días de los cupos diarios de IA son días calendario de Buenos Aires y el aviso lo dice.
+- **REQ-007:** (S7) Los códigos de aula nuevos se guardan como HMAC con clave; los anteriores siguen funcionando hasta recalcularse; el recálculo de vigentes es idempotente, conserva revocados y no escribe sin `--apply`; en producción la clave es obligatoria.
+- **REQ-008:** (S8) Una purga acotada borra credenciales vencidas, avisos leídos viejos, trabajo de IA terminado, idempotencia de Foxy y contadores diarios viejos, y nunca lo vigente.
 
 ## Diseno
 
@@ -60,12 +63,45 @@ Lock de presupuesto en forma de dos claves `(78123001, hashtext(owner_id))`; fil
 - **Blocker:** none
 
 ### TASK-004 — B11, S7 y S8 quedan con propuesta y decisión pendiente
-- **State:** BLOCKED
+- **State:** VERIFYING
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-005
 - **Verification:** revisión del registro y de docs/engineering/data-model.md
 - **Acceptance:** El registro explica cada hallazgo, recomienda una opción y lista qué decide el usuario; no hay cambios de datos ni de comportamiento visible.
 - **Scope:** ["docs/work-log/2026-11-26-audit-database-followups.md", "docs/engineering/data-model.md"]
-- **Evidence:** {"command":"npm run docs:check","result":"0 problemas; propuestas en el registro, sin cambios de datos ni comportamiento visible"}
-- **Blocker:** Decisión del usuario: corte diario (B11), clave y migración HMAC de códigos (S7), plazos de retención y borrado de cuenta (S8).
+- **Evidence:** {"command":"npm run docs:check","result":"0 problemas; propuestas entregadas; el usuario eligió lo recomendado (TASK-005 a TASK-007)"}
+- **Blocker:** none
+
+### TASK-005 — El cupo diario de IA se renueva a la medianoche de Buenos Aires
+- **State:** VERIFYING
+- **Depends on:** TASK-001
+- **Owner:** orchestrator
+- **Requirements:** REQ-006
+- **Verification:** apps/api/src/platform/ai/daily-actor-budget.test.mjs y apps/web/src/features/study/api/study-client.test.mjs
+- **Acceptance:** Toda sentencia que fija el día de `ai_usage_daily`, `usage_day` u `operational_day` usa `AT TIME ZONE 'America/Argentina/Buenos_Aires'` y ninguna UTC; el aviso de cupo de Estudio dice «medianoche, hora de Buenos Aires».
+- **Scope:** ["apps/api/src/platform/ai/operational-day.ts", "apps/api/src/platform/ai/text-budget.ts", "apps/api/src/platform/ai/monthly-budget.ts", "apps/web/src/features/study/api/study-error.ts", "apps/api/src/platform/ai/daily-actor-budget.test.mjs", "apps/web/src/features/study/api/study-client.test.mjs", "tests/grading-ai-sql.test.mjs", "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-text-budget.test.mjs"]
+- **Evidence:** {"command":"node --test apps/api/src/platform/ai/daily-actor-budget.test.mjs apps/web/src/features/study/api/study-client.test.mjs","result":"RED: AT TIME ZONE 'UTC' y aviso 00:00 UTC; GREEN: 12/12"}
+- **Blocker:** none
+
+### TASK-006 — Los códigos de aula no se recuperan con una copia de la base
+- **State:** VERIFYING
+- **Depends on:** none
+- **Owner:** orchestrator
+- **Requirements:** REQ-007
+- **Verification:** tests/classroom-code-digest-database.test.mjs y tests/p5-host.test.mjs
+- **Acceptance:** Un código nuevo queda como `h1:` + 64 hex y distinto de su SHA-256; la vista previa encuentra uno nuevo y uno anterior; el recálculo pasa el vigente a HMAC, deja el revocado con SHA-256, una segunda corrida no cambia nada y un sobre que no coincide queda como `skipped`; el comando sin `--apply` no escribe; en producción sin `CLASSROOMS_CODE_DIGEST_KEY` la configuración es inválida.
+- **Scope:** ["apps/api/src/platform/crypto/classroom-code-digest.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/code-digest-migration.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.ts", "apps/api/src/modules/classrooms/memberships/infrastructure/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts", "apps/api/src/modules/classrooms/memberships/application/membership-code-operations-repository.ts", "apps/api/src/modules/classrooms/memberships/application/memberships.ts", "apps/api/src/modules/classrooms/application/management-operations.ts", "apps/api/src/modules/classrooms/drafts/application/drafts-operations.ts", "apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts", "apps/api/src/modules/classrooms/access/infrastructure/configuration.ts", "apps/api/src/modules/classrooms/access/application/runtime-ports.ts", "apps/api/src/bootstrap/academic-management-composition.ts", "apps/api/src/bootstrap/academic-composition.ts", "scripts/rehash-classroom-codes.mjs", "tests/classroom-code-digest-database.test.mjs", "tests/brujula-data-database.test.mjs", "tests/p5-host.test.mjs", "apps/api/src/modules/classrooms/memberships/application/membership-behavior.test.ts", "docs/engineering/classrooms/README.md"]
+- **Evidence:** {"command":"tests/classroom-code-digest-database.test.mjs, brujula-data-database, exclusive-account-role, membership-behavior, p5-host","result":"RED: modulos inexistentes; GREEN: 16/16 y 2/2; configuracion sin RED observado"}
+- **Blocker:** none
+
+### TASK-007 — Lo que ya no sirve se purga sin tocar lo vigente
+- **State:** VERIFYING
+- **Depends on:** none
+- **Owner:** orchestrator
+- **Requirements:** REQ-008
+- **Verification:** tests/data-retention-database.test.mjs y apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs
+- **Acceptance:** Se borran la sesión vencida y la revocada hace más de 30 días, el token consumido, el aviso leído hace 200 días, el despacho DONE, el trabajo COMPLETED y el contador de hace 14 meses; se conservan la sesión vigente, la vencida hace 5 días, el token vigente, el aviso sin leer y el leído hace 5 días, el despacho RUNNING, el trabajo PENDING y el contador de hace 11 meses; ninguna tabla borra más de un lote por pasada; la purga periódica ejecuta la retención después de los controles y para ante un lote corto.
+- **Scope:** ["apps/api/src/platform/database/retention.ts", "apps/api/src/bootstrap/identity-controls-purge.ts", "apps/api/src/modules/identity/accounts/infrastructure/persistence.ts", "tests/data-retention-database.test.mjs", "apps/api/src/modules/identity/accounts/application/runtime-lifecycle.test.mjs", "docs/engineering/data-model.md"]
+- **Evidence:** {"command":"tests/data-retention-database.test.mjs y runtime-lifecycle.test.mjs con flags del runner","result":"RED: modulo inexistente; retencion no invocada; GREEN: 10/10 junto con S7"}
+- **Blocker:** none

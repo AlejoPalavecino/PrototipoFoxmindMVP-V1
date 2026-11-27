@@ -22,7 +22,28 @@ Las pruebas existentes que fijaban el texto del lock global (fakes de `foxy-text
 
 Suites: ver la [sección de cierre](#cierre).
 
+## Segunda tanda: B11, S7 y S8 decididos
+
+El mismo día el usuario respondió «Vamos con lo recomendado». Se implementó así:
+
+- **B11.** El día de los cupos diarios de IA es el de Buenos Aires ([constante](../../apps/api/src/platform/ai/operational-day.ts)) en reservas, liquidaciones y `operational_day`. El aviso de Estudio dice «Se renueva a la medianoche, hora de Buenos Aires». El borrado lógico no se tocó.
+- **S7.** Los códigos nuevos se guardan como `h1:` + HMAC con `CLASSROOMS_CODE_DIGEST_KEY`, obligatoria en producción y distinta de las otras claves. Fuera de producción se deriva de la clave de firma, porque obligarla rompía unos 20 entornos de prueba que no la definen. La vista previa acepta ambas formas durante la transición. La rotación tampoco reemite un código revocado con SHA-256. [`rehash-classroom-codes`](../../scripts/rehash-classroom-codes.mjs) recalcula los vigentes: sin `--apply` sólo informa. No se regeneraron los códigos de 6 dígitos.
+- **S8, primera tanda.** [Reglas de retención](../../apps/api/src/platform/database/retention.ts) en la purga periódica de identidad que ya existía para `account_action_controls` (la auditoría no la había visto). Plazos: credenciales a 30 días, avisos leídos a 180, trabajo de IA terminado e idempotencia de Foxy a 90, contadores diarios a 13 meses. Ninguna FK apunta a esas tablas.
+
+| Qué | Prueba | RED | GREEN |
+| --- | --- | --- | --- |
+| B11 | `daily-actor-budget.test.mjs` y `study-client.test.mjs` | el SQL usaba `AT TIME ZONE 'UTC'`; el aviso decía `00:00 UTC` | 12/12 |
+| S7 | `tests/classroom-code-digest-database.test.mjs` | módulos inexistentes | 2/2: código nuevo con `h1:` y sin SHA-256; vista previa con código nuevo y con uno anterior; recálculo de vigentes, revocados intactos, idempotente, sobre que no coincide queda sin tocar; el comando no escribe sin `--apply` |
+| S7 configuración | `tests/p5-host.test.mjs` | escrita después de la implementación, sin RED observado | sin la clave en producción no arranca; clave igual a otra o inválida se rechaza |
+| S8 | `tests/data-retention-database.test.mjs` y `runtime-lifecycle.test.mjs` | módulo inexistente; la purga no llamaba a la retención | borra sólo lo vencido, un lote por tabla por pasada, conserva sesiones vigentes, avisos sin leer, trabajo en curso y trabajos pendientes; la purga drena lotes llenos y para en uno corto |
+
+Se actualizaron las pruebas que precargaban el día en UTC (`grading-ai-sql`, `foxy-text-budget`), el fixture de recuperación de códigos (`brujula-data-database`) y la prueba de membresía. Suites: ver [cierre](#cierre).
+
+Siguen pendientes, con decisión propia: purga de conversaciones de Foxy borradas (tiene custodia de bytes), fecha en `classroom_ai_requests` y `activity_ai_requests` para poder purgarlas, borrado o anonimización de cuenta (requiere API, interfaz y criterio legal), quitar la lectura por SHA-256 cuando el recálculo haya corrido en todos los entornos, y si hace falta, `CLASSROOMS_CODE_DIGEST_KEY` en `local:up`.
+
 ## Decisiones pendientes
+
+Las tres siguientes quedaron decididas (ver la sección anterior); se conservan como propuesta original.
 
 ### B11: corte diario y borrado lógico
 
@@ -73,8 +94,14 @@ La implementación sería un barrido acotado por lotes con `FOR UPDATE SKIP LOCK
 
 ## Cierre
 
+### Primera tanda
+
 Suites con `npm run test:complete -- --group <grupo>`: `fast` 3225/3225, `owned-db` 966/966 (incluye las tres pruebas nuevas con base propia) y `wrappers` 19/19 completas (no informan conteos individuales). `npm run api:build`, `npm run lint:boundaries` y `npm run docs:check` (0 problemas) en verde; `run-complete-suite --check`: 751 pruebas en 23 rutas; tablero válido con `taskboard.py check`.
 
 Las primeras corridas de `fast` y `wrappers` fallaron por el entorno: el `node_modules` del worktree estaba vacío, así que no se encontraban `tsc` ni `next`. Un enlace al `node_modules` del repo principal arregló `tsc`, pero el build de Next no lo sigue fuera del worktree. Con `npm ci` dentro del worktree (dependencias ignoradas por Git) se repitieron `fast` y `wrappers` completas. `owned-db` corrió antes de esa instalación y desde entonces sólo cambiaron documentación y tablero.
 
 Commit en la rama `claude/audit-database-fd9d93`, sin push, PR ni merge. Primer paso pendiente: que el usuario decida B11, S7 y S8 según las propuestas de arriba.
+
+### Segunda tanda
+
+Pendiente de completar al correr las suites.

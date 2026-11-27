@@ -128,7 +128,7 @@ No hay una regla global de borrado en cascada para todo el producto. Las relacio
 
 ### Cortes de día
 
-Los contadores diarios de IA (`ai_usage_daily.day`, `usage_day` de cada trabajo y `operational_day` de las reservas mensuales) cortan a las 00:00 UTC, que son las 21:00 en Buenos Aires. La cuota mensual corta al comienzo del mes en `America/Argentina/Buenos_Aires`. Unificar el corte es una decisión pendiente: ver [propuesta B11](../work-log/2026-11-26-audit-database-followups.md#b11-corte-diario-y-borrado-lógico).
+Los contadores diarios de IA (`ai_usage_daily.day`, `usage_day` de cada trabajo y `operational_day` de las reservas mensuales) usan el día calendario de `America/Argentina/Buenos_Aires`, la misma zona que la cuota mensual ([decisión B11](../work-log/2026-11-26-audit-database-followups.md#b11-corte-diario-y-borrado-lógico)). Las filas anteriores a ese cambio conservan su día UTC.
 
 ### Borrado lógico
 
@@ -136,7 +136,9 @@ Conviven varias formas, sin una convención única: `deleted_at` (`materials`, `
 
 ### Retención y códigos de aula
 
-No hay purga ni borrado de cuenta: sesiones, tokens, turnos de Foxy y trabajos de IA se acumulan. La política por tabla y el paso de los códigos de aula de SHA-256 a HMAC con clave son decisiones pendientes con propuesta en el [registro de seguimiento](../work-log/2026-11-26-audit-database-followups.md#decisiones-pendientes).
+La purga periódica de identidad (cada 10 minutos, lotes de 1000 por tabla y hasta cinco por pasada) aplica las [reglas de retención](../../apps/api/src/platform/database/retention.ts): sesiones y tokens de cuenta 30 días después de dejar de servir, avisos leídos a los 180 días, despachos de Estudio y trabajos de fondo terminados y registros de idempotencia de Foxy a los 90 días, y contadores diarios de IA a los 13 meses. `account_action_controls` ya tenía su propia retención. Quedan pendientes la purga de conversaciones de Foxy borradas (sus bytes tienen custodia propia), los registros de idempotencia de extracciones y actividades (no tienen fecha) y el borrado de cuenta. [Prueba de retención](../../tests/data-retention-database.test.mjs).
+
+Los códigos de aula se guardan como HMAC con clave; ver [aulas](classrooms/README.md#ingreso-y-pertenencia).
 
 La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo ni privacidad. Las [pruebas de base](local-development/database.md) acreditan ese nivel; su éxito no verifica toda la aplicación.
 
