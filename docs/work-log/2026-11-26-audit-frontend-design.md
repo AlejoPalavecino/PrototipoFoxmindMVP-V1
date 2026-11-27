@@ -93,3 +93,16 @@
 - Entornos descartables de `documentation-preview.mjs` (corridas `documentation-preview-cf2620a5eed25841` y `documentation-preview-cd249d07cb8c6f87`), con IA sintética y la cuenta docente sintética de cada fixture. Las credenciales no se copiaron; los dos entornos se bajaron con su stopFile.
 - Cortes 2–6: en Ajustes del aula se guardó dos veces seguidas (renombrar y restaurar). Los dos `PATCH .../settings` dieron 200 con un solo `GET /auth/csrf`. En Agenda, `/agenda?create=1` abrió el editor; el evento se creó (`PUT` 201) y apareció en el calendario.
 - Cortes 8–10: en Actividades carga el listado y se piden los contadores (`/progress` 200). «Crear actividad» abre el editor; tema, tipo y método se marcan y aparece «Cambios sin guardar». «Con ayuda de Foxy → Ajustes y fuentes» abre el diálogo y pide las fuentes (`/activity-generations/sources` 200). En modo manual, el título y «Guardar borrador» abren la ficha del borrador privado con su tema. En Foxy AI, la herramienta «Planificar una clase» abre y cierra en línea, el selector de contexto abre y «Abrir biblioteca» muestra la biblioteca de contexto. Sin errores en la consola.
+
+## Integración
+
+- 2026-11-27: el usuario autorizó en esta sesión push y PR, sin merge. La rama se rebasó sobre `origin/main` (`490105ff`, cortes 1 y 2 de F1). No hubo conflictos: ningún corte de esta rama toca `application/server/`.
+- Después del rebase: `tsc` sin errores; `lint:boundaries` pasa; `docs:check` 0 problemas (248 archivos); `web:build` exit 0; `test:complete --group fast` 3235/3235. No se corrieron `owned-db`, `owned-browser` ni `wrappers`.
+- Tablero validado con `taskboard.py check`: 8 tareas. TASK-006 queda BLOCKED por la decisión pendiente de F5 y TASK-008 (F8) queda diferida.
+
+## Pendiente
+
+1. F5, segunda parte: decidir si la fuente CSRF va a `src/core` o se inyecta desde la composición, y aplicarla a Foxy, Estudio, Archivos y adjuntos.
+2. F8: plazo de subida en la API, junto con el proxy de F1.
+3. Sacar `application/server/` de la exclusión de la regla de tamaño cuando F1 esté integrado.
+4. Bajar los 68 `set-state-in-effect` suprimidos y la línea base de tamaño; retirar de `useAgenda` las consultas `upcoming` y `afterDay`, que nunca se activan.
