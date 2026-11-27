@@ -290,6 +290,7 @@
     "tests/agenda-view-modes.test.mjs",
     "tests/agenda-visual-polish.test.mjs",
     "tests/ai-execution-policy-database.test.mjs",
+    "tests/database-roles.test.mjs",
     "tests/ai-chat-latency.test.mjs",
     "tests/ai-execution-snapshot.test.mjs",
     "tests/ai-foxy-execution-snapshot.test.mjs",

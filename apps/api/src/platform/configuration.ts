@@ -1,6 +1,8 @@
 export interface ApiBaseConfiguration {
   readonly databaseUrl: string;
   readonly port: number;
+  /** NODE_ENV=production: startup also requires a least-privilege database role. */
+  readonly production?: boolean;
 }
 
 export class ConfigurationError extends Error {}
@@ -18,5 +20,5 @@ export function readBaseConfiguration(environment: NodeJS.ProcessEnv = process.e
   if (!/^(0|[1-9][0-9]{0,4})$/.test(rawPort) || Number(rawPort) > 65535) {
     throw new ConfigurationError('Invalid configuration: API_PORT must be an integer from 0 to 65535.');
   }
-  return { databaseUrl, port: Number(rawPort) };
+  return { databaseUrl, port: Number(rawPort), production: environment.NODE_ENV === 'production' };
 }

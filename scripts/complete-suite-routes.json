@@ -614,6 +614,7 @@
       "tests/agenda-recurrence.test.mjs",
       "tests/agenda-regressions.test.mjs",
       "tests/ai-execution-policy-database.test.mjs",
+      "tests/database-roles.test.mjs",
       "tests/ai-study-profile-database.test.mjs",
       "tests/ai-study-reservation-database.test.mjs",
       "tests/study-image-database.test.mjs",

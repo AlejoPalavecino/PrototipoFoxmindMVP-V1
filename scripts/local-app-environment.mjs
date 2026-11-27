@@ -72,3 +72,22 @@ export async function stopLocalContainers(owner, command) {
   }
   if (ids.length) await command('docker', ['stop', ...ids]);
 }
+
+// The app connects as a login inside foxmind_app (created by migrations); migrations keep the superuser.
+export const LOCAL_APP_DATABASE_USER = 'foxmind_app_local';
+export function localDatabaseUrls({ superPassword, appPassword, port }) {
+  const at = `@127.0.0.1:${port}/foxmind_local`;
+  return { migration: `postgresql://postgres:${superPassword}${at}`, application: `postgresql://${LOCAL_APP_DATABASE_USER}:${appPassword}${at}` };
+}
+/** Accepts this environment's own URLs, including the former superuser one, and refuses any other database. */
+export function acceptLocalDatabaseUrl(existing, urls) {
+  if (existing && existing !== urls.application && existing !== urls.migration) throw Error('Root .env points to another database; refusing to replace it');
+}
+/** Idempotent: creates the login or refreshes its password and attributes, always as a plain member of foxmind_app. */
+export function applicationLoginSql(password) {
+  if (!/^[0-9a-f]{64}$/.test(password)) throw Error('Local application database password must be 64 hex characters');
+  const user = LOCAL_APP_DATABASE_USER;
+  return `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='${user}') THEN CREATE ROLE ${user} LOGIN PASSWORD '${password}'; END IF; END $$;
+ALTER ROLE ${user} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD '${password}';
+GRANT foxmind_app TO ${user};`;
+}

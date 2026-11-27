@@ -42,8 +42,10 @@ test('base configuration shares the error class and preserves URL and port rules
     assert.throws(() => base.readBaseConfiguration({ DATABASE_URL: valid, API_PORT: port }), { name: 'Error', message: portError });
   }
   for (const [raw, expected] of [[undefined, 3001], ['0', 0], ['65535', 65535]]) {
-    assert.deepEqual(base.readBaseConfiguration({ DATABASE_URL: valid, API_PORT: raw }), { databaseUrl: valid, port: expected });
+    assert.deepEqual(base.readBaseConfiguration({ DATABASE_URL: valid, API_PORT: raw }), { databaseUrl: valid, port: expected, production: false });
   }
+  // Production additionally requires a least-privilege database role at startup.
+  assert.equal(base.readBaseConfiguration({ DATABASE_URL: valid, NODE_ENV: 'production' }).production, true);
 });
 test('classroom capabilities use composition rather than inheritance between services', async () => {
   const inheritance = [];

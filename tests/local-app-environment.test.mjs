@@ -4,7 +4,7 @@ import {parseEnv} from 'node:util';
 import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts} from '../scripts/local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts,localDatabaseUrls,acceptLocalDatabaseUrl,applicationLoginSql,LOCAL_APP_DATABASE_USER} from '../scripts/local-app-environment.mjs';
 
 const localOwner={project:'foxmind-local-0123456789abcdef',ports:{database:54321,storage:54322,scanner:54323,smtp:54324,inbox:54325}};
 
@@ -88,4 +88,22 @@ test('a checkout can keep its own web and API ports while older owners keep 3000
   assert.deepEqual(chooseLocalAppPorts({LOCAL_WEB_PORT:'3100',LOCAL_API_PORT:'3101'}),{web:3100,api:3101});
   assert.deepEqual(chooseLocalAppPorts({}),{web:3000,api:3001});
   assert.throws(()=>chooseLocalAppPorts({LOCAL_WEB_PORT:'abc'}));
+});
+
+test('local database URLs separate the application login from the migrating superuser', () => {
+  const urls = localDatabaseUrls({ superPassword: 'a'.repeat(64), appPassword: 'b'.repeat(64), port: 54321 });
+  assert.equal(urls.migration, `postgresql://postgres:${'a'.repeat(64)}@127.0.0.1:54321/foxmind_local`);
+  assert.equal(urls.application, `postgresql://${LOCAL_APP_DATABASE_USER}:${'b'.repeat(64)}@127.0.0.1:54321/foxmind_local`);
+  // An older .env that pointed the app at the superuser of this same database is upgraded.
+  for (const existing of [undefined, '', urls.application, urls.migration]) assert.doesNotThrow(() => acceptLocalDatabaseUrl(existing, urls));
+  for (const existing of ['postgresql://postgres:x@127.0.0.1:5432/other', urls.migration.replace('54321', '54322')])
+    assert.throws(() => acceptLocalDatabaseUrl(existing, urls), /another database/);
+});
+
+test('the local application login is created or refreshed only inside foxmind_app', () => {
+  const sql = applicationLoginSql('c'.repeat(64));
+  assert.match(sql, new RegExp(`CREATE ROLE ${LOCAL_APP_DATABASE_USER} LOGIN`));
+  assert.match(sql, new RegExp(`ALTER ROLE ${LOCAL_APP_DATABASE_USER} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD`));
+  assert.match(sql, new RegExp(`GRANT foxmind_app TO ${LOCAL_APP_DATABASE_USER}`));
+  for (const unsafe of ["x'; DROP TABLE users; --", 'short', 'Z'.repeat(64)]) assert.throws(() => applicationLoginSql(unsafe), /password/);
 });

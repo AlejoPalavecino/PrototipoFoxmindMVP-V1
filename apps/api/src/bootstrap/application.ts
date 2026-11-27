@@ -49,6 +49,7 @@ import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './s
 import { installStudyTransport } from './study-transport.ts';
 import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
 import { createTransferGate } from '../platform/http/transfer-gate.ts';
+import { assertLeastPrivilege } from '../platform/database/least-privilege.ts';
 import { installStudyUploads } from '../modules/study/folders/presentation/uploads/http.ts';
 import { installStudyReminders } from '../modules/study/folders/presentation/reminders/http.ts';
 
@@ -140,6 +141,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     invitationSender = configuration.classrooms
       ? localInvitationSender(configuration.identity.mail.smtpPort, 'no-reply@foxmind.test') : undefined;
     app = await NestFactory.create(AppModule.register(configuration, options, infrastructure, invitationSender), { logger: false, abortOnError: false });
+    if (configuration.production) await assertLeastPrivilege(app.get(PrismaService));
     if (configuration.ai && options.ai === undefined) await initializeAiExecutionPolicy(app.get(PrismaService), configuration.ai);
     const identity = app.get(IdentityRuntime);
     installIdentityTransport(app, identity);

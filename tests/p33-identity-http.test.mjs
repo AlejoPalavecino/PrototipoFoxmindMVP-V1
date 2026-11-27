@@ -291,7 +291,13 @@ test('D1 invalid B/C/mail configuration fails before listen without input echo; 
   }
 });
 test('D1 secure configuration emits Secure cookie; trusted CIDRs do not silently enable arbitrary proxy trust', async () => {
-  const a = await start({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_LOCAL_HTTP: 'false', NODE_ENV: 'production', FOXMIND_PROXY_CLIENT_KEY: randomBytes(32).toString('base64url') });
+  const production = { APP_ORIGIN: 'https://foxmind.example.test', AUTH_LOCAL_HTTP: 'false', NODE_ENV: 'production', FOXMIND_PROXY_CLIENT_KEY: randomBytes(32).toString('base64url') };
+  // Production refuses the migrating superuser and runs with a login that belongs to foxmind_app.
+  await assert.rejects(start(production), /application role/);
+  const name = 'foxmind_app_http_' + randomBytes(4).toString('hex'), secret = randomBytes(24).toString('hex');
+  await db.query(`CREATE ROLE ${name} LOGIN PASSWORD '${secret}' IN ROLE foxmind_app`);
+  const url = new URL(process.env.DATABASE_URL); url.username = name; url.password = secret;
+  const a = await start({ ...production, DATABASE_URL: url.toString() });
   const response = await login(fixtureEmail, password, { target: a.base, headers: { Origin: 'https://foxmind.example.test' } });
   assert.equal(response.status, 200); assert.ok(response.headers.get('set-cookie').includes('Secure'));
 });

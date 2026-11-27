@@ -8,7 +8,8 @@ import {createServer} from 'node:net';
 import {setTimeout as delay} from 'node:timers/promises';
 import {P4_IMAGES,P4_SCANNER_START} from './p4-services.mjs';
 import {MAILPIT_IMAGE} from './mailpit-test-runtime.mjs';
-import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts} from './local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers,verifyLocalWebDependency,localAppPorts,chooseLocalAppPorts,localDatabaseUrls,acceptLocalDatabaseUrl,applicationLoginSql} from './local-app-environment.mjs';
+import pg from 'pg';
 import {runLocalApiBuild} from './local-api-build.mjs';
 
 const root=resolve(import.meta.dirname,'..'),folder=resolve(root,'.test-artifacts/local-app'),execute=promisify(execFile);
@@ -50,10 +51,12 @@ async function up(){
   const app=localAppPorts(owner);
   await stop();await available(app.web);await available(app.api);
   const environment={...existing};
-  const defaults={LOCAL_POSTGRES_PASSWORD:randomBytes(32).toString('hex'),FILES_S3_ACCESS_KEY_ID:randomBytes(16).toString('hex'),FILES_S3_SECRET_ACCESS_KEY:randomBytes(32).toString('hex'),AUTH_CSRF_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_ABUSE_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_OUTBOX_KEYS_JSON:JSON.stringify({local:randomBytes(32).toString('base64')}),AUTH_OUTBOX_ACTIVE_KEY_ID:'local',CLASSROOMS_SIGNING_KEY:randomBytes(32).toString('base64url'),CLASSROOMS_DELIVERY_KEY:randomBytes(32).toString('base64url'),FOXMIND_PROXY_CLIENT_KEY:randomBytes(32).toString('base64url')};
+  const defaults={LOCAL_POSTGRES_PASSWORD:randomBytes(32).toString('hex'),LOCAL_APP_DATABASE_PASSWORD:randomBytes(32).toString('hex'),FILES_S3_ACCESS_KEY_ID:randomBytes(16).toString('hex'),FILES_S3_SECRET_ACCESS_KEY:randomBytes(32).toString('hex'),AUTH_CSRF_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_ABUSE_HMAC_KEY:randomBytes(32).toString('base64url'),AUTH_OUTBOX_KEYS_JSON:JSON.stringify({local:randomBytes(32).toString('base64')}),AUTH_OUTBOX_ACTIVE_KEY_ID:'local',CLASSROOMS_SIGNING_KEY:randomBytes(32).toString('base64url'),CLASSROOMS_DELIVERY_KEY:randomBytes(32).toString('base64url'),FOXMIND_PROXY_CLIENT_KEY:randomBytes(32).toString('base64url')};
   for(const [key,value]of Object.entries(defaults))if(!environment[key])environment[key]=value;
-  const updates={...Object.fromEntries(Object.keys(defaults).map(k=>[k,environment[k]])),DATABASE_URL:`postgresql://postgres:${environment.LOCAL_POSTGRES_PASSWORD}@127.0.0.1:${owner.ports.database}/foxmind_local`,NODE_ENV:'development',API_PORT:String(app.api),APP_ORIGIN:`http://127.0.0.1:${app.web}`,AUTH_LOCAL_HTTP:'true',AUTH_TRUSTED_PROXY_CIDRS:'',MAIL_SMTP_PORT:String(owner.ports.smtp),FILES_ENABLED:'1',FILES_S3_ENDPOINT:`http://127.0.0.1:${owner.ports.storage}`,FILES_S3_REGION:'us-east-1',FILES_S3_BUCKET:'foxmind-private',FILES_SCANNER_HOST:'127.0.0.1',FILES_SCANNER_PORT:String(owner.ports.scanner),FILES_DRAFT_QUOTA_BYTES:'200000000',CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'1000000000',FOXMIND_API_ORIGIN:`http://127.0.0.1:${app.api}`};
-  if(existing.DATABASE_URL&&existing.DATABASE_URL!==updates.DATABASE_URL)throw Error('Root .env points to another database; refusing to replace it');
+  const urls=localDatabaseUrls({superPassword:environment.LOCAL_POSTGRES_PASSWORD,appPassword:environment.LOCAL_APP_DATABASE_PASSWORD,port:owner.ports.database});
+  const updates={...Object.fromEntries(Object.keys(defaults).map(k=>[k,environment[k]])),DATABASE_URL:urls.application,MIGRATION_DATABASE_URL:urls.migration,NODE_ENV:'development',API_PORT:String(app.api),APP_ORIGIN:`http://127.0.0.1:${app.web}`,AUTH_LOCAL_HTTP:'true',AUTH_TRUSTED_PROXY_CIDRS:'',MAIL_SMTP_PORT:String(owner.ports.smtp),FILES_ENABLED:'1',FILES_S3_ENDPOINT:`http://127.0.0.1:${owner.ports.storage}`,FILES_S3_REGION:'us-east-1',FILES_S3_BUCKET:'foxmind-private',FILES_SCANNER_HOST:'127.0.0.1',FILES_SCANNER_PORT:String(owner.ports.scanner),FILES_DRAFT_QUOTA_BYTES:'200000000',CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'1000000000',FOXMIND_API_ORIGIN:`http://127.0.0.1:${app.api}`};
+  acceptLocalDatabaseUrl(existing.DATABASE_URL,urls);
+  if(existing.MIGRATION_DATABASE_URL&&existing.MIGRATION_DATABASE_URL!==urls.migration)throw Error('Root .env points to another database; refusing to replace it');
   await writeFile('.env',updateEnvironment(original,updates));Object.assign(environment,updates);
   await save('s3.json',{identities:[{name:'local-backend',credentials:[{accessKey:environment.FILES_S3_ACCESS_KEY_ID,secretKey:environment.FILES_S3_SECRET_ACCESS_KEY}],actions:['Admin','Read','Write','List']}]});
   // Linux ClamAV rejects CRLF values from a Windows checkout.
@@ -74,6 +77,9 @@ async function up(){
   await command('docker',['compose','--project-name',owner.project,'--file',file('compose.json'),'up','--detach','--wait','--wait-timeout','220']);
   console.log('Migrating owned local database');
   await command(process.execPath,['node_modules/prisma/build/index.js','migrate','deploy'],{...process.env,...environment},60000);
+  // The API connects as a least-privilege login; only migrations use the superuser.
+  const admin=new pg.Client({connectionString:urls.migration});await admin.connect();
+  try{await admin.query(applicationLoginSql(environment.LOCAL_APP_DATABASE_PASSWORD));}finally{await admin.end();}
   console.log('Building API and web from this checkout');
   await runLocalApiBuild(command);
   await command(process.execPath,['node_modules/next/dist/bin/next','build','apps/web'],{...process.env,NEXT_TELEMETRY_DISABLED:'1'},180000);
