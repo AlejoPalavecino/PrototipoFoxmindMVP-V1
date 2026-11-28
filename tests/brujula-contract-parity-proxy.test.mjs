@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 
-test('Brújula proxy forwards independent persisted fields and rejects invalid values before upstream', async () => {
+test('Brújula proxy forwards persisted fields, leaves authoring and wall values to the API and still checks grading', async () => {
   const calls = [];
   const upstream = createServer(async (req, res) => {
     const chunks = []; for await (const chunk of req) chunks.push(chunk);
@@ -23,10 +23,14 @@ test('Brújula proxy forwards independent persisted fields and rejects invalid v
     assert.equal((await post(`/attempts/${id}/grading`, grading)).status, 200); assert.deepEqual(calls.at(-1), grading);
     const wall = { revision: '1', operation: { action: 'publish', title: 'Título', body: 'Mensaje' } };
     assert.equal((await post('/wall', wall)).status, 200); assert.deepEqual(calls.at(-1), wall);
+    // Activity and wall values are the API's (F2, TASK-008); grading is still checked here until TASK-009.
+    for (const invalid of [{ ...payload, objective: 1 }, { ...payload, objective: 'x'.repeat(1401) }, { ...payload, teacherComment: {} }]) {
+      const body = { ...authored, operation: { ...authored.operation, payload: invalid } };
+      assert.equal((await post('/activities', body)).status, 200); assert.deepEqual(calls.at(-1), body);
+    }
+    const longTitle = { ...wall, operation: { ...wall.operation, title: 'x'.repeat(121) } };
+    assert.equal((await post('/wall', longTitle)).status, 200); assert.deepEqual(calls.at(-1), longTitle);
     const before = calls.length;
-    for (const invalid of [{ ...payload, objective: 1 }, { ...payload, objective: 'x'.repeat(1401) }, { ...payload, teacherComment: {} }])
-      assert.equal((await post('/activities', { ...authored, operation: { ...authored.operation, payload: invalid } })).status, 400);
-    assert.equal((await post('/wall', { ...wall, operation: { ...wall.operation, title: 'x'.repeat(121) } })).status, 400);
     assert.equal((await post(`/attempts/${id}/grading`, { ...grading, finalGradeOverride: '10.01' })).status, 400);
     assert.equal(calls.length, before);
   } finally {

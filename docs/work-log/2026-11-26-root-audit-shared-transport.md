@@ -123,11 +123,36 @@ Entorno de las suites: el contenedor traía Node 22 y el proyecto exige Node 24 
 
 Suites integradas del corte 7, sobre `main` `0700d8d`: `fast` 3275/3275, `owned-db` 969/969 (las primeras corridas cortaron por `initdb` como root) y `wrappers` 19/19 (las dos primeras cortaron por la descarga de Mailpit y por el navegador).
 
+## Corte 8 — F2, cuerpos de autoría y de aula
+
+Misma sesión en la nube, sobre `main` `86a29fe`, con el entorno del corte 7 (Node 24.22.3, Docker propio y envoltorios de `initdb`/`pg_ctl` en el scratchpad).
+
+- Alcance elegido para TASK-008: todo cuerpo que no sea de calificación ni de participación. Borradores, extracciones, códigos, invitaciones y lotes, ajustes, archivo, código del aula, salir y remover, plan, biblioteca, muro, generaciones, actividades (con su plazo), escritura docente y avisos. Quedan para TASK-009 los de calificación, IA de calificación, publicación, correcciones, respuestas, entrega práctica, reapertura, `start`, `authorize-first` y `transfer`.
+- La API valida estos cuerpos en sus servicios, no en la capa HTTP (que sólo revisa las claves). Por eso la prueba del lado API corre contra los servicios reales sobre una base propia: [classroom-body-api-database](../../tests/classroom-body-api-database.test.mjs) manda 107 cuerpos que el proxy rechazaba ([casos compartidos](../../tests/helpers/classroom-body-cases.mjs)) y exige 400 `INVALID_INPUT` en cada uno y ninguna fila cambiada en la base. Generaciones y extracciones usan los servicios reales con puertos que fallan si se tocan: parsean antes de usarlos.
+- Divergencias encontradas: 3 de los primeros 93 casos, las dos del mapa. Se llevaron a la API antes de quitar la regla:
+  - `codes/confirm` con un `confirmation` que no es texto respondía 409 `ENROLLMENT_UNAVAILABLE`. Ahora [responde](../../apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts) 400 `INVALID_INPUT`, después de comprobar que la cuenta es de alumno (sesión y permisos antes que la forma).
+  - En actividades, ids de temas que difieren sólo en mayúsculas pasaban la unicidad y terminaban en 503 por clave duplicada. La [selección](../../apps/api/src/modules/activities/domain/topic-selection.ts) compara ahora sin distinguir mayúsculas, en `unitIds` y en `topicIds`, y responde 400.
+- El [proxy de aulas](../../apps/web/src/application/server/classroom-proxy.ts) deja de validar esos cuerpos. Conserva el tipo de contenido JSON, el tamaño y que el cuerpo sea JSON bien formado. `schema()` quedó reducida a lo que usan `start`, `authorize-first` y `transfer`, y se retiró `activity-generation-proxy.ts`, que sólo servía a esta validación.
+- Nueve pruebas del proxy exigían el rechazo en el web, y `academic-features` exigía que existiera el archivo retirado (`activity-ai-proxy`, `brujula-contract-parity-proxy`, `classroom-ai-proxy`, `p5-codes-invitation-batches`, `p5-web-proxy`, `p7-authoring-proxy`, `pending-classrooms`, `product-parity-activity-proxy` y `teacher-support-transport`). Sus cuerpos se sumaron a los casos compartidos (por eso pasaron de 93 a 107) y ahora exigen que el cuerpo llegue a la API. En `brujula-contract-parity-proxy` la calificación sigue rechazándose en el web (TASK-009). En `pending-classrooms` el servicio es simulado, así que el `confirm` no booleano se quitó de esa prueba y lo cubre la prueba con base.
+- Cambio observable: un cuerpo mal formado recibe el error de la API, sin el `requestId` del proxy, y después de la sesión y los permisos. Antes el proxy respondía 400 sin consultar la API.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `classroom-body-api-database` (nueva, owned-db): 107 cuerpos | 3 divergencias: confirmación no textual (409) y temas repetidos por mayúsculas (503, en `metadata` con `topicIds` y sin `unitIds`) | 1/1, sin filas cambiadas |
+| `classroom-body-forwarding` (nueva, fast): los mismos cuerpos se reenvían intactos y el proxy entrega la respuesta de la API; método, tipo de contenido, JSON mal formado y tamaño se siguen cortando en el web | con el proxy anterior, la primera prueba falla (400 propio sin llegar a la API) | 2/2 |
+| las 9 pruebas ajustadas y el resto de las que usan el proxy de aulas | — | en verde |
+
+`npx tsc --noEmit -p apps/web/tsconfig.json`, `npm run api:build`, `npm run lint:boundaries`, `run-complete-suite --check` (764 entradas) y `npm run docs:check` pasaron.
+
+La primera corrida de `fast` cortó en `academic-features`, que exigía que existiera `activity-generation-proxy.ts`. Se ajustó para no pedir el archivo retirado y se repitió `fast` completa.
+
+Suites integradas del corte 8, sobre `main` `86a29fe`: `fast` 3277/3277 (segunda corrida), `owned-db` 970/970 y `wrappers` 19/19.
+
 ## Estado al pausar (2026-11-27)
 
-- En `main`: cortes 5 (agenda, `0b1c897a`), 6 (Home) y 7 (consultas de aulas, TASK-007). Quedan TASK-008 y TASK-009.
+- En `main`: cortes 5 (agenda, `0b1c897a`), 6 (Home), 7 (consultas de aulas, `86a29fe`) y 8 (cuerpos de autoría y de aula, TASK-008). Queda TASK-009.
 - Mapa de aulas (lectura del código, sin ejecutar): consultas sin divergencias; en cuerpos, la API no rechaza como el proxy un `confirmation` no textual en `codes/confirm` (da 409) ni los temas repetidos con distinta mayúscula en la ruta sin `unitIds` (`activities/domain/topic-selection.ts`, termina en 503 por clave duplicada); en participación, `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Esas tres se llevan a la API antes de quitar la regla del proxy. El 409 antes que el 400 en actividades iniciadas o no publicadas quedó aceptado.
-- Primer paso al retomar: TASK-008 (cuerpos de autoría y aula). Antes de retirar reglas, llevar a la API las dos divergencias de cuerpos del mapa: `confirmation` no textual en `codes/confirm` y temas repetidos con distinta mayúscula en la ruta sin `unitIds`.
+- Primer paso al retomar: TASK-009 (calificación y participación). Antes de retirar reglas, llevar a la API la divergencia que queda del mapa: `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Reutilizar el patrón del corte 8: casos compartidos, prueba con servicios reales sobre base propia y prueba de reenvío del proxy.
 
 ## Límites
 

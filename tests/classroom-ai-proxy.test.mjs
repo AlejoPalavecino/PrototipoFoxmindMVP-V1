@@ -39,7 +39,7 @@ test('C4 Next proxy forwards start/get/retry/apply with exact paths, reviewed ob
   assert.equal(calls.length, 4);
 }));
 
-test('C4 extraction proxy rejects extra authority, coerced scalars and malformed curriculum before forwarding', async () => fixture(async ({ send, calls }) => {
+test('C4 extraction proxy forwards extra authority, coerced scalars and malformed curriculum to the API (F2)', async () => fixture(async ({ send, calls }) => {
   for (const [path, body] of [[base, { revision: '1', planFileId: id, ownerId: id }],
     [base, { revision: 1, planFileId: id }], [base, { revision: '1', planFileId: false }],
     [`${base}/${job}/retry`, { revision: '1', requestId: true }],
@@ -47,16 +47,16 @@ test('C4 extraction proxy rejects extra authority, coerced scalars and malformed
     [`${base}/${job}/apply`, { revision: '1', requestId, units: {} }],
     [`${base}/${job}/apply`, { revision: '1', requestId, units: [{ name: 'U', topics: [{ name: true }] }] }],
     [`${base}/${job}/apply`, { revision: '1', requestId, units: [{ name: 'U', topics: [], action: 'publish' }] }]]) {
-    assert.equal((await send(path, 'POST', body)).status, 400);
+    assert.equal((await send(path, 'POST', body)).status, 200);
   }
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 8);
 }));
 
-test('C4 extraction proxy keeps allowed methods/query boundaries and existing strict boolean operations', async () => fixture(async ({ send, calls }) => {
+test('C4 extraction proxy keeps allowed methods and forwards archive bodies to the API', async () => fixture(async ({ send, calls }) => {
   assert.equal((await send(base, 'DELETE')).status, 405);
   const archive = `/api/v1/classrooms/${id}/archive`;
   assert.equal((await send(archive, 'POST', { revision: '1', archived: true })).status, 200);
-  assert.equal((await send(archive, 'POST', { revision: '1', archived: 'true' })).status, 400);
-  assert.equal((await send(archive, 'POST', { revision: '1', archived: true, ownerId: id })).status, 400);
-  assert.equal(calls.length, 1);
+  assert.equal((await send(archive, 'POST', { revision: '1', archived: 'true' })).status, 200);
+  assert.equal((await send(archive, 'POST', { revision: '1', archived: true, ownerId: id })).status, 200);
+  assert.equal(calls.length, 3);
 }));

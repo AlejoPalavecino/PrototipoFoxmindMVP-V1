@@ -30,5 +30,6 @@ test('academic features depend on ports and shared infrastructure, without compo
 });
 test('academic routes use screen and server composition entries', () => {
   for (const name of ['classrooms','home','notifications']) assert.ok(existsSync(`${root}/screens/${name}-screen.tsx`), name);
-  for (const name of ['classroom','home','activity-generation']) assert.ok(existsSync(`${root}/application/server/${name}-proxy.ts`), name);
+  // activity-generation-proxy.ts was retired with F2 (TASK-008): its body check now lives only in the API.
+  for (const name of ['classroom','home']) assert.ok(existsSync(`${root}/application/server/${name}-proxy.ts`), name);
 });

@@ -185,7 +185,8 @@ test('short codes and invitation batch receipts on isolated PostgreSQL', { timeo
         { requestId, emails: [1] }, { requestId: 'invalid', emails }]) {
         assert.equal((await post(batch, body)).status, 400);
       }
-      assert.equal(upstream, 0);
+      // The proxy forwards malformed batches; the real service rejects all four (F2).
+      assert.equal(upstream, 4);
       const receipt = batch + '/' + requestId;
       assert.equal((await fetch(receipt)).status, 403);
       const missing = await fetch(receipt, { headers: owner });

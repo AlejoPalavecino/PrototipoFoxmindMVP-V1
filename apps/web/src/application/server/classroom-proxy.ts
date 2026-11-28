@@ -3,11 +3,6 @@ import { request as httpRequest, type IncomingMessage, type ServerResponse } fro
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
 import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
-import { generationSchema } from './activity-generation-proxy.ts';
-import { isClassroomCoverKey } from '../../../../../src/core/domain/classrooms/cover.ts';
-import { parseEvaluationRubric } from '../../../../../src/core/domain/grading/evaluation-rubric.ts';
-import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../../src/core/domain/curriculum/ai.ts';
-import { parseWallMutation } from '../../../../../src/core/domain/communication/wall.ts';
 import { privateGradingInput, gradeCorrectionInput, gradePublicationInput } from '../../../../../src/core/domain/grading/grading.ts';
 import { PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/home/notifications.ts';
 
@@ -104,105 +99,18 @@ function object(value: unknown, keys: string[], required = true): value is Recor
   return Boolean(value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
 }
+// Participation bodies still checked here until TASK-009: start, authorize-first and transfer.
 function schema(value: unknown, keys: string[]): boolean {
-  if (keys.includes('emails')) {
-    return object(value, keys) && typeof value.requestId === 'string' && new RegExp(`^${uuid}$`).test(value.requestId)
-      && Array.isArray(value.emails) && value.emails.length > 0
-      && value.emails.every(email => typeof email === 'string' && email.length > 0);
-  }
-  const optionalSetting = (key: string) => key === 'aiGradingEnabled' || key === 'coverKey';
-  if (!object(value, keys, false) || !keys.filter(key => !optionalSetting(key)).every(key => Object.hasOwn(value, key))) return false;
+  if (!object(value, keys)) return false;
   for (const key of keys) {
-    if (optionalSetting(key) && !Object.hasOwn(value, key)) continue;
-    if (key === 'coverKey') { if (!isClassroomCoverKey(value[key])) return false; continue; }
-    if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
-    else if (key === 'archived' || key === 'aiGradingEnabled' || key === 'confirm') { if (typeof value[key] !== 'boolean') return false; }
-    else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
-    else if (key === 'deadline') {
+    if (key === 'deadline') {
       const item = value[key];
       if (!object(item, ['local', 'offsetMinutes'], false) || typeof item.local !== 'string'
         || (Object.hasOwn(item, 'offsetMinutes') && !Number.isInteger(item.offsetMinutes))) return false;
     }
-    else if (key !== 'payload' && typeof value[key] !== 'string') return false;
-  }
-  if (!keys.includes('payload')) return true;
-  const payload = value.payload;
-  if (!object(payload, ['name', 'subject', 'division', 'academicYear', 'timezone', 'coverKey', 'planFileId', 'units', 'wizardStep', 'wizardMethod'], false)) return false;
-  for (const [key, item] of Object.entries(payload)) {
-    if (key === 'wizardStep') { if (typeof item !== 'number' || !Number.isInteger(item) || item < 0 || item > 3) return false; }
-    else if (key === 'wizardMethod') { if (item !== null && item !== 'ai' && item !== 'manual') return false; }
-    else if (key === 'academicYear') { if (!Number.isInteger(item)) return false; }
-    else if (key === 'units') {
-      if (!Array.isArray(item) || item.length > 100) return false;
-      let topics = 0;
-      for (const unit of item) {
-        if (!object(unit, ['name', 'topics']) || typeof unit.name !== 'string' || !Array.isArray(unit.topics) || unit.topics.length > 100) return false;
-        topics += unit.topics.length;
-        if (topics > 500 || !unit.topics.every(topic => object(topic, ['name']) && typeof topic.name === 'string')) return false;
-      }
-    } else if (typeof item !== 'string') return false;
+    else if (typeof value[key] !== 'string') return false;
   }
   return true;
-}
-
-function extractionSchema(path: string, value: unknown): boolean {
-  try {
-    if (path.endsWith('/apply')) parseApplyExtraction(value);
-    else if (path.endsWith('/retry')) parseRetryExtraction(value);
-    else parseStartExtraction(value);
-    return true;
-  } catch { return false; }
-}
-
-function activitySchema(value: unknown): boolean {
-  if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
-  const op = value.operation;
-  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'unitIds', 'topicId', 'topicIds', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
-  const shapes: Record<string, string[]> = {
-    create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
-    metadata: ['action', 'id', 'title'], deadline: ['action', 'id', 'deadline', 'allowLate'],
-  };
-  if (!Object.hasOwn(shapes, op.action)) return false;
-  if (op.action === 'metadata') {
-    if (!object(op, [...shapes.metadata, 'unitId', 'unitIds', 'topicId', 'topicIds'], false)
-      || !shapes.metadata.every(key => Object.hasOwn(op, key))) return false;
-  } else if (!object(op, shapes[op.action])) return false;
-  if (op.action === 'create') return typeof op.type === 'string' && ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(op.type);
-  const idPattern = new RegExp(`^${uuid}$`);
-  const validId = (item: unknown) => typeof item === 'string' && idPattern.test(item);
-  if (!validId(op.id)) return false;
-  const scopeList = (ids: unknown): ids is string[] => Array.isArray(ids) && ids.length <= 100
-    && ids.every(validId) && new Set(ids.map(id => id.toLowerCase())).size === ids.length;
-  const association = (p: Record<string, unknown>) => {
-    if (typeof p.title !== 'string') return false;
-    const extended = Object.hasOwn(p, 'unitIds');
-    if (p.unitId !== null && !validId(p.unitId) && !(extended && !Object.hasOwn(p, 'unitId'))) return false;
-    if (extended && (!scopeList(p.unitIds) || !Object.hasOwn(p, 'topicIds'))) return false;
-    if (Object.hasOwn(p, 'topicIds')) return scopeList(p.topicIds)
-      && (!Object.hasOwn(p, 'topicId') || p.topicId === (p.topicIds[0] ?? null));
-    return Object.hasOwn(p, 'topicId') && (p.topicId === null || validId(p.topicId));
-  };
-  const deadline = (item: unknown) => item === null || object(item, ['local', 'offsetMinutes'], false)
-    && Object.hasOwn(item, 'local') && typeof item.local === 'string'
-    && (!Object.hasOwn(item, 'offsetMinutes') || Number.isInteger(item.offsetMinutes));
-  if (op.action === 'metadata') return association(op);
-  if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
-  if (op.action !== 'save') return true;
-  const p = op.payload;
-  if (!object(p, ['title', 'unitId', 'unitIds', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment', 'teacherBrief'], false)
-    || !['title', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
-    || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
-    || (Object.hasOwn(p, 'aiGradingRubric') && typeof p.aiGradingRubric !== 'string')
-    || (Object.hasOwn(p, 'objective') && p.objective !== null && (typeof p.objective !== 'string' || [...p.objective].length > 1400 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.objective)))
-    || (Object.hasOwn(p, 'teacherBrief') && p.teacherBrief !== null && (typeof p.teacherBrief !== 'string' || [...p.teacherBrief].length > 1200 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.teacherBrief)))
-    || (Object.hasOwn(p, 'teacherComment') && p.teacherComment !== null && (typeof p.teacherComment !== 'string' || [...p.teacherComment].length > 5000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.teacherComment)))
-    || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
-  try { if (Object.hasOwn(p, 'evaluationRubric')) parseEvaluationRubric(p.evaluationRubric); } catch { return false; }
-  if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(validId))) return false;
-  return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
-    && typeof q.type === 'string' && typeof q.prompt === 'string' && typeof q.points === 'string'
-    && (q.scoringRule === null || typeof q.scoringRule === 'string') && Array.isArray(q.options)
-    && q.options.every(o => object(o, ['text', 'correct']) && typeof o.text === 'string' && typeof o.correct === 'boolean'));
 }
 
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
@@ -242,8 +150,6 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
   const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/(?:progress|ai-summary))$`).test(url.pathname);
-  const generationRoute = url.pathname.includes('/activity-generations');
-  const extractionRoute = url.pathname.includes('/curriculum-extractions');
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
@@ -274,17 +180,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && new RegExp(`^${uuid}$`).test(parsed.requestId) && typeof parsed.revision === 'string' && /^(0|[1-9][0-9]{0,17})$/.test(parsed.revision)
         && (url.pathname.endsWith('/discard') || typeof parsed.snapshotHash === 'string' && /^[a-f0-9]{64}$/.test(parsed.snapshotHash)
           && !!parsed.proposal && typeof parsed.proposal === 'object' && !Array.isArray(parsed.proposal));
-      const wallWrite = url.pathname.endsWith('/wall');
-      if (wallWrite) parseWallMutation(parsed);
       if (gradingRoute) privateGradingInput(parsed);
       if (correctionRoute) gradeCorrectionInput(parsed);
       if (publicationRoute) gradePublicationInput(parsed);
-      if ((!wallWrite && !practicalWrite && !answerWrite && !reopening && !gradingRoute && !gradingAiRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? []))
-        || (generationRoute && !generationSchema(url.pathname, parsed))
-        || (extractionRoute && !extractionSchema(url.pathname, parsed))
+      // Authoring and classroom bodies are forwarded unvalidated: the API owns their shape (F2, TASK-008).
+      if ((participation && !schema(parsed, selected.methods[method] ?? []))
         || !validReopening
         || !validGradingAi
-        || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
         || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)
             || typeof parsed.text !== 'string' || !Array.isArray(parsed.optionIds) || !parsed.optionIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))

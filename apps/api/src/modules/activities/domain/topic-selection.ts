@@ -1,11 +1,13 @@
 import { fail, uuid } from '../../../../../../src/core/domain/classrooms/policy.ts';
 export interface ActivityTopicSelection { unitId: string | null; unitIds?: string[]; topicIds: string[] }
 export interface ResolvedActivityScope { unitId: string | null; topics: { id: string; name: string; unit_id: string }[] }
+// Postgres compares uuid values without case, so ids that differ only in case are the same row.
+const distinct = (ids: string[]) => new Set(ids.map(id => id.toLowerCase())).size === ids.length;
 export function activityTopics(input: Record<string, unknown>, required: boolean) {
   if (Object.hasOwn(input, 'unitIds')) {
     const { unitIds, topicIds } = input;
-    if (!Array.isArray(unitIds) || unitIds.length > 100 || !unitIds.every(uuid) || new Set(unitIds).size !== unitIds.length
-      || !Array.isArray(topicIds) || topicIds.length > 100 || !topicIds.every(uuid) || new Set(topicIds).size !== topicIds.length
+    if (!Array.isArray(unitIds) || unitIds.length > 100 || !unitIds.every(uuid) || !distinct(unitIds)
+      || !Array.isArray(topicIds) || topicIds.length > 100 || !topicIds.every(uuid) || !distinct(topicIds)
       || (required && !unitIds.length && !topicIds.length)
       || (input.unitId !== undefined && input.unitId !== null && !uuid(input.unitId))
       || (Object.hasOwn(input, 'topicId') && input.topicId !== (topicIds[0] ?? null))) return fail('INVALID_INPUT');
@@ -15,7 +17,7 @@ export function activityTopics(input: Record<string, unknown>, required: boolean
   if (!hasList && !hasLegacy) return fail('INVALID_INPUT');
   const topicIds: unknown = hasList ? input.topicIds : input.topicId === null ? [] : [input.topicId];
   if (!Array.isArray(topicIds) || topicIds.length > 100 || !topicIds.every(uuid)
-    || new Set(topicIds).size !== topicIds.length) return fail('INVALID_INPUT');
+    || !distinct(topicIds)) return fail('INVALID_INPUT');
   const topicId = topicIds[0] ?? null;
   if (hasLegacy && input.topicId !== topicId) return fail('INVALID_INPUT');
   if ((input.unitId !== null && !uuid(input.unitId)) || (topicIds.length > 0 && input.unitId === null)

@@ -39,15 +39,15 @@ test('A4 proxy forwards all generation routes with same-origin session/CSRF and 
   assert.equal(calls.length, 6);
 }));
 
-test('A4 invalid generation authority/scalars/counts/apply is rejected before upstream', async () => fixture(async ({ send, calls }) => {
+test('A4 invalid generation authority/scalars/counts/apply reaches the API, which owns the rejection (F2)', async () => fixture(async ({ send, calls }) => {
   const valid = start();
   for (const [path, body] of [[base, { ...valid, ownerId: room }], [base, { ...valid, revision: 1 }],
     [base, { ...valid, topicIds: valid.topicIds[0] }], [base, { ...valid, counts: { ...valid.counts, assignment: '1' } }],
     [`${base}/${job}/apply`, { revision: '1', requestId: randomUUID(), proposal, publish: true }],
     [`${base}/${job}/apply`, { revision: '1', requestId: randomUUID(), proposal: null }],
     [`${base}/${job}/regenerate`, { ...valid, acknowledgePossibleCharge: 'true' }]])
-    assert.equal((await send(path, 'POST', body)).status, 400);
-  assert.equal(calls.length, 0);
+    assert.equal((await send(path, 'POST', body)).status, 200);
+  assert.equal(calls.length, 7);
 }));
 
 test('A4 generation routes reject unsupported methods (query strings are the API\'s, see classroom-query-forwarding)', async () => fixture(async ({ send, calls }) => {

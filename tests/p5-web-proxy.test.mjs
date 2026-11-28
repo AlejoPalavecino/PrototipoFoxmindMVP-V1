@@ -40,14 +40,12 @@ test('classroom proxy forwards exact routes/security headers and legitimate larg
   assert.equal(response.headers.get('set-cookie'), null);
 }));
 
-test('unknown paths/methods/schema/encoding and excessive JSON never reach upstream', async () => {
+test('unknown paths/methods/encoding and excessive JSON never reach upstream', async () => {
   let calls = 0;
   await fixture(async origin => {
     for (const [path, method, status, body, headers] of [
       ['/api/v1/classrooms/other', 'GET', 404],
       [`/api/v1/classrooms/${id}/archive`, 'PATCH', 405, '{}'],
-      [`/api/v1/classrooms/drafts/${id}`, 'PATCH', 400, '{"revision":"0","payload":{"owner":"other"}}'],
-      ['/api/v1/classrooms/drafts', 'POST', 400, '{"owner":"other"}'],
       ['/api/v1/classrooms/drafts', 'POST', 400, '{}', { 'Content-Encoding': 'gzip' }],
       ['/api/v1/classrooms/drafts', 'POST', 413, 'x'.repeat(512 * 1024 + 1)],
     ]) {
@@ -102,7 +100,6 @@ test('chunked JSON limits, non-JSON schemas and encoded traversal reject before 
       req.end();
     });
     assert.equal(await send('/api/v1/classrooms/drafts', ['{', 'x'.repeat(512 * 1024), '}']), 413);
-    assert.equal(await send('/api/v1/classrooms/drafts', ['[]']), 400);
     assert.equal(await send('/api/v1/classrooms/drafts', ['{}'], { 'Content-Type': 'text/plain' }), 400);
     assert.equal(await send('/api/v1/classrooms/%2e%2e/auth/login', ['{}']), 400);
   }, (_req, res) => { calls++; res.end('{}'); });
@@ -188,7 +185,7 @@ test('draft proxy forwards bounded optional wizard metadata unchanged with its s
   }
 }));
 
-test('draft proxy rejects invalid wizard metadata and extra fields before upstream', async () => {
+test('draft proxy forwards wizard metadata and extra fields intact for the API to reject (F2)', async () => {
   let calls = 0;
   await fixture(async origin => {
     const invalid = [
@@ -200,8 +197,8 @@ test('draft proxy rejects invalid wizard metadata and extra fields before upstre
     for (const payload of invalid) {
       const response = await fetch(`${origin}/api/v1/classrooms/drafts/${id}`, { method: 'PATCH',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ revision: '2', payload }) });
-      assert.equal(response.status, 400);
+      assert.equal(response.status, 200);
     }
-  }, (_req, res) => { calls++; res.end('{}'); });
-  assert.equal(calls, 0);
+  }, (_req, res) => { calls++; res.setHeader('Content-Type', 'application/json'); res.end('{}'); });
+  assert.equal(calls, 13);
 });

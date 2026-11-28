@@ -97,5 +97,7 @@ test('el proxy y el cliente separan la lectura de escritura del pedido con cargo
     assert.equal(requests.at(-1).path,path);
   }
   assert.equal((await fetch(proxy+share,{method:'DELETE'})).status,405);
-  assert.equal((await fetch(proxy+base,{method:'POST',headers,body:JSON.stringify({text:'private'})})).status,400);
+  // The API rejects a non-empty body here (classroom-body-api-database); the proxy forwards it (F2).
+  assert.equal((await fetch(proxy+base,{method:'POST',headers,body:JSON.stringify({text:'private'})})).status,200);
+  assert.equal(requests.at(-1).body,JSON.stringify({text:'private'}));
 });

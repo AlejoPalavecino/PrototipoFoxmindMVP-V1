@@ -1,0 +1,133 @@
+// F2 (TASK-008): every authoring/classroom body shape the classroom proxy used to reject on its own.
+// Shared by the database test (the API must reject each one with 400 INVALID_INPUT and no writes)
+// and by the proxy test (the proxy must forward each one intact).
+// `ids` holds real fixture ids so path, session and revision are valid and only the body is wrong.
+
+const other = 'e1111111-1111-4111-8111-111111111111';
+const control = 'texto\u0007control';
+const questions = [{ type: 'DEVELOPMENT', prompt: 'Explicá', points: '2', scoringRule: null, options: [] }];
+
+export function classroomBodyCases(ids) {
+  const { room, draft, activity, batch, invitation, member, notification, unit, topic, roomRevision: rev, draftRevision: drev } = ids;
+  const save = payload => ({ revision: rev, operation: { action: 'save', id: activity, payload } });
+  const base = { title: 'Actividad', unitId: unit, topicId: topic, instructions: 'Consigna', attachmentRequired: false,
+    instructionFileIds: [], materialIds: [], questions, deadline: null, allowLate: false };
+  const { unitId: _unit, topicId: _topic, ...scoped } = base;
+  const metadata = extra => ({ revision: rev, operation: { action: 'metadata', id: activity, title: 'Actividad', ...extra } });
+  const cases = [
+    // Drafts
+    ['POST', '/drafts', 'teacher', { forged: true }],
+    ['POST', '/drafts', 'teacher', []],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: 1, payload: {} }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: [] }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { owner: other } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { wizardStep: 4 } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { wizardStep: 1.5 } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { wizardMethod: 'auto' } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { academicYear: '2026' } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { name: 7 } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: {} } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: Array.from({ length: 101 }, (_, i) => ({ name: `U${i}`, topics: [] })) } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: [{ name: 'U' }] } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: [{ name: 'U', topics: Array.from({ length: 101 }, (_, i) => ({ name: `T${i}` })) }] } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: Array.from({ length: 6 }, (_, u) => ({ name: `U${u}`, topics: Array.from({ length: 100 }, (_, i) => ({ name: `T${u}-${i}` })) })) } }],
+    ['PATCH', `/drafts/${draft}`, 'teacher', { revision: drev, payload: { units: [{ name: 'U', topics: [{ name: 1 }] }] } }],
+    ['DELETE', `/drafts/${draft}`, 'teacher', { revision: drev, confirm: 'true' }],
+    ['DELETE', `/drafts/${draft}`, 'teacher', { revision: Number(drev), confirm: true }],
+    ['POST', `/drafts/${draft}/publish`, 'teacher', { revision: Number(drev) }],
+    ['POST', `/drafts/${draft}/curriculum-extractions`, 'teacher', { revision: drev }],
+    ['POST', `/drafts/${draft}/curriculum-extractions`, 'teacher', { revision: drev, planFileId: 'archivo' }],
+    ['POST', `/drafts/${draft}/curriculum-extractions/${other}/retry`, 'teacher', { revision: drev }],
+    ['POST', `/drafts/${draft}/curriculum-extractions/${other}/apply`, 'teacher', { revision: drev, requestId: other, units: {} }],
+    // Codes and invitations seen by a student
+    ['POST', '/codes/preview', 'student', { code: 123456 }],
+    ['POST', '/codes/confirm', 'student', { confirmation: 1 }],
+    ['POST', '/codes/confirm', 'student', { confirmation: { id: other } }],
+    ['POST', `/invitations/${invitation}/accept`, 'student', { forged: true }],
+    ['POST', `/invitations/${invitation}/decline`, 'student', { forged: true }],
+    // Classroom
+    ['PATCH', `/${room}/settings`, 'teacher', { revision: rev, name: 7, subject: 'Ciencias', division: 'A', academicYear: 2026 }],
+    ['PATCH', `/${room}/settings`, 'teacher', { revision: rev, name: 'Aula', subject: 'Ciencias', division: 'A', academicYear: '2026' }],
+    ['PATCH', `/${room}/settings`, 'teacher', { revision: rev, name: 'Aula', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: 'true' }],
+    ['PATCH', `/${room}/settings`, 'teacher', { revision: rev, name: 'Aula', subject: 'Ciencias', division: 'A', academicYear: 2026, coverKey: 'inventada' }],
+    ['PATCH', `/${room}/settings`, 'teacher', { revision: Number(rev), name: 'Aula', subject: 'Ciencias', division: 'A', academicYear: 2026 }],
+    ['POST', `/${room}/archive`, 'teacher', { revision: rev, archived: 'true' }],
+    ['POST', `/${room}/archive`, 'teacher', { revision: Number(rev), archived: true }],
+    ['POST', `/${room}/archive`, 'teacher', { revision: rev, archived: true, ownerId: other }],
+    ['POST', `/${room}/code`, 'teacher', { forged: true }],
+    ['POST', `/${room}/invitations`, 'teacher', { email: 7 }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: 'lote', emails: ['a@example.test'] }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: other, emails: [] }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: other, emails: [''] }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: other, emails: [7] }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: other, emails: 'a@example.test' }],
+    ['POST', `/${room}/invitations/batch`, 'teacher', { requestId: other, emails: ['a@example.test'], force: true }],
+    ['POST', `/${room}/members/${member}/support/writing`, 'teacher', { text: 'privado' }],
+    ['POST', `/${room}/invitations/batch/${batch}/0`, 'teacher', { forged: true }],
+    ['POST', `/${room}/invitations/${invitation}/revoke`, 'teacher', { forged: true }],
+    ['POST', `/${room}/members/${member}/remove`, 'teacher', { forged: true }],
+    ['POST', `/${room}/leave`, 'student', { forged: true }],
+    ['POST', '/notifications/read-all', 'teacher', { forged: true }],
+    ['POST', `/notifications/${notification}/read`, 'teacher', { forged: true }],
+    // Plan, library and wall
+    ['POST', `/${room}/plan`, 'teacher', { revision: rev, operation: [] }],
+    ['POST', `/${room}/plan`, 'teacher', { revision: rev, operation: null }],
+    ['POST', `/${room}/plan`, 'teacher', { revision: Number(rev), operation: { action: 'addUnit', name: 'Unidad' } }],
+    ['POST', `/${room}/library`, 'teacher', { revision: rev, operation: [] }],
+    ['POST', `/${room}/library`, 'teacher', { revision: Number(rev), operation: { action: 'remove', id: other } }],
+    ['POST', `/${room}/wall`, 'teacher', { revision: rev, operation: { action: 'publish' } }],
+    ['POST', `/${room}/wall`, 'teacher', { revision: rev, operation: { action: 'publish', body: 7 } }],
+    ['POST', `/${room}/wall`, 'teacher', { revision: rev, operation: { action: 'publish', title: 'x'.repeat(121), body: 'Mensaje' } }],
+    // Activity generation
+    ['POST', `/${room}/activity-generations`, 'teacher', { revision: rev }],
+    ['POST', `/${room}/activity-generations/${other}/regenerate`, 'teacher', { forged: true }],
+    ['POST', `/${room}/activity-generations/${other}/apply`, 'teacher', { forged: true }],
+    // Activities
+    ['POST', `/${room}/activities/deadline`, 'teacher', { local: 7 }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: Number(rev), operation: { action: 'create', type: 'ASSIGNMENT' } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'archive', id: activity } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'create', type: 'EXAM' } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'create', type: 'ASSIGNMENT', id: activity } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'publish', id: 'actividad' } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'withdraw' } }],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ title: 7, unitId: unit, topicId: topic })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitId: 'unidad', topicId: topic })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitId: unit, topicId: 'tema' })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitId: unit })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitId: unit, topicIds: [topic, topic.toUpperCase()] })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitIds: [unit, unit.toUpperCase()], topicIds: [] })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitIds: [unit] })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitId: unit, topicIds: [topic], topicId: other })],
+    ['POST', `/${room}/activities`, 'teacher', metadata({ unitIds: [unit], topicIds: [], teacherBrief: 'Privada' })],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'create', type: 'ASSIGNMENT', teacher: other } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'deadline', id: activity, deadline: null, allowLate: 'no' } }],
+    ['POST', `/${room}/activities`, 'teacher', { revision: rev, operation: { action: 'deadline', id: activity, deadline: { local: 7 }, allowLate: false } }],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, questions: undefined })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, forged: true })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, attachmentRequired: 'no' })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, instructions: 7 })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, objective: 'x'.repeat(1401) })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, objective: control })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, objective: 1 })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, teacherComment: {} })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, teacherBrief: { text: 'Idea' } })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...scoped, unitIds: [unit, unit], topicIds: [] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...scoped, unitIds: [unit], topicIds: [topic, topic] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...scoped, unitIds: [unit] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...scoped, unitIds: ['Unidad'], topicIds: [] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...scoped, unitIds: [], topicIds: [topic], topicId: other })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, teacherBrief: 'x'.repeat(1201) })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, teacherComment: 'x'.repeat(5001) })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, teacherComment: control })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, aiGradingRubric: 7 })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, evaluationRubric: { forged: true } })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, instructionFileIds: ['archivo'] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, materialIds: 'material' })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, questions: {} })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, questions: [{ ...questions[0], forged: true }] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, questions: [{ ...questions[0], points: 2 }] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, questions: [{ type: 'SINGLE_CHOICE', prompt: 'Elegí', points: '1', scoringRule: null, options: [{ text: 'A', correct: 'sí' }] }] })],
+    ['POST', `/${room}/activities`, 'teacher', save({ ...base, deadline: { local: '2026-12-01T10:00', offsetMinutes: 1.5 } })],
+  ];
+  return cases.map(([method, path, actor, body]) => ({ method, path, actor, body: body === undefined ? undefined : JSON.parse(JSON.stringify(body)) }));
+}

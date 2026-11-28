@@ -119,14 +119,14 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Blocker:** none
 
 ### TASK-008 — Aulas: cuerpos de autoría y aula sin reglas de dominio en el proxy (F2)
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-007
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** por cada regla retirada del proxy, una prueba de la API que la rechaza con el mismo código, y una prueba del proxy que ya la reenvía
 - **Acceptance:** Borradores, ajustes, invitaciones, actividades, extracciones y generaciones se reenvían sin validar su forma; la API los rechaza con el mismo código.
-- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts","apps/web/src/application/server/activity-generation-proxy.ts","apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts","apps/api/src/modules/activities/domain/topic-selection.ts","tests/helpers/classroom-body-cases.mjs","tests/classroom-body-api-database.test.mjs","tests/classroom-body-forwarding.test.mjs","tests/academic-features.test.mjs","tests/activity-ai-proxy.test.mjs","tests/brujula-contract-parity-proxy.test.mjs","tests/classroom-ai-proxy.test.mjs","tests/p5-codes-invitation-batches.test.mjs","tests/p5-web-proxy.test.mjs","tests/p7-authoring-proxy.test.mjs","tests/pending-classrooms.test.mjs","tests/product-parity-activity-proxy.test.mjs","tests/teacher-support-transport.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json","docs/engineering/frontend/README.md","docs/engineering/activities/authoring.md","docs/engineering/classrooms/README.md"]
+- **Evidence:** {"command":"node --test tests/classroom-body-api-database.test.mjs tests/classroom-body-forwarding.test.mjs; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main 86a29fe","result":"RED: 3 de 93 cuerpos divergían en la API (confirmación no textual 409, temas repetidos por mayúsculas 503); llevados a la API; GREEN: 107 cuerpos dan 400 INVALID_INPUT sin filas cambiadas y se reenvían intactos por el proxy; fast 3277/3277 (segunda corrida), owned-db 970/970, wrappers 19/19","candidate":"sha256:31e6b3101df44d1fbf50f7ce96a5a60b30c50f62faef5d2de8823a2640a3f3d3 (git diff --binary HEAD -- apps tests scripts)"}
 - **Blocker:** none
 
 ### TASK-009 — Aulas: calificación y participación sin reglas de dominio en el proxy (F2)

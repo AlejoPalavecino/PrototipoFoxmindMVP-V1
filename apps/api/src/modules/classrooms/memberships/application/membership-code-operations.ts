@@ -56,6 +56,8 @@ async function previewCodeOperation(capability: MembershipAccess, request: unkno
 function confirmCodeOperation(capability: MembershipAccess, request: unknown, confirmation: unknown) {
     return capability.run(request, true, async (tx, actor) => {
       if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
+      // The preview hands out a sealed text token; any other shape is malformed input, not a missed code (F2).
+      if (typeof confirmation !== 'string') return fail('INVALID_INPUT');
       const data = capability.tokens.read(
         confirmation,
         actor.id,

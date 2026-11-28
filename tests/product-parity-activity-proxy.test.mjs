@@ -13,7 +13,7 @@ const payload = {
 const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const stop = server => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); });
 
-test('P4 proxy admite alcance interunidad e idea privada con validación previa al upstream', async () => {
+test('P4 proxy reenvía alcance interunidad e idea privada, válidos o no, para que la API los valide', async () => {
   const upstream = [];
   const api = createServer(async (req, res) => {
     const chunks = [];
@@ -56,8 +56,11 @@ test('P4 proxy admite alcance interunidad e idea privada con validación previa 
       save({ unitIds: [], topicIds: [second], teacherBrief: { text: 'Idea' } }),
       { action: 'metadata', id: first, title: 'Alcance nuevo', unitIds: [first], topicIds: [], teacherBrief: 'Privada' },
     ];
-    for (const operation of invalid) assert.equal((await send(operation)).status, 400);
-    assert.equal(upstream.length, valid.length);
+    for (const operation of invalid) {
+      const { body, status } = await send(operation);
+      assert.equal(status, 200); assert.equal(upstream.at(-1), body);
+    }
+    assert.equal(upstream.length, valid.length + invalid.length);
   } finally {
     await Promise.all([stop(web), stop(api)]);
   }
