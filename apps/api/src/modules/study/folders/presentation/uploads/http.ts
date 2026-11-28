@@ -1,6 +1,7 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
 import type { StudyUploadOperations } from '../../application/read-ports.ts';
 import { uploadDeadlineMs, uploadRateDeadlineMs } from '../../../../../../../../src/core/domain/documents/document-formats.ts';
+import { publicError, sendJson } from '../../../../../platform/http/json-response.ts';
 
 const STUDY_UPLOAD_LIMIT=50_000_000;
 const bodyError=(code:string)=>Object.assign(new Error(code),{code});
@@ -26,11 +27,10 @@ export function readStudyBody(request:IncomingMessage,limit:number,timeoutMs=15_
     request.on('data',onData);request.once('end',onEnd);request.once('error',onError);request.once('aborted',onAbort);
   });
 }
-export function studyJson(response:ServerResponse,status:number,value:unknown){if(response.writableEnded||response.destroyed)return;response.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});response.end(JSON.stringify(value));}
+export function studyJson(response:ServerResponse,status:number,value:unknown){sendJson(response,status,value,{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});}
 export function studyReject(response:ServerResponse,error:unknown){
   const codes:Record<string,number>={AUTH_REQUIRED:401,EMAIL_VERIFICATION_REQUIRED:403,CSRF_INVALID:403,ORIGIN_NOT_ALLOWED:403,FORBIDDEN:403,INVALID_INPUT:400,INVALID_UPLOAD:400,FILE_REJECTED:422,FILE_NOT_READY:409,CONFLICT:409,QUOTA_EXCEEDED:409,RATE_LIMITED:429,REQUEST_TIMEOUT:408};
-  const candidate=error&&typeof error==='object'&&'code'in error?String(error.code):'';
-  const code=Object.hasOwn(codes,candidate)?candidate:'SERVICE_UNAVAILABLE';studyJson(response,codes[code]??503,{error:{code}});
+  const {code,status}=publicError(error,codes);studyJson(response,status,{error:{code}});
 }
 /** Shared bound on concurrent byte transfers, created by the composition root. */
 export interface StudyTransferGate { acquire(owner:string):(()=>void)|undefined }

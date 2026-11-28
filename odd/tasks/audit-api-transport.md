@@ -48,14 +48,14 @@ Primero pruebas de caracterización por host, que fijan las rutas de error actua
 - **Blocker:** none
 
 ### TASK-003 — Archivos, estudio y adjuntos sobre el transporte común
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-002
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** caracterizaciones sin cambios; pruebas de plazos de subida (F8) sin cambios
 - **Acceptance:** Archivos, carpetas de estudio y adjuntos de chat usan el transporte común para JSON y errores; la lectura binaria conserva sus plazos.
-- **Scope:** ["apps/api/src/modules/files/", "apps/api/src/modules/study/", "apps/api/src/bootstrap/chat-attachment-transport.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/api/src/modules/files/uploads/presentation/http.ts","apps/api/src/bootstrap/files-host.ts","apps/api/src/modules/study/folders/presentation/http.ts","apps/api/src/modules/study/folders/presentation/uploads/http.ts"]
+- **Evidence:** {"command":"api-error-characterization, pruebas de archivos/estudio/subidas/adjuntos; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main d33f0f6","result":"caracterización 9/9 sin cambios; lectores de cuerpo quedan por host como excepción documentada (límites y códigos distintos y fijados); fast 3300/3300, owned-db 972/972, wrappers 19/19","candidate":"sha256:0dedc5a75536b90e3415a64acbba0c4589503267dc7ce0a3b2e8478709972ce6 (git diff --binary HEAD -- apps tests scripts src)"}
 - **Blocker:** none
 
 ### TASK-004 — Aulas e identidad sobre el transporte común

@@ -5,6 +5,7 @@ import { FilePolicyError, type UploadIntent } from '../../domain/policy.ts';
 import type { FileHttpPort as FileService } from '../application/ports.ts';
 import { uuid } from '../../domain/file-record.ts';
 import { uploadDeadlineMs, uploadRateDeadlineMs } from '../../../../../../../src/core/domain/documents/document-formats.ts';
+import { sendJson } from '../../../../platform/http/json-response.ts';
 import { FileIdentityError } from '../../custody/public.ts';
 import type { FileScope } from '../../custody/public.ts';
 
@@ -14,10 +15,7 @@ const httpStatus: Record<FileErrorCode | 'FILE_TYPE_NOT_ALLOWED', number> = {
   FILE_NOT_READY: 409, FORBIDDEN: 403, NOT_FOUND: 404, UPLOAD_CONFLICT: 409,
   QUOTA_EXCEEDED: 409, SERVICE_UNAVAILABLE: 503,
 };
-function json(response: ServerResponse, status: number, value: unknown) {
-  response.statusCode = status; response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(value, (_, value) => typeof value === 'bigint' ? value.toString() : value));
-}
+const json = (response: ServerResponse, status: number, value: unknown) => sendJson(response, status, value);
 function shape(value: unknown, required: string[], optional: string[] = []): asserts value is Record<string, any> {
   if (!value || typeof value !== 'object' || Array.isArray(value) || required.some(key => !Object.hasOwn(value, key))
     || Object.keys(value).some(key => !required.includes(key) && !optional.includes(key))) throw new FileError('INVALID_UPLOAD');

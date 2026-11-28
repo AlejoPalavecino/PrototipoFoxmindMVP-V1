@@ -15,6 +15,7 @@ import { createTransferGate, TRANSFER_IDLE_MS, type TransferGate } from '../plat
 import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
 import type { FileCleanupWorker } from '../modules/files/custody/infrastructure/cleanup-worker.ts';
 import { FileIdentityError } from '../modules/files/custody/infrastructure/store.ts';
+import { sendJson } from '../platform/http/json-response.ts';
 
 /** No admission or lifetime writes: every invocation uses exactly the caller-owned transaction. */
 export function createIdentityFileAccess(security: IdentityConfiguration, authorizeAttemptWrite?: AttemptWriteAuthorizer) {
@@ -54,9 +55,7 @@ export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtim
       if (safe.retryAfter) response.setHeader('Retry-After', String(safe.retryAfter));
       // Do not consume an unbounded rejected upload; end the sanitized response before closing its socket.
       if (!request.complete) { response.setHeader('Connection', 'close'); response.once('finish', () => request.destroy()); }
-      response.statusCode = safe.status;
-      response.setHeader('Content-Type', 'application/json; charset=utf-8');
-      response.end(JSON.stringify({ error: { code: safe.code, requestId } }));
+      sendJson(response, safe.status, { error: { code: safe.code, requestId } });
     });
   });
 }

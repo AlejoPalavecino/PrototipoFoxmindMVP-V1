@@ -3,6 +3,7 @@ import { readAiMonthlyQuotaRejection } from '../../../../../../../src/core/contr
 import { studyFail, studyObject } from '../../../../../../../src/core/domain/study/folders.ts';
 import type { StudyService } from '../application/service.ts';
 import type { SharedStudyStrategyService } from '../../strategies/public.ts';
+import { publicError, sendJson } from '../../../../platform/http/json-response.ts';
 type StudyHttpService = StudyService & { sharedStrategy: SharedStudyStrategyService };
 async function body(request: IncomingMessage, limit = 512 * 1024) { let bytes = 0; const chunks: Buffer[] = []; for await (const chunk of request) {
     const b = Buffer.from(chunk);
@@ -18,8 +19,7 @@ catch {
     studyFail('INVALID_INPUT');
 } }
 const statuses: Record<string, number> = { AUTH_REQUIRED: 401, EMAIL_VERIFICATION_REQUIRED: 403, FORBIDDEN: 403, CSRF_INVALID: 403, ORIGIN_NOT_ALLOWED: 403, RATE_LIMITED: 429, INVALID_INPUT: 400, AI_INPUT_LIMIT:400, PAYLOAD_TOO_LARGE: 413, CONFLICT: 409, FILE_NOT_READY: 409, QUOTA_EXCEEDED: 409, EMPTY_ANSWERS: 409, SOURCE_UNAVAILABLE: 409, PREVIEW_UNAVAILABLE: 422, AI_BUSY: 503, AI_TIMEOUT: 504, AI_RATE_LIMITED: 429, AI_MONTHLY_BUDGET_EXCEEDED: 429, AI_BUDGET_EXCEEDED: 429, AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 429, AI_UNAVAILABLE: 503, SERVICE_UNAVAILABLE: 503 };
-function json(res: ServerResponse, status: number, value: unknown) { if (res.destroyed || res.writableEnded)
-    return; res.statusCode = status; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.end(JSON.stringify(value)); }
+const json = (res: ServerResponse, status: number, value: unknown) => sendJson(res, status, value);
 export function createStudyHandler(service: StudyHttpService, admit: (r: IncomingMessage, w: boolean, res: ServerResponse) => Promise<void>) { let active = 0; return (request: IncomingMessage, response: ServerResponse, next: () => void) => { let url: URL; try {
     url = new URL(request.url ?? '/', 'http://study.invalid');
 }
@@ -76,8 +76,7 @@ else if (match[1] && match[2] && request.method === 'POST')
     result = await service.command(request, match[1], await body(request));
 else
     studyFail('INVALID_INPUT'); json(response, 200, result); })().catch(error => {
-    const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : 'SERVICE_UNAVAILABLE';
-    const safe = Object.hasOwn(statuses, code) ? code : 'SERVICE_UNAVAILABLE';
+    const { code: safe, status } = publicError(error, statuses);
     const quota = safe === 'AI_MONTHLY_BUDGET_EXCEEDED' ? readAiMonthlyQuotaRejection(error?.quota) : undefined;
-    json(response, statuses[safe]!, { error: { code: safe, ...(quota ? { quota } : {}) } });
+    json(response, status, { error: { code: safe, ...(quota ? { quota } : {}) } });
 }).finally(() => { active--; }); }; }

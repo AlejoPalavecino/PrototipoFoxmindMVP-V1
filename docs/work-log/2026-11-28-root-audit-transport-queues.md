@@ -66,6 +66,19 @@ Suites, sobre `main` `5b61b29`: `fast` 3297/3297, `owned-db` 972/972 y `wrappers
 
 Suites integradas del corte 2, sobre `main` `a0616fe`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
 
+## D3, corte 3 (TASK-003): archivos, estudio y adjuntos
+
+- Archivos (handler y host), carpetas de estudio, subidas y recordatorios de estudio, y adjuntos de chat (que usan `studyJson`/`studyReject`) escriben con `sendJson` y resuelven errores con `publicError`. Tablas, cabeceras y respuestas sin cambios: la caracterización pasa sin tocarla.
+- Diferencias de implementación que no cambian respuestas visibles: el escritor de archivos no protegía contra escribir dos veces y el de carpetas de estudio no convertía BigInt; con el módulo común esos dos casos dejan de lanzar una excepción al escribir.
+- Lectores de cuerpo: quedan en cada host, como excepción documentada de REQ-004. Sus límites, códigos y estados difieren y están fijados por la caracterización: 400 en subidas, 413 `PAYLOAD_TOO_LARGE` en carpetas, 413 `FILE_TOO_LARGE` en archivos. Además, la lectura binaria lleva los plazos y el piso de ritmo de F8. Unificarlos cambiaría respuestas, así que queda para una decisión del usuario.
+
+| Prueba | Resultado |
+| --- | --- |
+| `api-error-characterization` | 9/9 sin cambios de expectativa |
+| pruebas de archivos, estudio, subidas, recordatorios y adjuntos | en verde, salvo `p4-services`, que necesita ClamAV (`owned-services`) y fallaba igual antes |
+
+Suites integradas del corte 3, sobre `main` `d33f0f6`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.
