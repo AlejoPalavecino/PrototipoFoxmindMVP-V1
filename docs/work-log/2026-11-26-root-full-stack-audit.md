@@ -122,8 +122,8 @@ S6, S9, S12, S17 y el reenvío de verificación se resolvieron en la rama `claud
 
 ## Decisiones pendientes del usuario
 
-- Adoptar NestJS con controllers, guard y filtro, o asumir el transporte propio y extraerlo a `apps/api/src/platform/http` (D3).
-- Primitiva de colas propia o una dependencia como pg-boss o graphile-worker (D4).
+- D3: decidido el 2026-11-28, asumir el transporte propio y extraerlo a `apps/api/src/platform/http`. Ver [transporte y colas](2026-11-28-root-audit-transport-queues.md).
+- D4: decidido el 2026-11-28, primitiva de colas propia sobre las tablas existentes, sin dependencias nuevas. Mismo registro.
 - Criterio de qué pertenece a `src/core/domain` (D9).
 - Política de retención y borrado por tabla (S8).
 - Separar el rol de base que migra del que usa la aplicación, y si se agrega RLS (S1).

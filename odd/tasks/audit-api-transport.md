@@ -1,0 +1,81 @@
+# Feature: Un solo transporte HTTP propio en la API (D3)
+
+- **Spec:** #especificacion
+- **Design:** #diseno
+- **Approval:** approved
+- **Evidence mode:** candidate-v1
+- **Trace mode:** requirements-v1
+
+El 2026-11-28 el usuario eligió la opción A de D3 de la [auditoría](../../docs/work-log/2026-11-26-root-full-stack-audit.md): asumir el transporte HTTP propio y extraerlo a `apps/api/src/platform/http`, sin adoptar los controllers de NestJS. El mismo día autorizó commit y push a `main` corte por corte con `fast`, `owned-db` y `wrappers` en verde, y eligió hacer D3 antes que D4 ([registro](../../docs/work-log/2026-11-28-root-audit-transport-queues.md)). No concede despliegue.
+
+## Seguimiento Git
+
+Base `main` en `8f4d860`. Un commit por corte, si el usuario autoriza la publicación.
+
+## Especificacion
+
+- **REQ-001:** Ningún cliente ve un cambio en estado, código de error, cabeceras (`Retry-After`, `X-Request-Id`, `Connection: close`, `Cache-Control`, `X-Content-Type-Options`) ni forma del cuerpo. Las rarezas actuales se conservan, como el 405 y el 404 con código `INVALID_INPUT` de aulas, salvo decisión explícita del usuario.
+- **REQ-002:** Un único módulo en `apps/api/src/platform/http` escribe respuestas JSON y errores, y lee cuerpos JSON acotados. Cada host le pasa su tabla de código a estado: `platform/` no importa clases de error de los módulos.
+- **REQ-003:** Las capas de presentación de los módulos pueden importar `apps/api/src/platform/http/` y nada más de `platform/`. Es un cambio de la regla de límites, aprobado por el usuario el 2026-11-28, y queda explícito en `scripts/migration-boundaries.mjs`.
+- **REQ-004:** Los 11 archivos que hoy escriben respuestas y los 6 lectores de cuerpo propios pasan al módulo común, o quedan documentados como excepción con su motivo (por ejemplo, la lectura binaria de archivos y estudio, que tiene su propio piso de ritmo).
+
+## Diseno
+
+Primero pruebas de caracterización por host, que fijan las rutas de error actuales; después la extracción por grupos de hosts, con esas pruebas sin cambios. `foxyRoute` (complejidad cercana a 100) se divide en el último corte, una vez que su host usa el transporte común.
+
+## Tasks
+
+### TASK-001 — Caracterizar las respuestas de error de cada host
+- **State:** PLANNED
+- **Depends on:** none
+- **Owner:** orchestrator
+- **Requirements:** REQ-001
+- **Verification:** una prueba por host que fija estado, código, cabeceras y forma del cuerpo de sus rutas de error; pasa con el código actual
+- **Acceptance:** Los 9 hosts tienen su caracterización; no cambia código de producción.
+- **Scope:** ["tests/"]
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-002 — Transporte común y hosts chicos (home, agenda, cupo de IA)
+- **State:** PLANNED
+- **Depends on:** TASK-001
+- **Owner:** orchestrator
+- **Requirements:** REQ-002, REQ-003, REQ-004
+- **Verification:** pruebas del módulo común; caracterizaciones de esos hosts sin cambios; regla de límites
+- **Acceptance:** `platform/http` escribe y lee por esos tres hosts; la regla deja importarlo desde presentación y nada más de `platform/`.
+- **Scope:** ["apps/api/src/platform/http/", "scripts/migration-boundaries.mjs"]
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-003 — Archivos, estudio y adjuntos sobre el transporte común
+- **State:** PLANNED
+- **Depends on:** TASK-002
+- **Owner:** orchestrator
+- **Requirements:** REQ-001, REQ-004
+- **Verification:** caracterizaciones sin cambios; pruebas de plazos de subida (F8) sin cambios
+- **Acceptance:** Archivos, carpetas de estudio y adjuntos de chat usan el transporte común para JSON y errores; la lectura binaria conserva sus plazos.
+- **Scope:** ["apps/api/src/modules/files/", "apps/api/src/modules/study/", "apps/api/src/bootstrap/chat-attachment-transport.ts"]
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-004 — Aulas e identidad sobre el transporte común
+- **State:** PLANNED
+- **Depends on:** TASK-003
+- **Owner:** orchestrator
+- **Requirements:** REQ-001, REQ-004
+- **Verification:** caracterizaciones sin cambios; `wrappers` (identidad)
+- **Acceptance:** El host académico y el transporte de identidad usan el módulo común.
+- **Scope:** ["apps/api/src/bootstrap/academic-http.ts", "apps/api/src/modules/identity/accounts/presentation/transport.ts"]
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-005 — Foxy sobre el transporte común y `foxyRoute` dividido
+- **State:** PLANNED
+- **Depends on:** TASK-004
+- **Owner:** orchestrator
+- **Requirements:** REQ-001, REQ-004
+- **Verification:** caracterización de Foxy sin cambios; complejidad de `foxyRoute` medida antes y después
+- **Acceptance:** Foxy usa el módulo común y su enrutamiento queda dividido por capacidad.
+- **Scope:** ["apps/api/src/modules/foxy/presentation/"]
+- **Evidence:** none
+- **Blocker:** none
