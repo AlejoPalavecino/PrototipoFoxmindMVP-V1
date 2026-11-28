@@ -38,13 +38,18 @@ Diferencias entre hosts que quedan fijadas, y que la extracción tiene que conse
 - ruta desconocida y método incorrecto: aulas responde 404 y 405 con `INVALID_INPUT`, carpetas de estudio 400, agenda, archivos y Foxy 404 `NOT_FOUND` sin 405, home y cupo de IA 405 con `Allow`, y subidas, recordatorios y adjuntos 405 sin `Allow`;
 - cuerpo demasiado grande: 400 en aulas, agenda, subidas y adjuntos, 413 en estudio, Foxy, archivos e identidad, cada uno con su código.
 
-Posible bug, informado y no fijado: en las subidas de estudio, `POST .../uploads` con JSON mal formado responde 503 `SERVICE_UNAVAILABLE` (el `SyntaxError` no trae código) en vez de 400. Queda para que el usuario decida.
+Posible bug, informado y no fijado: en las subidas de estudio, `POST .../uploads` con JSON mal formado respondía 503 `SERVICE_UNAVAILABLE` (el `SyntaxError` no trae código) en vez de 400. El usuario pidió corregirlo; ver abajo.
 
 Suites integradas del corte 1, sobre `main` `9173aca`: `fast` 3297/3297, `owned-db` 972/972 y `wrappers` 19/19.
 
+## Corrección: JSON mal formado en las subidas de estudio
+
+A pedido del usuario, `POST /study-folders/:id/uploads` responde ahora 400 `INVALID_INPUT` ante un JSON mal formado (antes 503). La caracterización lo fija: RED con el código anterior (503), GREEN 9/9. [Subidas](../../apps/api/src/modules/study/folders/presentation/uploads/http.ts).
+
+Suites, sobre `main` `5b61b29`: `fast` 3297/3297, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
-- Si se corrige el 503 de `POST .../uploads` con JSON mal formado (ver arriba).
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.
 
 ## Primer paso pendiente

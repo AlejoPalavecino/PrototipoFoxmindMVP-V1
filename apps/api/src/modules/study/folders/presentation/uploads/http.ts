@@ -54,7 +54,8 @@ export function installStudyUploads(app:{use(path:string,handler:(request:Incomi
       if([...url.searchParams.keys()].some(k=>k!=='mode')||url.searchParams.size>1)throw {code:'INVALID_INPUT'};
       if(!id&&method==='POST') {
         if(!request.headers['content-type']?.startsWith('application/json'))throw {code:'INVALID_INPUT'};
-        const body=JSON.parse((await readStudyBody(request,4096)).toString('utf8'));
+        const raw=(await readStudyBody(request,4096)).toString('utf8');
+        let body:unknown;try{body=JSON.parse(raw);}catch{throw {code:'INVALID_INPUT'};}
         studyJson(response,201,await files.begin(request,folder!,body));
       }else if(id&&!file&&method==='PUT') {
         // Authenticate and authorize before buffering anything; early rejections must not drain the body.

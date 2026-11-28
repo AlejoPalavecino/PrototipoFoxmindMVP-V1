@@ -124,6 +124,9 @@ test('study uploads and reminders: 405 without Allow, oversized intent 400, quer
     assert.deepEqual(method.json, { error: { code: 'METHOD_NOT_ALLOWED' } }); standardHeaders(method, '405');
     const large = await uploads.call(`/api/v1/study-folders/${id}/uploads`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: 'x'.repeat(4096) }) });
     assert.equal(large.status, 400); assert.deepEqual(large.json, { error: { code: 'INVALID_INPUT' } });
+    // Fixed on 2026-11-28 at the user's request: malformed JSON used to fall through to 503.
+    const malformed = await uploads.call(`/api/v1/study-folders/${id}/uploads`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{nope' });
+    assert.equal(malformed.status, 400); assert.deepEqual(malformed.json, { error: { code: 'INVALID_INPUT' } });
     begin = async () => { throw new Error('unexpected'); };
     const unknown = await uploads.call(`/api/v1/study-folders/${id}/uploads`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
     assert.equal(unknown.status, 503); assert.deepEqual(unknown.json, { error: { code: 'SERVICE_UNAVAILABLE' } });
