@@ -2,12 +2,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { HomeError } from '../../../../../../../src/core/domain/home/home.ts';
 import { parseHomePageQuery, parseHomeQuery } from '../../../../../../../src/core/domain/home/validation.ts';
 import type { HomeService } from '../application/service.ts';
+import { publicError, sendJson } from '../../../../platform/http/json-response.ts';
 const statuses: Record<string, number> = { INVALID_INPUT:400, FORBIDDEN:403, SERVICE_UNAVAILABLE:503,
   AUTH_REQUIRED:401, EMAIL_VERIFICATION_REQUIRED:403, CSRF_INVALID:403, ORIGIN_NOT_ALLOWED:403, RATE_LIMITED:429 };
 function send(response: ServerResponse, status: number, body: unknown): void {
-  if (response.writableEnded || response.destroyed) return;
-  response.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' });
-  response.end(JSON.stringify(body));
+  sendJson(response, status, body, { 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' });
 }
 export function createHomeHandler(service: HomeService, options: {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -33,8 +32,7 @@ export function createHomeHandler(service: HomeService, options: {
         : await service.read(request, parseHomeQuery(query));
       send(response,200,result);
     })().catch(error => {
-      const raw = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
-      const code = Object.hasOwn(statuses,raw) ? raw : 'SERVICE_UNAVAILABLE'; send(response,statuses[code],{error:{code}});
+      const { code, status } = publicError(error, statuses); send(response,status,{error:{code}});
     }).finally(() => { active--; });
   };
 }

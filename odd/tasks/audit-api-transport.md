@@ -37,14 +37,14 @@ Primero pruebas de caracterización por host, que fijan las rutas de error actua
 - **Blocker:** none
 
 ### TASK-002 — Transporte común y hosts chicos (home, agenda, cupo de IA)
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-001
 - **Owner:** orchestrator
 - **Requirements:** REQ-002, REQ-003, REQ-004
 - **Verification:** pruebas del módulo común; caracterizaciones de esos hosts sin cambios; regla de límites
 - **Acceptance:** `platform/http` escribe y lee por esos tres hosts; la regla deja importarlo desde presentación y nada más de `platform/`.
-- **Scope:** ["apps/api/src/platform/http/", "scripts/migration-boundaries.mjs"]
-- **Evidence:** none
+- **Scope:** ["apps/api/src/platform/http/json-response.ts","apps/api/src/platform/http/json-response.test.mjs","apps/api/src/modules/home/dashboard/presentation/http.ts","apps/api/src/modules/agenda/events/presentation/http.ts","apps/api/src/bootstrap/ai-quota-http.ts","scripts/migration-boundaries.mjs","tests/audit-boundaries-guard.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json","docs/engineering/architecture.md"]
+- **Evidence:** {"command":"node --test json-response, api-error-characterization, audit-boundaries-guard; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main a0616fe","result":"json-response 2/2; caracterización 9/9 sin cambios; regla nueva RED con la anterior y GREEN; fast 3300/3300, owned-db 972/972, wrappers 19/19. Los lectores de cuerpo quedan para los cortes que los usan","candidate":"sha256:033848e46af48cd8fd0b1c03164664fd40bd4ea6c822a7615206d936b9e2571b (git diff --binary HEAD -- apps tests scripts src)"}
 - **Blocker:** none
 
 ### TASK-003 — Archivos, estudio y adjuntos sobre el transporte común

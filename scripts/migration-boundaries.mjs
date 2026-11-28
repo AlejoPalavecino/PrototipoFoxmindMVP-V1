@@ -77,7 +77,9 @@ export function migrationBoundary(edge) {
       return backendLayerDependencies[layer]?.includes(to.layer) ? null : 'module layer dependency';
     }
     if (target.startsWith('src/core/domain/') || target.startsWith('src/core/contracts/')) return null;
-    if (platform(target)) return layer === 'infrastructure' ? null : 'module layer dependency';
+    // D3: presentation layers share the HTTP transport, and nothing else from platform/.
+    if (platform(target)) return layer === 'infrastructure' || (layer === 'presentation' && target.startsWith('apps/api/src/platform/http/'))
+      ? null : 'module layer dependency';
     if (target.startsWith('apps/')) return 'cross-module private API';
     return layer === 'application' ? 'module application dependency' : undefined;
   }

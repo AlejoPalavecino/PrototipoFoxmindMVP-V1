@@ -48,6 +48,24 @@ A pedido del usuario, `POST /study-folders/:id/uploads` responde ahora 400 `INVA
 
 Suites, sobre `main` `5b61b29`: `fast` 3297/3297, `owned-db` 972/972 y `wrappers` 19/19.
 
+## D3, corte 2 (TASK-002): transporte común y hosts chicos
+
+- [json-response](../../apps/api/src/platform/http/json-response.ts): `sendJson` (escribe una sola vez, no escribe sobre una respuesta destruida, 204 sin cuerpo, BigInt como texto), `publicError` (código y estado según la tabla del host, respaldo 503 por defecto) y `errorCode`. No importa nada de los módulos.
+- Home, agenda y cupo de IA usan el módulo. Cada uno conserva su tabla, sus cabeceras y sus respuestas: home sigue con `no-store` y `nosniff` en cada respuesta, agenda sigue sin `details` para los códigos de identidad, y el cupo de IA sigue con su propio respaldo 500 vía `publicIdentityError`.
+- Regla de límites (`scripts/migration-boundaries.mjs`): presentación puede importar `apps/api/src/platform/http/` y nada más de `platform/`, como aprobó el usuario. `audit-boundaries-guard` suma el caso: RED con la regla anterior y GREEN ahora; aplicación y dominio siguen sin poder importarlo.
+- Guía: [arquitectura](../engineering/architecture.md).
+
+| Prueba | Resultado |
+| --- | --- |
+| `json-response` (nueva, fast) | 2/2 |
+| `api-error-characterization` | 9/9, sin cambios de expectativa |
+| `audit-boundaries-guard` | 29/29 (RED del caso nuevo con la regla anterior) |
+| las pruebas de home, agenda y cupo de IA | en verde |
+
+`monthly-ai-quota-transport` falla si se corre suelta con `node --test`, también sin este cambio, porque el modo de tipos de Node no admite propiedades en los constructores de identidad; con las opciones del ejecutor de `fast` pasa 2/2.
+
+Suites integradas del corte 2, sobre `main` `a0616fe`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.

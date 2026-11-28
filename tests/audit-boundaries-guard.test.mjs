@@ -221,6 +221,16 @@ test('capabilities reject private siblings, reverse layers and impure domain imp
   }
 });
 
+// D3: presentation layers share platform/http and nothing else from platform/; other layers keep their rules.
+test('presentation may import the shared HTTP transport; application may not', async () => {
+  await fixture({ 'apps/api/src/modules/curriculum/plan/presentation/http.ts': "import { sendJson } from '../../../../platform/http/json-response.ts';" },
+    root => assert.deepEqual(checkBoundaries(root), []));
+  for (const source of ['application/run.ts', 'domain/rule.ts']) {
+    await fixture({ [`apps/api/src/modules/curriculum/plan/${source}`]: "import { sendJson } from '../../../../platform/http/json-response.ts';" },
+      root => assert.ok(checkBoundaries(root).length, source));
+  }
+});
+
 test('capability public APIs expose only named exports of their own domain and application', async () => {
   for (const [file, code] of [
     ['plan/public.ts', "export { Store } from './infrastructure/store.ts';"],

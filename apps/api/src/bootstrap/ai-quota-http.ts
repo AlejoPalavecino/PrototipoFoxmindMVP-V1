@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { IdentityHttpError, publicIdentityError } from '../modules/identity/domain/errors.ts';
 import { aiQuotaEventsPath, aiQuotaPath, type AiQuotaSnapshot } from '../../../../src/core/contracts/ai-quota.ts';
+import { sendJson } from '../platform/http/json-response.ts';
 
 interface QuotaPorts {
   admit(request: IncomingMessage, response: ServerResponse): Promise<string>;
@@ -10,11 +11,7 @@ interface QuotaPorts {
 
 type QuotaCursor = Pick<AiQuotaSnapshot, 'periodStart' | 'version'>;
 
-function json(response: ServerResponse, status: number, data: unknown) {
-  response.statusCode = status;
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(data));
-}
+const json = (response: ServerResponse, status: number, data: unknown) => sendJson(response, status, data);
 
 const sampleMs = 900;
 const heartbeatMs = 15_000;

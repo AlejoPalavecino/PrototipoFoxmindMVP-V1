@@ -39,6 +39,7 @@ export const suites = {
     'tests/monthly-ai-quota-client.test.mjs',
     'apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-stream.test.mjs',
     'apps/api/src/platform/ai/text-client.test.mjs',
+    'apps/api/src/platform/http/json-response.test.mjs',
     'tests/backend-academic-runtime.test.mjs',
     'apps/api/src/modules/study/generation/application/tests/generation-transaction-phases.test.mjs',
     'apps/api/src/modules/foxy/resources/infrastructure/tests/foxy-resource-editorial-policy.test.mjs',

@@ -175,6 +175,7 @@
     "apps/api/src/modules/study/sources/infrastructure/uploads/upload-policy.test.mjs",
     "apps/api/src/platform/ai/daily-actor-budget.test.mjs",
     "apps/api/src/platform/ai/text-client.test.mjs",
+    "apps/api/src/platform/http/json-response.test.mjs",
     "apps/shared-ui/chat-follow.test.mjs",
     "apps/web/src/application/navigation/foxy-navigation-bridge.test.mjs",
     "apps/web/src/application/navigation/foxy-navigation.test.mjs",

@@ -40,7 +40,7 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 | apps/shared-ui | Presentación genérica, controles y estilos Brújula; sin dependencia de features |
 | apps/api/src/modules | Casos de uso y puertos por dominio; adaptadores de persistencia/proveedor y presentación HTTP |
 | apps/api/src/bootstrap | Conexión de módulos, configuración del host y ciclos de vida |
-| apps/api/src/platform | Base de datos, diagnóstico, paginación y soporte técnico IA compartido |
+| apps/api/src/platform | Base de datos, diagnóstico, paginación, soporte técnico IA compartido y transporte HTTP común (`platform/http`) |
 | src/core/domain | Reglas neutrales agrupadas por dominio; sin dependencias de framework |
 | src/core/contracts | DTOs académicos, contratos de cliente y contrato SQL separados de las reglas |
 | prisma | Modelo físico y migraciones; incluye integridad no expresable sólo con el esquema Prisma |
@@ -157,6 +157,8 @@ La [reorganización aprobada](backend-capabilities-plan.md) mantiene esos 13 mó
 | study | folders, sources, conversations, generation, practices, reviews |
 
 `application` coordina reglas mediante puertos tipados; los adaptadores conservan SQL, locks y comprobaciones atómicas. Los comandos de repositorio tienen entradas y resultados concretos. La colaboración entre capacidades usa contratos públicos nombrados o puertos inyectados; la composición conserva el mismo actor y transacción. Las reglas compartidas puras quedan en `domain` del módulo. Los contratos que necesitan varias capacidades pueden permanecer en `application` del módulo como dependencias de tipos. Foxy conserva una presentación común para admisión, límites, errores y despacho HTTP; no contiene persistencia ni construcción de proveedores.
+
+El transporte HTTP es propio (D3 de la auditoría, decisión del 2026-11-28): `platform/http/json-response.ts` escribe las respuestas JSON (`sendJson`) y resuelve código y estado de un error con la tabla que pasa cada host (`publicError`; un código desconocido cae al respaldo, 503 por defecto). `platform/` no importa clases de error de los módulos. Las capas `presentation` pueden importar `platform/http/` y nada más de `platform/`; el resto de las capas mantiene sus reglas. Migración por hosts según el [tablero](../../odd/tasks/audit-api-transport.md); las diferencias entre hosts que fija `tests/api-error-characterization.test.mjs` se conservan.
 
 La bandeja pertenece a `home/notifications`; Muro y otros productores insertan sus avisos dentro de la transacción original. Las rutas HTTP existentes se conservan. La recepción de archivos utiliza un puerto de autorización y vuelve a comprobar la custodia al recibir el cuerpo, sin exponer el store al transporte. Estudio prepara, reserva, revalida, ejecuta fuera de la transacción y aplica el resultado junto con su recibo; cancelación y revocación siguen vigentes.
 
