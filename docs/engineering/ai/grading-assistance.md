@@ -2,7 +2,7 @@
 
 El docente activa la capacidad por aula cuando está disponible. Las nuevas entregas confirmadas elegibles producen trabajos para TP, cuestionarios y evaluaciones; la consigna/puntajes y rúbrica opcional delimitan la propuesta.
 
-En la corrección privada puede consultar estado, revisar, usar o descartar una sugerencia. Usar requiere confirmación y guarda corrección privada; reemplazar cambios locales sin guardar debe ser explícito. Descartar no cambia la corrección existente. Publicar la nota requiere la operación docente independiente.
+En la corrección privada puede consultar estado, revisar, usar o descartar una sugerencia. Usar requiere confirmación y guarda corrección privada; reemplazar cambios locales sin guardar debe ser explícito. Descartar no cambia la corrección existente. Al usar, la API revisa primero la forma del pedido (`requestId`, `revision`, `snapshotHash` y que `proposal` sea un objeto) y responde 400 `INVALID_INPUT`; el contenido de la propuesta se valida recién contra la instantánea del trabajo, después de los permisos y el estado. Publicar la nota requiere la operación docente independiente.
 
 La puntuación objetiva conserva el motor determinista. Fallos/archivos no procesables permiten corregir manualmente. Las respuestas y archivos autorizados pueden contener texto identificatorio: minimizar datos no equivale a anonimizar todo el contenido ni a usar la política de análisis individual.
 

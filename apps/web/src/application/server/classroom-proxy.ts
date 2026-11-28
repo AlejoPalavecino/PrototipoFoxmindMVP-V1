@@ -3,12 +3,12 @@ import { request as httpRequest, type IncomingMessage, type ServerResponse } fro
 import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
 import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
-import { privateGradingInput, gradeCorrectionInput, gradePublicationInput } from '../../../../../src/core/domain/grading/grading.ts';
 import { PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/home/notifications.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;
 const uuid = '[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}';
+// Each method lists the body keys of its contract for reference; the API enforces them (F2).
 type Rule = { path: RegExp; methods: Record<string, string[] | null> };
 const rule = (path: string, methods: Rule['methods']): Rule => ({ path: new RegExp(`^/api/v1/classrooms${path}$`), methods });
 const routes: Rule[] = [
@@ -95,24 +95,6 @@ function body(stream: IncomingMessage, limit: number, expected?: number, deadlin
     stream.on('data', data); stream.once('end', end); stream.once('error', abort); stream.once('aborted', abort);
   });
 }
-function object(value: unknown, keys: string[], required = true): value is Record<string, unknown> {
-  return Boolean(value && typeof value === 'object' && !Array.isArray(value) &&
-    Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
-}
-// Participation bodies still checked here until TASK-009: start, authorize-first and transfer.
-function schema(value: unknown, keys: string[]): boolean {
-  if (!object(value, keys)) return false;
-  for (const key of keys) {
-    if (key === 'deadline') {
-      const item = value[key];
-      if (!object(item, ['local', 'offsetMinutes'], false) || typeof item.local !== 'string'
-        || (Object.hasOwn(item, 'offsetMinutes') && !Number.isInteger(item.offsetMinutes))) return false;
-    }
-    else if (typeof value[key] !== 'string') return false;
-  }
-  return true;
-}
-
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
 export async function proxyClassroomRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
   const metadataDeadline = performance.now() + 10_000;
@@ -130,32 +112,17 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if (!selected) { await reject(404, 'NOT_FOUND'); return; }
   const method = request.method ?? 'GET';
   if (!Object.hasOwn(selected.methods, method)) { await reject(405, 'METHOD_NOT_ALLOWED'); return; }
-  // Query strings are forwarded unvalidated: the API owns which routes accept one and their contract (F2).
-  const supportPage = url.pathname === '/api/v1/classrooms/teacher-support';
-  const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
-  const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
-  if (participation && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
-    if (!transfer || typeof request.headers['x-attempt-editor'] !== 'string'
-      || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
-      || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch'])) {
-      await reject(400, 'INVALID_INPUT'); return;
-    }
-  }
-  const answerWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:answer|submit-answers)$`).test(url.pathname);
-  const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical|practical-response)$`).test(url.pathname);
-  const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
-  const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
-  const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
-  const gradingAiRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading-ai(?:/${uuid}/(?:apply|discard))?$`).test(url.pathname);
-  const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
-  const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
-  const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/(?:progress|ai-summary))$`).test(url.pathname);
-  if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
-    || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
-    || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
-    await reject(400, 'INVALID_INPUT'); return;
-  }
-  if ((practicalRead || gradingRoute || gradingAiRoute || publicationRoute || correctionRoute || progressRoute || supportPage || url.pathname.includes('/support')) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  // Query strings, bodies and attempt header values are forwarded unvalidated: the API owns their contract (F2).
+  // The proxy only decides which routes carry the attempt editor headers, and rejects them on the reads and
+  // participation routes that never carry them.
+  const carriesEditor = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:transfer|answer|submit-answers|attachments-remove|submit-practical|practical-response)$`).test(url.pathname);
+  const editorFree = /\/(?:session|eligibility|start|authorize-first)$/.test(url.pathname)
+    || /\/(?:submissions|receipt)$/.test(url.pathname)
+    || new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname)
+    || new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:grading|grading-ai(?:/${uuid}/(?:apply|discard))?|publish-grade|result|grade-corrections)$`).test(url.pathname)
+    || new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/(?:progress|ai-summary))$`).test(url.pathname)
+    || url.pathname === '/api/v1/classrooms/teacher-support' || url.pathname.includes('/support');
+  if (editorFree && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     await reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
@@ -169,30 +136,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { await reject(400, 'INVALID_INPUT'); return; }
     try {
       metadata = await body(request, requestLimit, expected, metadataDeadline);
-      const parsed = JSON.parse(metadata.toString('utf8'));
-      const reopening = url.pathname.endsWith('/reopen');
-      const validReopening = !reopening || object(parsed, ['revision', 'studentId', 'deadline', 'confirm'])
-        && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
-        && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
-          && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      const aiKeys = url.pathname.endsWith('/apply') ? ['requestId', 'revision', 'snapshotHash', 'proposal'] : ['requestId', 'revision'];
-      const validGradingAi = !gradingAiRoute || object(parsed, aiKeys) && typeof parsed.requestId === 'string'
-        && new RegExp(`^${uuid}$`).test(parsed.requestId) && typeof parsed.revision === 'string' && /^(0|[1-9][0-9]{0,17})$/.test(parsed.revision)
-        && (url.pathname.endsWith('/discard') || typeof parsed.snapshotHash === 'string' && /^[a-f0-9]{64}$/.test(parsed.snapshotHash)
-          && !!parsed.proposal && typeof parsed.proposal === 'object' && !Array.isArray(parsed.proposal));
-      if (gradingRoute) privateGradingInput(parsed);
-      if (correctionRoute) gradeCorrectionInput(parsed);
-      if (publicationRoute) gradePublicationInput(parsed);
-      // Authoring and classroom bodies are forwarded unvalidated: the API owns their shape (F2, TASK-008).
-      if ((participation && !schema(parsed, selected.methods[method] ?? []))
-        || !validReopening
-        || !validGradingAi
-        || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
-          || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)
-            || typeof parsed.text !== 'string' || !Array.isArray(parsed.optionIds) || !parsed.optionIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))
-            : parsed.confirm !== true || typeof parsed.confirmIncomplete !== 'boolean')))
-        || (practicalWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
-          || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : url.pathname.endsWith('/practical-response') ? typeof parsed.text!=='string'||[...parsed.text].length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(parsed.text) : parsed.confirm !== true)))) throw new Error('Invalid schema');
+      JSON.parse(metadata.toString('utf8'));
     } catch (error) { await reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;
@@ -202,7 +146,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
-    if (transfer || practicalWrite || answerWrite) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
+    if (carriesEditor) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
     if (metadata) headers['content-length'] = String(metadata.length);

@@ -20,8 +20,10 @@ async function jobById(repository: GradingAiRepository, tx: Transaction, classro
 }
 function parseApply(input: unknown) {
   const body = object(input, ['requestId', 'revision', 'snapshotHash', 'proposal']);
+  // The proposal envelope is checked with the rest of the shape; its content needs the job snapshot (below).
   if (Object.keys(body).length !== 4 || !uuid(body.requestId) || typeof body.snapshotHash !== 'string'
-    || !/^[a-f0-9]{64}$/.test(body.snapshotHash)) return fail('INVALID_INPUT');
+    || !/^[a-f0-9]{64}$/.test(body.snapshotHash) || !body.proposal || typeof body.proposal !== 'object'
+    || Array.isArray(body.proposal)) return fail('INVALID_INPUT');
   return { requestId: body.requestId, revision: revision(body.revision), snapshotHash: body.snapshotHash, proposal: body.proposal };
 }
 function parseDiscard(input: unknown) {

@@ -18,7 +18,7 @@ El borrador permanece montado al alternar pestañas del aula para consultar mate
 
 La recepción completa del servidor determina puntualidad, no el inicio de la carga ni el reloj del navegador. La primera entrega confirmada define a tiempo/tarde; reentregas conservan historia y requieren habilitación docente. El comprobante muestra la fecha de recepción en la zona del aula, el número de intento, el contenido y el plazo aplicado. Sigue disponible en el historial después de publicarse la devolución. Guardar no publica calificaciones.
 
-Los intentos usan un único editor con capacidad/revisión; transferir edición requiere confirmación y no transporta cambios no guardados. Confirmados, adjuntos y respuestas se recuperan según sus permisos. No prometer recuperación de cambios locales o de la capacidad tras cerrar/recargar.
+Los intentos usan un único editor con capacidad/revisión; transferir edición requiere confirmación y no transporta cambios no guardados. La capacidad viaja en `x-attempt-editor` y `x-attempt-epoch` sólo al transferir, responder y en la entrega práctica; la API valida su formato y rechaza esas cabeceras con 400 `INVALID_INPUT` en toda lectura, incluido el resumen IA del alumno. El proxy web sólo las reenvía en esas rutas y las rechaza en las lecturas y en el resto de la participación. Confirmados, adjuntos y respuestas se recuperan según sus permisos. No prometer recuperación de cambios locales o de la capacidad tras cerrar/recargar.
 
 La consulta histórica y las notas publicadas están separadas de correcciones privadas. Salida/remoción revoca acceso del alumno sin destruir historia docente; una invitación nueva permite readmisión conforme al aula.
 

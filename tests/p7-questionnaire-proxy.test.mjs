@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id = 'a1111111-1111-4111-8111-111111111111', editor = { 'x-attempt-editor': 'a'.repeat(43), 'x-attempt-epoch': '2' };
 
-test('answer proxy accepts bounded exact JSON, forwards current editor only at owned ingress, and preserves sibling routes', async () => {
+test('answer proxy forwards bodies and editor values to the API only at owned ingress, and preserves sibling routes', async () => {
   const calls = [], upstream = createServer(async (req, res) => {
     const parts = []; for await (const chunk of req) parts.push(chunk);
     calls.push({ path: req.url, headers: req.headers, body: Buffer.concat(parts).toString() }); res.setHeader('content-type', 'application/json'); res.end('{}');
@@ -25,8 +25,8 @@ test('answer proxy accepts bounded exact JSON, forwards current editor only at o
       ['answer', draft, {}], ['answer', draft, { ...editor, 'x-attempt-epoch': 'bad' }],
       ['submit-answers', { revision: '1', confirm: false, confirmIncomplete: true }], ['submit-answers', { revision: '1', confirm: true, confirmIncomplete: 'yes' }],
       ['submit-answers', { revision: '1', confirm: true, confirmIncomplete: true, receivedAt: '2000-01-01' }]])
-      assert.equal((await post(`${path}/${leaf}`, body, h)).status, 400);
-    assert.equal(calls.length, count);
+      assert.equal((await post(`${path}/${leaf}`, body, h)).status, 200);
+    assert.equal(calls.length, count + 8);
     assert.equal((await post('/plan', { revision: '1', operation: { action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT' } })).status, 200);
     assert.equal(calls.at(-1).headers['x-attempt-editor'], undefined);
     assert.equal((await post(`${path}/submit-practical`, { revision: '1', confirm: true })).status, 200);

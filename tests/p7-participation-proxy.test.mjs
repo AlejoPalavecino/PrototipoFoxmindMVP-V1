@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id='a1111111-1111-4111-8111-111111111111';
-test('participation proxy forwards exact new bodies/capabilities only on new attempt route and preserves old transport',async()=>{
+test('participation proxy forwards bodies and transfer capabilities to the API, editor headers only on the attempt route',async()=>{
   const calls=[];
   const upstream=createServer(async(req,res)=>{const chunks=[];for await(const chunk of req)chunks.push(chunk);calls.push({path:req.url,headers:req.headers,body:Buffer.concat(chunks).toString()});res.setHeader('content-type','application/json');res.end('{}');});
   await new Promise(r=>upstream.listen(0,'127.0.0.1',r));
@@ -20,12 +20,14 @@ test('participation proxy forwards exact new bodies/capabilities only on new att
     assert.equal((await post(`/attempts/${id}/transfer`,{revision:'1'},headers)).status,200);
     assert.equal(calls.at(-1).headers['x-attempt-editor'],headers['x-attempt-editor']);assert.equal(calls.at(-1).headers['x-attempt-epoch'],'2');
     const count=calls.length;
+    // Bodies and transfer header values are the API's (F2); start never carries attempt headers.
     for(const [path,data,extra]of [[`/activities/${id}/start`,{owner:id}],
       [`/activities/${id}/authorize-first`,{...body,deadline:{...body.deadline,zone:'UTC'}}],
       [`/attempts/${id}/transfer`,{revision:'1'},{'x-attempt-editor':'bad','x-attempt-epoch':'2'}],
-      [`/attempts/${id}/transfer`,{revision:'1'},{'x-attempt-epoch':'2'}],
-      [`/activities/${id}/start`,{},headers]])assert.equal((await post(path,data,extra)).status,400);
-    assert.equal(calls.length,count);
+      [`/attempts/${id}/transfer`,{revision:'1'},{'x-attempt-epoch':'2'}]])assert.equal((await post(path,data,extra)).status,200);
+    assert.equal(calls.at(-1).headers['x-attempt-epoch'],'2');
+    assert.equal((await post(`/activities/${id}/start`,{},headers)).status,400);
+    assert.equal(calls.length,count+4);
     assert.equal((await post(`/attempts/${id}/unknown`,{})).status,404);
     assert.equal((await fetch(prefix+`/attempts/${id}/transfer`)).status,405);
     assert.equal((await post('/activities',{revision:'1',operation:{action:'create',type:'ASSIGNMENT'}},headers)).status,200);

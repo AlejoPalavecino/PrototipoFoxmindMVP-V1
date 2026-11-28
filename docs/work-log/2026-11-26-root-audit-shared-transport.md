@@ -148,11 +148,35 @@ La primera corrida de `fast` cortó en `academic-features`, que exigía que exis
 
 Suites integradas del corte 8, sobre `main` `86a29fe`: `fast` 3277/3277 (segunda corrida), `owned-db` 970/970 y `wrappers` 19/19.
 
-## Estado al pausar (2026-11-27)
+## Corte 9 — F2, calificación y participación
 
-- En `main`: cortes 5 (agenda, `0b1c897a`), 6 (Home), 7 (consultas de aulas, `86a29fe`) y 8 (cuerpos de autoría y de aula, TASK-008). Queda TASK-009.
+Misma sesión en la nube, 2026-11-28, sobre `main` `53fd335`, con el entorno de los cortes 7 y 8. Docker se había detenido tras un rato de inactividad del contenedor y se volvió a levantar; la primera corrida de la prueba con base falló por eso (`P5 owned Docker run failed`).
+
+- Alcance: los cuerpos de calificación privada, IA de calificación (aplicar y descartar), publicación, correcciones, reapertura, `authorize-first`, `start`, `transfer`, respuestas de cuestionario y entrega práctica, y el formato de las cabeceras de intento en las rutas que las llevan.
+- Cabeceras de intento: la API ya validaba su formato (`editorCapability`) y las rechazaba en las lecturas. El proxy sólo las reenvía en `transfer`, respuestas y entrega práctica, como pide el criterio de aceptación. Por eso en esas rutas deja de validarlas y las reenvía tal cual, y en las lecturas y en el resto de la participación sigue rechazándolas: como no las reenvía, la API no podría verlas. Es la misma lista de rutas que antes; no se rechazan en rutas nuevas.
+- Prueba con servicios reales sobre base propia: [classroom-attempt-api-database](../../tests/classroom-attempt-api-database.test.mjs), con [casos compartidos](../../tests/helpers/classroom-attempt-cases.mjs). Cada caso llega a un intento en el estado real que le corresponde: calificación guardada sin publicar, calificación publicada, cuestionario y TP abiertos con su capacidad de editor vigente. 61 casos dan 400 `INVALID_INPUT` sin cambiar filas.
+- Divergencias, llevadas a la API antes de quitar la regla:
+  - `GET .../members/:id/ai-summary` ignoraba las cabeceras de intento. Ahora las [rechaza](../../apps/api/src/modules/grading/review/presentation/academic-routes.ts) con 400, como las demás lecturas (la del mapa).
+  - `grading-ai/:job/apply` con `proposal` nulo o lista respondía 403 con un trabajo inexistente, porque la API valida la propuesta recién contra la instantánea del trabajo. El [parseo inicial](../../apps/api/src/modules/grading/assistance/application/grading-ai/service.ts) exige ahora, como el proxy, que `proposal` sea un objeto, junto con el resto de la envoltura.
+- Orden, no divergencia: en `authorize-first`, la API revisa la obligación del alumno (409 `CONFLICT`) antes del plazo. Con el estado del fixture, un plazo mal formado da 409. La regla de orden del usuario (sesión, permisos y conflicto antes que la forma) lo admite; no se cambió. En la lista esos dos casos quedan marcados «conflicto primero»: la prueba exige 409 y además comprueba que `resolveDeadline` rechaza ese plazo con `INVALID_INPUT`, como `p7-consultation` ya prueba en un estado válido.
+- El [proxy de aulas](../../apps/web/src/application/server/classroom-proxy.ts) ya no valida ningún cuerpo: sólo lee el cuerpo acotado y comprueba que sea JSON. Se retiraron `object()`, `schema()` y los imports de las reglas de calificación. Quedó en 184 líneas (356 al empezar el corte 7).
+- Pruebas ajustadas: `audit-shared-contracts`, `brujula-contract-parity-proxy`, `p7-history-proxy`, `p7-participation-proxy`, `p7-practical-proxy`, `p7-questionnaire-proxy`, `p8-corrections-proxy`, `p8-grading-proxy` y `p8-publication-proxy`. Sus cuerpos inválidos ahora tienen que llegar a la API. Las cabeceras en rutas que no las llevan, y las reglas del proxy de archivos (fuera de este corte), siguen dando 400.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `classroom-attempt-api-database` (nueva, owned-db): 61 casos y `ai-summary` con cabeceras | `ai-summary` respondía 200; dos `apply` respondían 403; `authorize-first` con plazo inválido, 409 (orden admitido) | 2/2, sin filas cambiadas |
+| `classroom-attempt-forwarding` (nueva, fast): los mismos casos se reenvían intactos, con sus cabeceras sólo en las rutas que las llevan; cabeceras rechazadas en lecturas y nunca reenviadas en otras rutas | con el proxy anterior, la primera prueba falla (400 propio); la segunda pasa en los dos y queda como red de seguridad | 2/2 |
+| las 9 pruebas ajustadas y el resto de las que usan el proxy de aulas | — | en verde |
+
+`npx tsc --noEmit -p apps/web/tsconfig.json`, `npm run api:build`, `npm run lint:boundaries`, `run-complete-suite --check` (766 entradas) y `npm run docs:check` pasaron.
+
+Suites integradas del corte 9, sobre `main` `53fd335`: `fast` 3279/3279, `owned-db` 972/972 y `wrappers` 19/19.
+
+## Estado al pausar (2026-11-28)
+
+- En `main`: cortes 5 (agenda, `0b1c897a`), 6 (Home), 7 (consultas de aulas, `86a29fe`), 8 (cuerpos de autoría y de aula, `53fd335`) y 9 (calificación y participación, TASK-009). F2 quedó completo en el tablero.
 - Mapa de aulas (lectura del código, sin ejecutar): consultas sin divergencias; en cuerpos, la API no rechaza como el proxy un `confirmation` no textual en `codes/confirm` (da 409) ni los temas repetidos con distinta mayúscula en la ruta sin `unitIds` (`activities/domain/topic-selection.ts`, termina en 503 por clave duplicada); en participación, `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Esas tres se llevan a la API antes de quitar la regla del proxy. El 409 antes que el 400 en actividades iniciadas o no publicadas quedó aceptado.
-- Primer paso al retomar: TASK-009 (calificación y participación). Antes de retirar reglas, llevar a la API la divergencia que queda del mapa: `GET .../ai-summary` ignora las cabeceras `x-attempt-*` que el proxy rechaza. Reutilizar el patrón del corte 8: casos compartidos, prueba con servicios reales sobre base propia y prueba de reenvío del proxy.
+- Primer paso al retomar: no queda tarea abierta en este tablero. Lo que sigue de la auditoría (B4, B5, B7 a B10, D1, D3 a D12, D14, el prefijo `__Host-` de S14 y los restos de S7 y S8) necesita que el usuario elija bloque y, en D3, D4 y D9, que decida primero.
 
 ## Límites
 

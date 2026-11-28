@@ -130,12 +130,12 @@ Núcleo web en `apps/web/src/application/server/transport/api-transport.ts`. Cad
 - **Blocker:** none
 
 ### TASK-009 — Aulas: calificación y participación sin reglas de dominio en el proxy (F2)
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-008
 - **Owner:** orchestrator
 - **Requirements:** REQ-006
 - **Verification:** por cada regla retirada del proxy, una prueba de la API que la rechaza con el mismo código, y una prueba del proxy que ya la reenvía
 - **Acceptance:** Calificación, corrección, publicación, IA de calificación, respuestas, entrega práctica y reapertura se reenvían sin validar su forma; la API los rechaza con el mismo código. El proxy sigue reenviando las cabeceras de intento sólo en sus rutas.
-- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts"]
-- **Evidence:** none
+- **Scope:** ["apps/web/src/application/server/classroom-proxy.ts","apps/api/src/modules/grading/review/presentation/academic-routes.ts","apps/api/src/modules/grading/assistance/application/grading-ai/service.ts","tests/helpers/classroom-attempt-cases.mjs","tests/classroom-attempt-api-database.test.mjs","tests/classroom-attempt-forwarding.test.mjs","tests/audit-shared-contracts.test.mjs","tests/brujula-contract-parity-proxy.test.mjs","tests/p7-history-proxy.test.mjs","tests/p7-participation-proxy.test.mjs","tests/p7-practical-proxy.test.mjs","tests/p7-questionnaire-proxy.test.mjs","tests/p8-corrections-proxy.test.mjs","tests/p8-grading-proxy.test.mjs","tests/p8-publication-proxy.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json","docs/engineering/frontend/README.md","docs/engineering/activities/participation.md","docs/engineering/ai/grading-assistance.md"]
+- **Evidence:** {"command":"node --test tests/classroom-attempt-api-database.test.mjs tests/classroom-attempt-forwarding.test.mjs; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main 53fd335","result":"RED: ai-summary aceptaba cabeceras de intento (200), apply con proposal nulo o lista daba 403; llevados a la API. authorize-first con plazo inválido da 409 antes de la forma (orden admitido, resolveDeadline rechaza con INVALID_INPUT). GREEN: 61 casos con el código esperado sin filas cambiadas y reenviados intactos por el proxy; fast 3279/3279, owned-db 972/972, wrappers 19/19","candidate":"sha256:3517b03cc1a60b438720ff4a98918595753c075b7a3bb7f8f34de5837c2f4f65 (git diff --binary HEAD -- apps tests scripts)"}
 - **Blocker:** none

@@ -62,7 +62,8 @@ export function createReviewRoutes(operations: ReviewHttpOperations): AcademicRo
             async handle({ request: req, method, path, headers }) {
                 let value: unknown;
                 if (path.length === 4 && path[1] === 'members' && path[3] === 'ai-summary') {
-                    if (method !== 'GET' || !uuid(path[0]) || !uuid(path[2]))
+                    if (method !== 'GET' || !uuid(path[0]) || !uuid(path[2])
+                        || headers['x-attempt-editor'] !== undefined || headers['x-attempt-epoch'] !== undefined)
                         return fail('INVALID_INPUT');
                     value = await operations.getStudentAiReport(req, path[0], path[2]);
                 }

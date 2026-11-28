@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
-test('grading proxy forwards exact decimal JSON with session/CSRF and rejects unknown shapes/capabilities', async () => {
+test('grading proxy forwards decimal JSON with session/CSRF, leaves shapes to the API and rejects attempt capabilities', async () => {
   const calls = [], upstream = createServer(async (req, res) => { const chunks = []; for await (const chunk of req) chunks.push(chunk);
     calls.push({ path: req.url, headers: req.headers, body: Buffer.concat(chunks).toString() }); res.setHeader('content-type', 'application/json'); res.end('{}'); });
   await new Promise(resolve => upstream.listen(0, '127.0.0.1', resolve));
@@ -18,9 +18,9 @@ test('grading proxy forwards exact decimal JSON with session/CSRF and rejects un
     assert.equal(calls.at(-1).headers.cookie, 'fixture=session'); assert.equal(calls.at(-1).headers['x-csrf-token'], 'fixture');
     const n = calls.length;
     for (const invalid of [{ ...body, ownerId: id }, { ...body, overallGrade: '8.345' }, { ...body, overallGrade: '1e1' },
-      { ...body, questions: [{ questionId: id, points: null, feedback: '', finalGrade: '10' }] }]) assert.equal((await post(invalid)).status, 400);
+      { ...body, questions: [{ questionId: id, points: null, feedback: '', finalGrade: '10' }] }]) assert.equal((await post(invalid)).status, 200);
     assert.equal((await post(body, { 'x-attempt-editor': 'a'.repeat(43) })).status, 400);
-    assert.equal(calls.length, n);
+    assert.equal(calls.length, n + 4);
     assert.equal((await fetch(root + '/history')).status, 200);
   } finally { web.closeAllConnections(); upstream.closeAllConnections(); await Promise.all([new Promise(resolve => web.close(resolve)), new Promise(resolve => upstream.close(resolve))]); }
 });

@@ -43,7 +43,7 @@ import { createServer } from 'node:http';
 import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 async function server(handler) { const s = createServer(handler); await new Promise(resolve => s.listen(0, '127.0.0.1', resolve)); return { url: `http://127.0.0.1:${s.address().port}`, close: () => new Promise(resolve => { s.closeAllConnections(); s.close(resolve); }) }; }
-test('shared grading corpus has identical parser and proxy acceptance', async () => {
+test('shared grading corpus: the API parsers decide and the proxy forwards every case (F2)', async () => {
   const upstream = await server((req, res) => { req.resume(); res.setHeader('content-type', 'application/json'); res.end('{}'); });
   const web = await server((req, res) => void proxyClassroomRequest(req, res, upstream.url));
   const base = `${web.url}/api/v1/classrooms/${id}/attempts/${id}`;
@@ -62,7 +62,7 @@ test('shared grading corpus has identical parser and proxy acceptance', async ()
     for (const [route, parse, payload, accepted] of cases) {
       if (accepted) assert.doesNotThrow(() => parse(payload)); else assert.throws(() => parse(payload), /INVALID_INPUT/);
       const res = await fetch(`${base}/${route}`, { method: 'POST', headers: { 'content-type': 'application/json', cookie: 'fixture=session', 'x-csrf-token': 'fixture' }, body: JSON.stringify(payload) });
-      assert.equal(res.status, accepted ? 200 : 400, `${route}: ${JSON.stringify(payload).slice(0, 150)}`);
+      assert.equal(res.status, 200, `${route}: ${JSON.stringify(payload).slice(0, 150)}`);
     }
   } finally { await web.close(); await upstream.close(); }
 });
