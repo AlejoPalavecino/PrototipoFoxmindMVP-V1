@@ -90,6 +90,12 @@ Suites integradas del corte 3, sobre `main` `d33f0f6`: `fast` 3300/3300, `owned-
 
 Suites integradas del corte 4, sobre `main` `6d4bd53`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19. El contenedor se reinició después de `fast`; `owned-db` y `wrappers` se corrieron sobre el mismo árbol, sin cambios, tras reponer Docker (había un PID viejo de `dockerd`), las imágenes y los envoltorios de Postgres.
 
+## D3, corte 5a (TASK-005, parte 1): transporte de Foxy
+
+Por consejo de la revisión, el corte 5 se divide en dos commits con sus suites: primero el transporte y después la división de `foxyRoute`, una vez escrita una caracterización del despacho. Así, si algo falla, se sabe cuál de los dos cambios fue, y un reinicio del contenedor a mitad de las suites pierde menos trabajo. En este commit, el handler de Foxy escribe con `sendJson` y resuelve errores con `publicError` usando su misma tabla; la caracterización de errores pasa sin cambios.
+
+Suites del corte 5a, sobre `main` `d168981`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.

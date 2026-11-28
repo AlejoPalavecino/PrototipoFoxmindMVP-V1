@@ -1,20 +1,15 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { foxyRoute, type FoxyHttpServices } from './http-routes.ts';
+import { publicError, sendJson } from '../../../platform/http/json-response.ts';
 
 const statuses: Record<string, number> = { AUTH_REQUIRED: 401, EMAIL_VERIFICATION_REQUIRED: 403, FORBIDDEN: 403,
   CSRF_INVALID: 403, ORIGIN_NOT_ALLOWED: 403, RATE_LIMITED: 429, INVALID_INPUT: 400, PAYLOAD_TOO_LARGE: 413, RESPONSE_TOO_LARGE: 413,
   NOT_FOUND: 404, EMPTY_CONTENT: 400, CONFLICT: 409, QUOTA_EXCEEDED: 409, AI_MONTHLY_BUDGET_EXCEEDED: 429,
   AI_GLOBAL_DAILY_BUDGET_EXCEEDED: 429, AI_BUDGET_EXCEEDED: 429, FILE_NOT_READY: 409, AI_INPUT_LIMIT: 400, AI_UNAVAILABLE: 503, SERVICE_UNAVAILABLE: 503 };
-function json(response: ServerResponse, status: number, body?: unknown): void {
-  if (response.writableEnded || response.destroyed) return;
-  response.statusCode = status;
-  if (status === 204) { response.end(); return; }
-  response.setHeader('Content-Type', 'application/json; charset=utf-8'); response.end(JSON.stringify(body));
-}
+const json = (response: ServerResponse, status: number, body?: unknown): void => sendJson(response, status, body);
 function reject(response: ServerResponse, error: unknown): void {
-  const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
-  const safe = Object.hasOwn(statuses, code) ? code : 'SERVICE_UNAVAILABLE';
-  json(response, statuses[safe]!, { error: { code: safe } });
+  const { code, status } = publicError(error, statuses);
+  json(response, status, { error: { code } });
 }
 export function createFoxyHandler(services: FoxyHttpServices, options: {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
