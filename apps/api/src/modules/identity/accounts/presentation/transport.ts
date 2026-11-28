@@ -7,6 +7,7 @@ import { validateBodyShape } from '../../domain/security/inputs.ts';
 import { IDENTITY_POLICY } from '../../domain/session-policy.ts';
 import { IdentityHttpError, publicIdentityError } from '../../domain/errors.ts';
 import { IdentityRuntime, publicUser } from '../application/runtime.ts';
+import { sendJson } from '../../../../platform/http/json-response.ts';
 
 const implemented = new Set(['GET /auth/session', 'GET /auth/csrf', 'POST /auth/login', 'POST /auth/logout', 'POST /auth/register', 'GET /account', 'PATCH /account',
   'POST /auth/email-verification/confirm', 'POST /auth/email-verification/resend',
@@ -44,12 +45,7 @@ export async function readIdentityJson(request: IncomingMessage): Promise<unknow
   try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
   catch { throw new IdentityHttpError('VALIDATION_ERROR'); }
 }
-function json(response: ServerResponse, status: number, body?: unknown): void {
-  response.statusCode = status;
-  if (status === 204) { response.end(); return; }
-  response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(body));
-}
+const json = (response: ServerResponse, status: number, body?: unknown): void => sendJson(response, status, body);
 /** Registered before Nest's ordinary parser. Only implemented method/path pairs intercept traffic. */
 export function installIdentityTransport(app: INestApplication, runtime: IdentityRuntime): void {
   app.use((request: IncomingMessage, response: ServerResponse, next: () => void) => {

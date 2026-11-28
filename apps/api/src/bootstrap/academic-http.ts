@@ -25,6 +25,7 @@ import type { ClassroomAiService } from '../modules/curriculum/generation/infras
 
 import { activityGenerationRoute } from '../modules/activities/generation/presentation/activity-ai/http.ts';
 import type { ActivityAiService } from '../modules/activities/generation/infrastructure/activity-ai/service.ts';
+import { sendJson } from '../platform/http/json-response.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -60,14 +61,7 @@ const statuses = {
   RATE_LIMITED: 429,
   SERVICE_UNAVAILABLE: 503,
 };
-function json(res: ServerResponse, status: number, value: unknown) {
-  if (res.destroyed || res.writableEnded) return;
-  res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.end(
-    JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v)),
-  );
-}
+const json = (res: ServerResponse, status: number, value: unknown) => sendJson(res, status, value);
 function readBody(req: IncomingMessage): Promise<unknown> {
   if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] ?? ''))
     return Promise.reject(new ClassroomError('INVALID_INPUT'));
@@ -209,6 +203,7 @@ export function createClassroomsHandler(
           json(res, e.status, { error: { code: e.code, requestId: res.getHeader('X-Request-Id') } });
           return;
         }
+        // Only ClassroomError codes are public here; any other error, even one carrying a known code, is 503.
         const code =
           e instanceof ClassroomError ? e.code : 'SERVICE_UNAVAILABLE';
         if (e instanceof ClassroomError && e.retryAfter) res.setHeader('Retry-After', String(e.retryAfter));

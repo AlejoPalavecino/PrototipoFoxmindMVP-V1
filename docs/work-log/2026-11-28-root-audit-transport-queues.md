@@ -79,6 +79,17 @@ Suites integradas del corte 2, sobre `main` `a0616fe`: `fast` 3300/3300, `owned-
 
 Suites integradas del corte 3, sobre `main` `d33f0f6`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
 
+## D3, corte 4 (TASK-004): aulas e identidad
+
+- El host académico (`bootstrap/academic-http.ts`) y el transporte de identidad escriben con `sendJson`. El resto no cambia. Aulas conserva su orden de errores (extracción, identidad con `requestId`, `Retry-After` y `Connection: close`) y sigue reconociendo los errores por clase, no por código: un error ajeno que traiga un código conocido sigue respondiendo 503. Con `publicError` habría respondido según la tabla, así que no se usa ahí. Identidad conserva `publicIdentityError`.
+- Las configuraciones propias de identidad (`tsconfig.p33-security` y `p33-mail`) compilan con el archivo nuevo.
+
+| Prueba | Resultado |
+| --- | --- |
+| `api-error-characterization` y las pruebas de aulas e identidad que cargan estos transportes | en verde |
+
+Suites integradas del corte 4, sobre `main` `6d4bd53`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19. El contenedor se reinició después de `fast`; `owned-db` y `wrappers` se corrieron sobre el mismo árbol, sin cambios, tras reponer Docker (había un PID viejo de `dockerd`), las imágenes y los envoltorios de Postgres.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.

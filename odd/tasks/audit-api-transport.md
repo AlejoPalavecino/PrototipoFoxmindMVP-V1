@@ -59,14 +59,14 @@ Primero pruebas de caracterización por host, que fijan las rutas de error actua
 - **Blocker:** none
 
 ### TASK-004 — Aulas e identidad sobre el transporte común
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** caracterizaciones sin cambios; `wrappers` (identidad)
 - **Acceptance:** El host académico y el transporte de identidad usan el módulo común.
 - **Scope:** ["apps/api/src/bootstrap/academic-http.ts", "apps/api/src/modules/identity/accounts/presentation/transport.ts"]
-- **Evidence:** none
+- **Evidence:** {"command":"api-error-characterization y pruebas de aulas e identidad; tsc p33-security y p33-mail; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main 6d4bd53","result":"caracterización sin cambios; aulas conserva el reconocimiento de errores por clase; fast 3300/3300, owned-db 972/972, wrappers 19/19 (owned-db y wrappers tras un reinicio del contenedor, mismo árbol)","candidate":"sha256:7657a55c226142999350a2fa6a43db66995f2a9ad748d899b1a544b57b786c67 (git diff --binary HEAD -- apps tests scripts src)"}
 - **Blocker:** none
 
 ### TASK-005 — Foxy sobre el transporte común y `foxyRoute` dividido
