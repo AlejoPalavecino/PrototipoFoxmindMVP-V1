@@ -26,14 +26,14 @@ Primero pruebas de caracterización por host, que fijan las rutas de error actua
 ## Tasks
 
 ### TASK-001 — Caracterizar las respuestas de error de cada host
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** none
 - **Owner:** orchestrator
 - **Requirements:** REQ-001
 - **Verification:** una prueba por host que fija estado, código, cabeceras y forma del cuerpo de sus rutas de error; pasa con el código actual
 - **Acceptance:** Los 9 hosts tienen su caracterización; no cambia código de producción.
-- **Scope:** ["tests/"]
-- **Evidence:** none
+- **Scope:** ["tests/api-error-characterization.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json"]
+- **Evidence:** {"command":"node --test tests/api-error-characterization.test.mjs; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main 9173aca","result":"9/9 con el código actual en 8 hosts; identidad caracterizada por p33-identity-http (wrappers); fast 3297/3297, owned-db 972/972, wrappers 19/19","candidate":"sha256:19010b7e79a45f7748d8718495a84ac94f10fa0e034bb0e8ccb612fb331180e7 (git diff --binary HEAD -- apps tests scripts src)"}
 - **Blocker:** none
 
 ### TASK-002 — Transporte común y hosts chicos (home, agenda, cupo de IA)

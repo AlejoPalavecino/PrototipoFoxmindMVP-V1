@@ -27,8 +27,24 @@ El mapa de errores de los hosts (agente de sólo lectura, verificado en el códi
 
 Suites de la corrección, sobre `main` `9b8963c`: `fast` 3288/3288, `owned-db` 972/972 y `wrappers` 19/19.
 
+## D3, corte 1 (TASK-001): caracterización de los errores
+
+Un agente de sólo lectura mapeó las rutas de error de los 9 hosts; el coordinador verificó en el código los casos que se fijan. [api-error-characterization](../../tests/api-error-characterization.test.mjs) fija estado, código, cabeceras (`Cache-Control`, `X-Content-Type-Options`, `Content-Type`, `Allow`, `Retry-After`, `X-Request-Id`, `Cross-Origin-Resource-Policy`) y forma del cuerpo de las rutas de error que todavía no estaban fijadas. Cubre home, agenda, cupo de IA, archivos, carpetas de estudio, subidas y recordatorios de estudio, adjuntos de chat, Foxy y aulas. Identidad ya está caracterizada por `p33-identity-http` (`wrappers`). Sin cambios de producción: pasa 9/9 con el código actual.
+
+Diferencias entre hosts que quedan fijadas, y que la extracción tiene que conservar:
+
+- requestId en el cuerpo sólo en identidad, archivos y errores de identidad de aulas;
+- respaldo ante un error desconocido: 503 en la mayoría, 500 `INTERNAL_ERROR` en identidad, cupo de IA y la admisión de los hosts de archivos y aulas;
+- ruta desconocida y método incorrecto: aulas responde 404 y 405 con `INVALID_INPUT`, carpetas de estudio 400, agenda, archivos y Foxy 404 `NOT_FOUND` sin 405, home y cupo de IA 405 con `Allow`, y subidas, recordatorios y adjuntos 405 sin `Allow`;
+- cuerpo demasiado grande: 400 en aulas, agenda, subidas y adjuntos, 413 en estudio, Foxy, archivos e identidad, cada uno con su código.
+
+Posible bug, informado y no fijado: en las subidas de estudio, `POST .../uploads` con JSON mal formado responde 503 `SERVICE_UNAVAILABLE` (el `SyntaxError` no trae código) en vez de 400. Queda para que el usuario decida.
+
+Suites integradas del corte 1, sobre `main` `9173aca`: `fast` 3297/3297, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
+- Si se corrige el 503 de `POST .../uploads` con JSON mal formado (ver arriba).
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.
 
 ## Primer paso pendiente
