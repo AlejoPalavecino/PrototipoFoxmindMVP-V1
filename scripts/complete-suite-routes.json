@@ -210,6 +210,7 @@
       "tests/file-proxy-upload-deadline.test.mjs",
       "tests/study-upload-deadline.test.mjs",
       "tests/api-error-characterization.test.mjs",
+      "tests/foxy-route-dispatch.test.mjs",
       "tests/agenda-reference-selection.test.mjs",
       "tests/agenda-time.test.mjs",
       "tests/agenda-ui-lab-parity.test.mjs",

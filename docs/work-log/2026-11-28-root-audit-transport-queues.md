@@ -96,10 +96,27 @@ Por consejo de la revisión, el corte 5 se divide en dos commits con sus suites:
 
 Suites del corte 5a, sobre `main` `d168981`: `fast` 3300/3300, `owned-db` 972/972 y `wrappers` 19/19.
 
+## D3, corte 5b (TASK-005, parte 2): `foxyRoute` dividido
+
+- Primero, una caracterización del despacho: [foxy-route-dispatch](../../tests/foxy-route-dispatch.test.mjs). Cubre 37 rutas, cada una con su servicio, método, argumentos y estado; el estado según `created` (201/202 o 200); los métodos incorrectos, que responden 404 y no 405; las listas de claves de consulta; y el 404 de un servicio opcional ausente, que llega recién después de revisar la consulta. Los parsers de cuerpo se reemplazan por versiones que devuelven el cuerpo marcado; los de consulta e ids son los reales. Pasó 5/5 con el código anterior. Se comprobó que detecta errores cambiando el código a propósito: una ruta que despacha al método equivocado y un estado cambiado (201 → 202) la ponen en rojo.
+- `foxyRoute` pasa a ser una lista ordenada de rutas donde gana la primera que coincide, cada una con la misma condición de entrada que su bloque anterior. Comparten tres ayudas: `hasBody`, `fileMode` y `page`. No cambian los parsers de `http-input.ts`, las listas de claves ni el paso de `signal`.
+- Complejidad (ESLint `complexity`, sin agregar la regla al repositorio, que es D8): `foxyRoute` tenía 100. Ahora la ruta de visuales tiene 11, la de conversaciones 9 y las demás 4 o menos.
+
+| Prueba | Resultado |
+| --- | --- |
+| `foxy-route-dispatch` (nueva, fast) | 5/5 antes y después de la división |
+| `api-error-characterization` y las pruebas de Foxy | en verde |
+
+Suites integradas del corte 5b, sobre `main` `5f90137`: `fast` 3305/3305, `owned-db` 972/972 y `wrappers` 19/19. El contenedor se reinició después de `fast`; `owned-db` y `wrappers` se corrieron sobre el mismo árbol, sin cambios, tras reponer Docker.
+
+## D3 cerrado
+
+Los 5 cortes están en `main`. Todos los hosts escriben respuestas con `platform/http/json-response.ts`, salvo los lectores de cuerpo, que quedan por host como excepción documentada (corte 3); unificarlos cambiaría respuestas 400/413 visibles y queda como decisión del usuario. `foxyRoute` bajó de complejidad 100 a 11 como máximo. El primer paso que sigue es TASK-001 de [D4](../../odd/tasks/audit-job-queues.md), ya autorizado: la primitiva de cola probada contra una tabla sintética.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.
 
 ## Primer paso pendiente
 
-Con la autorización resuelta, TASK-001 de D3: pruebas de caracterización de las respuestas de error de cada host.
+TASK-001 de D4: la primitiva de cola, probada contra una tabla sintética en owned-db, sin que la use todavía ninguna cola.

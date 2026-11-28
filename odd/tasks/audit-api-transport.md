@@ -70,12 +70,12 @@ Primero pruebas de caracterización por host, que fijan las rutas de error actua
 - **Blocker:** none
 
 ### TASK-005 — Foxy sobre el transporte común y `foxyRoute` dividido
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-004
 - **Owner:** orchestrator
 - **Requirements:** REQ-001, REQ-004
 - **Verification:** caracterización de Foxy sin cambios; complejidad de `foxyRoute` medida antes y después
 - **Acceptance:** Foxy usa el módulo común y su enrutamiento queda dividido por capacidad.
-- **Scope:** ["apps/api/src/modules/foxy/presentation/"]
-- **Evidence:** none
+- **Scope:** ["apps/api/src/modules/foxy/presentation/http.ts","apps/api/src/modules/foxy/presentation/http-routes.ts","tests/foxy-route-dispatch.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json"]
+- **Evidence:** {"command":"foxy-route-dispatch (5/5 antes y después; detecta cambios hechos a propósito), api-error-characterization, pruebas de Foxy; eslint complexity; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 (5a sobre d168981, 5b sobre 5f90137)","result":"5a: fast 3300/3300, owned-db 972/972, wrappers 19/19. 5b: complejidad 100 -> máximo 11; fast 3305/3305, owned-db 972/972, wrappers 19/19 (owned-db y wrappers tras un reinicio del contenedor, mismo árbol)","candidate":"sha256:86e4f0d53ae0e792318643e6d5d21c676669216d54955ed65888b79a29ca9bc4 (git diff --binary HEAD -- apps tests scripts src, corte 5b)"}
 - **Blocker:** none
