@@ -7,6 +7,16 @@ export const UPLOAD_MIN_BYTES_PER_SECOND = 100_000;
 export function uploadDeadlineMs(bytes: number): number {
   return Math.max(10_000, Math.ceil(bytes / UPLOAD_MIN_BYTES_PER_SECOND * 1000));
 }
+/** Slow start allowed before the running rate floor applies. */
+export const UPLOAD_RATE_GRACE_MS = 10_000;
+/**
+ * Running rate floor (F8): milliseconds from the start of an upload by which `received` bytes are still at or
+ * above 100 kB/s after the grace. Each chunk moves this point; a sender that trickles bytes is cut when it passes,
+ * even though the idle window never fires.
+ */
+export function uploadRateDeadlineMs(received: number): number {
+  return UPLOAD_RATE_GRACE_MS + Math.ceil(received / UPLOAD_MIN_BYTES_PER_SECOND * 1000);
+}
 
 export const documentMimeTypes = {
   pdf: 'application/pdf',

@@ -1,20 +1,26 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
 import type { StudyUploadOperations } from '../../application/read-ports.ts';
-import { uploadDeadlineMs } from '../../../../../../../../src/core/domain/documents/document-formats.ts';
+import { uploadDeadlineMs, uploadRateDeadlineMs } from '../../../../../../../../src/core/domain/documents/document-formats.ts';
 
 const STUDY_UPLOAD_LIMIT=50_000_000;
 const bodyError=(code:string)=>Object.assign(new Error(code),{code});
 /** Reads a bounded body; fails on overflow, declared-length mismatch or a stalled client (default 15 s overall). */
-/** `idleMs` cuts a sender that goes quiet, so a deliberately slow body cannot hold its transfer slot. */
-export function readStudyBody(request:IncomingMessage,limit:number,timeoutMs=15_000,idleMs=5000):Promise<Buffer> {
+/**
+ * `idleMs` cuts a sender that goes quiet; with `rateFloor`, a sender that keeps trickling bytes below the minimum
+ * upload rate is cut too (F8), so a deliberately slow body cannot hold its transfer slot.
+ */
+export function readStudyBody(request:IncomingMessage,limit:number,timeoutMs=15_000,idleMs=5000,rateFloor=false):Promise<Buffer> {
   return new Promise((resolve,reject)=>{
     const chunks:Buffer[]=[];let total=0,done=false;
     const finish=(error?:{code:string})=>{
-      if(done)return;done=true;clearTimeout(timer);clearTimeout(idle);request.off('data',onData);request.off('end',onEnd);request.off('error',onError);request.off('aborted',onAbort);
+      if(done)return;done=true;clearTimeout(timer);clearTimeout(idle);clearTimeout(slow);request.off('data',onData);request.off('end',onEnd);request.off('error',onError);request.off('aborted',onAbort);
       if(error){request.pause();reject(bodyError(error.code));}else resolve(Buffer.concat(chunks));
     };
     const stall=()=>finish({code:'REQUEST_TIMEOUT'});let idle=setTimeout(stall,idleMs);
-    const onData=(chunk:Buffer|string)=>{clearTimeout(idle);idle=setTimeout(stall,idleMs);const buffer=Buffer.from(chunk);total+=buffer.length;if(total>limit)finish({code:'INVALID_INPUT'});else chunks.push(buffer);};
+    const started=Date.now();
+    const floor=()=>rateFloor?setTimeout(stall,Math.max(0,started+uploadRateDeadlineMs(total)-Date.now())):undefined;
+    let slow=floor();
+    const onData=(chunk:Buffer|string)=>{clearTimeout(idle);idle=setTimeout(stall,idleMs);const buffer=Buffer.from(chunk);total+=buffer.length;if(total>limit){finish({code:'INVALID_INPUT'});return;}chunks.push(buffer);clearTimeout(slow);slow=floor();};
     const onEnd=()=>finish();const onError=()=>finish({code:'INVALID_INPUT'});const onAbort=()=>finish({code:'INVALID_INPUT'});
     const timer=setTimeout(()=>finish({code:'REQUEST_TIMEOUT'}),timeoutMs);
     request.on('data',onData);request.once('end',onEnd);request.once('error',onError);request.once('aborted',onAbort);
@@ -55,7 +61,7 @@ export function installStudyUploads(app:{use(path:string,handler:(request:Incomi
         response.setHeader('Connection','close');
         const {expectedBytes}=await files.authorizeReceive(request,folder!,id),declared=request.headers['content-length'];
         if(request.headers['transfer-encoding']||!/^\d+$/u.test(declared??'')||Number(declared)!==expectedBytes||expectedBytes<1||expectedBytes>STUDY_UPLOAD_LIMIT)throw {code:'INVALID_UPLOAD'};
-        studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,expectedBytes,uploadDeadlineMs(expectedBytes))));
+        studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,expectedBytes,uploadDeadlineMs(expectedBytes),5000,true)));
       }
       else if(id&&!file&&method==='GET')studyJson(response,200,await files.status(request,folder!,id));
       else if(id&&file&&method==='GET') {

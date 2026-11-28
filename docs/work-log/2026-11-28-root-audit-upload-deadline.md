@@ -33,10 +33,25 @@ La primera versión de `study-upload-deadline` daba un falso RED en el adjunto: 
 
 Suites integradas, sobre `main` `cfaaaa5`: `fast` 3285/3285, `owned-db` 972/972 y `wrappers` 19/19.
 
+## Corrección: piso de ritmo continuo
+
+La primera publicación (`3e4c4be`) tenía un hueco, que encontró la revisión después del push. El corte por 5 s de inactividad se reinicia con cada trozo y sólo se controlaba el plazo total. Así, quien reserva 50 MB y manda un byte cada 4 s nunca queda inactivo y retiene su cupo de transferencia los 500 s completos; antes de F8 se cortaba a los 10 s. Con los topes actuales (8 transferencias en total, 2 por cuenta), 4 cuentas ocupan todos los cupos. Eso contradecía el «ritmo mínimo» aprobado y lo que este registro decía en sus límites.
+
+- `uploadRateDeadlineMs(recibido) = 10 s + recibido / 100 kB/s`, junto a `uploadDeadlineMs`. Cada trozo recalcula ese punto, contado desde el inicio de la subida. Si se pasa, la API corta: 503 en archivos y 408 `REQUEST_TIMEOUT` en carpetas y adjuntos. El plazo total queda como respaldo. Los cuerpos JSON no lo usan. Los proxies no cambian: decide la API.
+
+| Prueba | RED | GREEN |
+| --- | --- | --- |
+| `receive-http`: 2 MB declarados, un byte cada 4 s, se corta a más tardar a los 12 s | se cortaba recién a los 20 s del plazo total | 9/9 |
+| `study-upload-deadline`: un adjunto que gotea un byte cada 4 s recibe 408 por el proxy de estudio | no se cortaba (la conexión terminaba sin respuesta) | 3/3 |
+
+Al sumar el piso, la prueba de la carpeta de 16 MB empezó a fallar de forma intermitente: el reloj simulado avanzaba 4 s por vuelta aunque los bytes todavía no hubieran cruzado los dos saltos TCP, y la API veía menos datos que los enviados. La prueba espera ahora a que lo enviado llegue al socket de la API (`bytesRead`) antes de adelantar el reloj. Pasó tres de tres.
+
+Suites integradas de la corrección, sobre `main` `3e4c4be`: `fast` 3287/3287, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Límites
 
 - El ritmo mínimo de 100 kB/s no se midió con conexiones reales; con menos que eso, un archivo grande sigue sin poder subirse.
-- Una subida ocupa su cupo de transferencia hasta 500 s para 50 MB. El corte por inactividad sigue frenando a quien manda los bytes de a poco.
+- Una subida legítima de 50 MB puede ocupar su cupo hasta 500 s. Quien manda por debajo de 100 kB/s se corta a los pocos segundos de la gracia, no al final del plazo.
 - No se probó en un navegador ni con `local:up`.
 
 ## Primer paso pendiente

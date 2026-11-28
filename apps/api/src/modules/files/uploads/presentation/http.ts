@@ -4,7 +4,7 @@ import { FileError, type FileErrorCode } from '../../domain/errors.ts';
 import { FilePolicyError, type UploadIntent } from '../../domain/policy.ts';
 import type { FileHttpPort as FileService } from '../application/ports.ts';
 import { uuid } from '../../domain/file-record.ts';
-import { uploadDeadlineMs } from '../../../../../../../src/core/domain/documents/document-formats.ts';
+import { uploadDeadlineMs, uploadRateDeadlineMs } from '../../../../../../../src/core/domain/documents/document-formats.ts';
 import { FileIdentityError } from '../../custody/public.ts';
 import type { FileScope } from '../../custody/public.ts';
 
@@ -27,20 +27,25 @@ function scope(value: unknown): FileScope {
   if (!['draft', 'classroom'].includes(value.kind) || !uuid(value.id)) throw new FileError('INVALID_UPLOAD');
   return { kind: value.kind, id: value.id };
 }
-function body(request: IncomingMessage, limit: number, expected?: number, idleMs = 5000, totalMs = 10000): Promise<Buffer> {
+function body(request: IncomingMessage, limit: number, expected?: number, idleMs = 5000, totalMs = 10000, rateFloor = false): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     let total = 0, ended = false; const chunks: Buffer[] = [];
     const finish = (error?: FileError) => {
-      if (ended) return; ended = true; clearTimeout(timer); clearTimeout(idle);
+      if (ended) return; ended = true; clearTimeout(timer); clearTimeout(idle); clearTimeout(slow);
       request.off('data', data); request.off('end', end); request.off('aborted', abort); request.off('error', abort);
       if (error) { request.pause(); reject(error); } else resolve(Buffer.concat(chunks, total));
     };
     // A sender that goes quiet is cut early, so a deliberately slow body cannot hold its transfer slot.
     const stall = () => finish(new FileError('SERVICE_UNAVAILABLE'));
     let idle = setTimeout(stall, idleMs);
+    // A sender that keeps trickling bytes never goes idle; the running rate floor cuts it instead (F8).
+    const started = Date.now();
+    const floor = () => rateFloor ? setTimeout(stall, Math.max(0, started + uploadRateDeadlineMs(total) - Date.now())) : undefined;
+    let slow = floor();
     const data = (chunk: Buffer) => {
       clearTimeout(idle); idle = setTimeout(stall, idleMs);
-      total += chunk.length; if (total > limit) finish(new FileError('FILE_TOO_LARGE')); else chunks.push(chunk);
+      total += chunk.length; if (total > limit) { finish(new FileError('FILE_TOO_LARGE')); return; }
+      chunks.push(chunk); clearTimeout(slow); slow = floor();
     };
     const end = () => finish(expected !== undefined && total !== expected ? new FileError('INVALID_UPLOAD') : undefined);
     const abort = () => finish(new FileError('INVALID_UPLOAD'));
@@ -124,7 +129,7 @@ export function createFilesHandler(service: FileService, options: FilesHandlerOp
             throw new FileError('INVALID_UPLOAD');
           }
           // The total deadline follows the declared size (F8); the idle window still cuts a sender that goes quiet.
-          const bytes = await body(request, expectedBytes, expectedBytes, idleMs, uploadDeadlineMs(expectedBytes));
+          const bytes = await body(request, expectedBytes, expectedBytes, idleMs, uploadDeadlineMs(expectedBytes), true);
           json(response, 200, await service.receive(request, id, bytes));
         } else if (method === 'GET' && !match[2]) {
           if (url.search) throw new FileError('INVALID_UPLOAD');

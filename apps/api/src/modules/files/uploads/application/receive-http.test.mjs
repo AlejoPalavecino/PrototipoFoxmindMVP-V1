@@ -144,7 +144,7 @@ function sizedFixture(service, size) {
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
 test('an upload that keeps sending data past 10 s completes within its size-based deadline', async t => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
   const size = 2_000_000, received = [];
   const { request, response, finished } = sizedFixture({
     async authorizeReceive() { return { expectedBytes: size }; },
@@ -163,7 +163,7 @@ test('an upload that keeps sending data past 10 s completes within its size-base
 });
 
 test('an upload that is still sending when its size-based deadline expires is cut', async t => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
   const size = 2_400_000;
   const { request, response, finished } = sizedFixture({
     async authorizeReceive() { return { expectedBytes: size }; },
@@ -178,4 +178,24 @@ test('an upload that is still sending when its size-based deadline expires is cu
   await finished;
   assert.equal(response.statusCode, 503);
   assert.equal(response.body.error.code, 'SERVICE_UNAVAILABLE');
+});
+
+test('a sender that trickles bytes below the minimum rate is cut soon after the grace, not at the total deadline', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  const size = 2_000_000;
+  const { request, response, finished } = sizedFixture({
+    async authorizeReceive() { return { expectedBytes: size }; },
+    async receive() { assert.fail('a trickling upload must not be stored'); },
+  }, size);
+  await flush();
+  // One byte every 4 s is never idle for 5 s, but is far below 100 kB/s.
+  let elapsed = 0;
+  while (!response.statusCode && elapsed < 20_000) {
+    t.mock.timers.tick(4000); elapsed += 4000; await flush();
+    if (!response.statusCode) { request.write(Buffer.alloc(1)); await flush(); }
+  }
+  await finished;
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.body.error.code, 'SERVICE_UNAVAILABLE');
+  assert.ok(elapsed <= 12_000, `cut at ${elapsed} ms, after the 20 s total deadline would have`);
 });

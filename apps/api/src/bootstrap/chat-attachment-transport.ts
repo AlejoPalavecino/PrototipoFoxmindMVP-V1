@@ -72,7 +72,7 @@ export function installChatAttachmentTransport(app: Pick<INestApplication, 'use'
         // Size-based total deadline (F8); without a usable declared length, the largest allowed attachment.
         const declared = Number(request.headers['content-length']);
         const expected = Number.isSafeInteger(declared) && declared > 0 ? Math.min(declared, CHAT_ATTACHMENT_BYTES) : CHAT_ATTACHMENT_BYTES;
-        const bytes = await readStudyBody(request, CHAT_ATTACHMENT_BYTES, uploadDeadlineMs(expected));
+        const bytes = await readStudyBody(request, CHAT_ATTACHMENT_BYTES, uploadDeadlineMs(expected), 5000, true);
         studyJson(response, 200, { attachment: await service.upload(request, target, id!, intent, bytes) });
       }
     })().catch(error => studyReject(response, error)).finally(() => { active--; release?.(); });

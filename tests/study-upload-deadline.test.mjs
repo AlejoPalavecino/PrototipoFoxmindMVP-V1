@@ -12,9 +12,11 @@ const conversation = '33333333-3333-4333-8333-333333333333', attachment = '44444
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
 async function serve(handler) {
-  const server = createServer(handler);
+  const server = createServer(handler), sockets = [];
+  server.on('connection', socket => sockets.push(socket));
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  return { port: server.address().port, close: () => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }) };
+  return { port: server.address().port, arrived: () => sockets.reduce((sum, socket) => sum + socket.bytesRead, 0),
+    close: () => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }) };
 }
 
 async function withStudyApi(run) {
@@ -36,11 +38,15 @@ async function withStudyApi(run) {
     next(0);
   });
   const web = await serve((req, res) => void proxyStudyRequest(req, res, `http://127.0.0.1:${api.port}`));
-  try { return await run.test(web.port, received); } finally { await web.close(); await api.close(); }
+  try { return await run.test(web.port, received, api.arrived); } finally { await web.close(); await api.close(); }
 }
 
-// Sends `size` bytes in 500 kB chunks, one every 4 s of mocked time: never idle for 5 s.
-function slowPut(t, port, path, size) {
+// Sends `size` bytes in 500 kB chunks, one every 4 s of mocked time: never idle for 5 s. Mocked time only advances
+// once the previous chunk has reached the API socket, as it would in real time.
+async function delivered(arrived, bytes) {
+  for (let spin = 0; spin < 10_000 && arrived() < bytes; spin++) await flush();
+}
+function slowPut(t, port, path, size, arrived) {
   return new Promise((resolve, reject) => {
     const req = httpRequest({ host: '127.0.0.1', port, method: 'PUT', path,
       headers: { 'content-type': 'application/octet-stream', 'content-length': String(size), cookie: 'foxmind_session=synthetic' } }, res => {
@@ -53,7 +59,7 @@ function slowPut(t, port, path, size) {
         await flush(); t.mock.timers.tick(4000); await flush();
         const chunk = Buffer.alloc(Math.min(500_000, size - sent));
         if (sent + chunk.length >= size) req.end(chunk); else req.write(chunk);
-        await flush();
+        await delivered(arrived, sent + chunk.length);
       }
     })().catch(reject);
   });
@@ -61,10 +67,10 @@ function slowPut(t, port, path, size) {
 
 test('a chat attachment that keeps sending data for 68 s crosses the study proxy and the API', async t => {
   const size = 8_500_000;
-  await withStudyApi({ size, test: async (port, received) => {
-    t.mock.timers.enable({ apis: ['setTimeout'] });
+  await withStudyApi({ size, test: async (port, received, arrived) => {
+    t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
     try {
-      const { status, body } = await slowPut(t, port, `/api/v1/chat-attachments/teacher/${conversation}/${attachment}?name=guia.pdf`, size);
+      const { status, body } = await slowPut(t, port, `/api/v1/chat-attachments/teacher/${conversation}/${attachment}?name=guia.pdf`, size, arrived);
       assert.equal(status, 200, body);
       assert.deepEqual(received, [size]);
     } finally { t.mock.timers.reset(); }
@@ -73,12 +79,43 @@ test('a chat attachment that keeps sending data for 68 s crosses the study proxy
 
 test('a study folder upload that keeps sending data for 128 s crosses the study proxy and the API', async t => {
   const size = 16_000_000;
-  await withStudyApi({ size, test: async (port, received) => {
-    t.mock.timers.enable({ apis: ['setTimeout'] });
+  await withStudyApi({ size, test: async (port, received, arrived) => {
+    t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
     try {
-      const { status, body } = await slowPut(t, port, `/api/v1/study-folders/${folder}/uploads/${upload}`, size);
+      const { status, body } = await slowPut(t, port, `/api/v1/study-folders/${folder}/uploads/${upload}`, size, arrived);
       assert.equal(status, 200, body);
       assert.deepEqual(received, [size]);
+    } finally { t.mock.timers.reset(); }
+  } });
+});
+
+test('a chat attachment that trickles bytes below the minimum rate is cut soon after the grace', async t => {
+  const size = 8_500_000;
+  await withStudyApi({ size, test: async (port, received, arrived) => {
+    t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+    try {
+      const result = new Promise((resolve, reject) => {
+        const req = httpRequest({ host: '127.0.0.1', port, method: 'PUT',
+          path: `/api/v1/chat-attachments/teacher/${conversation}/${attachment}?name=guia.pdf`,
+          headers: { 'content-type': 'application/octet-stream', 'content-length': String(size), cookie: 'foxmind_session=synthetic' } }, res => {
+          const chunks = []; res.on('data', chunk => chunks.push(chunk));
+          res.on('end', () => resolve({ status: res.statusCode, body: Buffer.concat(chunks).toString('utf8') }));
+        });
+        req.once('error', error => resolve({ status: 0, body: `connection ended without an answer: ${error.code ?? error.message}` }));
+        (async () => {
+          // One byte every 4 s: never idle for 5 s, far below 100 kB/s.
+          for (let elapsed = 0; elapsed < 24_000; elapsed += 4000) {
+            await flush(); t.mock.timers.tick(4000); await flush();
+            if (!req.destroyed) req.write(Buffer.alloc(1));
+            await flush();
+          }
+          req.destroy();
+        })().catch(reject);
+      });
+      const { status, body } = await result;
+      assert.equal(status, 408, body);
+      assert.deepEqual(JSON.parse(body), { error: { code: 'REQUEST_TIMEOUT' } });
+      assert.deepEqual(received, []);
     } finally { t.mock.timers.reset(); }
   } });
 });
