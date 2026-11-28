@@ -84,6 +84,7 @@ test('agenda HTTP answers 400 INVALID_INPUT for every shape the web proxy no lon
     ['/agenda?startDate=2026-11-01&endDateExclusive=2026-12-01', 'GET'],
     ['/agenda?startDate=2026-11-01&endDateExclusive=2026-12-01&timeZone=UTC&cursor=bad%20cursor', 'GET'],
     ['/agenda/upcoming?limit=21', 'GET'], ['/agenda/upcoming?limit=01', 'GET'], ['/agenda/upcoming?limit=1e1', 'GET'], ['/agenda/upcoming?other=1', 'GET'],
+    ['/agenda/upcoming?limit=1d', 'GET'], ['/agenda/upcoming?limit=-1', 'GET'],
     [`${base}?x=1`, 'GET'],
     [base, 'PUT', { ...payload, title: 7 }], [base, 'PUT', { ...payload, ownerId: 'foreign' }],
     [base, 'PATCH', { revision: '0' }], [base, 'PATCH', { revision: 'x', event: payload }],
@@ -96,4 +97,13 @@ test('agenda HTTP answers 400 INVALID_INPUT for every shape the web proxy no lon
     assert.deepEqual(await response.json(), { error: { code: 'INVALID_INPUT' } }, `${method} ${path}`);
   }
   assert.equal(calls.length, 0);
+}));
+
+// Regression of F2 cut 5: the canonical-decimal check lost its backslash and rejected 10–20.
+test('agenda upcoming accepts every canonical limit from 1 to 20', async () => fixture(async ({ send, calls }) => {
+  for (const limit of [1, 5, 9, 10, 15, 20]) {
+    const response = await send(`/agenda/upcoming?limit=${limit}`);
+    assert.equal(response.status, 200, `limit=${limit}`);
+    assert.deepEqual(calls.at(-1), ['upcoming', limit]);
+  }
 }));

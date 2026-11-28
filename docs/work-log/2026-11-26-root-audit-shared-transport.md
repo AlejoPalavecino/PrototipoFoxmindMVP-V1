@@ -80,7 +80,7 @@ Después del corte 4 (`6dc90926`) entraron a `main`, en este orden y con el CI e
 Decisiones del usuario al abrir F2: la API decide el orden (sesión y permisos antes que la forma), la validación de la respuesta de Home se conserva en el proxy por ahora, y cada subcorte se sube con las tres suites en verde.
 
 - El [proxy de agenda](../../apps/web/src/application/server/agenda-proxy.ts) ya no valida claves ni valores de la consulta, ni la forma de los cuerpos (evento, revisión, apertura académica). Conserva rutas, métodos, tamaño (32 KiB), `content-encoding`, `content-type` JSON y GET sin cuerpo.
-- Divergencia encontrada: el proxy exigía `limit` en decimal canónico (`^[1-9]d?$`) y la API aceptaba `01` o `1e1`. Como todo el tráfico pasaba por el proxy, la conducta observable era la estricta, y se llevó a la [API](../../apps/api/src/modules/agenda/events/presentation/http-routes.ts).
+- Divergencia encontrada: el proxy exigía `limit` en decimal canónico (`^[1-9]\d?$`) y la API aceptaba `01` o `1e1`. Como todo el tráfico pasaba por el proxy, la conducta observable era la estricta, y se llevó a la [API](../../apps/api/src/modules/agenda/events/presentation/http-routes.ts).
 - Cambio observable: un pedido mal formado sin sesión recibe ahora 401 (antes 400 del proxy).
 
 | Prueba | RED | GREEN |
@@ -102,6 +102,10 @@ Suites integradas del corte 5, sobre `main` `7bea3829`: `fast` 3273/3273, `wrapp
 | `foxmind-3d-http`, `proxy-client-address`, `web-proxy-transport` | — | 3/3, 12/12, 4/4 |
 
 Suites integradas del corte 6, sobre `main` `0b1c897a`: `fast` 3273/3273, `owned-db` 969/969 y `wrappers` 19/19.
+
+### Corrección del corte 5 (2026-11-28)
+
+Al caracterizar los hosts de la API para D3 apareció un error de este corte: la regla llevada a la API se escribió `/^[1-9]d?$/`, con una `d` literal donde iba `\d`. Así, la API rechazaba `limit` de 10 a 20 con 400 y dejaba pasar `limit=1d`, que llegaba al servicio como `NaN`. La web pide 5 por defecto, así que la pantalla no lo mostraba. Las pruebas del corte no lo detectaron porque sólo probaban `21`, `01`, `1e1` y `0`. Se restauró `\d` y `agenda-http` suma `1d`, `-1` y los límites válidos de 1 a 20: RED con la regla anterior (`limit=1d` pasaba y `limit=10` daba 400) y GREEN 5/5. Detalle y suites en el [registro de D3 y D4](2026-11-28-root-audit-transport-queues.md).
 
 ## Corte 7 — F2, consultas de aulas
 

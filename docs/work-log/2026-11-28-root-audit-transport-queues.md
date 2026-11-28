@@ -21,6 +21,12 @@ El mismo día, ante el plan de cortes, el usuario autorizó commit y push a `mai
 
 El contenedor de la sesión se reinició: Docker estaba detenido y los envoltorios de `initdb`/`pg_ctl` del scratchpad habían desaparecido. Se recrean antes de correr suites, como en los cortes 7 a 9 de [transporte compartido](2026-11-26-root-audit-shared-transport.md).
 
+## Corrección de agenda encontrada al caracterizar
+
+El mapa de errores de los hosts (agente de sólo lectura, verificado en el código por el coordinador) encontró que el control de `limit` de `GET /agenda/upcoming` quedó como `/^[1-9]d?$/` en el corte 5 de F2. Rechazaba de 10 a 20 y aceptaba `1d`. Se corrige aparte, antes de caracterizar, para no fijar un bug como contrato; la autorización es la de F2. Detalle en el [registro de F2](2026-11-26-root-audit-shared-transport.md#corrección-del-corte-5-2026-11-28).
+
+Suites de la corrección, sobre `main` `9b8963c`: `fast` 3288/3288, `owned-db` 972/972 y `wrappers` 19/19.
+
 ## Pendientes del usuario
 
 - Borrar o no la rama `ccr-9af7730d-b67ekz` del remoto, que contiene los mismos commits que `main`. Se preguntó dos veces sin respuesta; queda sin tocar.
