@@ -4,6 +4,7 @@ import type { createChatAttachmentService } from '../modules/files/custody/infra
 import { attachmentError, CHAT_ATTACHMENT_BYTES, parseChatAttachmentIntent } from '../modules/files/chat-attachments/domain/policy.ts';
 import { readStudyBody, studyJson, studyReject } from '../modules/study/folders/presentation/uploads/http.ts';
 import { createTransferGate, type TransferGate } from '../platform/http/transfer-gate.ts';
+import { uploadDeadlineMs } from '../../../../src/core/domain/documents/document-formats.ts';
 
 const uuid = '[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}';
 // Keep the role explicit: a two-UUID teacher path must never resolve as a student list.
@@ -68,7 +69,10 @@ export function installChatAttachmentTransport(app: Pick<INestApplication, 'use'
         if (request.headers['content-type'] !== 'application/octet-stream' || request.headers['content-encoding']) attachmentError('INVALID_UPLOAD');
         const intent = parseChatAttachmentIntent(url.searchParams.get('name') ?? undefined, url.searchParams.get('copy') ?? undefined, Boolean(s));
         await service.authorize(request, target, true);
-        const bytes = await readStudyBody(request, CHAT_ATTACHMENT_BYTES);
+        // Size-based total deadline (F8); without a usable declared length, the largest allowed attachment.
+        const declared = Number(request.headers['content-length']);
+        const expected = Number.isSafeInteger(declared) && declared > 0 ? Math.min(declared, CHAT_ATTACHMENT_BYTES) : CHAT_ATTACHMENT_BYTES;
+        const bytes = await readStudyBody(request, CHAT_ATTACHMENT_BYTES, uploadDeadlineMs(expected));
         studyJson(response, 200, { attachment: await service.upload(request, target, id!, intent, bytes) });
       }
     })().catch(error => studyReject(response, error)).finally(() => { active--; release?.(); });

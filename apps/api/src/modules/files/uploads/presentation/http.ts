@@ -4,6 +4,7 @@ import { FileError, type FileErrorCode } from '../../domain/errors.ts';
 import { FilePolicyError, type UploadIntent } from '../../domain/policy.ts';
 import type { FileHttpPort as FileService } from '../application/ports.ts';
 import { uuid } from '../../domain/file-record.ts';
+import { uploadDeadlineMs } from '../../../../../../../src/core/domain/documents/document-formats.ts';
 import { FileIdentityError } from '../../custody/public.ts';
 import type { FileScope } from '../../custody/public.ts';
 
@@ -26,7 +27,7 @@ function scope(value: unknown): FileScope {
   if (!['draft', 'classroom'].includes(value.kind) || !uuid(value.id)) throw new FileError('INVALID_UPLOAD');
   return { kind: value.kind, id: value.id };
 }
-function body(request: IncomingMessage, limit: number, expected?: number, idleMs = 5000): Promise<Buffer> {
+function body(request: IncomingMessage, limit: number, expected?: number, idleMs = 5000, totalMs = 10000): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     let total = 0, ended = false; const chunks: Buffer[] = [];
     const finish = (error?: FileError) => {
@@ -43,7 +44,7 @@ function body(request: IncomingMessage, limit: number, expected?: number, idleMs
     };
     const end = () => finish(expected !== undefined && total !== expected ? new FileError('INVALID_UPLOAD') : undefined);
     const abort = () => finish(new FileError('INVALID_UPLOAD'));
-    const timer = setTimeout(() => finish(new FileError('SERVICE_UNAVAILABLE')), 10000);
+    const timer = setTimeout(() => finish(new FileError('SERVICE_UNAVAILABLE')), totalMs);
     request.on('data', data); request.once('end', end); request.once('aborted', abort); request.once('error', abort);
   });
 }
@@ -122,7 +123,8 @@ export function createFilesHandler(service: FileService, options: FilesHandlerOp
           if (!/^\d+$/.test(request.headers['content-length'] ?? '') || Number(request.headers['content-length']) !== expectedBytes) {
             throw new FileError('INVALID_UPLOAD');
           }
-          const bytes = await body(request, expectedBytes, expectedBytes, idleMs);
+          // The total deadline follows the declared size (F8); the idle window still cuts a sender that goes quiet.
+          const bytes = await body(request, expectedBytes, expectedBytes, idleMs, uploadDeadlineMs(expectedBytes));
           json(response, 200, await service.receive(request, id, bytes));
         } else if (method === 'GET' && !match[2]) {
           if (url.search) throw new FileError('INVALID_UPLOAD');

@@ -286,6 +286,8 @@
     "tests/classroom-query-forwarding.test.mjs",
     "tests/classroom-body-forwarding.test.mjs",
     "tests/classroom-attempt-forwarding.test.mjs",
+    "tests/file-proxy-upload-deadline.test.mjs",
+    "tests/study-upload-deadline.test.mjs",
     "tests/agenda-recurrence.test.mjs",
     "tests/agenda-reference-selection.test.mjs",
     "tests/agenda-regressions.test.mjs",

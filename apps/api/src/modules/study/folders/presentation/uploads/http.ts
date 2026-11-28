@@ -1,5 +1,6 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
 import type { StudyUploadOperations } from '../../application/read-ports.ts';
+import { uploadDeadlineMs } from '../../../../../../../../src/core/domain/documents/document-formats.ts';
 
 const STUDY_UPLOAD_LIMIT=50_000_000;
 const bodyError=(code:string)=>Object.assign(new Error(code),{code});
@@ -54,7 +55,7 @@ export function installStudyUploads(app:{use(path:string,handler:(request:Incomi
         response.setHeader('Connection','close');
         const {expectedBytes}=await files.authorizeReceive(request,folder!,id),declared=request.headers['content-length'];
         if(request.headers['transfer-encoding']||!/^\d+$/u.test(declared??'')||Number(declared)!==expectedBytes||expectedBytes<1||expectedBytes>STUDY_UPLOAD_LIMIT)throw {code:'INVALID_UPLOAD'};
-        studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,expectedBytes,120_000)));
+        studyJson(response,200,await files.receive(request,folder!,id,await readStudyBody(request,expectedBytes,uploadDeadlineMs(expectedBytes))));
       }
       else if(id&&!file&&method==='GET')studyJson(response,200,await files.status(request,folder!,id));
       else if(id&&file&&method==='GET') {

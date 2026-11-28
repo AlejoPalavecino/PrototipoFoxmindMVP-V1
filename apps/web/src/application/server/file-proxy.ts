@@ -1,5 +1,5 @@
 import { clientAddressHeaders } from './client-address.ts';
-import { FILE_MAX_BYTES } from '../../../../../src/core/domain/documents/document-formats.ts';
+import { FILE_MAX_BYTES, uploadDeadlineMs } from '../../../../../src/core/domain/documents/document-formats.ts';
 import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
@@ -129,8 +129,10 @@ export async function proxyFileRequest(request: IncomingMessage, response: Serve
     };
     const disconnect = () => { finish(); };
     const unavailable = () => { if (!settled) { fail(response, 503, 'SERVICE_UNAVAILABLE'); finish(); } };
-    // Includes upload, validation/scan, upstream response and downstream delivery.
-    const deadline = setTimeout(unavailable, 60_000);
+    // Includes upload, validation/scan, upstream response and downstream delivery; a binary upload adds
+    // its size-based receive window (F8).
+    const receiveWindow = method === 'PUT' ? uploadDeadlineMs(length ?? 0) + 5_000 : 0;
+    const deadline = setTimeout(unavailable, 60_000 + receiveWindow);
     request.once('aborted', disconnect); request.once('error', disconnect);
     response.once('close', disconnect); response.once('finish', finish);
     upstream.on('error', unavailable);
@@ -168,7 +170,8 @@ export async function proxyFileRequest(request: IncomingMessage, response: Serve
     if (method === 'PUT') {
       uploadCounter = byteCounter(binaryLimit, length);
       uploadCounter.on('error', () => { if (!settled) { reject(400, 'INVALID_UPLOAD'); finish(); } });
-      receiveTimer = setTimeout(unavailable, 10_000);
+      // Same size-based rule as the API plus its idle window, so the API decides first (F8).
+      receiveTimer = setTimeout(unavailable, receiveWindow);
       uploadCounter.once('end', () => clearTimeout(receiveTimer));
       request.pipe(uploadCounter).pipe(upstream);
     } else upstream.end(metadata);

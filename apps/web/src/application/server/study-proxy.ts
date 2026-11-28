@@ -1,5 +1,5 @@
 import { clientAddressHeaders } from './client-address.ts';
-import { DOCUMENT_MAX_BYTES, FILE_MAX_BYTES } from '../../../../../src/core/domain/documents/document-formats.ts';
+import { DOCUMENT_MAX_BYTES, FILE_MAX_BYTES, uploadDeadlineMs } from '../../../../../src/core/domain/documents/document-formats.ts';
 import { apiDestination, ProxyRejection, rejectRequest, relayHeaders, sendError } from './transport/api-transport.ts';
 import { performance } from 'node:perf_hooks';
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
@@ -138,7 +138,8 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
       if (!request.complete) { if (response.writableFinished) request.destroy(); else response.once('finish', () => request.destroy()); }
       resolve(); };
     const unavailable = () => { if (!settled) fail(response, 503, 'SERVICE_UNAVAILABLE'); finish(); };
-    const timer = setTimeout(unavailable, selected.binary || selected.upload ? 65000 : 150000);
+    // An upload adds its size-based receive window, plus the API's idle window so the API decides first (F8).
+    const timer = setTimeout(unavailable, stream ? 65_000 + uploadDeadlineMs(stream.expected) + 5_000 : selected.binary ? 65000 : 150000);
     request.once('aborted', finish); response.once('close', finish); upstream.once('error', unavailable);
     const privateImage = selected.binary && selected.url.pathname.startsWith(`${root}/`) && selected.url.pathname.includes('/images/');
     upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary, privateImage).then(finish, unavailable); });

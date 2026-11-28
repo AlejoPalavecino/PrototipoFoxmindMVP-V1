@@ -107,12 +107,13 @@ Cortes en el orden de las tareas. Cada uno se verifica con `npx tsc --noEmit -p 
 - **Blocker:** none
 
 ### TASK-008 — Plazo de subida en la API (F8)
-- **State:** BLOCKED
+- **State:** DONE
 - **Depends on:** none
-- **Owner:** orchestrator
+- **Owner:** orchestrator (la sesión coordinadora, el 2026-11-28, tras integrarse F1 y cerrarse la sesión lateral de este tablero con la PR #30)
 - **Requirements:** REQ-008
-- **Verification:** prueba del plazo de lectura del cuerpo en apps/api, a definir con F1
-- **Acceptance:** Se define junto con el proxy de F1.
-- **Scope:** ["apps/api/src/modules/files/uploads/presentation/http.ts"]
-- **Evidence:** none
-- **Blocker:** Diferido por decisión del usuario hasta integrar F1, en coordinación con la sesión principal.
+- **Verification:** prueba del plazo de lectura del cuerpo en apps/api y en los proxies, con temporizadores simulados
+- **Acceptance:** Una subida que sigue enviando datos no se corta por un plazo fijo: el total sigue el tamaño declarado a 100 kB/s (mínimo 10 s) y se conserva el corte por 5 s de inactividad, en la API y en los proxies de archivos y de estudio. Decisión del usuario: «inactividad más tope».
+- **Scope:** ["src/core/domain/documents/document-formats.ts","apps/api/src/modules/files/uploads/presentation/http.ts","apps/api/src/modules/study/folders/presentation/uploads/http.ts","apps/api/src/bootstrap/chat-attachment-transport.ts","apps/web/src/application/server/file-proxy.ts","apps/web/src/application/server/study-proxy.ts","apps/api/src/modules/files/uploads/application/receive-http.test.mjs","tests/file-proxy-upload-deadline.test.mjs","tests/study-upload-deadline.test.mjs","scripts/ci-suites.mjs","scripts/complete-suite-inventory.json","scripts/complete-suite-routes.json","docs/engineering/files/README.md","docs/engineering/study/README.md"]
+- **Evidence:** {"command":"node --test receive-http, file-proxy-upload-deadline, study-upload-deadline; run-complete-suite fast, owned-db, wrappers con Node 24.22.3 sobre main cfaaaa5","result":"RED: 503 a los 10 s (archivos, API y proxy), a los 15 s (adjuntos) y a los 120 s (carpetas); GREEN: subidas que siguen enviando dentro del plazo según su tamaño se completan, la que lo supera se corta; fast 3285/3285, owned-db 972/972, wrappers 19/19","candidate":"sha256:44c8f2f2a8036c1c0a2fc7fb8996993bb5394af195967be8cf85fc6239e54501 (git diff --binary HEAD -- apps tests scripts src)"}
+- **Blocker:** none
+- **Log:** [registro de la sesión coordinadora](../../docs/work-log/2026-11-28-root-audit-upload-deadline.md)

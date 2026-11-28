@@ -126,3 +126,56 @@ test('a body that stops sending data is cut after the idle window and frees its 
   await new Promise(resolve => setImmediate(resolve));
   assert.ok(gate.acquire('b'), 'the stalled transfer released its slot');
 });
+
+// F8: the total upload deadline follows the declared size at a minimum average rate, not a fixed 10 s.
+function sizedFixture(service, size) {
+  const request = new PassThrough();
+  Object.assign(request, { method: 'PUT', url: `/files/${id}/content`, complete: true,
+    headers: { 'content-type': 'application/octet-stream', 'content-length': String(size) } });
+  const response = new EventEmitter(), headers = new Map();
+  const finished = new Promise(resolve => {
+    Object.assign(response, { destroyed: false, headersSent: false,
+      setHeader: (name, value) => headers.set(name, value), getHeader: name => headers.get(name),
+      end: value => { response.body = JSON.parse(value); response.emit('finish'); resolve(); } });
+  });
+  createFilesHandler(service)(request, response, () => assert.fail('unexpected next'));
+  return { request, response, finished };
+}
+const flush = () => new Promise(resolve => setImmediate(resolve));
+
+test('an upload that keeps sending data past 10 s completes within its size-based deadline', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const size = 2_000_000, received = [];
+  const { request, response, finished } = sizedFixture({
+    async authorizeReceive() { return { expectedBytes: size }; },
+    async receive(_request, fileId, bytes) { received.push(bytes.length); return { id: fileId }; },
+  }, size);
+  await flush();
+  // Four 500 kB chunks, one every 4 s: never idle for 5 s, 16 s in total, under the 20 s allowed for 2 MB.
+  for (let chunk = 0; chunk < 4; chunk++) {
+    t.mock.timers.tick(4000); await flush();
+    if (chunk === 3) request.end(Buffer.alloc(500_000)); else request.write(Buffer.alloc(500_000));
+    await flush();
+  }
+  await finished;
+  assert.equal(response.statusCode, 200, JSON.stringify(response.body));
+  assert.deepEqual(received, [size]);
+});
+
+test('an upload that is still sending when its size-based deadline expires is cut', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const size = 2_400_000;
+  const { request, response, finished } = sizedFixture({
+    async authorizeReceive() { return { expectedBytes: size }; },
+    async receive() { assert.fail('an expired upload must not be stored'); },
+  }, size);
+  await flush();
+  // 100 kB every 4 s cannot finish 2.4 MB within the 24 s it is allowed.
+  for (let elapsed = 0; elapsed < 28_000 && !response.statusCode; elapsed += 4000) {
+    t.mock.timers.tick(4000); await flush();
+    if (!response.statusCode) { request.write(Buffer.alloc(100_000)); await flush(); }
+  }
+  await finished;
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.body.error.code, 'SERVICE_UNAVAILABLE');
+});

@@ -1,6 +1,12 @@
 export const DOCUMENT_MAX_BYTES = 20_000_000;
 /** Largest private file the API stores (decimal 50 MB); proxies must not admit more. */
 export const FILE_MAX_BYTES = 50_000_000;
+/** Slowest average rate an upload may keep (100 kB/s); a sender that goes quiet is cut sooner by the idle window. */
+export const UPLOAD_MIN_BYTES_PER_SECOND = 100_000;
+/** Total time a binary upload of `bytes` may take: never under 10 s, 500 s for FILE_MAX_BYTES (F8). */
+export function uploadDeadlineMs(bytes: number): number {
+  return Math.max(10_000, Math.ceil(bytes / UPLOAD_MIN_BYTES_PER_SECOND * 1000));
+}
 
 export const documentMimeTypes = {
   pdf: 'application/pdf',
